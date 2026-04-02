@@ -8,129 +8,218 @@
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=JetBrains+Mono:wght@400;500&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <style>
+/* ── EASY 3D PRINT: светлая тема, зелёный акцент ── */
 :root{
-  --navy:#1C2B4A;--blue:#185FA5;--blue-l:#E6F1FB;
-  --teal:#0D9488;--green:#16A34A;--amber:#D97706;
-  --purple:#7C3AED;--red:#DC2626;
-  --gray:#64748B;--muted:#94A3B8;--dark:#1E293B;
-  --border:#E2E8F0;--bg:#F1F5F9;--white:#fff;
-  --fh:'Unbounded',sans-serif;--fb:'Golos Text',sans-serif;--fm:'JetBrains Mono',monospace;
+  --bg:#F5F7FA;
+  --white:#FFFFFF;
+  --navy:#1A2B3C;
+  --border:#DDE3EC;
+  --border2:#C8D2DF;
+  --text:#1A2B3C;
+  --text2:#4A6070;
+  --muted:#8A9DB0;
+  --green:#2ECC71;
+  --green2:#27AE60;
+  --green-bg:#E8FAF1;
+  --green-border:#A8E6C3;
+  --c1:#3B82F6;
+  --c2:#2ECC71;
+  --c3:#06B6D4;
+  --c4:#F59E0B;
+  --c5:#8B5CF6;
+  --red:#EF4444;--amber:#F59E0B;
+  --fh:'Unbounded',sans-serif;
+  --fb:'Golos Text',sans-serif;
+  --fm:'JetBrains Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;}
-body{font-family:var(--fb);background:var(--bg);color:var(--dark);font-size:13px;display:flex;flex-direction:column;}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px;display:flex;flex-direction:column;}
 
+/* ── HEADER ── */
 header{
   background:var(--navy);height:44px;display:flex;align-items:center;
   justify-content:space-between;padding:0 16px;flex-shrink:0;
 }
 .logo{font-family:var(--fh);font-size:11px;color:#fff;display:flex;align-items:center;gap:8px;}
-.logo-dot{width:7px;height:7px;background:var(--teal);border-radius:50%;}
-.hbadge{font-family:var(--fm);font-size:10px;color:var(--muted);background:rgba(255,255,255,.07);padding:3px 10px;border-radius:20px;}
+.logo-dot{width:8px;height:8px;background:var(--green);border-radius:50%;}
+.hbadge{font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.08);padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.12);}
 
-main{flex:1;display:grid;grid-template-columns:252px 1fr 272px;gap:8px;padding:8px;overflow:hidden;min-height:0;}
+/* ── TABS ── */
+.tab-bar{
+  background:var(--white);height:38px;display:flex;align-items:center;gap:2px;
+  padding:0 16px;border-bottom:1.5px solid var(--border);flex-shrink:0;
+}
+.tab{
+  font-family:var(--fb);font-size:12px;font-weight:500;padding:0 13px;height:38px;
+  display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);
+  border-bottom:2px solid transparent;margin-bottom:-1.5px;transition:all .15s;white-space:nowrap;
+}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--green2);border-bottom-color:var(--green);}
+.tab-soon{font-size:9px;font-family:var(--fm);padding:1px 5px;border-radius:10px;background:var(--border);color:var(--muted);}
+
+/* ── LAYOUT ── */
+main{flex:1;display:grid;grid-template-columns:236px 1fr 316px;gap:8px;padding:8px;overflow:hidden;min-height:0;}
 .col{display:flex;flex-direction:column;gap:7px;overflow:hidden;min-height:0;}
 
+/* ── CARD ── */
 .card{background:var(--white);border-radius:10px;border:1px solid var(--border);overflow:hidden;flex-shrink:0;}
-.ch{padding:6px 11px;font-family:var(--fm);font-size:9px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:#FAFBFD;display:flex;align-items:center;gap:6px;}
+.card.grow{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.ch{
+  padding:6px 11px;font-family:var(--fm);font-size:9px;font-weight:500;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--border);background:#FAFBFD;
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
+}
 .cdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .cb{padding:9px 11px;}
 
-/* LOC */
+/* ── LEFT: INPUTS ── */
 .loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:7px;}
-.lb{padding:6px 7px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;text-align:left;transition:all .12s;}
-.lb:hover,.lb.active{border-color:var(--blue);background:var(--blue-l);}
+.lb{
+  padding:6px 7px;border-radius:7px;border:1.5px solid var(--border);
+  background:var(--white);cursor:pointer;text-align:left;transition:all .12s;
+}
+.lb:hover,.lb.active{border-color:var(--green);background:var(--green-bg);}
 .lb-n{font-family:var(--fh);font-size:9px;font-weight:600;color:var(--navy);display:block;}
 .lb-s{font-family:var(--fm);font-size:9px;color:var(--muted);display:block;margin-top:1px;}
-.lb-c{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--blue);display:block;margin-top:2px;}
-.lb.active .lb-n,.lb.active .lb-c{color:var(--blue);}
+.lb-c{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--green2);display:block;margin-top:2px;}
+.lb.active .lb-n{color:var(--green2);}
 
-/* FIELDS */
 .fld{margin-bottom:6px;}.fld:last-child{margin-bottom:0;}
 .fld label{display:flex;justify-content:space-between;margin-bottom:3px;}
-.fld label span{font-family:var(--fm);font-size:9px;color:var(--gray);}
+.fld label span{font-family:var(--fm);font-size:9px;color:var(--text2);}
 .fld label em{font-family:var(--fm);font-size:9px;color:var(--muted);font-style:normal;}
-input[type=number]{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-family:var(--fm);font-size:12px;color:var(--dark);background:var(--white);transition:border-color .12s;-moz-appearance:textfield;}
+input[type=number]{
+  width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;
+  font-family:var(--fm);font-size:12px;color:var(--text);background:var(--white);
+  transition:border-color .12s;-moz-appearance:textfield;
+}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
-input[type=number]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,165,.1);}
+input[type=number]:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(46,204,113,.12);}
 
-/* WEIGHTS */
 .wr{display:flex;align-items:center;gap:6px;margin-bottom:4px;}.wr:last-child{margin-bottom:0;}
 .wdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.wn{font-size:11px;color:var(--dark);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.wi{width:44px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-family:var(--fm);font-size:11px;text-align:right;}
-.wi:focus{outline:none;border-color:var(--blue);}
-.wtot{display:flex;justify-content:space-between;padding-top:5px;border-top:1px solid var(--border);margin-top:4px;font-family:var(--fm);font-size:10px;}
-.wok{color:var(--green);font-weight:600;}.werr{color:var(--red);font-weight:600;}
+.wn{font-size:11px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wi{width:44px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-family:var(--fm);font-size:11px;text-align:right;color:var(--text);background:var(--white);}
+.wi:focus{outline:none;border-color:var(--green);}
+.wtot{display:flex;justify-content:space-between;padding-top:5px;border-top:1px solid var(--border);margin-top:4px;font-family:var(--fm);font-size:10px;color:var(--muted);}
+.wok{color:var(--green2);font-weight:600;}.werr{color:var(--red);font-weight:600;}
 
-/* CENTER */
-.bubble-card{flex:1;min-height:0;position:relative;}
-#bsvg{width:100%;height:100%;display:block;}
+/* ── CENTER: RESULTS ── */
+.result-hero{
+  background:var(--navy);border-radius:10px;padding:14px 15px 13px;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.result-hero::after{
+  content:'';position:absolute;right:-20px;bottom:-20px;width:110px;height:110px;border-radius:50%;
+  background:radial-gradient(circle,rgba(46,204,113,.18) 0%,transparent 70%);pointer-events:none;
+}
+.rhl{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px;}
+.rha{font-family:var(--fh);font-size:30px;font-weight:700;color:var(--green);letter-spacing:-.03em;line-height:1;}
+.rhs{font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.4);margin-top:4px;}
+.rh-row{display:flex;gap:5px;margin-top:10px;}
+.rh-pill{font-size:10px;font-family:var(--fm);padding:3px 9px;border-radius:20px;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55);}
+.rh-pill strong{color:#fff;}
 
-/* SLIDERS */
-.preset-row{display:flex;gap:4px;flex-wrap:wrap;padding:6px 11px;border-bottom:1px solid var(--border);}
-.pbt{font-size:10px;font-family:var(--fm);padding:3px 8px;border-radius:20px;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--gray);transition:all .1s;}
-.pbt:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.bkg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;flex-shrink:0;}
+.bkc{background:var(--bg);border-radius:8px;padding:8px 10px;border:1px solid var(--border);}
+.bkl{font-family:var(--fm);font-size:9px;color:var(--muted);display:block;margin-bottom:3px;}
+.bkv{font-family:var(--fh);font-size:13px;font-weight:600;color:var(--text);}
+.bks{font-size:10px;color:var(--muted);margin-top:2px;}
 
-.kr{display:grid;grid-template-columns:20px 1fr 50px 52px;align-items:center;gap:7px;padding:5px 11px;border-bottom:1px solid var(--border);}
-.kr:last-child{border-bottom:none;}
-.knum{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:8px;font-weight:700;color:#fff;flex-shrink:0;}
-.ksw{display:flex;flex-direction:column;gap:2px;}
-.klbl{font-size:11px;font-weight:600;}
-input[type=range]{width:100%;height:3px;-webkit-appearance:none;border-radius:2px;outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--white);border:2px solid currentColor;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);}
-.kval{font-family:var(--fm);font-size:12px;font-weight:500;text-align:right;}
-.kbdg{font-size:9px;font-family:var(--fm);padding:2px 5px;border-radius:20px;text-align:center;font-weight:500;white-space:nowrap;}
-
-/* RIGHT */
-.rh{background:var(--navy);border-radius:10px;padding:13px 13px 11px;position:relative;overflow:hidden;flex-shrink:0;}
-.rh::after{content:'';position:absolute;right:-25px;bottom:-25px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(14,148,132,.22) 0%,transparent 70%);pointer-events:none;}
-.rhl{font-family:var(--fm);font-size:9px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px;}
-.rha{font-family:var(--fh);font-size:26px;font-weight:700;color:#fff;letter-spacing:-.03em;line-height:1;}
-.rhs{font-family:var(--fm);font-size:10px;color:var(--muted);margin-top:3px;}
-.rhp{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap;}
-.rhpill{font-size:10px;font-family:var(--fm);padding:2px 8px;border-radius:20px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);}
-.rhpill strong{color:#fff;}
-
-.bkg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;flex-shrink:0;}
-.bkc{background:var(--bg);border-radius:8px;padding:7px 9px;border:1px solid var(--border);}
-.bkl{font-family:var(--fm);font-size:9px;color:var(--muted);display:block;margin-bottom:2px;}
-.bkv{font-family:var(--fh);font-size:12px;font-weight:600;color:var(--dark);}
-.bks{font-size:10px;color:var(--muted);margin-top:1px;}
-
-.ri{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:7px;min-height:0;}
-.ri::-webkit-scrollbar{width:3px;}
-.ri::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-
+/* KPI contrib table */
 .kt{width:100%;border-collapse:collapse;}
-.kt th{font-family:var(--fm);font-size:9px;color:var(--muted);text-align:left;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:500;letter-spacing:.05em;text-transform:uppercase;}
+.kt th{font-family:var(--fm);font-size:9px;color:var(--muted);text-align:left;padding:5px 10px;border-bottom:1px solid var(--border);font-weight:500;letter-spacing:.05em;text-transform:uppercase;}
 .kt th:last-child{text-align:right;}
-.kt td{padding:5px 8px;font-size:11px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.kt td{padding:6px 10px;font-size:11px;border-bottom:1px solid var(--border);vertical-align:middle;}
 .kt tr:last-child td{border-bottom:none;}
-.kt tr:hover td{background:#FAFBFD;}
-.ktm{font-family:var(--fm);font-size:11px;}
-.ktc{font-family:var(--fm);font-size:11px;text-align:right;color:var(--gray);}
-.mb{width:44px;height:3px;background:var(--border);border-radius:2px;display:inline-block;vertical-align:middle;margin-left:4px;overflow:hidden;}
+.kt tr:hover td{background:var(--bg);}
+.ktm{font-family:var(--fm);font-size:11px;color:var(--text);}
+.ktc{font-family:var(--fm);font-size:11px;text-align:right;color:var(--text2);}
+.mb{width:50px;height:3px;background:var(--border);border-radius:2px;display:inline-block;vertical-align:middle;margin-left:5px;overflow:hidden;}
 .mf{height:100%;border-radius:2px;}
 
-.fml{font-family:var(--fm);font-size:10px;color:var(--muted);line-height:1.7;padding:8px 11px;}
-.fml strong{color:var(--dark);}
+/* formula */
+.fml{font-family:var(--fm);font-size:9px;color:var(--muted);line-height:1.7;padding:8px 11px;border-top:1px solid var(--border);}
+.fml strong{color:var(--text2);}
+
+/* ── RIGHT: LEGEND + SLIDERS + BUBBLE ── */
+/* KPI block: legend item + slider merged */
+.kpi-block{
+  border-bottom:1px solid var(--border);
+  padding:8px 11px;
+}
+.kpi-block:last-child{border-bottom:none;}
+
+.kb-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;}
+.kb-num{
+  width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--fh);font-size:8px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;
+}
+.kb-info{flex:1;min-width:0;}
+.kb-name{font-size:11px;font-weight:600;margin-bottom:2px;}
+.kb-desc{font-size:10px;color:var(--text2);line-height:1.45;}
+
+.kb-slider-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
+.kb-formula{font-family:var(--fm);font-size:9px;color:var(--muted);padding:1px 5px;border-radius:4px;background:var(--bg);border:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
+input[type=range]{flex:1;height:3px;-webkit-appearance:none;border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--white);border:2px solid currentColor;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.kb-val{font-family:var(--fm);font-size:12px;font-weight:500;min-width:36px;text-align:right;}
+.kb-badge{font-size:9px;font-family:var(--fm);padding:2px 5px;border-radius:20px;text-align:center;font-weight:500;white-space:nowrap;min-width:50px;}
+
+/* bubble bottom-right */
+.bubble-bottom{display:flex;gap:8px;align-items:stretch;flex-shrink:0;}
+.bubble-card{
+  background:var(--white);border-radius:10px;border:1px solid var(--border);
+  overflow:hidden;flex-shrink:0;
+}
+#bsvg{display:block;}
+
+/* presets */
+.preset-row{display:flex;gap:4px;flex-wrap:wrap;padding:6px 11px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.pbt{font-size:10px;font-family:var(--fm);padding:3px 9px;border-radius:20px;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--text2);transition:all .1s;}
+.pbt:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* score total card in right col */
+.score-display{
+  background:var(--green-bg);border:1px solid var(--green-border);border-radius:10px;
+  padding:10px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+}
+.sd-label{font-family:var(--fm);font-size:9px;color:var(--green2);letter-spacing:.06em;text-transform:uppercase;}
+.sd-val{font-family:var(--fh);font-size:20px;font-weight:700;color:var(--green2);}
+.sd-sub{font-family:var(--fm);font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* scrollable */
+.scroll-y{overflow-y:auto;flex:1;min-height:0;}
+.scroll-y::-webkit-scrollbar{width:3px;}
+.scroll-y::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo"><span class="logo-dot"></span>Easy 3D Print · КПИ-калькулятор</div>
-  <div class="hbadge">v0.2 · апрель 2026</div>
+  <div class="logo"><span class="logo-dot"></span>Easy 3D Print · КПИ-система</div>
+  <div class="hbadge">v0.3 · апрель 2026</div>
 </header>
 
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab(0)">Рук. локации</div>
+  <div class="tab" onclick="switchTab(1)">Операторы <span class="tab-soon">скоро</span></div>
+  <div class="tab" onclick="switchTab(2)">Техники <span class="tab-soon">скоро</span></div>
+  <div class="tab" onclick="switchTab(3)">ОТК <span class="tab-soon">скоро</span></div>
+  <div class="tab" onclick="switchTab(4)">Боли <span class="tab-soon">скоро</span></div>
+</div>
+
+<div id="tab0" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
 <main>
 
-<!-- ═══ LEFT ════════════════════════════════════════════ -->
+<!-- ═══ COL 1: ВВОДНЫЕ ═══════════════════════════════ -->
 <div class="col">
 
   <div class="card">
-    <div class="ch"><span class="cdot" style="background:var(--blue);"></span>Локация</div>
+    <div class="ch"><span class="cdot" style="background:var(--c1);"></span>Локация</div>
     <div class="cb">
       <div class="loc-grid" id="locGrid"></div>
       <div class="fld">
@@ -141,21 +230,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
   </div>
 
   <div class="card">
-    <div class="ch"><span class="cdot" style="background:var(--teal);"></span>Компенсация</div>
+    <div class="ch"><span class="cdot" style="background:var(--green);"></span>Компенсация</div>
     <div class="cb">
-      <div class="fld"><label><span>База (грн/мес)</span></label><input type="number" id="base" value="30000" step="1000" min="0"></div>
-      <div class="fld"><label><span>Бонусный пул (грн)</span></label><input type="number" id="pool" value="20000" step="1000" min="0"></div>
-      <div class="fld"><label><span>Бонус за перевып.</span><em>&gt;100%</em></label><input type="number" id="overPool" value="0" step="1000" min="0"></div>
-      <div class="fld"><label><span>Пол выплаты (грн)</span><em>гарантия</em></label><input type="number" id="floor" value="0" step="500" min="0"></div>
+      <div class="fld"><label><span>База (грн/мес)</span></label>
+        <input type="number" id="base" value="30000" step="1000" min="0"></div>
+      <div class="fld"><label><span>Бонусный пул (грн)</span></label>
+        <input type="number" id="pool" value="20000" step="1000" min="0"></div>
+      <div class="fld"><label><span>Бонус за перевып.</span><em>&gt;100%</em></label>
+        <input type="number" id="overPool" value="0" step="1000" min="0"></div>
+      <div class="fld"><label><span>Пол выплаты (грн)</span><em>гарантия</em></label>
+        <input type="number" id="floor" value="0" step="500" min="0"></div>
     </div>
   </div>
 
-  <div class="card" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-    <div class="ch"><span class="cdot" style="background:var(--amber);"></span>Веса КПИ</div>
+  <div class="card grow">
+    <div class="ch"><span class="cdot" style="background:var(--c4);"></span>Веса КПИ</div>
     <div class="cb" style="flex:1;">
       <div id="weightGrid"></div>
       <div class="wtot">
-        <span style="color:var(--gray);">Сумма</span>
+        <span>Сумма</span>
         <span id="wtot" class="wok">100%</span>
       </div>
     </div>
@@ -163,72 +256,136 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 
 </div>
 
-<!-- ═══ CENTER ══════════════════════════════════════════ -->
+<!-- ═══ COL 2: РАСЧЁТЫ ═══════════════════════════════ -->
 <div class="col">
 
-  <div class="card bubble-card">
-    <svg id="bsvg"></svg>
-  </div>
-
-  <div class="card" style="flex-shrink:0;">
-    <div class="preset-row" id="presets"></div>
-    <div id="kpiList"></div>
-  </div>
-
-</div>
-
-<!-- ═══ RIGHT ═══════════════════════════════════════════ -->
-<div class="col">
-
-  <div class="rh">
+  <div class="result-hero">
     <div class="rhl">итого к выплате · брутто</div>
     <div class="rha" id="resTotal">—</div>
     <div class="rhs" id="resSub">—</div>
-    <div class="rhp">
-      <div class="rhpill">База: <strong id="resBase">—</strong></div>
-      <div class="rhpill">Бонус: <strong id="resBonus">—</strong></div>
+    <div class="rh-row">
+      <div class="rh-pill">База: <strong id="resBase">—</strong></div>
+      <div class="rh-pill">Бонус: <strong id="resBonus">—</strong></div>
     </div>
   </div>
 
   <div class="bkg">
-    <div class="bkc"><span class="bkl">База × коэфф.</span><div class="bkv" id="bkBase">—</div><div class="bks" id="bkBaseSub">—</div></div>
-    <div class="bkc"><span class="bkl">Бонус</span><div class="bkv" id="bkBonus" style="color:var(--teal);">—</div><div class="bks" id="bkBonusSub">—</div></div>
-    <div class="bkc"><span class="bkl">КПИ-score</span><div class="bkv" id="bkScore">—</div><div class="bks" id="bkScoreSub">—</div></div>
+    <div class="bkc">
+      <span class="bkl">База × коэфф.</span>
+      <div class="bkv" id="bkBase">—</div>
+      <div class="bks" id="bkBaseSub">—</div>
+    </div>
+    <div class="bkc">
+      <span class="bkl">Бонус</span>
+      <div class="bkv" id="bkBonus" style="color:var(--green2);">—</div>
+      <div class="bks" id="bkBonusSub">—</div>
+    </div>
+    <div class="bkc">
+      <span class="bkl">КПИ-score</span>
+      <div class="bkv" id="bkScore">—</div>
+      <div class="bks" id="bkScoreSub">—</div>
+    </div>
   </div>
 
-  <div class="ri">
-    <div class="card" style="overflow:hidden;">
-      <div class="ch"><span class="cdot" style="background:var(--gray);"></span>Вклад КПИ в бонус</div>
+  <div class="card grow" style="overflow:hidden;">
+    <div class="ch"><span class="cdot" style="background:var(--muted);"></span>Вклад КПИ в бонус</div>
+    <div style="overflow-y:auto;flex:1;">
       <table class="kt">
         <thead><tr><th>КПИ</th><th>Score</th><th>Вес</th><th>Вклад ₴</th></tr></thead>
         <tbody id="kpiTb"></tbody>
       </table>
     </div>
-
-    <div class="card"><div class="fml">
+    <div class="fml">
       <strong>Итого</strong> = База × Коэфф. + Пул × КПИ-score<br>
-      КПИ-score = Σ(score_i × вес_i / Σвесов)<br>
-      score = MIN(факт/цель, cap) · К2 cap=1.0 · К5 cap=1.0
-    </div></div>
+      КПИ-score = Σ(score_i × вес_i / Σвесов) · К2,К5: cap=1.0 · К1,К3,К4: cap=1.2
+    </div>
   </div>
 
 </div>
+
+<!-- ═══ COL 3: ЛЕГЕНДА + ПОЛЗУНКИ + БАБЛ ═══════════ -->
+<div class="col">
+
+  <div class="preset-row card" style="border-radius:10px;">
+    <div id="presets"></div>
+  </div>
+
+  <div class="card grow" style="overflow:hidden;">
+    <div class="ch"><span class="cdot" style="background:var(--navy);"></span>КПИ — описание и значение</div>
+    <div class="scroll-y" id="kpiBlocks"></div>
+  </div>
+
+  <!-- Bubble + score side by side -->
+  <div class="bubble-bottom">
+    <div class="bubble-card">
+      <svg id="bsvg" width="178" height="178"></svg>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+      <div class="score-display" style="flex:1;">
+        <div>
+          <div class="sd-label">КПИ-score</div>
+          <div class="sd-val" id="sdScore">—</div>
+          <div class="sd-sub" id="sdSub">—</div>
+        </div>
+      </div>
+      <div class="card" style="padding:8px 10px;">
+        <div style="font-family:var(--fm);font-size:9px;color:var(--muted);line-height:1.6;">
+          Размер пузыря =<br>вес × score КПИ
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 </main>
+</div>
+
+<!-- Coming soon tabs -->
+<div id="tab1" style="display:none;flex:1;align-items:center;justify-content:center;color:var(--muted);font-family:var(--fm);font-size:12px;">Операторы — в разработке</div>
+<div id="tab2" style="display:none;flex:1;align-items:center;justify-content:center;color:var(--muted);font-family:var(--fm);font-size:12px;">Техники — в разработке</div>
+<div id="tab3" style="display:none;flex:1;align-items:center;justify-content:center;color:var(--muted);font-family:var(--fm);font-size:12px;">ОТК — в разработке</div>
+<div id="tab4" style="display:none;flex:1;align-items:center;justify-content:center;color:var(--muted);font-family:var(--fm);font-size:12px;">Карта болей — в разработке</div>
 
 <script>
+// ── TABS ─────────────────────────────────────────────
+function switchTab(i){
+  [0,1,2,3,4].forEach(j=>{
+    const t=document.getElementById('tab'+j);
+    if(!t)return;
+    const isMain=j===0;
+    t.style.display=j===i?(isMain?'flex':'flex'):'none';
+    if(isMain&&j===i)t.style.flexDirection='column';
+  });
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+}
+
+// ── DATA ─────────────────────────────────────────────
 const LOCS=[
   {name:'Лок 1',sub:'219 машин',coef:1.00},
   {name:'Лок 2',sub:'262 Mini', coef:1.15},
   {name:'Лок 3/4',sub:'456 маш.',coef:1.40},
   {name:'Лок 5',sub:'1132 P1S', coef:2.00},
 ];
+
 const KPI=[
-  {n:1,name:'Выполнение плана',sh:'План',   unit:'%',min:0,  max:130,step:1,  def:100,hex:'#185FA5',scoreOf:v=>Math.min(v/100,1.2)},
-  {n:2,name:'Качество (% годной)',sh:'Качество',unit:'%',min:70, max:100,step:.5, def:90, hex:'#0D9488',scoreOf:v=>Math.min(v/90,1.0)},
-  {n:3,name:'Эфф. персонала',  sh:'Персонал',unit:'%',min:0,  max:130,step:1,  def:95, hex:'#16A34A',scoreOf:v=>Math.min(v/100,1.2)},
-  {n:4,name:'Загрузка оборуд.',sh:'Загрузка',unit:'%',min:0,  max:120,step:1,  def:85, hex:'#D97706',scoreOf:v=>Math.min(v/85,1.2)},
-  {n:5,name:'Lean-культура',   sh:'Lean',   unit:'%',min:0,  max:100,step:5,  def:70, hex:'#7C3AED',scoreOf:v=>Math.min(v/100,1.0)},
+  {n:1,name:'Выполнение плана',sh:'План',unit:'%',min:0,max:130,step:1,def:100,hex:'#3B82F6',
+   desc:'Факт / план по доступным машино-часам. Не теоретический максимум парка — только то время, когда машины реально доступны. Мотивирует минимизировать простои и обеспечивать запуск оборудования.',
+   formula:'MIN(факт/план, 1.2)',scoreOf:v=>Math.min(v/100,1.2)},
+  {n:2,name:'Качество (% годной)',sh:'Качество',unit:'%',min:70,max:100,step:.5,def:90,hex:'#2ECC71',
+   desc:'Доля годной продукции от объёма печати. Цель — ≥90%. Данные из системы (скрап трекается автоматически). Стимулирует следить за качеством пластика, правильным слайсингом и своевременным выявлением брака.',
+   formula:'MIN(факт% / 90%, 1.0)',scoreOf:v=>Math.min(v/90,1.0)},
+  {n:3,name:'Эфф. персонала',sh:'Персонал',unit:'%',min:0,max:130,step:1,def:95,hex:'#06B6D4',
+   desc:'Принтеров на оператора в смене (среднее день+ночь). Цель индивидуальна для каждой локации. Мотивирует держать оптимальный штат — не раздувать и не допускать дефицита, от которого падает вся локация.',
+   formula:'MIN(факт / цель, 1.2)',scoreOf:v=>Math.min(v/100,1.2)},
+  {n:4,name:'Загрузка оборуд.',sh:'Загрузка',unit:'%',min:0,max:120,step:1,def:85,hex:'#F59E0B',
+   desc:'Доля принтеров в активной работе от парка локации. Цель — ≥85%. Антипростойный КПИ: каждый час остановленного принтера — прямые потери. Связан с ТО, WiFi-мониторингом и работой техников.',
+   formula:'MIN(факт% / 85%, 1.2)',scoreOf:v=>Math.min(v/85,1.2)},
+  {n:5,name:'Lean-культура',sh:'Lean',unit:'%',min:0,max:100,step:5,def:70,hex:'#8B5CF6',
+   desc:'Квартальная оценка операционной культуры: ежедневные Asakai-стендапы (15 мин у доски), ведение доски проблем, рац. предложения, соблюдение 5S. Делает руководителя драйвером улучшений, а не пассивным администратором.',
+   formula:'прямая оценка 0–100%',scoreOf:v=>Math.min(v/100,1.0)},
 ];
+
 const SCEN=[
   {l:'Отличный',v:[115,96,110,95,90]},
   {l:'Хороший', v:[103,92,96, 88,80]},
@@ -239,96 +396,76 @@ const SCEN=[
 let ST={locIdx:0,vals:KPI.map(k=>k.def),w:[30,25,20,15,10]};
 
 function bdg(s){
-  if(s>=1.15)return{t:'Отлично', bg:'#D1FAE5',fg:'#065F46'};
-  if(s>=1.00)return{t:'В норме', bg:'#DBEAFE',fg:'#1E40AF'};
-  if(s>=0.85)return{t:'↓ цели',  bg:'#FEF3C7',fg:'#92400E'};
-  return       {t:'Риск',    bg:'#FEE2E2',fg:'#991B1B'};
+  if(s>=1.15)return{t:'Отлично', bg:'#E8FAF1',fg:'#27AE60'};
+  if(s>=1.00)return{t:'В норме', bg:'#EFF6FF',fg:'#2563EB'};
+  if(s>=0.85)return{t:'↓ цели',  bg:'#FEF3C7',fg:'#D97706'};
+  return       {t:'Риск',    bg:'#FEE2E2',fg:'#DC2626'};
 }
 function fmt(n){return Math.round(n).toLocaleString('ru-RU');}
 
-// ── BUBBLE ─────────────────────────────────────────────
+// ── BUBBLE ────────────────────────────────────────────
 let sim,nodes=[],gBub;
 const svgEl=document.getElementById('bsvg');
 const sv=d3.select(svgEl);
+const BW=178,BH=178;
 
-function rOf(d){return (26+d.w*1.5)*Math.max(d.sc,0.12);}
+function rOf(d){return (14+d.w*0.9)*Math.max(d.sc,0.12);}
 
 function initBubble(){
   sv.selectAll('*').remove();
   const defs=sv.append('defs');
   KPI.forEach(k=>{
     const g=defs.append('radialGradient').attr('id','rg'+k.n).attr('cx','35%').attr('cy','35%').attr('r','65%');
-    g.append('stop').attr('offset','0%').attr('stop-color',k.hex).attr('stop-opacity',.18);
-    g.append('stop').attr('offset','100%').attr('stop-color',k.hex).attr('stop-opacity',.82);
+    g.append('stop').attr('offset','0%').attr('stop-color',k.hex).attr('stop-opacity',.12);
+    g.append('stop').attr('offset','100%').attr('stop-color',k.hex).attr('stop-opacity',.75);
   });
-
-  gBub=sv.append('g');
-
-  nodes=KPI.map((k,i)=>({i,k,sc:k.scoreOf(ST.vals[i]),w:ST.w[i],x:0,y:0,vx:0,vy:0}));
-
+  gBub=sv.append('g').attr('transform',`translate(${BW/2},${BH/2})`);
+  nodes=KPI.map((k,i)=>({i,k,sc:k.scoreOf(ST.vals[i]),w:ST.w[i],
+    x:(Math.random()-.5)*30,y:(Math.random()-.5)*30,vx:0,vy:0}));
   sim=d3.forceSimulation(nodes)
-    .force('charge',d3.forceManyBody().strength(8))
-    .force('collide',d3.forceCollide().radius(d=>rOf(d)+2.5).strength(0.9).iterations(3))
+    .force('charge',d3.forceManyBody().strength(5))
+    .force('collide',d3.forceCollide().radius(d=>rOf(d)+1.5).strength(0.92).iterations(3))
     .force('center',d3.forceCenter(0,0).strength(0.3))
     .alphaDecay(0.018)
     .on('tick',()=>gBub.selectAll('.bn').attr('transform',d=>`translate(${d.x},${d.y})`));
-
   renderNodes();
-  reCenter();
 }
 
 function renderNodes(){
   gBub.selectAll('*').remove();
   const g=gBub.selectAll('.bn').data(nodes).join('g').attr('class','bn');
-
   g.append('circle').attr('r',d=>rOf(d))
     .attr('fill',d=>`url(#rg${d.k.n})`)
-    .attr('stroke',d=>d.k.hex).attr('stroke-width',1.5).attr('stroke-opacity',.55);
-
-  g.append('circle').attr('r',d=>rOf(d)*.36)
-    .attr('fill',d=>d.k.hex).attr('opacity',.12);
-
-  g.append('text').attr('text-anchor','middle').attr('dy','-.2em')
-    .style('font-family',"'Unbounded',sans-serif")
-    .style('font-weight','700').style('pointer-events','none')
-    .style('font-size',d=>`${Math.max(7,Math.min(12,rOf(d)*.3))}px`)
+    .attr('stroke',d=>d.k.hex).attr('stroke-width',1.2).attr('stroke-opacity',.45);
+  g.append('circle').attr('r',d=>rOf(d)*.32).attr('fill',d=>d.k.hex).attr('opacity',.1);
+  g.append('text').attr('text-anchor','middle').attr('dy','-.15em')
+    .style('font-family',"'Unbounded',sans-serif").style('font-weight','700').style('pointer-events','none')
+    .style('font-size',d=>`${Math.max(5,Math.min(10,rOf(d)*.28))}px`)
     .style('fill',d=>d.k.hex).text(d=>d.k.sh);
-
   g.append('text').attr('class','slbl').attr('text-anchor','middle').attr('dy','1em')
-    .style('font-family',"'JetBrains Mono',monospace")
-    .style('pointer-events','none')
-    .style('font-size',d=>`${Math.max(7,Math.min(11,rOf(d)*.23))}px`)
+    .style('font-family',"'JetBrains Mono',monospace").style('pointer-events','none')
+    .style('font-size',d=>`${Math.max(5,Math.min(9,rOf(d)*.21))}px`)
     .style('fill',d=>d.k.hex).text(d=>`${(d.sc*100).toFixed(0)}%`);
-}
-
-function reCenter(){
-  const r=svgEl.getBoundingClientRect();
-  if(!r.width||!r.height)return;
-  gBub.attr('transform',`translate(${r.width/2},${r.height/2})`);
-  sim.force('center',d3.forceCenter(0,0)).alpha(.35).restart();
 }
 
 function updBubble(){
   nodes.forEach((d,i)=>{d.sc=KPI[i].scoreOf(ST.vals[i]);d.w=ST.w[i];});
-  sim.force('collide').radius(d=>rOf(d)+2.5);
+  sim.force('collide').radius(d=>rOf(d)+1.5);
   gBub.selectAll('.bn').each(function(d){
     const g=d3.select(this);const r=rOf(d);
     g.select('circle').attr('r',r);
-    g.select('circle:nth-of-type(2)').attr('r',r*.36);
-    g.select('text').style('font-size',`${Math.max(7,Math.min(12,r*.3))}px`);
-    g.select('.slbl').style('font-size',`${Math.max(7,Math.min(11,r*.23))}px`).text(`${(d.sc*100).toFixed(0)}%`);
+    g.select('circle:nth-of-type(2)').attr('r',r*.32);
+    g.select('text').style('font-size',`${Math.max(5,Math.min(10,r*.28))}px`);
+    g.select('.slbl').style('font-size',`${Math.max(5,Math.min(9,r*.21))}px`).text(`${(d.sc*100).toFixed(0)}%`);
   });
-  sim.alpha(.45).restart();
+  sim.alpha(.42).restart();
 }
 
-new ResizeObserver(reCenter).observe(svgEl);
-
-// ── UI INIT ────────────────────────────────────────────
+// ── UI INIT ───────────────────────────────────────────
 function initLoc(){
   document.getElementById('locGrid').innerHTML=LOCS.map((l,i)=>`
     <button class="lb${i===ST.locIdx?' active':''}" onclick="selLoc(${i})">
-      <span class="lb-n">${l.name}</span>
-      <span class="lb-s">${l.sub}</span>
+      <span class="lb-n">${l.name}</span><span class="lb-s">${l.sub}</span>
       <span class="lb-c">${l.coef.toFixed(2)}×</span>
     </button>`).join('');
   document.getElementById('locCoef').value=LOCS[ST.locIdx].coef.toFixed(2);
@@ -341,7 +478,7 @@ function initWts(){
       <span class="wdot" style="background:${k.hex};"></span>
       <span class="wn">${k.name}</span>
       <input class="wi" type="number" min="0" max="100" step="1" value="${ST.w[i]}"
-        oninput="setW(${i},this.value)" style="color:${k.hex};border-color:${k.hex}20;">
+        oninput="setW(${i},this.value)" style="color:${k.hex};">
       <span style="font-family:var(--fm);font-size:10px;color:var(--muted);">%</span>
     </div>`).join('');
 }
@@ -362,28 +499,36 @@ function applyP(i){
   calc();
 }
 
-function initSliders(){
-  document.getElementById('kpiList').innerHTML=KPI.map((k,i)=>`
-    <div class="kr">
-      <div class="knum" style="background:${k.hex};">${k.n}</div>
-      <div class="ksw">
-        <div class="klbl" style="color:${k.hex};">${k.name}</div>
+function initKpiBlocks(){
+  document.getElementById('kpiBlocks').innerHTML=KPI.map((k,i)=>`
+    <div class="kpi-block">
+      <div class="kb-head">
+        <div class="kb-num" style="background:${k.hex};">${k.n}</div>
+        <div class="kb-info">
+          <div class="kb-name" style="color:${k.hex};">${k.name}</div>
+          <div class="kb-desc">${k.desc}</div>
+        </div>
+      </div>
+      <div class="kb-slider-row">
+        <span class="kb-formula">${k.formula}</span>
         <input type="range" id="sl${i}" min="${k.min}" max="${k.max}" step="${k.step}"
           value="${ST.vals[i]}" style="accent-color:${k.hex};"
           oninput="setK(${i},parseFloat(this.value),this)">
+        <span class="kb-val" style="color:${k.hex};" id="val${i}">${ST.vals[i]}${k.unit}</span>
+        <span class="kb-badge" id="bdg${i}"></span>
       </div>
-      <div class="kval" style="color:${k.hex};" id="val${i}">${ST.vals[i]}${k.unit}</div>
-      <div class="kbdg" id="bdg${i}"></div>
     </div>`).join('');
   KPI.forEach((k,i)=>updSl(document.getElementById('sl'+i),k,ST.vals[i]));
 }
+
 function updSl(sl,k,v){
+  if(!sl)return;
   const p=((v-k.min)/(k.max-k.min)*100).toFixed(1);
   sl.style.background=`linear-gradient(to right,${k.hex} 0%,${k.hex} ${p}%,var(--border) ${p}%,var(--border) 100%)`;
 }
 function setK(i,v,sl){ST.vals[i]=v;updSl(sl,KPI[i],v);calc();}
 
-// ── CALC ───────────────────────────────────────────────
+// ── CALC ──────────────────────────────────────────────
 function calc(){
   const coef=parseFloat(document.getElementById('locCoef').value)||LOCS[ST.locIdx].coef;
   const base=parseFloat(document.getElementById('base').value)||0;
@@ -403,12 +548,10 @@ function calc(){
   const total=Math.max(baseAdj+bTot,flr);
   const pct=(ks*100).toFixed(1);
 
-  // slider labels + badges
+  // update kpi blocks
   KPI.forEach((k,i)=>{
-    const b=bdg(sc[i]);
-    const v=ST.vals[i];
-    const vEl=document.getElementById('val'+i);
-    const bEl=document.getElementById('bdg'+i);
+    const b=bdg(sc[i]);const v=ST.vals[i];
+    const vEl=document.getElementById('val'+i);const bEl=document.getElementById('bdg'+i);
     if(vEl)vEl.textContent=(v%1===0?v:v.toFixed(1))+k.unit;
     if(bEl){bEl.textContent=b.t;bEl.style.background=b.bg;bEl.style.color=b.fg;}
   });
@@ -419,15 +562,21 @@ function calc(){
   document.getElementById('resBase').textContent=fmt(baseAdj)+' ₴';
   document.getElementById('resBonus').textContent=fmt(bTot)+' ₴';
 
-  // bk cards
+  // breakdown
   document.getElementById('bkBase').textContent=fmt(baseAdj)+' ₴';
   document.getElementById('bkBaseSub').textContent=`${fmt(base)} × ${coef.toFixed(2)}`;
   document.getElementById('bkBonus').textContent=fmt(bTot)+' ₴';
   document.getElementById('bkBonusSub').textContent=`${pct}% от ${fmt(pool)}`;
   const scEl=document.getElementById('bkScore');
   scEl.textContent=pct+'%';
-  scEl.style.color=ks>=1?'var(--green)':ks>=.85?'var(--amber)':'var(--red)';
-  document.getElementById('bkScoreSub').textContent=flr>0&&total>baseAdj+bTot?'применён пол':ks>=1?'цель выполнена':'ниже 100%';
+  scEl.style.color=ks>=1?'var(--green2)':ks>=.85?'var(--amber)':'var(--red)';
+  document.getElementById('bkScoreSub').textContent=
+    flr>0&&total>baseAdj+bTot?'применён пол':ks>=1?'цель выполнена':'ниже 100%';
+
+  // score display (right col)
+  document.getElementById('sdScore').textContent=pct+'%';
+  document.getElementById('sdSub').textContent=ks>=1?'цель выполнена':ks>=.85?'ниже цели':'риск';
+  document.getElementById('sdScore').style.color=ks>=1?'var(--green2)':ks>=.85?'var(--amber)':'var(--red)';
 
   // table
   document.getElementById('kpiTb').innerHTML=KPI.map((k,i)=>{
@@ -445,9 +594,11 @@ function calc(){
   updBubble();
 }
 
-// ── BOOT ───────────────────────────────────────────────
-['locCoef','base','pool','overPool','floor'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
-initLoc();initWts();initPresets();initSliders();updWtot();
+// ── BOOT ──────────────────────────────────────────────
+['locCoef','base','pool','overPool','floor'].forEach(id=>
+  document.getElementById(id).addEventListener('input',calc));
+
+initLoc();initWts();initPresets();initKpiBlocks();updWtot();
 initBubble();calc();
 </script>
 </body>
