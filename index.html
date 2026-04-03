@@ -100,8 +100,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 /* ── TOP BAR: result + bubble side by side ── */
 .top-bar{
   display:flex;align-items:stretch;flex-shrink:0;
-  background:var(--navy);
-  border-bottom:1px solid rgba(255,255,255,.07);
+  background:var(--white);
+  border-bottom:1.5px solid var(--border);
   overflow:hidden;
   min-height:0;
 }
@@ -109,39 +109,41 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 /* Result panel — left of top bar */
 .result-panel{
   flex-shrink:0;width:280px;
-  padding:18px 22px;
+  padding:16px 20px;
   display:flex;flex-direction:column;justify-content:center;
-  border-right:1px solid rgba(255,255,255,.07);
+  border-right:1.5px solid var(--border);
   position:relative;overflow:hidden;
+  background:var(--white);
 }
 .result-panel::before{
-  content:'';position:absolute;left:-40px;top:-40px;
-  width:180px;height:180px;border-radius:50%;
-  background:radial-gradient(circle,rgba(46,204,113,.12) 0%,transparent 65%);
+  content:'';position:absolute;left:-30px;top:-30px;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(46,204,113,.07) 0%,transparent 65%);
   pointer-events:none;
 }
-.rp-label{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px;}
-.rp-amount{font-family:var(--fh);font-size:32px;font-weight:700;color:var(--green);letter-spacing:-.03em;line-height:1;margin-bottom:8px;}
-.rp-score-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.rp-label{font-family:var(--fm);font-size:9px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px;}
+.rp-amount{font-family:var(--fh);font-size:30px;font-weight:700;color:var(--green2);letter-spacing:-.03em;line-height:1;margin-bottom:7px;}
+.rp-score-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
 .rp-score-val{font-family:var(--fh);font-size:16px;font-weight:700;line-height:1;}
-.rp-score-lbl{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.07em;text-transform:uppercase;}
-.rp-score-sub{font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.35);}
+.rp-score-lbl{font-family:var(--fm);font-size:9px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;}
+.rp-score-sub{font-family:var(--fm);font-size:10px;color:var(--muted);}
 .rp-cells{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.rp-cell{background:rgba(255,255,255,.05);border-radius:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.07);}
-.rp-cell-l{font-family:var(--fm);font-size:8px;color:rgba(255,255,255,.3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;}
-.rp-cell-v{font-family:var(--fh);font-size:13px;font-weight:600;color:#fff;line-height:1;}
-.rp-cell-s{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.3);margin-top:2px;}
+.rp-cell{background:var(--bg);border-radius:8px;padding:7px 10px;border:1px solid var(--border);}
+.rp-cell-l{font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;}
+.rp-cell-v{font-family:var(--fh);font-size:13px;font-weight:600;color:var(--text);line-height:1;}
+.rp-cell-s{font-family:var(--fm);font-size:9px;color:var(--muted);margin-top:2px;}
 
 /* Bubble panel — right of top bar, fills remaining space */
 .bubble-panel{
   flex:1;position:relative;overflow:hidden;
   display:flex;align-items:center;justify-content:center;
+  background:var(--bg);
 }
 /* dot-grid background on bubble */
 .bubble-panel::before{
   content:'';position:absolute;inset:0;
-  background-image:radial-gradient(circle,rgba(255,255,255,.07) 1px,transparent 1px);
-  background-size:26px 26px;pointer-events:none;
+  background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);
+  background-size:24px 24px;pointer-events:none;
 }
 #bsvg{display:block;position:relative;z-index:1;}
 
@@ -157,9 +159,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .pbt.active{background:var(--navy);color:#fff;border-color:var(--navy);}
 
 /* ── KPI ROWS ── */
-.kpi-rows-wrap{flex:1;overflow-y:auto;background:var(--white);}
-.kpi-rows-wrap::-webkit-scrollbar{width:3px;}
-.kpi-rows-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.kpi-rows-wrap{flex:1;overflow:hidden;background:var(--white);display:flex;flex-direction:column;}
+.kpi-rows-inner{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.kpi-footer{flex-shrink:0;padding:5px 14px;background:var(--bg);border-top:1px solid var(--border);font-family:var(--fm);font-size:9px;color:var(--muted);display:flex;gap:16px;align-items:center;}
+.kpi-footer strong{color:var(--text2);}
 
 .kpi-row{
   display:grid;
@@ -167,8 +170,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   align-items:stretch;
   border-bottom:1px solid var(--border);
   transition:background .1s;
+  flex:1;
   min-height:0;
-  height:calc((100vh - 46px - 38px - 215px - 38px) / 5);
+  overflow:hidden;
 }
 .kpi-row:last-child{border-bottom:none;}
 .kpi-row:hover{background:#F7FAFD;}
@@ -217,14 +221,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   .loc-grid{grid-template-columns:repeat(4,1fr);}
   .main-content{overflow:visible;min-height:0;}
   .top-bar{flex-direction:column;height:auto!important;}
-  .result-panel{width:100%;border-right:none;border-bottom:1px solid rgba(255,255,255,.07);padding:14px 16px;}
+  .result-panel{width:100%;border-right:none;border-bottom:1.5px solid var(--border);padding:14px 16px;background:var(--white);}
   .rp-amount{font-size:26px;}
-  .bubble-panel{min-height:240px;height:240px;}
+  .bubble-panel{min-height:240px;height:240px;background:var(--bg);}
   .preset-bar{flex-wrap:wrap;}
-  .kpi-rows-wrap{overflow:visible;height:auto;}
-  .kpi-row{grid-template-columns:5px 40px 1fr;height:auto!important;min-height:90px;}
+  .kpi-rows-wrap{overflow:visible;height:auto;flex:none;}
+  .kpi-rows-inner{overflow:visible;flex:none;}
+  .kpi-row{flex:none;height:auto!important;min-height:90px;grid-template-columns:5px 40px 1fr;}
   .kr-score-col{display:none;}
   .kr-body{padding:10px 12px 10px 6px;}
+  .kpi-footer{flex-direction:column;align-items:flex-start;gap:2px;}
 }
 </style>
 </head>
@@ -291,7 +297,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
             <div class="rp-score-lbl">КПІ-score</div>
             <div class="rp-score-val" id="rpScore">—</div>
           </div>
-          <div style="width:1px;background:rgba(255,255,255,.1);height:30px;"></div>
+          <div style="width:1px;background:var(--border);height:30px;"></div>
           <div class="rp-score-sub" id="rpScoreSub">—</div>
         </div>
         <div class="rp-cells">
@@ -322,7 +328,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
     </div>
 
     <!-- KPI ROWS -->
-    <div class="kpi-rows-wrap" id="kpiRows"></div>
+    <div class="kpi-rows-wrap" id="kpiRowsWrap">
+      <div class="kpi-rows-inner" id="kpiRows"></div>
+      <div class="kpi-footer">
+        <span><strong>Підсумок</strong> = База × Коеф. + Пул × КПІ-score</span>
+        <span>score = MIN(факт/ціль, потолок) · К2,К5: потолок=100% · К1,К3,К4: потолок=120% (перевиконання заохочується)</span>
+      </div>
+    </div>
 
   </div><!-- /main-content -->
 
@@ -503,12 +515,20 @@ function initBubble(){
   });
   gBub=sv.append('g').attr('transform',`translate(${w/2},${h/2})`);
   nodes=KPI.map((k,i)=>({i,k,sc:k.scoreOf(ST.vals[i]),w:ST.w[i],
-    x:(Math.random()-.5)*8,y:(Math.random()-.5)*8,vx:0,vy:0}));
+    x:(Math.random()-.5)*4,y:(Math.random()-.5)*4,vx:0,vy:0}));
+  // bond links: each node connects to next, creating a ring molecule
+  const links=[
+    {source:0,target:1},{source:1,target:2},{source:2,target:3},
+    {source:3,target:4},{source:4,target:0},{source:0,target:2},
+  ];
   sim=d3.forceSimulation(nodes)
-    .force('charge',d3.forceManyBody().strength(2))
-    .force('collide',d3.forceCollide().radius(d=>rOf(d,w,h)+1).strength(.98).iterations(8))
-    .force('center',d3.forceCenter(0,0).strength(.9))
-    .alphaDecay(.012)
+    .force('link',d3.forceLink(links).id(d=>d.i)
+      .distance(d=>{const s=Math.min(w,h);return rOf(d.source,w,h)+rOf(d.target,w,h)+0.5;})
+      .strength(0.7))
+    .force('charge',d3.forceManyBody().strength(-2))
+    .force('collide',d3.forceCollide().radius(d=>rOf(d,w,h)+0.5).strength(1).iterations(10))
+    .force('center',d3.forceCenter(0,0).strength(1.0))
+    .alphaDecay(.010)
     .on('tick',()=>gBub.selectAll('.bn').attr('transform',d=>`translate(${d.x},${d.y})`));
   renderBNodes(w,h);
 }
@@ -535,7 +555,8 @@ function resizeBubble(){
   svgEl.setAttribute('width',w);svgEl.setAttribute('height',h);
   if(gBub)gBub.attr('transform',`translate(${w/2},${h/2})`);
   if(sim){
-    sim.force('collide').radius(d=>rOf(d,w,h)+1);
+    sim.force('collide').radius(d=>rOf(d,w,h)+0.5);
+    sim.force('link').distance(d=>rOf(d.source,w,h)+rOf(d.target,w,h)+0.5);
     sim.force('center',d3.forceCenter(0,0)).alpha(.3).restart();
     gBub.selectAll('.bn').each(function(d){
       const g=d3.select(this),r=rOf(d,w,h);
@@ -550,7 +571,8 @@ function updBubble(){
   if(!gBub||!sim)return;
   const{w,h}=getBSz();
   nodes.forEach((d,i)=>{d.sc=KPI[i].scoreOf(ST.vals[i]);d.w=ST.w[i];});
-  sim.force('collide').radius(d=>rOf(d,w,h)+1);
+  sim.force('collide').radius(d=>rOf(d,w,h)+0.5);
+  if(sim.force('link'))sim.force('link').distance(d=>rOf(d.source,w,h)+rOf(d.target,w,h)+0.5);
   gBub.selectAll('.bn').each(function(d){
     const g=d3.select(this),r=rOf(d,w,h);
     g.select('circle').attr('r',r);
