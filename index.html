@@ -167,7 +167,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   align-items:stretch;
   border-bottom:1px solid var(--border);
   transition:background .1s;
-  min-height:80px;
+  min-height:0;
+  height:calc((100vh - 46px - 38px - 215px - 38px) / 5);
 }
 .kpi-row:last-child{border-bottom:none;}
 .kpi-row:hover{background:#F7FAFD;}
@@ -176,7 +177,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .kr-num-wrap{display:flex;align-items:center;justify-content:center;padding:0 2px;}
 .kr-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:10px;font-weight:700;color:#fff;}
 
-.kr-body{padding:11px 14px 11px 6px;display:flex;flex-direction:column;gap:4px;min-width:0;}
+.kr-body{padding:8px 14px 8px 6px;display:flex;flex-direction:column;gap:3px;min-width:0;}
 .kr-name{font-size:12px;font-weight:600;}
 .kr-desc{font-size:10px;color:var(--text2);line-height:1.45;flex:1;}
 .kr-slider-row{display:flex;align-items:center;gap:8px;margin-top:3px;}
@@ -209,15 +210,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
 /* ── MOBILE ── */
 @media(max-width:960px){
-  body{overflow-y:auto;height:auto;}
-  #tab0{flex-direction:column;}
-  .sidebar{width:100%;}
+  html,body{overflow-y:auto;height:auto;}
+  #tab0{flex-direction:column;overflow:visible;height:auto;}
+  .sidebar{width:100%;max-height:none;overflow:visible;}
+  .sb-scroll{overflow:visible;max-height:none;}
   .loc-grid{grid-template-columns:repeat(4,1fr);}
-  .top-bar{flex-direction:column;}
-  .result-panel{width:100%;border-right:none;border-bottom:1px solid rgba(255,255,255,.07);}
-  .bubble-panel{min-height:200px;}
-  .kpi-row{grid-template-columns:5px 40px 1fr;}
+  .main-content{overflow:visible;min-height:0;}
+  .top-bar{flex-direction:column;height:auto!important;}
+  .result-panel{width:100%;border-right:none;border-bottom:1px solid rgba(255,255,255,.07);padding:14px 16px;}
+  .rp-amount{font-size:26px;}
+  .bubble-panel{min-height:240px;height:240px;}
+  .preset-bar{flex-wrap:wrap;}
+  .kpi-rows-wrap{overflow:visible;height:auto;}
+  .kpi-row{grid-template-columns:5px 40px 1fr;height:auto!important;min-height:90px;}
   .kr-score-col{display:none;}
+  .kr-body{padding:10px 12px 10px 6px;}
 }
 </style>
 </head>
@@ -273,7 +280,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   <div class="main-content">
 
     <!-- TOP BAR: result LEFT + bubble RIGHT -->
-    <div class="top-bar" style="height:260px;">
+    <div class="top-bar" style="height:215px;">
 
       <!-- Result panel -->
       <div class="result-panel">
@@ -417,7 +424,7 @@ const KPI=[
    desc:'Частка принтерів в активній роботі від парку локації. Ціль — ≥85%. Антипростойний КПІ: кожна година зупиненого принтера — прямі втрати. Пов\'язаний з ТО та WiFi-моніторингом.',
    formula:'MIN(факт%/85%, 1.2)',scoreOf:v=>Math.min(v/85,1.2)},
   {n:5,name:'Lean-культура',sh:'Lean',unit:'%',min:0,max:100,step:5,def:70,hex:'#8B5CF6',
-   desc:'Квартальна оцінка: щоденні Asakai-стендапи (15 хв), ведення дошки проблем, рац. пропозиції, дотримання 5S. Робить керівника драйвером покращень, а не пасивним адміністратором.',
+   desc:'Квартальна оцінка: щоденні Asakai-стендапи (15 хв), ведення дошки проблем, рац. пропозиції, дотримання 5S (Сортування · Порядок · Чистота · Стандартизація · Вдосконалення). Робить керівника драйвером покращень, а не пасивним адміністратором.',
    formula:'пряма оцінка 0–100%',scoreOf:v=>Math.min(v/100,1.0)},
 ];
 const SCEN=[
@@ -496,12 +503,12 @@ function initBubble(){
   });
   gBub=sv.append('g').attr('transform',`translate(${w/2},${h/2})`);
   nodes=KPI.map((k,i)=>({i,k,sc:k.scoreOf(ST.vals[i]),w:ST.w[i],
-    x:(Math.random()-.5)*25,y:(Math.random()-.5)*25,vx:0,vy:0}));
+    x:(Math.random()-.5)*8,y:(Math.random()-.5)*8,vx:0,vy:0}));
   sim=d3.forceSimulation(nodes)
-    .force('charge',d3.forceManyBody().strength(8))
-    .force('collide',d3.forceCollide().radius(d=>rOf(d,w,h)+2.5).strength(.94).iterations(5))
-    .force('center',d3.forceCenter(0,0).strength(.4))
-    .alphaDecay(.016)
+    .force('charge',d3.forceManyBody().strength(2))
+    .force('collide',d3.forceCollide().radius(d=>rOf(d,w,h)+1).strength(.98).iterations(8))
+    .force('center',d3.forceCenter(0,0).strength(.9))
+    .alphaDecay(.012)
     .on('tick',()=>gBub.selectAll('.bn').attr('transform',d=>`translate(${d.x},${d.y})`));
   renderBNodes(w,h);
 }
@@ -528,7 +535,7 @@ function resizeBubble(){
   svgEl.setAttribute('width',w);svgEl.setAttribute('height',h);
   if(gBub)gBub.attr('transform',`translate(${w/2},${h/2})`);
   if(sim){
-    sim.force('collide').radius(d=>rOf(d,w,h)+2.5);
+    sim.force('collide').radius(d=>rOf(d,w,h)+1);
     sim.force('center',d3.forceCenter(0,0)).alpha(.3).restart();
     gBub.selectAll('.bn').each(function(d){
       const g=d3.select(this),r=rOf(d,w,h);
@@ -543,7 +550,7 @@ function updBubble(){
   if(!gBub||!sim)return;
   const{w,h}=getBSz();
   nodes.forEach((d,i)=>{d.sc=KPI[i].scoreOf(ST.vals[i]);d.w=ST.w[i];});
-  sim.force('collide').radius(d=>rOf(d,w,h)+2.5);
+  sim.force('collide').radius(d=>rOf(d,w,h)+1);
   gBub.selectAll('.bn').each(function(d){
     const g=d3.select(this),r=rOf(d,w,h);
     g.select('circle').attr('r',r);
