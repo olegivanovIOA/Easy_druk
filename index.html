@@ -13,69 +13,37 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 :root{
-  /* Warm teal-green palette */
-  --g:   #2A9D8F;   /* teal */
-  --gd:  #1a7a6e;   /* dark teal */
-  --gm:  #52b8ac;   /* mid teal */
-  --gl:  #e6f4f2;   /* light teal bg */
-  --gb:  #a8dcd7;   /* teal border */
-  --ga:  #d0ece9;   /* teal accent */
-  /* Warm blue */
-  --b:   #457B9D;
-  --bd2: #2c607e;
-  --bl:  #eaf1f6;
-  --bb:  #a8c8de;
-  /* Warm amber */
-  --amb: #E9A629;
-  --abl: #fef6e4;
-  --abb: #f5d48a;
-  /* Warm red */
-  --red: #C0392B;
-  --rl:  #fdecea;
-  --rb:  #f0b0a8;
-  /* Neutral warm */
-  --bg:  #f7f8f5;
-  --sur: #ffffff;
-  --s2:  #f2f4f0;
-  --bd:  #e0e4dc;
-  --bd3: #cdd1c8;
-  --tx:  #1e2b1a;
-  --td:  #3a5033;
-  --tm:  #6b8560;
-  --tl:  #96aa8e;
-  /* Shadow */
-  --sh:  0 1px 4px rgba(30,60,20,.08), 0 0px 1px rgba(30,60,20,.06);
-  --shm: 0 4px 14px rgba(30,60,20,.10), 0 1px 3px rgba(30,60,20,.06);
-  --r:   9px;--rs:6px;--nh:54px;
+  --g:#2A9D8F; --gd:#1e7a6e; --gl:#edfaf8; --gm:#52b8ac; --gb:#9ed4cf; --ga:#d0ecea;
+  --b:#457B9D; --bd2:#2c607e; --bl:#edf4f9; --bb:#8bbdd8;
+  --amb:#D4820A; --abl:#fef6e4; --abb:#f5d48a;
+  --red:#C0392B; --rl:#fef0ee; --rb:#f0b0a8;
+  --bg:#f9fafb; --sur:#ffffff; --s2:#f3f5f2; --s3:#ecefeb;
+  --bd:#e6e9e3; --bd3:#d8dcd5;
+  --tx:#1a2418; --td:#3a5030; --tm:#6b836a; --tl:#96a890;
+  --sh: 0 1px 3px rgba(20,60,20,.06), 0 0px 1px rgba(20,60,20,.04);
+  --shm: 0 4px 16px rgba(20,60,20,.08);
+  --r:10px; --rs:7px; --nh:54px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;-webkit-text-size-adjust:100%}
 a{color:var(--gd);text-decoration:none}
 
 /* ── NAV ── */
-.nav{position:sticky;top:0;z-index:300;background:rgba(255,255,255,.97);
-  border-bottom:2px solid var(--gb);box-shadow:0 2px 10px rgba(30,60,20,.08)}
-.nav-top{display:flex;align-items:center;padding:0 16px;min-height:var(--nh);gap:6px}
-.logo{display:flex;align-items:center;gap:9px;padding-right:16px;
-  border-right:1.5px solid var(--bd);flex-shrink:0}
-.lcube{width:28px;height:28px;background:linear-gradient(135deg,var(--g),var(--gd));
-  border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  box-shadow:0 2px 6px rgba(42,157,143,.35)}
-.lcube svg{width:15px;height:15px;fill:#fff}
-.lname{font-weight:800;font-size:15px;color:var(--tx);letter-spacing:-.3px}
-.lname span{color:var(--g)}
+.nav{position:sticky;top:0;z-index:300;background:#fff;border-bottom:1px solid var(--bd);box-shadow:0 1px 8px rgba(20,60,20,.06)}
+.nav-top{display:flex;align-items:center;padding:0 18px;min-height:var(--nh);gap:6px}
+.logo{display:flex;align-items:center;gap:9px;padding-right:18px;border-right:1px solid var(--bd);flex-shrink:0}
+.lcube{width:30px;height:30px;background:linear-gradient(135deg,var(--g),var(--gd));border-radius:8px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(42,157,143,.3)}
+.lcube svg{width:16px;height:16px;fill:#fff}
+.lname{font-weight:800;font-size:15px;color:var(--tx);letter-spacing:-.3px}.lname span{color:var(--g)}
 .ltag{font-size:9px;font-weight:600;letter-spacing:1px;color:var(--tm);text-transform:uppercase}
-
-/* tabs */
-.tabs-s{display:flex;align-items:center;overflow-x:auto;flex:1;scrollbar-width:none;gap:2px;padding:0 6px}
+.tabs-s{display:flex;align-items:center;overflow-x:auto;flex:1;scrollbar-width:none;gap:1px;padding:0 4px}
 .tabs-s::-webkit-scrollbar{display:none}
-.tb{padding:8px 14px;font-size:12px;font-weight:600;letter-spacing:.2px;
-  color:var(--tm);background:none;border:none;border-bottom:2.5px solid transparent;
-  cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0;
-  height:var(--nh);display:flex;align-items:center;gap:6px}
-.tb .ti{font-size:16px;line-height:1}
+.tb{padding:8px 14px;font-size:12px;font-weight:600;letter-spacing:.15px;color:var(--tm);background:none;
+  border:none;border-bottom:2.5px solid transparent;cursor:pointer;transition:all .15s;
+  white-space:nowrap;flex-shrink:0;height:var(--nh);display:flex;align-items:center;gap:6px}
+.ti{font-size:17px;line-height:1}
 .tb:hover{color:var(--td)}.tb.active{color:var(--gd);border-bottom-color:var(--g);font-weight:700}
-
 .nav-acts{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-left:8px}
 .lp{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--tm);
   background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:4px 10px;white-space:nowrap}
@@ -84,183 +52,147 @@ a{color:var(--gd);text-decoration:none}
 .ld.warn{background:var(--amb)}.ld.err{background:var(--red)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .wm-btn{padding:5px 12px;font-size:11px;font-weight:700;border:1.5px solid var(--bd);
-  border-radius:20px;background:var(--sur);color:var(--tm);cursor:pointer;
-  transition:all .15s;white-space:nowrap}
+  border-radius:20px;background:#fff;color:var(--tm);cursor:pointer;transition:all .15s;white-space:nowrap}
 .wm-btn:hover{border-color:var(--gb);color:var(--gd);background:var(--gl)}
 
-/* ── FILTER BAR ── */
-.fbar{display:flex;align-items:center;gap:10px;padding:7px 16px;
-  border-top:1px solid var(--bd);background:var(--s2);flex-wrap:wrap}
-.flbl{font-size:10px;font-weight:700;color:var(--tm);white-space:nowrap;
-  text-transform:uppercase;letter-spacing:.6px}
-/* Custom select */
-.fsel-wrap{position:relative;display:flex;align-items:center}
-.fsel{appearance:none;-webkit-appearance:none;
-  padding:4px 26px 4px 10px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;
-  border:1.5px solid var(--bd);border-radius:20px;background:var(--sur);color:var(--td);
-  cursor:pointer;transition:all .15s;outline:none;min-width:80px}
+/* filter bar */
+.fbar{display:flex;align-items:center;gap:10px;padding:6px 18px;border-top:1px solid var(--bd);background:var(--s2);flex-wrap:wrap}
+.flbl{font-size:10px;font-weight:700;color:var(--tm);white-space:nowrap;text-transform:uppercase;letter-spacing:.6px}
+.fsel-w{position:relative;display:flex;align-items:center}
+.fsel{appearance:none;-webkit-appearance:none;padding:4px 26px 4px 11px;font-size:11px;font-weight:600;
+  font-family:'Inter',sans-serif;border:1.5px solid var(--bd);border-radius:20px;background:#fff;
+  color:var(--td);cursor:pointer;transition:all .15s;outline:none;min-width:90px}
 .fsel:hover,.fsel:focus{border-color:var(--gb);color:var(--gd);background:var(--gl)}
-.fsel-arr{position:absolute;right:8px;pointer-events:none;color:var(--tm);font-size:10px}
+.fsel-a{position:absolute;right:9px;pointer-events:none;color:var(--tm);font-size:10px}
 .fsep{width:1px;height:16px;background:var(--bd3);flex-shrink:0}
-
-/* motivational phrase */
-.motiv{flex:1;font-size:11px;font-style:italic;color:var(--tl);
-  text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  padding-left:12px;min-width:0}
+.motiv{flex:1;font-size:11px;font-style:italic;color:var(--tl);text-align:right;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:10px;min-width:0}
 .motiv::before{content:'💡 '}
 
-/* ── WIDGET MANAGER OVERLAY ── */
-.wmo{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:500;display:none;
-  align-items:flex-start;justify-content:flex-end}
+/* widget manager */
+.wmo{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:500;display:none;align-items:flex-start;justify-content:flex-end}
 .wmo.open{display:flex}
-.wmd{background:var(--sur);width:300px;max-width:95vw;height:100vh;overflow-y:auto;
-  box-shadow:-4px 0 24px rgba(30,60,20,.14);display:flex;flex-direction:column}
-.wmh{padding:14px 16px;border-bottom:1.5px solid var(--bd);display:flex;align-items:center;
-  justify-content:space-between;position:sticky;top:0;background:var(--sur);z-index:1}
+.wmd{background:#fff;width:300px;max-width:96vw;height:100vh;overflow-y:auto;box-shadow:-4px 0 24px rgba(20,60,20,.12);display:flex;flex-direction:column}
+.wmh{padding:14px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
 .wmht{font-size:13px;font-weight:700;color:var(--tx)}
-.wmcl{width:28px;height:28px;border:none;background:var(--s2);border-radius:6px;
-  cursor:pointer;font-size:15px;color:var(--tm);display:flex;align-items:center;justify-content:center}
+.wmcl{width:28px;height:28px;border:none;background:var(--s2);border-radius:6px;cursor:pointer;font-size:15px;color:var(--tm);display:flex;align-items:center;justify-content:center}
 .wmb{padding:12px 16px;flex:1}
 .wms{margin-bottom:14px}
 .wmsl{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--tm);margin-bottom:7px}
-.wmr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;
-  border-radius:6px;background:var(--s2);border:1px solid var(--bd);margin-bottom:4px}
+.wmr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:6px;background:var(--s2);border:1px solid var(--bd);margin-bottom:4px}
 .wmrn{font-size:12px;color:var(--tx)}
 .wmtog{position:relative;width:36px;height:20px;flex-shrink:0}
 .wmtog input{opacity:0;width:0;height:0;position:absolute}
 .wmslr{position:absolute;inset:0;background:#cdd3c8;border-radius:20px;cursor:pointer;transition:background .2s}
-.wmslr::before{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;
-  left:3px;top:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.wmslr::before{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;left:3px;top:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.18)}
 .wmtog input:checked+.wmslr{background:var(--g)}
 .wmtog input:checked+.wmslr::before{transform:translateX(16px)}
-.wmfoo{padding:10px 16px;border-top:1.5px solid var(--bd)}
-.wmres{width:100%;padding:8px;border:1.5px solid var(--bd);border-radius:7px;
-  background:var(--sur);font-size:11px;font-weight:600;color:var(--tm);cursor:pointer}
+.wmfoo{padding:10px 16px;border-top:1px solid var(--bd)}
+.wmres{width:100%;padding:8px;border:1.5px solid var(--bd);border-radius:7px;background:#fff;font-size:11px;font-weight:600;color:var(--tm);cursor:pointer}
 .wmres:hover{border-color:var(--rb);color:var(--red)}
 
-/* ── PANELS ── */
-.panel{display:none;padding:14px 16px 52px}.panel.active{display:block}
+/* panels */
+.panel{display:none;padding:16px 18px 52px}.panel.active{display:block}
 .widget-hidden{display:none!important}
-.sec{font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;
-  color:var(--tm);margin:18px 0 9px;display:flex;align-items:center;gap:7px}
+.sec{font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--tm);margin:18px 0 9px;display:flex;align-items:center;gap:7px}
 .sec::after{content:'';flex:1;height:1px;background:var(--bd)}
 
-/* ── GRIDS ── */
-.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+/* grids */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .g6{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
 .s2{grid-column:span 2}.s3{grid-column:span 3}
-@media(max-width:1000px){.g6{grid-template-columns:repeat(3,1fr)}.g5{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:700px){.g6,.g5,.g4,.g3{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.s2,.s3{grid-column:span 1}.panel{padding:10px 10px 48px}}
+@media(max-width:1100px){.g6{grid-template-columns:repeat(3,1fr)}.g5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:750px){.g6,.g5,.g4,.g3{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.s2,.s3{grid-column:span 1}.panel{padding:10px 10px 48px}}
 @media(max-width:480px){.g6,.g5,.g4,.g3,.g2{grid-template-columns:1fr}.ltag,.lp span{display:none}}
 
-/* ── CARD BASE ── */
-.card{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--r);
-  padding:12px 14px;box-shadow:var(--sh);position:relative;overflow:hidden}
+/* cards */
+.card{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.card-flat{background:#fff;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
 
-/* ── KPI COMPACT — тонка плашка в одну строку ── */
-.krow{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--rs);
-  padding:8px 12px;box-shadow:var(--sh);display:flex;align-items:center;gap:10px;
-  position:relative;overflow:hidden}
-.krow-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--rs) 0 0 var(--rs)}
+/* ── COMPACT KPI ROW ── */
+.krow{background:#fff;border:1px solid var(--bd);border-radius:var(--rs);padding:9px 13px;
+  box-shadow:var(--sh);display:flex;align-items:center;gap:9px;position:relative;overflow:hidden;
+  transition:box-shadow .15s}
+.krow:hover{box-shadow:var(--shm)}
+.krow-bar{position:absolute;left:0;top:0;bottom:0;width:3.5px;border-radius:var(--rs) 0 0 var(--rs)}
 .kb-g{background:var(--g)}.kb-r{background:var(--red)}.kb-a{background:var(--amb)}.kb-b{background:var(--b)}
-.krow-lbl{font-size:10px;font-weight:600;color:var(--tm);white-space:nowrap;flex:1;
-  overflow:hidden;text-overflow:ellipsis;padding-left:4px}
+.krow-lbl{font-size:10px;font-weight:600;color:var(--tm);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:5px}
 .krow-val{font-size:15px;font-weight:800;color:var(--tx);white-space:nowrap;flex-shrink:0}
-.krow-val.g{color:var(--gd)}.krow-val.r{color:var(--red)}.krow-val.a{color:var(--amb)}.krow-val.b{color:var(--b)}
-.krow-val.x{font-size:12px;color:var(--tl)}
+.krow-val.g{color:var(--gd)}.krow-val.r{color:var(--red)}.krow-val.a{color:var(--amb)}.krow-val.b{color:var(--b)}.krow-val.x{font-size:12px;color:var(--tl)}
 .krow-tgt{font-size:9px;color:var(--tl);white-space:nowrap;flex-shrink:0}
 .krow-tgt b{color:var(--gd)}
 
-/* ── STATUS BADGE on krow ── */
-.krow-status{flex-shrink:0}
+/* ── DATA STATUS BADGES ── */
+/* REAL: small teal dot top-right */
+.real-dot{position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 0 2px var(--gl)}
+/* TBD: dashed border, light bg, gray label */
+.krow.tbd{background:var(--s2);border-style:dashed;border-color:var(--bd3)}
+.krow.tbd .krow-lbl{color:var(--tl)}
+.krow.tbd .krow-val{color:var(--tl)}
+.tbd-lbl{position:absolute;top:5px;right:7px;font-size:8px;font-weight:800;letter-spacing:1px;color:var(--bd3);text-transform:uppercase}
+/* DEMO: like tbd but with value showing */
+.krow.demo{background:var(--abl);border-color:var(--abb);border-style:dashed}
+.demo-lbl{position:absolute;top:5px;right:7px;font-size:8px;font-weight:800;letter-spacing:1px;color:var(--amb);opacity:.7;text-transform:uppercase}
 
-/* ── REAL vs TBD visual distinction ── */
-/* REAL DATA: subtle green left accent already visible via .kb-g */
-/* TBD: dashed border, muted background */
-.krow.is-tbd{background:var(--s2);border-style:dashed;border-color:var(--bd3)}
-.krow.is-tbd .krow-lbl{color:var(--tl)}
-.card.is-tbd{background:var(--s2);border-style:dashed;border-color:var(--bd3)}
-/* REAL: small green dot in top-right corner */
-.real-badge{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;
-  background:var(--g);box-shadow:0 0 0 2px var(--gl);}
-/* TBD: text label */
-.tbd-badge{position:absolute;top:5px;right:8px;font-size:8px;font-weight:800;
-  letter-spacing:1px;color:var(--bd3);text-transform:uppercase}
-
-/* ── WATERMARKS ── */
-/* Demo data: crosshatch moire */
-.wm{position:relative;overflow:hidden}
-.wm::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-  background-image:
-    repeating-linear-gradient(45deg,rgba(107,133,96,.055) 0,rgba(107,133,96,.055) 1px,transparent 1px,transparent 9px),
-    repeating-linear-gradient(-45deg,rgba(107,133,96,.055) 0,rgba(107,133,96,.055) 1px,transparent 1px,transparent 9px);
-  z-index:2}
-.wm-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);
-  font-size:11px;font-weight:800;letter-spacing:2px;color:rgba(107,133,96,.18);
-  white-space:nowrap;pointer-events:none;text-transform:uppercase;z-index:3;user-select:none}
-/* Chart watermark: light diagonal + corner label */
-.wmc::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-  background-image:repeating-linear-gradient(60deg,rgba(107,133,96,.04) 0,rgba(107,133,96,.04) 1px,transparent 1px,transparent 14px);
-  z-index:5}
-.wm-cr{position:absolute;bottom:5px;right:8px;font-size:9px;font-weight:800;
-  letter-spacing:1.5px;color:rgba(107,133,96,.28);pointer-events:none;z-index:6;text-transform:uppercase}
-/* Error watermark: red */
-.wme::after{background-image:
-  repeating-linear-gradient(45deg,rgba(192,57,43,.08) 0,rgba(192,57,43,.08) 1px,transparent 1px,transparent 9px),
-  repeating-linear-gradient(-45deg,rgba(192,57,43,.08) 0,rgba(192,57,43,.08) 1px,transparent 1px,transparent 9px)}
-.wme .wm-txt,.wme .wm-cr{color:rgba(192,57,43,.38)}
-
-/* top accent bars */
-.ctb{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
-.tbg{background:linear-gradient(90deg,var(--g),var(--gb))}
-.tbr{background:linear-gradient(90deg,var(--red),#f0a8a0)}
-.tba{background:linear-gradient(90deg,var(--amb),var(--abb))}
-.tbb{background:linear-gradient(90deg,var(--b),var(--bb))}
-
-/* chart */
-.chdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px;gap:6px;flex-wrap:wrap}
+/* chart area */
+.chdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:6px;flex-wrap:wrap}
 .ct{font-size:12px;font-weight:700;color:var(--tx)}.cs{font-size:10px;color:var(--tm);margin-top:2px}
 .bdg{font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 8px;border-radius:20px;white-space:nowrap}
 .bdg-g{background:var(--gl);color:var(--gd);border:1px solid var(--gb)}
 .bdg-r{background:var(--rl);color:var(--red);border:1px solid var(--rb)}
-.bdg-a{background:var(--abl);color:#a06800;border:1px solid var(--abb)}
+.bdg-a{background:var(--abl);color:var(--amb);border:1px solid var(--abb)}
 .bdg-b{background:var(--bl);color:var(--bd2);border:1px solid var(--bb)}
-.bdg-tbd{background:var(--s2);color:var(--tl);border:1px dashed var(--bd3)}
+.bdg-tbd{background:var(--s2);color:var(--tl);border:1px dashed var(--bd3);font-style:italic}
 .cw{position:relative}
-.ch120{height:120px}.ch150{height:150px}.ch170{height:170px}.ch200{height:200px}
-@media(max-width:580px){.ch200{height:160px}.ch170{height:140px}}
+.ch140{height:140px}.ch160{height:160px}.ch180{height:180px}.ch210{height:210px}
+@media(max-width:580px){.ch210{height:170px}.ch180{height:150px}}
+
+/* WATERMARKS */
+.wm{position:relative;overflow:hidden}
+.wm::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background-image:repeating-linear-gradient(45deg,rgba(100,130,90,.05) 0,rgba(100,130,90,.05) 1px,transparent 1px,transparent 9px),
+    repeating-linear-gradient(-45deg,rgba(100,130,90,.05) 0,rgba(100,130,90,.05) 1px,transparent 1px,transparent 9px);z-index:2}
+.wm-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);
+  font-size:11px;font-weight:800;letter-spacing:2px;color:rgba(100,130,90,.18);
+  white-space:nowrap;pointer-events:none;text-transform:uppercase;z-index:3;user-select:none}
+.wmc::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background-image:repeating-linear-gradient(60deg,rgba(100,130,90,.04) 0,rgba(100,130,90,.04) 1px,transparent 1px,transparent 14px);z-index:5}
+.wm-cr{position:absolute;bottom:5px;right:8px;font-size:9px;font-weight:800;letter-spacing:1.5px;
+  color:rgba(100,130,90,.28);pointer-events:none;z-index:6;text-transform:uppercase}
+.wme::after{background-image:repeating-linear-gradient(45deg,rgba(192,57,43,.08) 0,rgba(192,57,43,.08) 1px,transparent 1px,transparent 9px),
+    repeating-linear-gradient(-45deg,rgba(192,57,43,.08) 0,rgba(192,57,43,.08) 1px,transparent 1px,transparent 9px)}
+.wme .wm-txt,.wme .wm-cr{color:rgba(192,57,43,.38)}
 
 /* alerts */
-.al{background:var(--rl);border:1.5px solid var(--rb);border-radius:var(--rs);
-  padding:9px 13px;display:flex;align-items:flex-start;gap:9px;margin-bottom:12px;font-size:12px}
+.al{background:var(--rl);border:1px solid var(--rb);border-radius:var(--rs);padding:9px 14px;display:flex;align-items:flex-start;gap:9px;margin-bottom:12px;font-size:12px}
 .al-a{background:var(--abl);border-color:var(--abb)}.al-g{background:var(--gl);border-color:var(--gb)}
 .al .ic{font-size:14px;margin-top:1px;flex-shrink:0}
-.al b{color:var(--red)}.al-a b{color:#a06800}.al-g b{color:var(--gd)}
+.al b{color:var(--red)}.al-a b{color:var(--amb)}.al-g b{color:var(--gd)}
 
-/* coverage KPI bar */
-.ckpi{height:7px;background:var(--s2);border-radius:4px;overflow:hidden;margin-top:6px;border:1px solid var(--bd)}
+/* coverage progress */
+.ckpi{height:6px;background:var(--s2);border-radius:4px;overflow:hidden;margin-top:6px;border:1px solid var(--bd)}
 .ckpi-f{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--g),var(--gd));transition:width .6s}
 
 /* pill / cov */
 .pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
 .plg{background:var(--gl);color:var(--gd);border:1px solid var(--gb)}
 .plr{background:var(--rl);color:var(--red);border:1px solid var(--rb)}
-.pla{background:var(--abl);color:#a06800;border:1px solid var(--abb)}
+.pla{background:var(--abl);color:var(--amb);border:1px solid var(--abb)}
 .plb{background:var(--bl);color:var(--bd2);border:1px solid var(--bb)}
 .cov{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px}
-.cy{background:#daf2ee;color:var(--gd);border:1px solid var(--gb)}
-.cp{background:var(--abl);color:#a06800;border:1px solid var(--abb)}
+.cy{background:var(--gl);color:var(--gd);border:1px solid var(--gb)}
+.cp{background:var(--abl);color:var(--amb);border:1px solid var(--abb)}
 .cc{background:var(--bl);color:var(--bd2);border:1px solid var(--bb)}
-.cn{background:#fee4e0;color:#922;border:1px solid #f0b0a8}
-.ct{background:var(--s2);color:var(--tl);border:1px solid var(--bd3)}
-.covbar{display:flex;height:7px;border-radius:4px;overflow:hidden;gap:1px}
+.cn{background:var(--rl);color:var(--red);border:1px solid var(--rb)}
+.ctt{background:var(--s2);color:var(--tl);border:1px dashed var(--bd3)}
+.covbar{display:flex;height:6px;border-radius:4px;overflow:hidden;gap:1px}
 .cbs{height:100%;flex-shrink:0}
 
 /* progress row */
-.pr{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bd)}
+.pr{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)}
 .pr:last-child{border-bottom:none}
 .pn{flex:1;font-size:12px;color:var(--td)}
 .pbw{width:80px;height:5px;background:var(--s2);border-radius:3px;flex-shrink:0}
@@ -268,8 +200,7 @@ a{color:var(--gd);text-decoration:none}
 .pv{width:44px;font-size:11px;font-weight:600;text-align:right}
 
 /* mini row */
-.mr{display:flex;align-items:center;justify-content:space-between;padding:5px 0;
-  border-bottom:1px solid var(--bd);gap:7px}
+.mr{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd);gap:7px}
 .mr:last-child{border-bottom:none}
 .mn{font-size:11px;color:var(--td);flex:1}
 .mv{font-size:12px;font-weight:700;color:var(--tx);white-space:nowrap}
@@ -279,34 +210,62 @@ a{color:var(--gd);text-decoration:none}
 /* tables */
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tbl{width:100%;border-collapse:collapse;min-width:420px}
-.tbl th{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
-  color:var(--tm);padding:7px 9px;text-align:left;background:var(--s2);border-bottom:1.5px solid var(--bd)}
-.tbl td{font-size:12px;color:var(--td);padding:7px 9px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.tbl th{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--tm);padding:7px 10px;text-align:left;background:var(--s2);border-bottom:1px solid var(--bd)}
+.tbl td{font-size:12px;color:var(--td);padding:7px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}.tbl td:first-child{color:var(--tx);font-weight:600}
 .tbl tr:hover td{background:var(--s2)}
-.tfoot{padding:7px 12px;font-size:10px;color:var(--tm);background:var(--s2);
-  border-top:1.5px solid var(--bd);border-radius:0 0 var(--r) var(--r)}
+.tfoot{padding:7px 12px;font-size:10px;color:var(--tm);background:var(--s2);border-top:1px solid var(--bd);border-radius:0 0 var(--r) var(--r)}
 
-/* strategy */
-.pjc{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--r);padding:13px;box-shadow:var(--sh);position:relative}
-.pji{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--tm);margin-bottom:4px}
-.pjn{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:7px;line-height:1.3}
-.pjo{font-size:10px;color:var(--td);margin-bottom:5px}.pjo b{color:var(--tx)}
-.pjbw{height:5px;background:var(--s2);border-radius:3px;margin:5px 0 4px}
-.pjb{height:100%;border-radius:3px;transition:width .4s}
-.pjm{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
-.pjpr{position:absolute;top:9px;right:9px;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px}
-.prA{background:var(--gl);color:var(--gd)}.prB{background:var(--bl);color:var(--bd2)}
-.pec{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--rs);padding:9px 11px;box-shadow:var(--sh)}
+/* ── STRATEGY SPECIFIC ── */
+
+/* Goal row */
+.goal-row{background:#fff;border:1px solid var(--bd);border-radius:var(--rs);padding:12px 16px;
+  box-shadow:var(--sh);display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.goal-id{font-size:11px;font-weight:800;color:var(--gb);min-width:28px;text-align:center}
+.goal-text{flex:1;font-size:12px;color:var(--tx);line-height:1.4}
+.goal-pct-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:140px}
+.goal-bar-bg{flex:1;height:6px;background:var(--s2);border-radius:3px;overflow:hidden}
+.goal-bar-fill{height:100%;border-radius:3px;background:var(--g);transition:width .5s}
+.goal-pct{font-size:12px;font-weight:800;color:var(--gd);min-width:36px;text-align:right}
+.goal-pct.tbd{color:var(--tl)}
+
+/* Gantt */
+.gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.gantt-table{width:100%;border-collapse:collapse;min-width:700px;font-size:11px}
+.gantt-table th{background:var(--s2);border-bottom:1px solid var(--bd);padding:7px 10px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--tm);white-space:nowrap;text-align:left}
+.gantt-table th.gcol{text-align:center;min-width:46px;border-left:1px solid var(--bd)}
+.gantt-table td{padding:5px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.gantt-table tr:last-child td{border-bottom:none}
+.gantt-table tr:hover td{background:var(--s2)}
+.gname{font-weight:600;color:var(--tx);white-space:nowrap}
+.gowner{font-size:10px;color:var(--tm);white-space:nowrap}
+.gcell{text-align:center;border-left:1px solid var(--bd);padding:5px 3px;position:relative}
+.gbar{display:inline-block;height:18px;border-radius:4px;position:relative;min-width:4px;
+  background:linear-gradient(135deg,var(--g),var(--gd));opacity:.85}
+.gbar.prio-b{background:linear-gradient(135deg,var(--b),var(--bd2));opacity:.75}
+.gbar.done{background:linear-gradient(135deg,#52b8ac,var(--g))}
+.gbar.today-line{box-shadow:inset 2px 0 0 #fff}
+.today-col{background:rgba(42,157,143,.06)}
+.month-hdr{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--gd)}
+.prio-badge{display:inline-flex;font-size:8px;font-weight:800;padding:1px 5px;border-radius:3px}
+.prio-A{background:var(--gl);color:var(--gd)}.prio-B{background:var(--bl);color:var(--bd2)}
+.g-end{font-size:9px;color:var(--tl);white-space:nowrap}
+
+/* Person scoring — clean white/teal/blue */
+.pec{background:#fff;border:1px solid var(--bd);border-radius:var(--rs);padding:10px 12px;box-shadow:var(--sh)}
 .pen{font-size:11px;font-weight:700;color:var(--tx);margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pebw{height:6px;background:var(--s2);border-radius:3px;margin-bottom:4px}
-.pef{height:100%;border-radius:3px}
+.pebw{height:6px;background:var(--s2);border-radius:3px;margin-bottom:4px;overflow:hidden}
+.pef{height:100%;border-radius:3px;transition:width .5s}
+/* color scale: top=teal, mid=blue, low=light blue — NO red */
+.pef-hi{background:linear-gradient(90deg,var(--g),var(--gd))}
+.pef-md{background:linear-gradient(90deg,var(--b),var(--bd2))}
+.pef-lo{background:linear-gradient(90deg,var(--gb),var(--b))}
 .pept{font-size:10px;color:var(--tm)}.pept b{color:var(--gd)}
 .tdone td{color:var(--tl)!important;text-decoration:line-through;opacity:.7}
 .tdone td:first-child{color:var(--tl)!important}
 
 /* loc card */
-.lc{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--rs);padding:11px;box-shadow:var(--sh)}
+.lc{background:#fff;border:1px solid var(--bd);border-radius:var(--rs);padding:11px;box-shadow:var(--sh)}
 .lch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .lcn{font-size:12px;font-weight:700;color:var(--tx)}
 .lrw{display:flex;align-items:center;gap:6px;margin-bottom:4px}
@@ -315,8 +274,7 @@ a{color:var(--gd);text-decoration:none}
 .lbf{height:100%;border-radius:3px}.fg{background:var(--g)}.fa{background:var(--amb)}.fr{background:var(--red)}
 .lbv{font-size:10px;font-weight:600;color:var(--td);width:32px;text-align:right}
 
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--ga);border-radius:3px}
 </style>
 </head>
@@ -325,12 +283,9 @@ a{color:var(--gd);text-decoration:none}
 <!-- WIDGET MANAGER -->
 <div class="wmo" id="wmO" onclick="if(event.target===this)closeWM()">
   <div class="wmd">
-    <div class="wmh">
-      <div class="wmht">&#9881;&#65039; Налаштування віджетів</div>
-      <button class="wmcl" onclick="closeWM()">&#10005;</button>
-    </div>
+    <div class="wmh"><div class="wmht">⚙️ Налаштування віджетів</div><button class="wmcl" onclick="closeWM()">✕</button></div>
     <div class="wmb" id="wmB"></div>
-    <div class="wmfoo"><button class="wmres" onclick="resetWidgets()">&#8635; Скинути до стандарту</button></div>
+    <div class="wmfoo"><button class="wmres" onclick="resetWidgets()">↺ Скинути до стандарту</button></div>
   </div>
 </div>
 
@@ -338,15 +293,9 @@ a{color:var(--gd);text-decoration:none}
 <div class="nav">
   <div class="nav-top">
     <div class="logo">
-      <div class="lcube">
-        <svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg>
-      </div>
-      <div>
-        <div class="lname">EASY<span>3D</span>PRINT</div>
-        <div class="ltag">Dashboard v1.0</div>
-      </div>
+      <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v1.0</div></div>
     </div>
-
     <div class="tabs-s">
       <button class="tb active" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO</button>
       <button class="tb" onclick="go('str',this)"><span class="ti">🎯</span>Стратегія</button>
@@ -359,148 +308,56 @@ a{color:var(--gd);text-decoration:none}
       <button class="tb" onclick="go('loc',this)"><span class="ti">📍</span>Локації</button>
       <button class="tb" onclick="go('reg',this)"><span class="ti">📋</span>Реєстр</button>
     </div>
-
     <div class="nav-acts">
-      <div class="lp"><div class="ld" id="ld"></div><span id="ls">&#8230;</span></div>
-      <button class="wm-btn" onclick="openWM()">&#9881; Віджети</button>
+      <div class="lp"><div class="ld" id="ld"></div><span id="ls">…</span></div>
+      <button class="wm-btn" onclick="openWM()">⚙ Віджети</button>
     </div>
   </div>
-
-  <!-- FILTER BAR — dropdown selects + motivational phrase -->
   <div class="fbar">
     <span class="flbl">Рік:</span>
-    <div class="fsel-wrap">
-      <select class="fsel" id="ysel" onchange="setY(this.value)">
-        <option value="all">Усі роки</option>
-        <option value="2025">2025</option>
-        <option value="2026" selected>2026</option>
-      </select>
-      <span class="fsel-arr">&#9660;</span>
-    </div>
-
+    <div class="fsel-w"><select class="fsel" id="ysel" onchange="setY(this.value)">
+      <option value="all">Усі роки</option>
+      <option value="2025">2025</option>
+      <option value="2026" selected>2026</option>
+    </select><span class="fsel-a">▾</span></div>
     <div class="fsep"></div>
-
     <span class="flbl">Місяць:</span>
-    <div class="fsel-wrap">
-      <select class="fsel" id="msel" onchange="setM(this.value)">
-        <option value="all">Усі місяці</option>
-        <option value="0">Січень</option>
-        <option value="1">Лютий</option>
-        <option value="2">Березень</option>
-        <option value="3">Квітень</option>
-        <option value="4" selected>Травень</option>
-        <option value="5">Червень</option>
-        <option value="6">Липень</option>
-        <option value="7">Серпень</option>
-        <option value="8">Вересень</option>
-        <option value="9">Жовтень</option>
-        <option value="10">Листопад</option>
-        <option value="11">Грудень</option>
-      </select>
-      <span class="fsel-arr">&#9660;</span>
-    </div>
-
+    <div class="fsel-w"><select class="fsel" id="msel" onchange="setM(this.value)">
+      <option value="all">Усі місяці</option>
+      <option value="0">Січень</option><option value="1">Лютий</option><option value="2">Березень</option>
+      <option value="3">Квітень</option><option value="4" selected>Травень</option><option value="5">Червень</option>
+      <option value="6">Липень</option><option value="7">Серпень</option><option value="8">Вересень</option>
+      <option value="9">Жовтень</option><option value="10">Листопад</option><option value="11">Грудень</option>
+    </select><span class="fsel-a">▾</span></div>
     <div class="fsep"></div>
     <div class="motiv" id="motiv"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     CEO
-═══════════════════════════════════ -->
+<!-- ═════════════ CEO ═════════════ -->
 <div class="panel active" id="panel-ceo">
-
-  <!-- WIDGET: 12 KPI — compact rows -->
   <div id="w-ceo-kpi">
     <div class="sec">📊 Пульс компанії — 12 ключових метрик</div>
-    <!-- 6 колонок: компактні рядки -->
     <div class="g6">
-      <div class="krow">
-        <div class="krow-bar kb-g"></div>
-        <div class="krow-lbl">Виручка ОПТ 2025</div>
-        <div class="krow-val g">121.9M</div>
-        <div class="real-badge" title="Реальні дані"></div>
-      </div>
-      <div class="krow">
-        <div class="krow-bar kb-a"></div>
-        <div class="krow-lbl">Виручка Роздріб 2025</div>
-        <div class="krow-val a">16.9M</div>
-        <div class="real-badge" title="Реальні дані"></div>
-      </div>
-      <div class="krow is-tbd">
-        <div class="krow-bar kb-r"></div>
-        <div class="krow-lbl">OEE / Ефективність</div>
-        <div class="krow-val r">~30%</div>
-        <div class="krow-tgt">Ціль: <b>80%+</b></div>
-        <div class="tbd-badge">ДЕМО</div>
-      </div>
-      <div class="krow is-tbd">
-        <div class="krow-bar kb-r"></div>
-        <div class="krow-lbl">% Браку</div>
-        <div class="krow-val r">~12%</div>
-        <div class="krow-tgt">Ціль: <b>&lt;9%</b></div>
-        <div class="tbd-badge">ДЕМО</div>
-      </div>
-      <div class="krow">
-        <div class="krow-bar kb-r"></div>
-        <div class="krow-lbl">Частка ТОП-2 клієнтів</div>
-        <div class="krow-val r">94.7%</div>
-        <div class="krow-tgt">Ціль: <b>≤70%</b></div>
-        <div class="real-badge" title="Реальні дані"></div>
-      </div>
-      <div class="krow is-tbd">
-        <div class="krow-bar kb-a"></div>
-        <div class="krow-lbl">Lead time замовлень</div>
-        <div class="krow-val a">~22 дні</div>
-        <div class="krow-tgt">Ціль: <b>&lt;5</b></div>
-        <div class="tbd-badge">ДЕМО</div>
-      </div>
-      <div class="krow is-tbd">
-        <div class="krow-bar kb-b"></div>
-        <div class="krow-lbl">Маш. час / добу</div>
-        <div class="krow-val x">TBD год</div>
-        <div class="tbd-badge">TBD</div>
-      </div>
-      <div class="krow">
-        <div class="krow-bar kb-g"></div>
-        <div class="krow-lbl">Активних B2B-клієнтів</div>
-        <div class="krow-val g">20</div>
-        <div class="real-badge" title="Реальні дані"></div>
-      </div>
-      <div class="krow is-tbd">
-        <div class="krow-bar kb-b"></div>
-        <div class="krow-lbl">Нові B2B / місяць</div>
-        <div class="krow-val x">TBD</div>
-        <div class="tbd-badge">TBD</div>
-      </div>
-      <div class="krow is-tbd">
-        <div class="krow-bar kb-b"></div>
-        <div class="krow-lbl">Маржинальність</div>
-        <div class="krow-val x">TBD %</div>
-        <div class="tbd-badge">TBD</div>
-      </div>
-      <div class="krow is-tbd">
-        <div class="krow-bar kb-b"></div>
-        <div class="krow-lbl">Плинність персоналу</div>
-        <div class="krow-val x">TBD %</div>
-        <div class="tbd-badge">TBD</div>
-      </div>
-      <div class="krow is-tbd">
-        <div class="krow-bar kb-g"></div>
-        <div class="krow-lbl">Прогрес проектів SS</div>
-        <div class="krow-val x" id="ceo-pp">—%</div>
-        <div class="tbd-badge">АВТО</div>
-      </div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка ОПТ 2025</div><div class="krow-val g">121.9M</div><div class="real-dot" title="Реальні дані"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка Роздріб 2025</div><div class="krow-val a">16.9M</div><div class="real-dot"></div></div>
+      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">OEE / Ефективність</div><div class="krow-val r">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">% Браку</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Частка ТОП-2 клієнтів</div><div class="krow-val r">94.7%</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
+      <div class="krow demo"><div class="krow-bar kb-a"></div><div class="krow-lbl">Lead time замовлень</div><div class="krow-val a">~22 дні</div><div class="krow-tgt">Ціль: <b>&lt;5</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маш. час / добу</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Активних B2B-клієнтів</div><div class="krow-val g">20</div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Нові B2B / місяць</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржинальність</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Плинність персоналу</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-g"></div><div class="krow-lbl">Прогрес проектів SS</div><div class="krow-val x" id="ceo-pp">—%</div><div class="tbd-lbl">АВТО</div></div>
     </div>
   </div>
 
-  <!-- WIDGET: Coverage KPI -->
   <div id="w-ceo-cov">
-    <div class="sec">🎯 КПІ Проекту #3 — Діджиталізація (скільки метрик на реальних даних)</div>
+    <div class="sec">🎯 КПІ Проекту #3 — скільки метрик на реальних даних</div>
     <div class="g4">
-      <div class="card s2">
-        <div class="ctb tbg"></div>
-        <div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Реальні дані / всього метрик</div>
+      <div class="card s2"><div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Реальні дані / всього метрик</div>
         <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:5px">
           <div style="font-size:28px;font-weight:800;color:var(--gd)" id="cv-yes">12</div>
           <div style="font-size:15px;color:var(--tm);margin-bottom:3px">/ 174</div>
@@ -508,57 +365,35 @@ a{color:var(--gd);text-decoration:none}
         </div>
         <div class="ckpi"><div class="ckpi-f" id="cv-bar" style="width:6.9%"></div></div>
         <div style="display:flex;align-items:center;gap:5px;margin-top:8px;flex-wrap:wrap">
-          <span class="cov cy" id="cc-y">12 є</span>
-          <span class="cov cp" id="cc-p">60 частково</span>
-          <span class="cov cc" id="cc-c">39 можна</span>
-          <span class="cov cn" id="cc-n">63 немає</span>
-        </div>
-        <div class="real-badge"></div>
+          <span class="cov cy" id="cc-y">12 є</span><span class="cov cp" id="cc-p">60 частково</span>
+          <span class="cov cc" id="cc-c">39 можна</span><span class="cov cn" id="cc-n">63 немає</span>
+        </div><div class="real-dot"></div>
       </div>
-      <div class="card">
-        <div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Є + Частково</div>
-        <div style="font-size:24px;font-weight:800;color:var(--gd)" id="cv-ext">41.4%</div>
+      <div class="card"><div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Є + Частково</div>
+        <div style="font-size:24px;font-weight:800;color:var(--gd)">41.4%</div>
         <div style="font-size:11px;color:var(--tm)">72 із 174 метрик</div>
         <div class="ckpi" style="margin-top:7px"><div class="ckpi-f" style="width:41.4%;background:linear-gradient(90deg,var(--g),var(--amb))"></div></div>
       </div>
-      <div class="card">
-        <div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Потенціал (+ Можна)</div>
-        <div style="font-size:24px;font-weight:800;color:var(--b)" id="cv-pot">63.8%</div>
+      <div class="card"><div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Потенціал (+ Можна)</div>
+        <div style="font-size:24px;font-weight:800;color:var(--b)">63.8%</div>
         <div style="font-size:11px;color:var(--tm)">111 із 174 метрик</div>
         <div class="ckpi" style="margin-top:7px"><div class="ckpi-f" style="width:63.8%;background:linear-gradient(90deg,var(--g),var(--b))"></div></div>
       </div>
     </div>
   </div>
 
-  <!-- WIDGET: Charts -->
   <div id="w-ceo-charts">
     <div class="sec">📈 Динаміка та концентрація</div>
     <div class="g3">
-      <div class="card s2 wm wmc">
-        <div class="chdr">
-          <div><div class="ct">Виручка ОПТ + Роздріб, млн грн</div><div class="cs">Демо-дані · фільтрується</div></div>
-          <span class="bdg bdg-tbd">ДЕМО</span>
-        </div>
-        <div class="cw ch200"><canvas id="revTrend"></canvas></div>
-        <span class="wm-cr">ДЕМО · TBD</span>
-      </div>
-      <div class="card">
-        <div class="chdr">
-          <div><div class="ct">Концентрація клієнтів</div><div class="cs">ТОП-2 = 94.7%</div></div>
-          <span class="bdg bdg-r">РИЗИК</span>
-        </div>
-        <div class="cw ch200"><canvas id="clientConc"></canvas></div>
-        <div class="real-badge"></div>
-      </div>
+      <div class="card s2 wm wmc"><div class="chdr"><div><div class="ct">Виручка ОПТ + Роздріб, млн грн</div><div class="cs">Демо-дані · фільтрується</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch210"><canvas id="revTrend"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+      <div class="card"><div class="chdr"><div><div class="ct">Концентрація клієнтів</div><div class="cs">ТОП-2 = 94.7%</div></div><span class="bdg bdg-r">РИЗИК</span></div><div class="cw ch210"><canvas id="clientConc"></canvas></div><div class="real-dot"></div></div>
     </div>
   </div>
 
-  <!-- WIDGET: Goals + Team -->
   <div id="w-ceo-goals">
     <div class="sec">🎯 Стратегічні цілі 2026</div>
     <div class="g2">
-      <div class="card">
-        <div class="ct" style="margin-bottom:10px">Ціль → Поточний стан</div>
+      <div class="card"><div class="ct" style="margin-bottom:10px">Ціль → Поточний стан</div>
         <div class="pr"><div class="pn">OEE 80%+</div><div class="pbw"><div class="pb" style="width:30%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">~30%</div></div>
         <div class="pr"><div class="pn">Брак &lt;9%</div><div class="pbw"><div class="pb" style="width:22%;background:var(--red)"></div></div><div class="pv" style="color:var(--red)">~12%</div></div>
         <div class="pr"><div class="pn">Lead time &lt;5 днів</div><div class="pbw"><div class="pb" style="width:10%;background:var(--red)"></div></div><div class="pv" style="color:var(--red)">22 дн.</div></div>
@@ -566,34 +401,49 @@ a{color:var(--gd);text-decoration:none}
         <div class="pr"><div class="pn">15% не мілітарі</div><div class="pbw"><div class="pb" style="width:10%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">TBD</div></div>
         <div class="pr"><div class="pn">Виручка 650M грн</div><div class="pbw"><div class="pb" style="width:21%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">TBD</div></div>
       </div>
-      <div class="card">
-        <div class="ct" style="margin-bottom:9px">Парк та команда</div>
+      <div class="card"><div class="ct" style="margin-bottom:9px">Парк та команда</div>
         <div class="mr"><div class="mn">Парк принтерів (факт)</div><div class="mv g">2 060</div></div>
         <div class="mr"><div class="mn">Ціль принтерів</div><div class="mv" style="color:var(--tm)">10 000</div></div>
         <div class="mr"><div class="mn">Штат поточний</div><div class="mv">130 осіб</div></div>
         <div class="mr"><div class="mn">Ріст штату за рік</div><div class="mv g">+383%</div></div>
         <div class="mr"><div class="mn">Активних локацій</div><div class="mv">5</div></div>
         <div class="mr"><div class="mn">Виручка / принтер / міс</div><div class="mtbd">TBD</div></div>
-        <div class="real-badge"></div>
+        <div class="real-dot"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     СТРАТЕГІЯ
-═══════════════════════════════════ -->
+<!-- ═════════════ СТРАТЕГІЯ ═════════════ -->
 <div class="panel" id="panel-str">
-  <div class="al al-g"><span class="ic">📐</span><div><b>Джерело:</b> <a href="https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/" target="_blank">Google Sheets → Стратегічні цілі та проекти 2026</a> · Скоринг: Відп. 70% / Учасники 30% (рівномірно)</div></div>
-  <div id="w-str-goals"><div class="sec">🎯 Цілі на 1 рік (SMART)</div><div class="g3" id="gg"></div></div>
-  <div id="w-str-proj"><div class="sec">📦 Проекти — Скоринг та прогрес</div><div class="g3" id="pg"></div></div>
-  <div id="w-str-pers"><div class="sec">👤 Скоринг по учасниках</div><div class="g5" id="perg"></div></div>
+  <div class="al al-g"><span class="ic">📐</span><div><b>Джерело:</b> <a href="https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/" target="_blank">Google Sheets → Стратегічні цілі та проекти 2026</a> · Скоринг: Відп. 70% / Учасники 30%</div></div>
+
+  <!-- ЦІЛІ — vertical list with progress indicator -->
+  <div id="w-str-goals">
+    <div class="sec">🎯 Цілі на 1 рік (SMART) — прогрес</div>
+    <div id="goals-list"></div>
+  </div>
+
+  <!-- GANTT timeline -->
+  <div id="w-str-gantt">
+    <div class="sec">📅 Часова шкала проектів 2026</div>
+    <div class="card-flat">
+      <div class="gantt-wrap" id="ganttWrap"></div>
+    </div>
+  </div>
+
+  <!-- PERSON SCORES -->
+  <div id="w-str-pers">
+    <div class="sec">👤 Скоринг по учасниках</div>
+    <div class="g5" id="perg"></div>
+  </div>
+
+  <!-- SPRINT 2 -->
   <div id="w-str-s2">
     <div class="sec">⚡ Поточний спринт (Спринт 2: 11.05 – 29.05)</div>
     <div class="g2">
-      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct">Прогрес Спринту 2</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch150"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm">ДЕМО · TBD</span></div>
-      <div class="card">
-        <div class="ct" style="margin-bottom:9px">Статистика Спринту 2</div>
+      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct">Прогрес Спринту 2</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm">ДЕМО · TBD</span></div>
+      <div class="card"><div class="ct" style="margin-bottom:9px">Статистика Спринту 2</div>
         <div class="mr"><div class="mn">Всього задач</div><div class="mv" id="s2t">—</div></div>
         <div class="mr"><div class="mn">Виконано</div><div class="mv g" id="s2d">—</div></div>
         <div class="mr"><div class="mn">В роботі</div><div class="mv a" id="s2w">—</div></div>
@@ -602,29 +452,29 @@ a{color:var(--gd);text-decoration:none}
       </div>
     </div>
   </div>
+
+  <!-- SPRINT 1 -->
   <div id="w-str-s1">
     <div class="sec">📅 Спринт 1 — підсумок (20.04 – 11.05)</div>
-    <div class="card" style="padding:0"><div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div><div class="tfoot">Спринт 1 завершено: 11.05.2026</div></div>
+    <div class="card-flat"><div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div><div class="tfoot">Спринт 1 завершено: 11.05.2026</div></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     ВИРОБНИЦТВО
-═══════════════════════════════════ -->
+<!-- ═════════════ ВИРОБНИЦТВО ═════════════ -->
 <div class="panel" id="panel-prod">
   <div id="w-prod-cap">
     <div class="sec">⚙️ Потужність та завантаженість (19 метрик)</div>
     <div class="g6">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (активних)</div><div class="krow-val g">2 060</div><div class="real-badge"></div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-a"></div><div class="krow-lbl">OEE</div><div class="krow-val a">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="tbd-badge">ДЕМО</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маш. час (год/добу)</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% завантаженості</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF</div><div class="krow-val x">TBD год</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-badge">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (активних)</div><div class="krow-val g">2 060</div><div class="real-dot"></div></div>
+      <div class="krow demo"><div class="krow-bar kb-a"></div><div class="krow-lbl">OEE</div><div class="krow-val a">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маш. час (год/добу)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% завантаженості</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
   <div id="w-prod-batch">
-    <div class="sec">📦 Партії — ключові метрики (27 метрик)</div>
+    <div class="sec">📦 Партії — ключові метрики</div>
     <div class="g3">
       <div class="card wm"><div class="ct" style="margin-bottom:9px">Часові параметри</div><div class="mr"><div class="mn">Lead time (повний цикл)</div><div class="mv a">~22 дні</div></div><div class="mr"><div class="mn">Дата прийому замовлення</div><div class="mv"><span class="cov cy">Є</span></div></div><div class="mr"><div class="mn">Нормативний час</div><div class="mv"><span class="cov cn">Немає</span></div></div><div class="mr"><div class="mn">Відхилення від нормативу</div><div class="mtbd">TBD</div></div><span class="wm-txt">ДЕМО</span></div>
       <div class="card"><div class="ct" style="margin-bottom:9px">Сировина та матеріали</div><div class="mr"><div class="mn">Вид сировини (філамент)</div><div class="mv"><span class="cov cp">Частково</span></div></div><div class="mr"><div class="mn">Нормативна витрата</div><div class="mv"><span class="cov cn">Немає</span></div></div><div class="mr"><div class="mn">Фактична витрата</div><div class="mv"><span class="cov cp">Частково</span></div></div><div class="mr"><div class="mn">Вартість сировини</div><div class="mv"><span class="cov cp">Частково</span></div></div></div>
@@ -634,87 +484,81 @@ a{color:var(--gd);text-decoration:none}
   <div id="w-prod-trend">
     <div class="sec">📉 Lead Time та виробіток</div>
     <div class="g2">
-      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Lead time (дні)</div><div class="cs">демо · ціль &lt;5</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch170"><canvas id="leadCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
-      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Виробіток по локаціях</div><div class="cs">демо · кг/міс</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch170"><canvas id="outCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Lead time (дні)</div><div class="cs">демо · ціль &lt;5</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="leadCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Виробіток по локаціях</div><div class="cs">демо · кг/міс</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="outCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     ЯКІСТЬ
-═══════════════════════════════════ -->
+<!-- ═════════════ ЯКІСТЬ ═════════════ -->
 <div class="panel" id="panel-qual">
   <div id="w-qual-kpi">
     <div class="sec">🎯 Якість та брак — 13 метрик</div>
     <div class="g6">
-      <div class="krow is-tbd"><div class="krow-bar kb-r"></div><div class="krow-lbl">% браку (компанія)</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="tbd-badge">ДЕМО</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% браку по локації</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% браку по оператору</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вартість браку / міс</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ТОП-5 причин (Парето)</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вихідний контроль</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
+      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">% браку (компанія)</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% браку по локації</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% браку по оператору</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вартість браку / міс</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ТОП-5 причин (Парето)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вихідний контроль</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
   <div id="w-qual-trend">
     <div class="sec">📈 Динаміка браку</div>
-    <div class="card wm wmc"><div class="chdr"><div><div class="ct">% браку по місяцях</div><div class="cs">демо · ціль &lt;9%</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch170"><canvas id="defCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+    <div class="card wm wmc"><div class="chdr"><div><div class="ct">% браку по місяцях</div><div class="cs">демо · ціль &lt;9%</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="defCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     ПРОДАЖІ
-═══════════════════════════════════ -->
+<!-- ═════════════ ПРОДАЖІ ═════════════ -->
 <div class="panel" id="panel-sales">
   <div id="w-sales-b2b">
     <div class="sec">📊 Продажі ОПТ B2B (16 метрик)</div>
     <div class="g6">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка ОПТ 2025</div><div class="krow-val g">121.9M</div><div class="real-badge"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">К-сть угод (2025)</div><div class="krow-val g">42</div><div class="real-badge"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Середній чек ОПТ</div><div class="krow-val">~2.9M</div><div class="real-badge"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Повторні замовлення</div><div class="krow-val g">45%</div><div class="real-badge"></div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Частка ТОП-2 клієнтів</div><div class="krow-val r">94.7%</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-badge"></div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Загальна дебіторка</div><div class="krow-val x">TBD грн</div><div class="tbd-badge">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка ОПТ 2025</div><div class="krow-val g">121.9M</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">К-сть угод (2025)</div><div class="krow-val g">42</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Середній чек ОПТ</div><div class="krow-val">~2.9M</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Повторні замовлення</div><div class="krow-val g">45%</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Частка ТОП-2 клієнтів</div><div class="krow-val r">94.7%</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Загальна дебіторка</div><div class="krow-val x">TBD грн</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
   <div id="w-sales-b2c">
     <div class="sec">🛒 Продажі Роздріб B2C (9 метрик)</div>
     <div class="g6">
-      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка В2С 2025</div><div class="krow-val a">16.9M</div><div class="krow-tgt">Ціль: <b>&gt;1M/міс</b></div><div class="real-badge"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">К-сть угод (роздріб)</div><div class="krow-val g">—</div><div class="real-badge"></div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Середній чек В2С</div><div class="krow-val x">TBD грн</div><div class="krow-tgt">Ціль: <b>&gt;10K</b></div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Нові клієнти / міс</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Повторні звернення</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Виконання плану В2С</div><div class="krow-val a">66%</div><div class="krow-tgt">план</div><div class="tbd-badge">ДЕМО</div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка В2С 2025</div><div class="krow-val a">16.9M</div><div class="krow-tgt">Ціль: <b>&gt;1M/міс</b></div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Середній чек В2С</div><div class="krow-val x">TBD грн</div><div class="krow-tgt">Ціль: <b>&gt;10K</b></div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Нові клієнти / міс</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Повторні звернення</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow demo"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виконання плану В2С</div><div class="krow-val a">66%</div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Retention rate</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
   <div id="w-sales-trend">
     <div class="sec">📈 Динаміка</div>
     <div class="g2">
-      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Виручка по місяцях</div><div class="cs">демо</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch170"><canvas id="sTrend"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
-      <div class="card"><div class="chdr"><div><div class="ct">Концентрація клієнтів у виручці</div></div><span class="bdg bdg-r">РИЗИК</span></div><div class="cw ch170"><canvas id="cRisk"></canvas></div><div class="real-badge"></div></div>
+      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Виручка по місяцях</div><div class="cs">демо</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="sTrend"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+      <div class="card"><div class="chdr"><div><div class="ct">Концентрація клієнтів</div></div><span class="bdg bdg-r">РИЗИК</span></div><div class="cw ch160"><canvas id="cRisk"></canvas></div><div class="real-dot"></div></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     CRM
-═══════════════════════════════════ -->
+<!-- ═════════════ CRM ═════════════ -->
 <div class="panel" id="panel-crm">
   <div class="al al-a"><span class="ic">📣</span><div><b>Маркетинг:</b> З 24 метрик — 2 "частково" збираються. Null-атрибуція = 34 кл., 10.2M грн · Зупинити: DSA_RU, Competitors, Remarketing_b2b, Pmax_fid</div></div>
   <div id="w-crm-funnel">
     <div class="sec">🔽 Воронка та вартість залучення</div>
     <div class="g6">
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">К-сть лідів</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Конверсія Лід→Угода</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">CAC</div><div class="krow-val x">TBD грн</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">LTV / CAC</div><div class="krow-val x">TBD ×</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Null-атрибуція</div><div class="krow-val r">34 кл.</div><div class="krow-tgt">10.2M грн</div><div class="real-badge"></div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ROAS</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">К-сть лідів</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Конверсія Лід→Угода</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">CAC</div><div class="krow-val x">TBD грн</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">LTV / CAC</div><div class="krow-val x">TBD ×</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Null-атрибуція</div><div class="krow-val r">34 кл.</div><div class="krow-tgt">10.2M грн</div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ROAS</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
   <div id="w-crm-camp">
     <div class="sec">📢 Рекламні кампанії (аудит Дубровін)</div>
-    <div class="card" style="padding:0"><div class="tw"><table class="tbl"><thead><tr><th>Кампанія</th><th>ROI / ROAS</th><th>Рішення</th></tr></thead><tbody>
+    <div class="card-flat"><div class="tw"><table class="tbl"><thead><tr><th>Кампанія</th><th>ROI / ROAS</th><th>Рішення</th></tr></thead><tbody>
       <tr><td>B2B_convers</td><td style="color:var(--gd);font-weight:700">+70%</td><td><span class="pill plg">✓ Масштабувати</span></td></tr>
       <tr><td>Brand_UA_new</td><td style="color:var(--gd);font-weight:700">+1 690%</td><td><span class="pill plg">✓ Масштабувати</span></td></tr>
       <tr><td>DSA_RU</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">✗ Зупинити</span></td></tr>
@@ -725,63 +569,57 @@ a{color:var(--gd);text-decoration:none}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     ФІНАНСИ
-═══════════════════════════════════ -->
+<!-- ═════════════ ФІНАНСИ ═════════════ -->
 <div class="panel" id="panel-fin">
   <div class="al al-a"><span class="ic">🔧</span><div><b>В розробці:</b> P&L, Cashflow, Баланс — впроваджується управлінський облік (Дубровін / Пузавіков)</div></div>
   <div id="w-fin-pl">
     <div class="sec">📑 P&L — 8 метрик</div>
     <div class="g6">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка загальна 2025</div><div class="krow-val g">138.8M</div><div class="real-badge"></div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Собівартість (COGS)</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Валова маржа</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">EBITDA</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Чистий прибуток</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Касовий розрив</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка загальна 2025</div><div class="krow-val g">138.8M</div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Собівартість (COGS)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Валова маржа</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">EBITDA</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Чистий прибуток</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Касовий розрив</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
   <div id="w-fin-unit">
     <div class="sec">🔢 Юніт-економіка</div>
     <div class="g6">
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржа / одиниця</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Виручка / год маш.</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Витрати / год маш.</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржа локації</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ФОП (грн/міс)</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Залишок на рахунку</div><div class="krow-val x">TBD грн</div><div class="real-badge"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржа / одиниця</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Виручка / год маш.</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Витрати / год маш.</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржа локації</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ФОП (грн/міс)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Залишок на рахунку</div><div class="krow-val x">TBD грн</div><div class="real-dot"></div></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     HR
-═══════════════════════════════════ -->
+<!-- ═════════════ HR ═════════════ -->
 <div class="panel" id="panel-hr">
   <div id="w-hr-kpi">
     <div class="sec">👥 HR та Персонал — 9 метрик</div>
     <div class="g6">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Всього співробітників</div><div class="krow-val g">130</div><div class="real-badge"></div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Штат факт vs план</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-a"></div><div class="krow-lbl">Плинність кадрів</div><div class="krow-val x">TBD %</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Відкриті вакансії</div><div class="krow-val x">TBD</div><div class="real-badge"></div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Час закриття вак.</div><div class="krow-val x">TBD днів</div><div class="tbd-badge">TBD</div></div>
-      <div class="krow is-tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">eNPS</div><div class="krow-val x">TBD</div><div class="tbd-badge">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Всього співробітників</div><div class="krow-val g">130</div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Штат факт vs план</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Плинність кадрів</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Відкриті вакансії</div><div class="krow-val x">TBD</div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Час закриття вак.</div><div class="krow-val x">TBD днів</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">eNPS</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     ЛОКАЦІЇ
-═══════════════════════════════════ -->
+<!-- ═════════════ ЛОКАЦІЇ ═════════════ -->
 <div class="panel" id="panel-loc">
   <div id="w-loc-tbl">
     <div class="sec">📍 Зведена таблиця локацій</div>
-    <div class="card" style="padding:0;margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody>
-      <tr><td>Локація 1</td><td>1.0×</td><td><span class="pill pla">~62%</span></td><td><span class="pill pla">~89%</span></td><td><span class="pill pla">78%</span></td><td><span class="cov ct">TBD</span></td></tr>
-      <tr><td>Локація 2</td><td>1.15×</td><td><span class="pill pla">~55%</span></td><td><span class="pill pla">~87%</span></td><td><span class="pill pla">72%</span></td><td><span class="cov ct">TBD</span></td></tr>
-      <tr><td>Локація 4</td><td>1.4×</td><td><span class="pill plr">~40%</span></td><td><span class="pill plr">~85%</span></td><td><span class="pill plr">65%</span></td><td><span class="cov ct">TBD</span></td></tr>
-      <tr><td>Локація 5</td><td>2.0×</td><td><span class="pill plr">~28%</span></td><td><span class="pill pla">~82%</span></td><td><span class="pill plr">50%</span></td><td><span class="cov ct">TBD</span></td></tr>
+    <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody>
+      <tr><td>Локація 1</td><td>1.0×</td><td><span class="pill pla">~62%</span></td><td><span class="pill pla">~89%</span></td><td><span class="pill pla">78%</span></td><td><span class="cov ctt">TBD</span></td></tr>
+      <tr><td>Локація 2</td><td>1.15×</td><td><span class="pill pla">~55%</span></td><td><span class="pill pla">~87%</span></td><td><span class="pill pla">72%</span></td><td><span class="cov ctt">TBD</span></td></tr>
+      <tr><td>Локація 4</td><td>1.4×</td><td><span class="pill plr">~40%</span></td><td><span class="pill plr">~85%</span></td><td><span class="pill plr">65%</span></td><td><span class="cov ctt">TBD</span></td></tr>
+      <tr><td>Локація 5</td><td>2.0×</td><td><span class="pill plr">~28%</span></td><td><span class="pill pla">~82%</span></td><td><span class="pill plr">50%</span></td><td><span class="cov ctt">TBD</span></td></tr>
     </tbody></table></div><div class="tfoot">⚠️ Числові дані — демо-заглушки · TBD: підключаються через ПО Стріляного</div></div>
   </div>
   <div id="w-loc-cards">
@@ -795,210 +633,236 @@ a{color:var(--gd);text-decoration:none}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     РЕЄСТР
-═══════════════════════════════════ -->
+<!-- ═════════════ РЕЄСТР ═════════════ -->
 <div class="panel" id="panel-reg">
   <div id="w-reg-ch">
     <div class="sec">📋 Покриття метрик · 174 · 12 розділів</div>
     <div class="g3" style="margin-bottom:12px">
-      <div class="card"><div class="chdr"><div><div class="ct">Статус покриття</div></div></div><div class="cw ch170"><canvas id="covDon"></canvas></div></div>
-      <div class="card s2"><div class="chdr"><div><div class="ct">Покриття по розділах</div></div></div><div class="cw ch170"><canvas id="covBar"></canvas></div></div>
+      <div class="card"><div class="chdr"><div><div class="ct">Статус покриття</div></div></div><div class="cw ch160"><canvas id="covDon"></canvas></div></div>
+      <div class="card s2"><div class="chdr"><div><div class="ct">Покриття по розділах</div></div></div><div class="cw ch160"><canvas id="covBar"></canvas></div></div>
     </div>
   </div>
   <div id="w-reg-tbl">
-    <div class="card" style="padding:0">
+    <div class="card-flat">
       <div class="tw"><table class="tbl"><thead><tr><th>Розділ</th><th>Всього</th><th><span class="cov cy">Так</span></th><th><span class="cov cp">Частково</span></th><th><span class="cov cc">Можна</span></th><th><span class="cov cn">Немає</span></th><th>Покриття</th></tr></thead><tbody id="regB"></tbody></table></div>
       <div class="tfoot">Реєстр v1.0 · Квітень 2026 · Іванов Олег · <a href="https://docs.google.com/spreadsheets/d/1RFZV9ChnSXAkBgW4nv86mWvVqh4vjUKU/edit?gid=485374783" target="_blank">Google Sheets</a></div>
     </div>
   </div>
 </div>
 
-<!-- ════════════ SCRIPTS ════════════ -->
+<!-- ════════ SCRIPTS ════════ -->
 <script>
 // ── MOTIVATIONAL PHRASES ─────────────────────────────
-const PHRASES = [
-  "Що вимірюється — те покращується.",
-  "Дані — це нафта нашого часу. Не залишайте її в землі.",
-  "Кожна метрика без власника — це відповідальність нічия.",
-  "Ефективність — не про більше зусиль, а про менше відходів.",
-  "Рішення без даних — це просто думка.",
-  "Система без зворотного зв'язку не навчається.",
-  "Швидко провалитися — дешевше, ніж повільно провалитися.",
-  "Якість — це не відділ. Це відношення.",
-  "Якщо ви не вимірюєте, ви здогадуєтеся.",
-  "Найнебезпечніший тип відходів — робота, яку ви зробили ефективно, але яка не потрібна.",
-  "Зосередьтесь на процесі. Результати подбають про себе.",
-  "Культура з'їдає стратегію на сніданок.",
-  "Ціль без плану — лише мрія.",
-  "Покращення — нескінченний проект без дедлайну.",
-  "Проблема, яку не визнали — це проблема в квадраті.",
-  "Стандартизація — основа масштабування.",
-  "Найкращий час щось виміряти — вчора. Другий найкращий — зараз.",
-  "Брак — це несплачений рахунок клієнту.",
-  "Лідер задає темп. Дані тримають рахунок.",
-  "Прозорість — це довіра в дії.",
-  "Маленькі покращення щодня — велика різниця за рік.",
-  "Що не можна виміряти — не можна контролювати.",
-  "Дані без дії — просто шум.",
-  "Кожен простій — це можливість, яку ми втрачаємо.",
-  "Якість замовчувана — це ризик, який говорить голосно.",
-  "Найкращий dashboard — той, яким користуються щодня.",
-  "Швидкість без напрямку — це просто хаос.",
-  "Системи не брешуть. Але й не пробачають.",
-  "Команда без цілей — оркестр без партитури.",
-  "Кожна 'червона' метрика — запрошення до розмови.",
-  "Там, де немає власника — немає прогресу.",
-];
-
-function getDailyPhrase() {
-  const day = Math.floor(Date.now() / 86400000);
-  return PHRASES[day % PHRASES.length];
-}
-document.getElementById('motiv').textContent = getDailyPhrase();
+const PHRASES=['Що вимірюється — те покращується.','Дані — це нафта нашого часу. Не залишайте її в землі.','Кожна метрика без власника — це відповідальність нічия.','Ефективність — не про більше зусиль, а про менше відходів.','Рішення без даних — це просто думка.','Система без зворотного зв\'язку не навчається.','Швидко провалитися — дешевше, ніж повільно провалитися.','Якість — це не відділ. Це відношення.','Якщо ви не вимірюєте, ви здогадуєтеся.','Найнебезпечніший вид відходів — робота, яка не потрібна.','Зосередьтесь на процесі. Результати подбають про себе.','Культура з\'їдає стратегію на сніданок.','Ціль без плану — лише мрія.','Покращення — нескінченний проект без дедлайну.','Проблема, яку не визнали — це проблема в квадраті.','Стандартизація — основа масштабування.','Найкращий час щось виміряти — вчора. Другий найкращий — зараз.','Брак — це несплачений рахунок клієнту.','Лідер задає темп. Дані тримають рахунок.','Прозорість — це довіра в дії.','Маленькі покращення щодня — велика різниця за рік.','Що не можна виміряти — не можна контролювати.','Дані без дії — просто шум.','Кожен простій — це можливість, яку ми втрачаємо.','Якість замовчувана — це ризик, який говорить голосно.','Найкращий dashboard — той, яким користуються щодня.','Швидкість без напрямку — це просто хаос.','Системи не брешуть. Але й не пробачають.','Команда без цілей — оркестр без партитури.','Кожна «червона» метрика — запрошення до розмови.','Там, де немає власника — немає прогресу.'];
+document.getElementById('motiv').textContent = PHRASES[Math.floor(Date.now()/86400000)%PHRASES.length];
 
 // ── CHART SETUP ───────────────────────────────────────
-const ML = ['Лп','Сп','Вр','Жв','Тр','Чв','Лн','Лп','Св','Жн','Лс','Гр'];
-const G='#2A9D8F', A='#E9A629', R='#C0392B', B='#457B9D';
-const GB='rgba(42,157,143,.13)', AB='rgba(233,166,41,.13)', RB='rgba(192,57,43,.11)', BB='rgba(69,123,157,.12)';
-Chart.defaults.font.family = 'Inter';
-Chart.defaults.font.size   = 10;
-Chart.defaults.color       = '#6b8560';
-Chart.defaults.borderColor = '#e0e4dc';
+const ML=['Лп','Сп','Вр','Жв','Тр','Чв','Лн','Лп','Св','Жн','Лс','Гр'];
+const G='#2A9D8F',A='#D4820A',R='#C0392B',B='#457B9D';
+const GB='rgba(42,157,143,.13)',AB='rgba(212,130,10,.13)',RB='rgba(192,57,43,.11)',BB='rgba(69,123,157,.12)';
+Chart.defaults.font.family='Inter'; Chart.defaults.font.size=10;
+Chart.defaults.color='#6b836a'; Chart.defaults.borderColor='#e6e9e3';
+const GRID='#f0f2ee';
 
-const RAW = {
-  opt:    [5.1,5.8,6.2,7.4,8.1,9.3,10.2,11.8,13.4,15.2,14.8,14.6],
-  retail: [.8,.9,1,1.1,1.2,1.4,1.5,1.6,1.8,2,1.9,1.7],
-  defect: [15,14,13.5,13,12.5,12,11.5,12,12,11.5,12,12],
-  lead:   [24,23,22.5,23,22,21.5,22,22,21.5,22,22,22],
-};
+const RAW={opt:[5.1,5.8,6.2,7.4,8.1,9.3,10.2,11.8,13.4,15.2,14.8,14.6],retail:[.8,.9,1,1.1,1.2,1.4,1.5,1.6,1.8,2,1.9,1.7],defect:[15,14,13.5,13,12.5,12,11.5,12,12,11.5,12,12],lead:[24,23,22.5,23,22,21.5,22,22,21.5,22,22,22]};
+const F={year:'2026',month:'4'};
+function fd(arr){if(F.month!=='all'){const m=parseInt(F.month);return{l:[ML[m]],d:[arr[m]]};}return{l:ML,d:arr};}
+function setY(v){F.year=v;refreshCharts();}
+function setM(v){F.month=v;refreshCharts();}
 
-// ── FILTER STATE ──────────────────────────────────────
-const F = { year:'2026', month:'4' }; // current: 2026 травень (index 4)
-
-function fd(arr) {
-  if (F.month !== 'all') {
-    const m = parseInt(F.month);
-    return { l:[ML[m]], d:[arr[m]] };
-  }
-  return { l:ML, d:arr };
-}
-function setY(v) { F.year = v; refreshCharts(); }
-function setM(v) { F.month = v; refreshCharts(); }
-
-// ── CHARTS ────────────────────────────────────────────
-const CH = {};
-function safeChart(id, cfg) {
-  try {
-    const el = document.getElementById(id); if (!el) return null;
-    if (CH[id]) { try { CH[id].destroy(); } catch(e){} }
-    CH[id] = new Chart(el, cfg); return CH[id];
-  } catch(e) {
-    console.warn('[Chart:'+id+']', e.message);
-    try {
-      const wrap = document.getElementById(id)?.closest('.cw');
-      if (wrap) {
-        wrap.classList.add('wm','wme');
-        let lbl = wrap.querySelector('.wm-cr');
-        if (!lbl) { lbl = document.createElement('span'); lbl.className='wm-cr'; wrap.appendChild(lbl); }
-        lbl.textContent = 'ДАНІ НЕДОСТУПНІ';
-      }
-    } catch(e2){}
-    return null;
-  }
+const CH={};
+function safeChart(id,cfg){
+  try{const el=document.getElementById(id);if(!el)return null;if(CH[id]){try{CH[id].destroy();}catch(e){}}CH[id]=new Chart(el,cfg);return CH[id];}
+  catch(e){console.warn('[Chart:'+id+']',e.message);try{const w=document.getElementById(id)?.closest('.cw');if(w){w.classList.add('wm','wme');const l=w.querySelector('.wm-cr')||Object.assign(document.createElement('span'),{className:'wm-cr'});l.textContent='ДАНІ НЕДОСТУПНІ';w.appendChild(l);}}catch(e2){}return null;}
 }
 
-const GRID = '#f0f2ee';
-const opts = (extra={}) => ({ responsive:true, maintainAspectRatio:false,
-  plugins:{ legend:{position:'top',labels:{padding:10,usePointStyle:true}} },
-  scales:{ x:{grid:{color:GRID}}, y:{grid:{color:GRID}} }, ...extra });
-
-function buildRev() {
-  const{l,d:opt}=fd(RAW.opt); const{d:ret}=fd(RAW.retail);
-  safeChart('revTrend',{type:'bar',data:{labels:l,datasets:[
-    {label:'ОПТ, млн грн',data:opt,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4},
-    {label:'Роздріб, млн грн',data:ret,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4},
-  ]},options:{...opts(),scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'M'}}}}});
-}
-function buildDef() {
-  const{l,d}=fd(RAW.defect);
-  safeChart('defCh',{type:'line',data:{labels:l,datasets:[
-    {label:'% браку',data:d,borderColor:R,borderWidth:2,tension:.4,fill:true,backgroundColor:RB,pointRadius:3,pointBackgroundColor:R},
-    {label:'Ціль 9%',data:d.map(()=>9),borderColor:G,borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false},
-  ]},options:{...opts(),scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'},min:6,max:17}}}});
-}
-function buildLead() {
-  const{l,d}=fd(RAW.lead);
-  safeChart('leadCh',{type:'bar',data:{labels:l,datasets:[
-    {label:'Lead time, днів',data:d,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4},
-    {label:'Ціль 5 днів',data:d.map(()=>5),borderColor:G,borderWidth:1.5,borderDash:[5,4],type:'line',pointRadius:0,fill:false},
-  ]},options:{...opts(),scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},min:0}}}});
-}
-function buildSales() {
-  const{l,d}=fd(RAW.opt);
-  safeChart('sTrend',{type:'line',data:{labels:l,datasets:[{label:'ОПТ',data:d,borderColor:G,borderWidth:2,tension:.4,fill:true,backgroundColor:GB,pointRadius:3,pointBackgroundColor:G}]},
-    options:{...opts(),plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'M'}}}}});
-}
+function buildRev(){const{l,d:o}=fd(RAW.opt);const{d:r}=fd(RAW.retail);safeChart('revTrend',{type:'bar',data:{labels:l,datasets:[{label:'ОПТ, млн грн',data:o,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4},{label:'Роздріб, млн грн',data:r,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{padding:10,usePointStyle:true}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'M'}}}}});}
+function buildDef(){const{l,d}=fd(RAW.defect);safeChart('defCh',{type:'line',data:{labels:l,datasets:[{label:'% браку',data:d,borderColor:R,borderWidth:2,tension:.4,fill:true,backgroundColor:RB,pointRadius:3,pointBackgroundColor:R},{label:'Ціль 9%',data:d.map(()=>9),borderColor:G,borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'},min:6,max:17}}}});}
+function buildLead(){const{l,d}=fd(RAW.lead);safeChart('leadCh',{type:'bar',data:{labels:l,datasets:[{label:'Lead time, днів',data:d,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4},{label:'Ціль 5 днів',data:d.map(()=>5),borderColor:G,borderWidth:1.5,borderDash:[5,4],type:'line',pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},min:0}}}});}
+function buildSales(){const{l,d}=fd(RAW.opt);safeChart('sTrend',{type:'line',data:{labels:l,datasets:[{label:'ОПТ',data:d,borderColor:G,borderWidth:2,tension:.4,fill:true,backgroundColor:GB,pointRadius:3,pointBackgroundColor:G}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'M'}}}}});}
 function refreshCharts(){buildRev();buildDef();buildLead();buildSales();}
 
 function buildStatic(){
-  // Donut: client concentration
   safeChart('clientConc',{type:'doughnut',data:{labels:['ТОП-1 ~62%','ТОП-2 ~33%','Решта 18 кл.'],datasets:[{data:[62,32.7,5.3],backgroundColor:[R,A,G],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
-  // Bar: client risk
   safeChart('cRisk',{type:'bar',data:{labels:['Кл.1','Кл.2','Кл.3','Кл.4','Кл.5','Інші'],datasets:[{data:[62,32.7,1.8,.9,.7,1.9],backgroundColor:[R,A,G,G,G,G],borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
-  // Bar: output by location
   safeChart('outCh',{type:'bar',data:{labels:['Лок.1','Лок.2','Лок.4','Лок.5'],datasets:[{data:[850,720,410,280],backgroundColor:[GB,GB,AB,RB],borderColor:[G,G,A,R],borderWidth:1.5,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID}}}}});
-
-  // Registry charts
-  const reg = window.E3D_STATIC.metrics_coverage;
-  const tots = reg.reduce((a,r)=>{a[0]+=r.yes;a[1]+=r.part;a[2]+=r.calc;a[3]+=r.no;return a;},[0,0,0,0]);
+  const reg=window.E3D_STATIC.metrics_coverage;
+  const tots=reg.reduce((a,r)=>{a[0]+=r.yes;a[1]+=r.part;a[2]+=r.calc;a[3]+=r.no;return a;},[0,0,0,0]);
   safeChart('covDon',{type:'doughnut',data:{labels:['Так','Частково','Можна','Не збирається'],datasets:[{data:tots,backgroundColor:[G,A,B,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'60%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
-  safeChart('covBar',{type:'bar',data:{
-    labels:reg.map(r=>r.section.replace('Виробництво — ','В.').replace(/ \(.+\)/g,'').replace(' та P&L','').replace(' та Персонал','').replace(' та Маркетинг','').replace(' та брак','')),
-    datasets:[{label:'Так',data:reg.map(r=>r.yes),backgroundColor:G,borderRadius:2,stack:'s'},{label:'Частково',data:reg.map(r=>r.part),backgroundColor:A,borderRadius:2,stack:'s'},{label:'Можна',data:reg.map(r=>r.calc),backgroundColor:B,borderRadius:2,stack:'s'},{label:'Немає',data:reg.map(r=>r.no),backgroundColor:R,borderRadius:2,stack:'s'}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:GRID},stacked:true}}}});
-
-  // Registry table
-  const rb = document.getElementById('regB');
-  if(rb){
-    rb.innerHTML = '';
-    let T = {total:0,yes:0,part:0,calc:0,no:0};
-    reg.forEach(r=>{
-      T.total+=r.total;T.yes+=r.yes;T.part+=r.part;T.calc+=r.calc;T.no+=r.no;
-      const bg=~~(r.yes/r.total*100),ba=~~(r.part/r.total*100),bb=~~(r.calc/r.total*100),br=~~(r.no/r.total*100);
-      rb.innerHTML+=`<tr><td>${r.section}</td><td style="font-weight:700">${r.total}</td><td><span class="cov cy">${r.yes}</span></td><td><span class="cov cp">${r.part}</span></td><td><span class="cov cc">${r.calc}</span></td><td><span class="cov cn">${r.no}</span></td><td><div class="covbar" style="width:100px"><div class="cbs" style="width:${bg}%;background:${G}"></div><div class="cbs" style="width:${ba}%;background:${A}"></div><div class="cbs" style="width:${bb}%;background:${B}"></div><div class="cbs" style="width:${br}%;background:${R}"></div></div></td></tr>`;
-    });
-    rb.innerHTML+=`<tr style="background:var(--s2);font-weight:700"><td>ВСЬОГО</td><td>${T.total}</td><td><span class="cov cy">${T.yes}</span></td><td><span class="cov cp">${T.part}</span></td><td><span class="cov cc">${T.calc}</span></td><td><span class="cov cn">${T.no}</span></td><td></td></tr>`;
-  }
+  safeChart('covBar',{type:'bar',data:{labels:reg.map(r=>r.section.replace('Виробництво — ','В.').replace(/ \(.+\)/g,'').replace(' та P&L','').replace(' та Персонал','').replace(' та Маркетинг','').replace(' та брак','')),datasets:[{label:'Так',data:reg.map(r=>r.yes),backgroundColor:G,borderRadius:2,stack:'s'},{label:'Частково',data:reg.map(r=>r.part),backgroundColor:A,borderRadius:2,stack:'s'},{label:'Можна',data:reg.map(r=>r.calc),backgroundColor:B,borderRadius:2,stack:'s'},{label:'Немає',data:reg.map(r=>r.no),backgroundColor:R,borderRadius:2,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:GRID},stacked:true}}}});
+  const rb=document.getElementById('regB');
+  if(rb){rb.innerHTML='';let T={total:0,yes:0,part:0,calc:0,no:0};reg.forEach(r=>{T.total+=r.total;T.yes+=r.yes;T.part+=r.part;T.calc+=r.calc;T.no+=r.no;const bg=~~(r.yes/r.total*100),ba=~~(r.part/r.total*100),bb=~~(r.calc/r.total*100),br=~~(r.no/r.total*100);rb.innerHTML+=`<tr><td>${r.section}</td><td style="font-weight:700">${r.total}</td><td><span class="cov cy">${r.yes}</span></td><td><span class="cov cp">${r.part}</span></td><td><span class="cov cc">${r.calc}</span></td><td><span class="cov cn">${r.no}</span></td><td><div class="covbar" style="width:100px"><div class="cbs" style="width:${bg}%;background:${G}"></div><div class="cbs" style="width:${ba}%;background:${A}"></div><div class="cbs" style="width:${bb}%;background:${B}"></div><div class="cbs" style="width:${br}%;background:${R}"></div></div></td></tr>`;});rb.innerHTML+=`<tr style="background:var(--s2);font-weight:700"><td>ВСЬОГО</td><td>${T.total}</td><td><span class="cov cy">${T.yes}</span></td><td><span class="cov cp">${T.part}</span></td><td><span class="cov cc">${T.calc}</span></td><td><span class="cov cn">${T.no}</span></td><td></td></tr>`;}
 }
 
-// ── STRATEGY ─────────────────────────────────────────
-let SDC = null;
-function renderStrategy(ov={}) {
-  const proj = ov.projects || window.E3D_STATIC.projects;
-  const s1 = ov.sprint1 || staticS1();
-  const s2 = ov.sprint2 || staticS2();
+// ── GOALS with progress indicators ───────────────────
+const GOALS_DATA = [
+  {id:'G1',text:'5 000 принтерів, що друкують ≥1 кг/добу, брак ≤8%, 8 локацій, 300 співробітників в-ва',pct:22,note:'~2 060 з 5 000 принтерів'},
+  {id:'G2',text:'Найбільший клієнт формує ≤35% завантаженості',pct:0,note:'Поточна частка ТОП-1: ~62%'},
+  {id:'G3',text:'Ретеншн ≥60% клієнтів FDM опт до кінця року',pct:45,note:'Поточні повторні звернення: 45%'},
+  {id:'G4',text:'Виручка 650 млн грн до кінця 2026 року',pct:21,note:'Факт 2025: 138.8M'},
+  {id:'G5',text:'15% виручки 2026 — не мілітарі',pct:0,note:'TBD — не відстежується'},
+];
 
-  try{const g=document.getElementById('gg');if(!g)return;g.innerHTML='';(window.E3D_STATIC.goals_1y||[]).forEach(go=>{g.innerHTML+=`<div class="card"><div style="font-size:9px;font-weight:800;color:var(--tm);letter-spacing:1px;margin-bottom:4px">${go.id}</div><div style="font-size:12px;color:var(--tx);line-height:1.4">${go.text}</div></div>`;});}catch(e){}
+function buildGoals(){
+  const gl=document.getElementById('goals-list');if(!gl)return;gl.innerHTML='';
+  GOALS_DATA.forEach(g=>{
+    const bar = g.pct>0 ? `<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${Math.min(g.pct,100)}%"></div></div><div class="goal-pct">${g.pct}%</div>` : `<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%"></div></div><div class="goal-pct tbd">TBD</div>`;
+    gl.innerHTML+=`<div class="goal-row"><div class="goal-id">${g.id}</div><div><div class="goal-text">${g.text}</div><div style="font-size:10px;color:var(--tl);margin-top:3px">${g.note}</div></div><div class="goal-pct-wrap">${bar}</div></div>`;
+  });
+}
 
-  let ps=[], pers={};
-  try{ps=proj.map(p=>E3D_SCORING.scoreProject(p,s2.filter(t=>t.project_id===p.id)));pers=E3D_SCORING.calcPersonScores(proj,ps);}catch(e){console.warn('[Score]',e.message);}
+// ── GANTT CHART (HTML table) ──────────────────────────
+// Projects with start/deadline from xlsx data
+const PROJECTS = [
+  {id:1,name:'Система планування (люди, ресурси, гроші)',owner:'Іванов Олег',prio:'A',start:'2026-04-22',end:'2026-05-08'},
+  {id:2,name:'Сформовано сильну команду (Адмінка)',owner:'Зубрицька Олександра',prio:'A',start:'2026-05-01',end:'2026-12-31'},
+  {id:3,name:'Діджиталізація поточних показників',owner:'Іванов Олег',prio:'A',start:'2026-04-22',end:'2026-07-01'},
+  {id:4,name:'Вироблено та продано 10 шт НРК',owner:'Пастух Максим',prio:'B',start:'2026-01-01',end:'2026-12-31'},
+  {id:5,name:'Вироблено і продано 90 котушок',owner:'Пастух Максим',prio:'B',start:'2026-04-06',end:'2026-12-31'},
+  {id:6,name:'Відвантажено замовлення в Європу від 1 т',owner:'Зубрицька Олександра',prio:'B',start:'2026-06-08',end:'2026-11-27'},
+  {id:7,name:'Система оцінки індустрій',owner:'Дубровін Вадим',prio:'A',start:'2026-04-20',end:'2026-08-31'},
+  {id:8,name:'Запущено 1 автоматизовану локацію',owner:'Стріляний Олександр',prio:'B',start:'2026-05-04',end:'2026-12-31'},
+  {id:9,name:'Якість — Відділ Якості (ВТК)',owner:'Вакансія',prio:'A',start:'2026-04-20',end:'2026-05-29'},
+  {id:10,name:'Система планування виробництва',owner:'Вакансія',prio:'A',start:'2026-05-01',end:'2026-12-31'},
+  {id:14,name:'Зменшення шуму відділу продажів',owner:'Приходько Владислав',prio:'A',start:'2026-05-01',end:'2026-12-31'},
+];
 
-  try{const g=document.getElementById('pg');if(!g)return;g.innerHTML='';proj.forEach(p=>{const sc=ps.find(s=>s.project_id===p.id)||{score:0,health:'on-track'};const bc=sc.score>=70?G:sc.score>=40?A:R;const hc=E3D_SCORING._healthColor(sc.health);const hl=E3D_SCORING._statusLabel(sc.health);const isv=(p.owner||'').includes('Вакансія');g.innerHTML+=`<div class="pjc"><div class="pji">Проект #${p.id} <span class="pjpr pr${p.priority}">${p.priority}</span></div><div class="pjn">${p.name}</div><div class="pjo">Відп.: <b>${p.owner}</b>${isv?' ⚠️':''}</div>${p.helpers&&p.helpers.length?`<div style="font-size:9px;color:var(--tm);margin-bottom:4px">Учасники (${p.helpers.length}): ${p.helpers.slice(0,3).join(', ')}${p.helpers.length>3?'…':''}</div>`:''}<div class="pjbw"><div class="pjb" style="width:${sc.score}%;background:${bc}"></div></div><div class="pjm"><div style="font-size:11px;font-weight:700;color:${bc}">${sc.score}%</div><div style="display:flex;align-items:center;gap:5px"><span style="font-size:9px;font-weight:700;color:${hc}">${hl}</span><span style="font-size:10px;color:var(--tm)">📅 ${(p.deadline||'').substring(0,10)||'—'}</span></div></div>${isv?'<div style="font-size:9px;color:var(--red);margin-top:4px;font-weight:600">⚠️ Відповідальний не призначений</div>':''}</div>`;});}catch(e){}
+const MONTHS_UA = ['Січ','Лют','Бер','Квіт','Трав','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
+const TODAY = new Date('2026-05-10');
+const YEAR_START = new Date('2026-01-01');
+const YEAR_DAYS = 365;
 
-  try{const avg=~~(ps.reduce((s,p)=>s+p.score,0)/Math.max(ps.length,1));const el=document.getElementById('ceo-pp');if(el)el.textContent=avg+'%';}catch(e){}
+function dayOfYear(d){return Math.round((d-YEAR_START)/86400000);}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 
-  try{const g=document.getElementById('perg');if(!g)return;g.innerHTML='';Object.entries(pers).filter(([n])=>!['Вакансія','Аутсорс'].includes(n)).sort((a,b)=>b[1].total-a[1].total).forEach(([name,p])=>{const bc=p.normalized>=70?G:p.normalized>=40?A:R;g.innerHTML+=`<div class="pec"><div class="pen" title="${name}">${name}</div><div class="pebw"><div class="pef" style="width:${p.normalized}%;background:${bc}"></div></div><div class="pept">Бали: <b>${~~p.total}</b> · Відп.:${p.owned.length} · Уч.:${p.helped.length}</div></div>`;});}catch(e){}
+function buildGantt(){
+  const wrap=document.getElementById('ganttWrap');if(!wrap)return;
+  const todayDoy = dayOfYear(TODAY); // ~130
 
-  try{const b=document.getElementById('s1b');if(!b)return;b.innerHTML='';s1.forEach(t=>{const done=E3D_SCORING._isDone(t.status||'');b.innerHTML+=`<tr class="${done?'tdone':''}"><td>${t.project_id||'—'}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.project}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.task}">${t.task}</td><td>${(t.owner||'').split(',')[0].trim()}</td><td>${(t.deadline||'').substring(0,10)||'—'}</td><td>${done?'<span class="pill plg">✓ Виконано</span>':t.status?`<span class="pill pla">${t.status}</span>`:'<span class="cov ct">В роботі</span>'}</td></tr>`;});}catch(e){}
+  // Build header: 12 months
+  let hdrs = '<tr><th style="min-width:160px;text-align:left">Проект</th><th style="min-width:90px;text-align:left">Відп.</th><th style="min-width:40px">Пр.</th>';
+  let totalW = 0;
+  const monthWidths = [];
+  for(let m=0;m<12;m++){
+    const daysInMonth = new Date(2026,m+1,0).getDate();
+    const w = Math.round(daysInMonth/YEAR_DAYS*700);
+    monthWidths.push({m,w,start:totalW,daysInMonth});
+    const isTodayMonth = (m===4); // May
+    hdrs += `<th class="gcol ${isTodayMonth?'today-col':''}" style="width:${w}px"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
+    totalW+=w;
+  }
+  hdrs+='</tr>';
 
+  // Build rows
+  let rows='';
+  PROJECTS.forEach(p=>{
+    const pStart = new Date(p.start+'T00:00:00');
+    const pEnd   = new Date(p.end+'T00:00:00');
+    const sDoy = clamp(dayOfYear(pStart),0,YEAR_DAYS);
+    const eDoy = clamp(dayOfYear(pEnd),0,YEAR_DAYS);
+    const isDone = pEnd < TODAY;
+    const isVac  = p.owner.includes('Вакансія');
+    const prioClass = p.prio==='A'?'prio-A':'prio-B';
+    const nm = p.name.length>40 ? p.name.substring(0,38)+'…' : p.name;
+
+    let cells = `<td><div class="gname" title="${p.name}">#${p.id} ${nm}</div></td>`;
+    cells += `<td><div class="gowner" style="${isVac?'color:var(--red)':''}">${p.owner}</div></td>`;
+    cells += `<td><span class="prio-badge ${prioClass}">${p.prio}</span></td>`;
+
+    for(let mi=0;mi<12;mi++){
+      const {start:mStart,daysInMonth,w:mW} = monthWidths[mi];
+      const mEnd = mStart+daysInMonth;
+      const isTodayMonth=(mi===4);
+
+      // does bar overlap this month?
+      const barStart = clamp(sDoy,mStart,mEnd);
+      const barEnd   = clamp(eDoy,mStart,mEnd);
+      const barLen   = barEnd-barStart;
+      const barLeft  = Math.round((barStart-mStart)/daysInMonth*mW);
+      const barWidth = Math.max(0,Math.round(barLen/daysInMonth*mW));
+
+      let inner='';
+      if(barWidth>0){
+        const cls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
+        inner=`<div class="${cls}" style="width:${barWidth}px;margin-left:${barLeft}px" title="${p.name}: ${p.start}–${p.end}"></div>`;
+      }
+      // today line in may col
+      if(isTodayMonth){
+        const todayX=Math.round((todayDoy-monthWidths[4].start)/31*mW);
+        inner+=`<div style="position:absolute;left:${todayX}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10" title="Сьогодні"></div>`;
+      }
+      cells+=`<td class="gcell ${isTodayMonth?'today-col':''}">${inner}</td>`;
+    }
+    rows+=`<tr>${cells}</tr>`;
+  });
+
+  wrap.innerHTML=`<table class="gantt-table"><thead>${hdrs}</thead><tbody>${rows}</tbody></table>`;
+
+  // Legend
+  wrap.innerHTML+=`<div style="display:flex;align-items:center;gap:16px;padding:8px 10px;font-size:10px;color:var(--tm);border-top:1px solid var(--bd)">
+    <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--g),var(--gd))"></div>Пріоритет A</span>
+    <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--b),var(--bd2));opacity:.75"></div>Пріоритет B</span>
+    <span style="display:flex;align-items:center;gap:5px"><div style="width:2px;height:12px;border-radius:1px;background:rgba(192,57,43,.6)"></div>Сьогодні (10.05.2026)</span>
+  </div>`;
+}
+
+// ── STRATEGY render ───────────────────────────────────
+let SDC=null;
+function renderStrategy(ov={}){
+  const proj=ov.projects||PROJECTS;
+  const s1=ov.sprint1||staticS1();
+  const s2=ov.sprint2||staticS2();
+
+  buildGoals();
+  buildGantt();
+
+  // person scores — compute from static projects
+  const staticProjects = window.E3D_STATIC ? window.E3D_STATIC.projects : PROJECTS;
+  let pers={};
+  try{
+    // Simple score: based on deadline proximity and sprint completion
+    const now = new Date();
+    const pscores = staticProjects.map(p=>{
+      const dl = p.deadline ? new Date(p.deadline) : now;
+      const st = p.start    ? new Date(p.start)    : now;
+      const total = Math.max(1,(dl-st)/86400000);
+      const elapsed = Math.max(0,(now-st)/86400000);
+      const score = Math.min(100,Math.round(elapsed/total*100));
+      return {project_id:p.id, score, health: dl<now?'overdue': elapsed/total>0.85?'at-risk':'on-track'};
+    });
+    pers = E3D_SCORING.calcPersonScores(staticProjects,pscores);
+
+    // CEO avg
+    const avg=~~(pscores.reduce((s,p)=>s+p.score,0)/Math.max(pscores.length,1));
+    const el=document.getElementById('ceo-pp');if(el)el.textContent=avg+'%';
+  }catch(e){console.warn('[Score]',e.message);}
+
+  // Person grid
+  try{
+    const g=document.getElementById('perg');if(!g)return;g.innerHTML='';
+    const sorted=Object.entries(pers).filter(([n])=>!['Вакансія','Аутсорс'].includes(n)).sort((a,b)=>b[1].total-a[1].total);
+    sorted.forEach(([name,p])=>{
+      // color: top 33% = teal, mid 33% = blue, bottom = light blue — no red
+      const cls = p.normalized>=66?'pef-hi':p.normalized>=33?'pef-md':'pef-lo';
+      g.innerHTML+=`<div class="pec"><div class="pen" title="${name}">${name}</div><div class="pebw"><div class="pef ${cls}" style="width:${Math.max(p.normalized,8)}%"></div></div><div class="pept">Бали: <b>${~~p.total}</b> · Відп.:${p.owned.length} · Уч.:${p.helped.length}</div></div>`;
+    });
+  }catch(e){}
+
+  // Sprint 1 table
+  try{
+    const b=document.getElementById('s1b');if(!b)return;b.innerHTML='';
+    s1.forEach(t=>{
+      const done=E3D_SCORING._isDone(t.status||'');
+      b.innerHTML+=`<tr class="${done?'tdone':''}"><td>${t.project_id||'—'}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.project}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.task}">${t.task}</td><td>${(t.owner||'').split(',')[0].trim()}</td><td>${(t.deadline||'').substring(0,10)||'—'}</td><td>${done?'<span class="pill plg">✓ Виконано</span>':t.status?`<span class="pill pla">${t.status}</span>`:'<span class="cov ctt">В роботі</span>'}</td></tr>`;
+    });
+  }catch(e){}
+
+  // Sprint 2 donut
   try{
     const st=E3D_SCORING.sprintStats(s2);const isStatic=!ov.sprint2;
-    document.getElementById('s2t').textContent=st.total;
-    document.getElementById('s2d').textContent=st.done;
-    document.getElementById('s2w').textContent=Math.max(0,st.total-st.done-st.overdue);
-    document.getElementById('s2o').textContent=st.overdue;
-    document.getElementById('s2p').textContent=st.completion+'%';
+    ['s2t','s2d','s2w','s2o','s2p'].forEach((id,i)=>{
+      const el=document.getElementById(id);if(el)el.textContent=[st.total,st.done,Math.max(0,st.total-st.done-st.overdue),st.overdue,st.completion+'%'][i];
+    });
     document.getElementById('s2b').textContent=st.completion+'% виконано';
     const wm=document.getElementById('s2wm');if(wm)wm.style.display=isStatic?'block':'none';
     if(SDC){try{SDC.destroy();}catch(e){}}
@@ -1009,11 +873,11 @@ function renderStrategy(ov={}) {
 function staticS1(){return[{project_id:1,project:'Система планування',task:'Реєстр проектів SS-2026',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},{project_id:1,project:'Система планування',task:'Дзвінок CEO: структура фінансового блоку',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},{project_id:1,project:'Система планування',task:'Зібрати дані від постачальників',owner:'Іванов Олег',deadline:'2026-05-04',status:''},{project_id:1,project:'Система планування',task:'ADR по інструменту планування',owner:'Іванов Олег',deadline:'2026-05-06',status:''},{project_id:3,project:'Діджиталізація',task:'Аудит джерел даних. FTE учасників',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},{project_id:3,project:'Діджиталізація',task:'Сесія «Словник показників»',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},{project_id:3,project:'Діджиталізація',task:'ADR по технології дашборду',owner:'Іванов Олег',deadline:'2026-05-04',status:''},{project_id:3,project:'Діджиталізація',task:'Dashboard v0.1 — перші дані',owner:'Іванов Олег',deadline:'2026-05-08',status:''},{project_id:7,project:'Система оцінки індустрій',task:'Збір точок входу та ключових гравців',owner:'Дубровін Вадим',deadline:'2026-04-28',status:'Виконано'},{project_id:7,project:'Система оцінки індустрій',task:'Бренд-бук, описи, тези для сайту',owner:'Дубровін Вадим',deadline:'2026-05-02',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Отримання OTTOeject MK1 Rev 1.0',owner:'Жолудь Максим',deadline:'2026-04-21',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Визначення техніка — Болдижев Олексій',owner:'Стріляний Олександр',deadline:'2026-04-27',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Локальна версія ПЗ',owner:'Стріляний Олександр',deadline:'2026-05-08',status:''}];}
 function staticS2(){return[{project_id:1,project:'Система планування',task:'Фінансовий блок v1.1',owner:'Іванов Олег',deadline:'2026-05-20',status:''},{project_id:3,project:'Діджиталізація',task:'Dashboard v1 — публічна версія',owner:'Іванов Олег',deadline:'2026-05-25',status:''},{project_id:7,project:'Система оцінки індустрій',task:'Netpek наскрізна аналітика',owner:'Дубровін Вадим',deadline:'2026-05-22',status:''},{project_id:7,project:'Система оцінки індустрій',task:'LinkedIn — холодний контакт',owner:'Дубровін Вадим',deadline:'2026-05-29',status:''},{project_id:8,project:'Авт. локація',task:'3Д-друк всіх комплектуючих',owner:'Жолудь Максим',deadline:'2026-05-15',status:'Виконано'},{project_id:2,project:'Сильна команда',task:'Профілі ролей + KPI',owner:'Зубрицька Олександра',deadline:'2026-05-29',status:''},{project_id:9,project:'Відділ Якості',task:'Визначення системи ОТК',owner:'Вакансія',deadline:'2026-05-29',status:''}];}
 
-// ── WIDGET MANAGER ─────────────────────────────────────
-const WKEY = 'e3d_widget_prefs_v1';
-const WCAT = [
+// ── WIDGET MANAGER ────────────────────────────────────
+const WKEY='e3d_widget_prefs_v1';
+const WCAT=[
   {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
-  {id:'str-goals',tab:'str',label:'Річні цілі SMART'},{id:'str-proj',tab:'str',label:'Проекти — скоринг'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},
+  {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},
   {id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batch',tab:'prod',label:'Партії (Batch)'},{id:'prod-trend',tab:'prod',label:'Lead Time та виробіток'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
@@ -1023,27 +887,21 @@ const WCAT = [
   {id:'loc-tbl',tab:'loc',label:'Зведена таблиця локацій'},{id:'loc-cards',tab:'loc',label:'Картки локацій'},
   {id:'reg-ch',tab:'reg',label:'Графіки покриття'},{id:'reg-tbl',tab:'reg',label:'Таблиця реєстру'},
 ];
-const TNMS = {ceo:'🏢 CEO',str:'🎯 Стратегія',prod:'🏭 Виробництво',qual:'✅ Якість',sales:'💼 Продажі',crm:'📣 CRM',fin:'💰 Фінанси',hr:'👥 HR',loc:'📍 Локації',reg:'📋 Реєстр'};
-
+const TNMS={ceo:'🏢 CEO',str:'🎯 Стратегія',prod:'🏭 Виробництво',qual:'✅ Якість',sales:'💼 Продажі',crm:'📣 CRM',fin:'💰 Фінанси',hr:'👥 HR',loc:'📍 Локації',reg:'📋 Реєстр'};
 function loadPrefs(){try{return JSON.parse(localStorage.getItem(WKEY)||'{}');}catch(e){return{};}}
 function savePrefs(p){try{localStorage.setItem(WKEY,JSON.stringify(p));}catch(e){}}
 function isVis(id){const p=loadPrefs();return p[id]!==undefined?p[id]:true;}
 function setVis(id,v){const p=loadPrefs();p[id]=v;savePrefs(p);const el=document.getElementById('w-'+id);if(el)el.classList.toggle('widget-hidden',!v);}
 function applyPrefs(){WCAT.forEach(w=>{const el=document.getElementById('w-'+w.id);if(el)el.classList.toggle('widget-hidden',!isVis(w.id));});}
-
 function openWM(){
   const b=document.getElementById('wmB');b.innerHTML='';
   const tabs=[...new Set(WCAT.map(w=>w.tab))];
-  tabs.forEach(tab=>{
-    const ws=WCAT.filter(w=>w.tab===tab);
-    b.innerHTML+=`<div class="wms"><div class="wmsl">${TNMS[tab]||tab}</div>${ws.map(w=>`<div class="wmr"><div class="wmrn">${w.label}</div><label class="wmtog"><input type="checkbox" ${isVis(w.id)?'checked':''} onchange="setVis('${w.id}',this.checked)"><span class="wmslr"></span></label></div>`).join('')}</div>`;
-  });
+  tabs.forEach(tab=>{const ws=WCAT.filter(w=>w.tab===tab);b.innerHTML+=`<div class="wms"><div class="wmsl">${TNMS[tab]||tab}</div>${ws.map(w=>`<div class="wmr"><div class="wmrn">${w.label}</div><label class="wmtog"><input type="checkbox" ${isVis(w.id)?'checked':''} onchange="setVis('${w.id}',this.checked)"><span class="wmslr"></span></label></div>`).join('')}</div>`;});
   document.getElementById('wmO').classList.add('open');
 }
 function closeWM(){document.getElementById('wmO').classList.remove('open');}
-function resetWidgets(){if(!confirm('Скинути всі налаштування до стандартних?'))return;try{localStorage.removeItem(WKEY);}catch(e){}WCAT.forEach(w=>{const el=document.getElementById('w-'+w.id);if(el)el.classList.remove('widget-hidden');});closeWM();}
+function resetWidgets(){if(!confirm('Скинути всі налаштування до стандарту?'))return;try{localStorage.removeItem(WKEY);}catch(e){}WCAT.forEach(w=>{const el=document.getElementById('w-'+w.id);if(el)el.classList.remove('widget-hidden');});closeWM();}
 
-// ── SOURCE STATUS ─────────────────────────────────────
 function updDot(sum){
   const d=document.getElementById('ld'),s=document.getElementById('ls');if(!d||!s)return;
   if(sum.ok>0&&sum.error===0){d.className='ld ok';s.textContent='Дані актуальні';}
@@ -1052,7 +910,6 @@ function updDot(sum){
   else{d.className='ld';s.textContent='…';}
 }
 
-// ── NAV ───────────────────────────────────────────────
 function go(id,btn){
   document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -1061,22 +918,17 @@ function go(id,btn){
   setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
 }
 
-// ── BOOT ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   applyPrefs();
   buildStatic();
   refreshCharts();
   renderStrategy();
-
   if(window.E3D_DATA){
-    E3D_DATA.on('*',({key,status})=>{ updDot(E3D_DATA.summary()); });
-    E3D_DATA.on('projects',({status,data})=>{if(status==='ok'&&data)renderStrategy({projects:data});});
-    E3D_DATA.on('sprint1', ({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint1:data});});
-    E3D_DATA.on('sprint2', ({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint2:data});});
+    E3D_DATA.on('*',({key,status})=>updDot(E3D_DATA.summary()));
+    E3D_DATA.on('sprint1',({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint1:data});});
+    E3D_DATA.on('sprint2',({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint2:data});});
     E3D_DATA.initAll().catch(()=>{});
-  } else {
-    document.getElementById('ls').textContent='Статичні дані';
-  }
+  } else {document.getElementById('ls').textContent='Статичні дані';}
 });
 </script>
 </body>
