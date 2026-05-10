@@ -1,757 +1,956 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>КПІ · Easy 3D Print</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=JetBrains+Mono:wght@400;500&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Easy 3D Print · Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="data/static.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/sheets_loader.js"></script>
+<script src="js/data_layer.js"></script>
+<script src="js/widgets.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 :root{
-  --bg:#EEF2F7;
-  --white:#FFFFFF;
-  --navy:#0F1B2A;
-  --navy2:#162232;
-  --navy3:#1E3048;
-  --border:#D0DCE8;
-  --text:#0F1B2A;
-  --text2:#456070;
-  --muted:#7A90A4;
-  --green:#2ECC71;
-  --green2:#22A85C;
-  --green-glow:rgba(46,204,113,.18);
-  --c1:#3B82F6;--c2:#2ECC71;--c3:#06B6D4;--c4:#F59E0B;--c5:#8B5CF6;
-  --red:#EF4444;--amber:#F59E0B;
-  --fh:'Unbounded',sans-serif;
-  --fb:'Golos Text',sans-serif;
-  --fm:'JetBrains Mono',monospace;
+  --g:#3CB648;--gd:#2d9238;--gl:#e8f5e9;--gm:#c8eacb;--gb:#b2ddb6;
+  --bg:#f4f7f4;--sur:#fff;--sur2:#f9fbf9;--bd:#e0e8e0;--bd2:#d0dcd0;
+  --tx:#1a2a1a;--td:#4a6a4a;--tm:#7a9a7a;--tl:#9aaa9a;
+  --red:#d94040;--rbg:#fef2f2;--rbd:#fecaca;
+  --amb:#c07820;--abg:#fffbeb;--abd:#fde68a;
+  --blu:#3b82f6;--bbg:#dbeafe;--bbd:#bfdbfe;
+  --sh:0 1px 3px rgba(0,80,20,.07),0 1px 2px rgba(0,80,20,.04);
+  --r:10px;--rs:7px;--nh:50px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;}
-body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px;display:flex;flex-direction:column;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;-webkit-text-size-adjust:100%}
+a{color:var(--gd);text-decoration:none}
 
-/* ── HEADER ── */
-header{background:var(--navy);height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0;}
-.logo{font-family:var(--fh);font-size:11px;color:#fff;display:flex;align-items:center;gap:9px;}
-.logo-dot{width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 0 3px var(--green-glow);}
-.hbadge{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.3);background:rgba(255,255,255,.06);padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.08);}
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:300;background:rgba(255,255,255,.97);border-bottom:1.5px solid var(--gb);box-shadow:0 2px 8px rgba(0,80,20,.06)}
+.nav-top{display:flex;align-items:center;padding:0 14px;min-height:var(--nh);gap:4px}
+.logo{display:flex;align-items:center;gap:8px;padding-right:14px;border-right:1.5px solid var(--bd);flex-shrink:0}
+.lcube{width:26px;height:26px;background:var(--g);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lcube svg{width:14px;height:14px;fill:#fff}
+.lname{font-weight:800;font-size:14px;color:var(--tx)}.lname span{color:var(--g)}
+.ltag{font-size:9px;font-weight:600;letter-spacing:1px;color:var(--tm);text-transform:uppercase}
+.tabs-s{display:flex;align-items:center;overflow-x:auto;flex:1;scrollbar-width:none;gap:1px}
+.tabs-s::-webkit-scrollbar{display:none}
+.tb{padding:8px 12px;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+  color:var(--tm);background:none;border:none;border-bottom:2.5px solid transparent;
+  cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;height:var(--nh)}
+.tb:hover{color:var(--td)}.tb.active{color:var(--gd);border-bottom-color:var(--g);font-weight:700}
+.nav-acts{display:flex;align-items:center;gap:6px;flex-shrink:0;padding-left:6px}
+.lp{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--tm);
+  background:var(--sur2);border:1px solid var(--bd);border-radius:20px;padding:3px 9px;white-space:nowrap}
+.ld{width:7px;height:7px;border-radius:50%;background:#d1d5db;flex-shrink:0;transition:background .3s}
+.ld.ok{background:var(--g);animation:pulse 2.5s infinite}
+.ld.warn{background:var(--amb)}.ld.err{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.wm-btn{padding:3px 10px;font-size:10px;font-weight:700;border:1.5px solid var(--bd);
+  border-radius:20px;background:var(--sur);color:var(--tm);cursor:pointer;
+  transition:all .15s;white-space:nowrap}
+.wm-btn:hover{border-color:var(--gb);color:var(--gd);background:var(--gl)}
 
-/* ── TABS ── */
-.tab-bar{background:var(--navy2);display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
-.tab-bar::-webkit-scrollbar{display:none;}
-.tab{font-family:var(--fb);font-size:12px;font-weight:500;padding:0 16px;height:38px;display:flex;align-items:center;gap:5px;cursor:pointer;color:rgba(255,255,255,.35);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap;flex-shrink:0;}
-.tab:hover{color:rgba(255,255,255,.7);}
-.tab.active{color:var(--green);border-bottom-color:var(--green);}
-.tsoon{font-size:9px;font-family:var(--fm);padding:1px 5px;border-radius:8px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.3);}
+/* source bar */
+.sbar{display:flex;gap:5px;align-items:center;padding:5px 14px;border-top:1px solid var(--bd);
+  background:var(--sur2);overflow-x:auto;scrollbar-width:none;flex-wrap:wrap}
+.sbar::-webkit-scrollbar{display:none}
+.sp{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid;white-space:nowrap}
+.sp-ok{background:var(--gl);color:var(--gd);border-color:var(--gb)}
+.sp-err{background:var(--rbg);color:var(--red);border-color:var(--rbd)}
+.sp-ld{background:var(--abg);color:var(--amb);border-color:var(--abd)}
+.sp-idle{background:var(--bg);color:var(--tm);border-color:var(--bd)}
 
-/* ══ MAIN LAYOUT ══════════════════════════════════════
-   sidebar 440px | content flex
-═════════════════════════════════════════════════════ */
-#tab0{flex:1;display:flex;overflow:hidden;min-height:0;}
+/* filter bar */
+.fbar{display:flex;align-items:center;gap:6px;padding:5px 14px;border-top:1px solid var(--bd);
+  background:var(--sur2);overflow-x:auto;scrollbar-width:none}
+.fbar::-webkit-scrollbar{display:none}
+.flbl{font-size:10px;font-weight:700;color:var(--tm);white-space:nowrap;text-transform:uppercase;letter-spacing:.5px}
+.fg{display:flex;gap:3px}
+.fc{padding:2px 8px;font-size:10px;font-weight:600;border:1.5px solid var(--bd);
+  border-radius:20px;background:var(--sur);color:var(--tm);cursor:pointer;transition:all .15s;white-space:nowrap}
+.fc:hover{border-color:var(--gb);color:var(--gd)}.fc.on{background:var(--gl);border-color:var(--gb);color:var(--gd)}
+.fsep{width:1px;height:14px;background:var(--bd);flex-shrink:0}
 
-/* ── SIDEBAR ── */
-.sidebar{
-  width:440px;flex-shrink:0;
-  background:var(--navy2);
-  display:flex;flex-direction:column;
-  border-right:1px solid rgba(255,255,255,.06);
-  overflow:hidden;
-}
-.sb-scroll{flex:1;overflow-y:auto;}
-.sb-scroll::-webkit-scrollbar{width:3px;}
-.sb-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+/* widget manager */
+.wmo{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;display:none;
+  align-items:flex-start;justify-content:flex-end}
+.wmo.open{display:flex}
+.wmd{background:var(--sur);width:300px;max-width:95vw;height:100vh;overflow-y:auto;
+  box-shadow:-4px 0 24px rgba(0,0,0,.12);display:flex;flex-direction:column}
+.wmh{padding:14px 16px;border-bottom:1.5px solid var(--bd);display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;background:var(--sur);z-index:1}
+.wmht{font-size:13px;font-weight:700;color:var(--tx)}
+.wmcl{width:28px;height:28px;border:none;background:var(--sur2);border-radius:6px;
+  cursor:pointer;font-size:15px;color:var(--tm);display:flex;align-items:center;justify-content:center}
+.wmb{padding:12px 16px;flex:1}
+.wms{margin-bottom:14px}
+.wmsl{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--tm);margin-bottom:7px}
+.wmr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;
+  border-radius:6px;background:var(--sur2);border:1px solid var(--bd);margin-bottom:4px}
+.wmrn{font-size:12px;color:var(--tx)}
+.wmtog{position:relative;width:36px;height:20px;flex-shrink:0}
+.wmtog input{opacity:0;width:0;height:0;position:absolute}
+.wmslr{position:absolute;inset:0;background:#d1d5db;border-radius:20px;cursor:pointer;transition:background .2s}
+.wmslr::before{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;
+  left:3px;top:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.wmtog input:checked+.wmslr{background:var(--g)}
+.wmtog input:checked+.wmslr::before{transform:translateX(16px)}
+.wmfoo{padding:10px 16px;border-top:1.5px solid var(--bd)}
+.wmres{width:100%;padding:8px;border:1.5px solid var(--bd);border-radius:7px;
+  background:var(--sur);font-size:11px;font-weight:600;color:var(--tm);cursor:pointer}
+.wmres:hover{border-color:var(--rbd);color:var(--red)}
 
-.sb-section{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06);}
-.sb-lbl{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;}
+/* panels */
+.panel{display:none;padding:14px 14px 48px}.panel.active{display:block}
+.widget-hidden{display:none!important}
+.sec{font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--tm);margin:18px 0 9px;display:flex;align-items:center;gap:7px}
+.sec::after{content:'';flex:1;height:1px;background:var(--bd)}
 
-/* LOC */
-.loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
-.lb{padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:all .15s;}
-.lb:hover,.lb.active{border-color:var(--green);background:rgba(46,204,113,.1);}
-.lb-n{font-family:var(--fh);font-size:9px;font-weight:600;color:rgba(255,255,255,.75);display:block;}
-.lb-s{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.28);display:block;margin-top:1px;}
-.lb-c{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--green);display:block;margin-top:3px;}
-.lb.active .lb-n{color:var(--green);}
+/* grids */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.s2{grid-column:span 2}.s3{grid-column:span 3}
+@media(max-width:900px){.g4,.g5{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}.s2,.s3{grid-column:span 1}}
+@media(max-width:580px){.g4,.g5,.g3,.g2{grid-template-columns:1fr}.s2,.s3{grid-column:span 1}.panel{padding:10px 10px 48px}}
+@media(max-width:440px){.ltag{display:none}.lp span{display:none}}
 
-/* fields */
-.sb-fld{margin-bottom:8px;}.sb-fld:last-child{margin-bottom:0;}
-.sb-fld label{display:flex;justify-content:space-between;margin-bottom:3px;}
-.sb-fld label span{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.38);}
-.sb-fld label em{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.2);font-style:normal;}
-.sb-inp{width:100%;padding:7px 10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-family:var(--fm);font-size:13px;color:#fff;background:rgba(255,255,255,.06);-moz-appearance:textfield;transition:all .15s;}
-.sb-inp::-webkit-inner-spin-button{-webkit-appearance:none;}
-.sb-inp:focus{outline:none;border-color:var(--green);background:rgba(46,204,113,.08);}
+/* card */
+.card{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--r);
+  padding:13px 15px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.ctb{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.tbg{background:linear-gradient(90deg,var(--g),var(--gb))}
+.tbr{background:linear-gradient(90deg,var(--red),#fca5a5)}
+.tba{background:linear-gradient(90deg,var(--amb),#fde68a)}
+.tbb{background:linear-gradient(90deg,var(--blu),#93c5fd)}
 
-/* weight rows */
-.ws-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}.ws-row:last-child{margin-bottom:0;}
-.ws-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.ws-name{font-size:11px;color:rgba(255,255,255,.6);width:130px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--navy2);border:2.5px solid currentColor;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.4);}
-input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--navy2);border:2.5px solid currentColor;}
-.ws-val{font-family:var(--fm);font-size:11px;font-weight:500;min-width:32px;text-align:right;color:rgba(255,255,255,.65);}
-.sb-wtot{display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,.07);margin-top:6px;font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.3);}
-.wok{color:var(--green)!important;font-weight:600;}.werr{color:var(--red)!important;font-weight:600;}
+/* kpi */
+.kl{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.kv{font-size:28px;font-weight:800;color:var(--tx);line-height:1.1}
+.kv.g{color:var(--gd)}.kv.r{color:var(--red)}.kv.a{color:var(--amb)}.kv.x{font-size:17px;color:var(--tm)}
+.ks{font-size:11px;color:var(--tm);margin-top:3px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.kt{font-size:10px;color:var(--tl);margin-top:5px}.kt b{color:var(--gd)}
+.du{font-size:11px;font-weight:700;color:var(--gd)}.dd{color:var(--red)}.dn{color:var(--amb)}
 
-/* ── MAIN CONTENT ── */
-.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+/* alerts */
+.al{background:var(--rbg);border:1.5px solid var(--rbd);border-radius:var(--rs);
+  padding:9px 13px;display:flex;align-items:flex-start;gap:9px;margin-bottom:12px;font-size:12px}
+.al-a{background:var(--abg);border-color:var(--abd)}.al-g{background:var(--gl);border-color:var(--gb)}
+.al .ic{font-size:14px;margin-top:1px;flex-shrink:0}
+.al b{color:var(--red)}.al-a b{color:var(--amb)}.al-g b{color:var(--gd)}
 
-/* ── TOP BAR: result + bubble side by side ── */
-.top-bar{
-  display:flex;align-items:stretch;flex-shrink:0;
-  background:var(--white);
-  border-bottom:1.5px solid var(--border);
-  overflow:hidden;
-  min-height:0;
-}
+/* chart */
+.chdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px;gap:6px;flex-wrap:wrap}
+.ct{font-size:12px;font-weight:700;color:var(--tx)}.cs{font-size:10px;color:var(--tm);margin-top:2px}
+.bdg{font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.bdg-g{background:var(--gl);color:var(--gd);border:1px solid var(--gb)}
+.bdg-r{background:var(--rbg);color:var(--red);border:1px solid var(--rbd)}
+.bdg-a{background:var(--abg);color:var(--amb);border:1px solid var(--abd)}
+.bdg-b{background:var(--bbg);color:var(--blu);border:1px solid var(--bbd)}
+.cw{position:relative}
+.ch120{height:120px}.ch150{height:150px}.ch170{height:170px}.ch200{height:200px}
+@media(max-width:580px){.ch200{height:160px}.ch170{height:140px}}
 
-/* Result panel — left of top bar */
-.result-panel{
-  flex-shrink:0;width:280px;
-  padding:16px 20px;
-  display:flex;flex-direction:column;justify-content:center;
-  border-right:1.5px solid var(--border);
-  position:relative;overflow:hidden;
-  background:var(--white);
-}
-.result-panel::before{
-  content:'';position:absolute;left:-30px;top:-30px;
-  width:160px;height:160px;border-radius:50%;
-  background:radial-gradient(circle,rgba(46,204,113,.07) 0%,transparent 65%);
-  pointer-events:none;
-}
-.rp-label{font-family:var(--fm);font-size:9px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px;}
-.rp-amount{font-family:var(--fh);font-size:30px;font-weight:700;color:var(--green2);letter-spacing:-.03em;line-height:1;margin-bottom:7px;}
-.rp-score-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.rp-score-val{font-family:var(--fh);font-size:16px;font-weight:700;line-height:1;}
-.rp-score-lbl{font-family:var(--fm);font-size:9px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;}
-.rp-score-sub{font-family:var(--fm);font-size:10px;color:var(--muted);}
-.rp-cells{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.rp-cell{background:var(--bg);border-radius:8px;padding:7px 10px;border:1px solid var(--border);}
-.rp-cell-l{font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;}
-.rp-cell-v{font-family:var(--fh);font-size:13px;font-weight:600;color:var(--text);line-height:1;}
-.rp-cell-s{font-family:var(--fm);font-size:9px;color:var(--muted);margin-top:2px;}
+/* ── WATERMARKS ──
+   .wm   = card with demo data (crosshatch moire + rotated text)
+   .wmc  = chart area watermark (light diagonal lines + corner label)
+   .wme  = error state (red tint) - applied when data source fails
+*/
+.wm{position:relative;overflow:hidden}
+.wm::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background-image:
+    repeating-linear-gradient(45deg,rgba(100,140,100,.06) 0,rgba(100,140,100,.06) 1px,transparent 1px,transparent 8px),
+    repeating-linear-gradient(-45deg,rgba(100,140,100,.06) 0,rgba(100,140,100,.06) 1px,transparent 1px,transparent 8px);
+  z-index:2}
+.wm-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);
+  font-size:11px;font-weight:800;letter-spacing:2px;color:rgba(80,120,80,.2);
+  white-space:nowrap;pointer-events:none;text-transform:uppercase;z-index:3;user-select:none}
+.wmc::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background-image:repeating-linear-gradient(60deg,rgba(100,140,100,.04) 0,rgba(100,140,100,.04) 1px,transparent 1px,transparent 14px);
+  z-index:5}
+.wm-cr{position:absolute;bottom:5px;right:8px;font-size:9px;font-weight:800;letter-spacing:1.5px;
+  color:rgba(80,120,80,.28);pointer-events:none;z-index:6;text-transform:uppercase}
+/* error watermark - red crosshatch */
+.wme::after{background-image:
+  repeating-linear-gradient(45deg,rgba(217,64,64,.08) 0,rgba(217,64,64,.08) 1px,transparent 1px,transparent 8px),
+  repeating-linear-gradient(-45deg,rgba(217,64,64,.08) 0,rgba(217,64,64,.08) 1px,transparent 1px,transparent 8px)}
+.wme .wm-txt{color:rgba(217,64,64,.3)}
+.wme .wm-cr{color:rgba(217,64,64,.4)}
 
-/* Bubble panel — right of top bar, fills remaining space */
-.bubble-panel{
-  flex:1;position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--bg);
-}
-/* dot-grid background on bubble */
-.bubble-panel::before{
-  content:'';position:absolute;inset:0;
-  background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);
-  background-size:24px 24px;pointer-events:none;
-}
-#bsvg{display:block;position:relative;z-index:1;}
+/* progress row */
+.pr{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)}
+.pr:last-child{border-bottom:none}
+.pn{flex:1;font-size:12px;color:var(--td)}
+.pbw{width:80px;height:5px;background:var(--bg);border-radius:3px;flex-shrink:0}
+.pb{height:100%;border-radius:3px}
+.pv{width:44px;font-size:11px;font-weight:600;text-align:right}
 
-/* ── PRESETS ── */
-.preset-bar{
-  display:flex;gap:6px;align-items:center;flex-wrap:wrap;
-  padding:8px 16px;background:var(--white);
-  border-bottom:1px solid var(--border);flex-shrink:0;
-}
-.preset-lbl{font-family:var(--fm);font-size:9px;color:var(--muted);white-space:nowrap;}
-.pbt{font-size:10px;font-family:var(--fm);padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--text2);transition:all .12s;}
-.pbt:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
-.pbt.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+/* pill / cov */
+.pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.plg{background:var(--gl);color:var(--gd);border:1px solid var(--gb)}
+.plr{background:var(--rbg);color:var(--red);border:1px solid var(--rbd)}
+.pla{background:var(--abg);color:var(--amb);border:1px solid var(--abd)}
+.plb{background:var(--bbg);color:var(--blu);border:1px solid var(--bbd)}
+.cov{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px}
+.cy{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.cp{background:#fef9c3;color:#92400e;border:1px solid #fde68a}
+.cc{background:var(--bbg);color:#1e40af;border:1px solid var(--bbd)}
+.cn{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.ct{background:var(--bg);color:var(--tm);border:1px solid var(--bd)}
+.covbar{display:flex;height:7px;border-radius:4px;overflow:hidden;gap:1px}
+.cbs{height:100%;flex-shrink:0}
 
-/* ── KPI ROWS ── */
-.kpi-rows-wrap{flex:1;overflow:hidden;background:var(--white);display:flex;flex-direction:column;}
-.kpi-rows-inner{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-.kpi-footer{flex-shrink:0;padding:5px 14px;background:var(--bg);border-top:1px solid var(--border);font-family:var(--fm);font-size:9px;color:var(--muted);display:flex;gap:16px;align-items:center;}
-.kpi-footer strong{color:var(--text2);}
+/* coverage kpi bar */
+.ckpi{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:6px}
+.ckpi-f{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--g),var(--gd));transition:width .6s}
 
-.kpi-row{
-  display:grid;
-  grid-template-columns:5px 48px 1fr 110px;
-  align-items:stretch;
-  border-bottom:1px solid var(--border);
-  transition:background .1s;
-  flex:1;
-  min-height:0;
-  overflow:hidden;
-}
-.kpi-row:last-child{border-bottom:none;}
-.kpi-row:hover{background:#F7FAFD;}
+/* table */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl{width:100%;border-collapse:collapse;min-width:420px}
+.tbl th{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--tm);padding:7px 9px;text-align:left;background:var(--sur2);border-bottom:1.5px solid var(--bd)}
+.tbl td{font-size:12px;color:var(--td);padding:7px 9px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}.tbl td:first-child{color:var(--tx);font-weight:600}
+.tbl tr:hover td{background:var(--sur2)}
+.tfoot{padding:7px 12px;font-size:10px;color:var(--tm);background:var(--sur2);
+  border-top:1.5px solid var(--bd);border-radius:0 0 var(--r) var(--r)}
 
-.kr-accent{width:5px;}
-.kr-num-wrap{display:flex;align-items:center;justify-content:center;padding:0 2px;}
-.kr-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:10px;font-weight:700;color:#fff;}
+/* mini row */
+.mr{display:flex;align-items:center;justify-content:space-between;padding:6px 0;
+  border-bottom:1px solid var(--bd);gap:7px}
+.mr:last-child{border-bottom:none}
+.mn{font-size:11px;color:var(--td);flex:1}
+.mv{font-size:12px;font-weight:700;color:var(--tx);white-space:nowrap}
+.mv.g{color:var(--gd)}.mv.r{color:var(--red)}.mv.a{color:var(--amb)}
+.mtbd{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--tl)}
 
-.kr-body{padding:8px 14px 8px 6px;display:flex;flex-direction:column;gap:3px;min-width:0;}
-.kr-name{font-size:12px;font-weight:600;}
-.kr-desc{font-size:10px;color:var(--text2);line-height:1.45;flex:1;}
-.kr-slider-row{display:flex;align-items:center;gap:8px;margin-top:3px;}
-.kr-formula{font-family:var(--fm);font-size:8px;color:var(--muted);padding:1px 5px;border-radius:3px;background:var(--bg);border:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
-.kr-val{font-family:var(--fm);font-size:12px;font-weight:500;min-width:36px;text-align:right;flex-shrink:0;}
-.kr-badge{font-size:9px;font-family:var(--fm);padding:2px 6px;border-radius:20px;font-weight:500;white-space:nowrap;min-width:50px;text-align:center;flex-shrink:0;}
+/* loc card */
+.lc{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--rs);padding:11px;box-shadow:var(--sh)}
+.lch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.lcn{font-size:12px;font-weight:700;color:var(--tx)}
+.lrw{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ll{font-size:9px;color:var(--tm);font-weight:600;width:66px;flex-shrink:0;text-transform:uppercase;letter-spacing:.4px}
+.lbw{flex:1;height:5px;background:var(--bg);border-radius:3px}
+.lbf{height:100%;border-radius:3px}.fg{background:var(--g)}.fa{background:var(--amb)}.fr{background:var(--red)}
+.lbv{font-size:10px;font-weight:600;color:var(--td);width:32px;text-align:right}
 
-.kr-score-col{
-  border-left:1px solid var(--border);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:5px;padding:12px 8px;
-}
-.kr-score-num{font-family:var(--fh);font-size:16px;font-weight:700;line-height:1;}
-.kr-score-bar{width:72px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-.kr-score-fill{height:100%;border-radius:3px;transition:width .3s ease;}
-.kr-contrib{font-family:var(--fm);font-size:10px;color:var(--muted);}
+/* strategy cards */
+.pjc{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--r);padding:13px;box-shadow:var(--sh);position:relative}
+.pji{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--tm);margin-bottom:4px}
+.pjn{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:7px;line-height:1.3}
+.pjo{font-size:10px;color:var(--td);margin-bottom:5px}.pjo b{color:var(--tx)}
+.pjbw{height:5px;background:var(--bg);border-radius:3px;margin:5px 0 4px}
+.pjb{height:100%;border-radius:3px;transition:width .4s}
+.pjm{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
+.pjpr{position:absolute;top:9px;right:9px;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px}
+.prA{background:#dcfce7;color:#166534}.prB{background:var(--bbg);color:#1e40af}
 
-/* ── PAIN TABLE ── */
-.pain-table{width:100%;border-collapse:collapse;font-size:11px;}
-.pain-table th{font-family:var(--fm);font-size:9px;color:var(--muted);text-align:left;padding:7px 11px;border-bottom:1.5px solid var(--border);font-weight:500;letter-spacing:.05em;text-transform:uppercase;position:sticky;top:0;background:var(--white);z-index:1;}
-.pain-table td{padding:7px 11px;border-bottom:1px solid var(--border);vertical-align:middle;}
-.pain-table tr:last-child td{border-bottom:none;}
-.pain-table tr:hover td{background:var(--bg);}
-.pri-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
-.role-chip{display:inline-block;font-size:9px;font-family:var(--fm);padding:2px 7px;border-radius:20px;font-weight:500;margin:1px 2px 1px 0;white-space:nowrap;}
+/* person score card */
+.pec{background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--rs);padding:9px 11px;box-shadow:var(--sh)}
+.pen{font-size:11px;font-weight:700;color:var(--tx);margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pebw{height:6px;background:var(--bg);border-radius:3px;margin-bottom:4px}
+.pef{height:100%;border-radius:3px}
+.pept{font-size:10px;color:var(--tm)}.pept b{color:var(--gd)}
+.tdone td{color:var(--tm)!important;text-decoration:line-through;opacity:.6}
+.tdone td:first-child{color:var(--tm)!important}
 
-/* ── TOAST ── */
-.save-toast{position:fixed;bottom:14px;right:14px;z-index:999;background:var(--navy);color:#fff;font-family:var(--fm);font-size:11px;padding:7px 14px;border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;border:1px solid rgba(46,204,113,.35);}
-.save-toast.show{opacity:1;}
-
-/* ── MOBILE ── */
-@media(max-width:960px){
-  html,body{overflow-y:auto;height:auto;}
-  #tab0{flex-direction:column;overflow:visible;height:auto;}
-  .sidebar{width:100%;max-height:none;overflow:visible;}
-  .sb-scroll{overflow:visible;max-height:none;}
-  .loc-grid{grid-template-columns:repeat(4,1fr);}
-  .main-content{overflow:visible;min-height:0;}
-  .top-bar{flex-direction:column;height:auto!important;}
-  .result-panel{width:100%;border-right:none;border-bottom:1.5px solid var(--border);padding:14px 16px;background:var(--white);}
-  .rp-amount{font-size:26px;}
-  .bubble-panel{min-height:240px;height:240px;background:var(--bg);}
-  .preset-bar{flex-wrap:wrap;}
-  .kpi-rows-wrap{overflow:visible;height:auto;flex:none;}
-  .kpi-rows-inner{overflow:visible;flex:none;}
-  .kpi-row{flex:none;height:auto!important;min-height:90px;grid-template-columns:5px 40px 1fr;}
-  .kr-score-col{display:none;}
-  .kr-body{padding:10px 12px 10px 6px;}
-  .kpi-footer{flex-direction:column;align-items:flex-start;gap:2px;}
-}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gm);border-radius:3px}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo"><span class="logo-dot"></span>Easy 3D Print · КПІ-система</div>
-  <div class="hbadge">v1.1</div>
-</header>
-
-<div class="tab-bar">
-  <div class="tab active" onclick="switchTab(0)">Рук. локації</div>
-  <div class="tab" onclick="switchTab(1)">Оператори <span class="tsoon">скоро</span></div>
-  <div class="tab" onclick="switchTab(2)">Техніки <span class="tsoon">скоро</span></div>
-  <div class="tab" onclick="switchTab(3)">ОТК <span class="tsoon">скоро</span></div>
-  <div class="tab" onclick="switchTab(4)">Болі</div>
+<!-- WIDGET MANAGER OVERLAY -->
+<div class="wmo" id="wmO" onclick="if(event.target===this)closeWM()">
+  <div class="wmd">
+    <div class="wmh">
+      <div class="wmht">&#9881;&#65039; Налаштування віджетів</div>
+      <button class="wmcl" onclick="closeWM()">&#10005;</button>
+    </div>
+    <div class="wmb" id="wmB"></div>
+    <div class="wmfoo"><button class="wmres" onclick="resetWidgets()">&#8635; Скинути все до стандарту</button></div>
+  </div>
 </div>
 
-<!-- ═══ TAB 0 ══════════════════════════════════════════ -->
-<div id="tab0">
-
-  <!-- ── SIDEBAR (dark, 440px) ── -->
-  <div class="sidebar">
-    <div class="sb-scroll">
-
-      <div class="sb-section">
-        <div class="sb-lbl">Локація</div>
-        <div class="loc-grid" id="locGrid"></div>
-        <div class="sb-fld">
-          <label><span>Коеф. локації</span><em>вручну</em></label>
-          <input type="number" class="sb-inp" id="locCoef" step="0.05" min="0.5" max="5" value="1.00">
-        </div>
-      </div>
-
-      <div class="sb-section">
-        <div class="sb-lbl">Компенсація</div>
-        <div class="sb-fld"><label><span>База (грн/міс)</span></label><input type="number" class="sb-inp" id="base" value="20000" step="1000" min="0"></div>
-        <div class="sb-fld"><label><span>Бонусний пул (грн)</span></label><input type="number" class="sb-inp" id="pool" value="20000" step="1000" min="0"></div>
-        <div class="sb-fld"><label><span>Бонус за перевик.</span><em>&gt;100%</em></label><input type="number" class="sb-inp" id="overPool" value="0" step="1000" min="0"></div>
-        <div class="sb-fld"><label><span>Підлога виплати</span><em>гарантія</em></label><input type="number" class="sb-inp" id="floor" value="0" step="500" min="0"></div>
-      </div>
-
-      <div class="sb-section">
-        <div class="sb-lbl">Ваги КПІ — перетягни</div>
-        <div id="weightGrid"></div>
-        <div class="sb-wtot"><span>Сума</span><span id="wtot" class="wok">100%</span></div>
-      </div>
-
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-top">
+    <div class="logo">
+      <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v1.0</div></div>
+    </div>
+    <div class="tabs-s">
+      <button class="tb active" onclick="go('ceo',this)">&#127970; CEO</button>
+      <button class="tb" onclick="go('str',this)">&#127919; Стратегія</button>
+      <button class="tb" onclick="go('prod',this)">&#127981; Вир-во</button>
+      <button class="tb" onclick="go('qual',this)">&#9989; Якість</button>
+      <button class="tb" onclick="go('sales',this)">&#128188; Продажі</button>
+      <button class="tb" onclick="go('crm',this)">&#128227; CRM</button>
+      <button class="tb" onclick="go('fin',this)">&#128176; Фінанси</button>
+      <button class="tb" onclick="go('hr',this)">&#128101; HR</button>
+      <button class="tb" onclick="go('loc',this)">&#128205; Локації</button>
+      <button class="tb" onclick="go('reg',this)">&#128203; Реєстр</button>
+    </div>
+    <div class="nav-acts">
+      <div class="lp"><div class="ld" id="ld"></div><span id="ls">&#8230;</span></div>
+      <button class="wm-btn" onclick="openWM()">&#9881; Віджети</button>
     </div>
   </div>
-
-  <!-- ── MAIN CONTENT ── -->
-  <div class="main-content">
-
-    <!-- TOP BAR: result LEFT + bubble RIGHT -->
-    <div class="top-bar" style="height:215px;">
-
-      <!-- Result panel -->
-      <div class="result-panel">
-        <div class="rp-label">підсумок до виплати</div>
-        <div class="rp-amount" id="resTotal">—</div>
-        <div class="rp-score-row">
-          <div>
-            <div class="rp-score-lbl">КПІ-score</div>
-            <div class="rp-score-val" id="rpScore">—</div>
-          </div>
-          <div style="width:1px;background:var(--border);height:30px;"></div>
-          <div class="rp-score-sub" id="rpScoreSub">—</div>
-        </div>
-        <div class="rp-cells">
-          <div class="rp-cell">
-            <div class="rp-cell-l">База × коеф.</div>
-            <div class="rp-cell-v" id="rpBase">—</div>
-            <div class="rp-cell-s" id="rpBaseSub">—</div>
-          </div>
-          <div class="rp-cell">
-            <div class="rp-cell-l">Бонус</div>
-            <div class="rp-cell-v" id="rpBonus" style="color:var(--green);">—</div>
-            <div class="rp-cell-s" id="rpBonusSub">—</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bubble panel fills rest -->
-      <div class="bubble-panel">
-        <svg id="bsvg"></svg>
-      </div>
-
-    </div><!-- /top-bar -->
-
-    <!-- PRESETS -->
-    <div class="preset-bar">
-      <span class="preset-lbl">Сценарій:</span>
-      <div id="presets" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+  <div class="sbar">
+    <span style="font-size:9px;color:var(--tm);font-weight:700;white-space:nowrap">ДЖЕРЕЛА:</span>
+    <span class="sp sp-idle" id="sp-projects">&#128230; Проекти</span>
+    <span class="sp sp-idle" id="sp-sprint1">&#9889; Спринт 1</span>
+    <span class="sp sp-idle" id="sp-sprint2">&#9889; Спринт 2</span>
+    <span class="sp sp-idle" id="sp-metrics">&#128203; Метрики</span>
+  </div>
+  <div class="fbar">
+    <span class="flbl">Рік:</span>
+    <div class="fg" id="yf">
+      <button class="fc on" onclick="setY('all',this)">Всі</button>
+      <button class="fc" onclick="setY('2025',this)">2025</button>
+      <button class="fc" onclick="setY('2026',this)">2026</button>
     </div>
-
-    <!-- KPI ROWS -->
-    <div class="kpi-rows-wrap" id="kpiRowsWrap">
-      <div class="kpi-rows-inner" id="kpiRows"></div>
-      <div class="kpi-footer">
-        <span><strong>Підсумок</strong> = База × Коеф. + Пул × КПІ-score</span>
-        <span>score = MIN(факт/ціль, потолок) · К2,К5: потолок=100% · К1,К3,К4: потолок=120% (перевиконання заохочується)</span>
-      </div>
-    </div>
-
-  </div><!-- /main-content -->
-
-</div><!-- /tab0 -->
-
-<!-- TABS 1-3 -->
-<div id="tab1" style="display:none;padding:40px;text-align:center;color:var(--muted);font-family:var(--fm);font-size:12px;">Калькулятор для операторів — в розробці</div>
-<div id="tab2" style="display:none;padding:40px;text-align:center;color:var(--muted);font-family:var(--fm);font-size:12px;">Калькулятор для техніків — в розробці</div>
-<div id="tab3" style="display:none;padding:40px;text-align:center;color:var(--muted);font-family:var(--fm);font-size:12px;">Калькулятор для ОТК — в розробці</div>
-
-<!-- TAB 4: БОЛІ -->
-<div id="tab4" style="display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;">
-  <div style="padding:8px;display:flex;flex-direction:column;gap:8px;height:100%;overflow:hidden;">
-    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;">
-      <span style="font-family:var(--fm);font-size:10px;color:var(--muted);">Фільтр:</span>
-      <div id="painFilters" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
-    </div>
-    <div style="background:var(--white);border-radius:10px;border:1px solid var(--border);overflow:hidden;flex:1;display:flex;flex-direction:column;">
-      <div style="padding:6px 11px;font-family:var(--fm);font-size:9px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:#FAFBFD;display:flex;align-items:center;gap:6px;flex-shrink:0;">
-        <span style="width:5px;height:5px;border-radius:50%;background:var(--red);display:inline-block;"></span>Карта болей та відповідальностей
-      </div>
-      <div style="overflow-y:auto;flex:1;">
-        <table class="pain-table">
-          <thead><tr><th style="width:20px;">P</th><th>Біль</th><th>Ролі</th><th>КПІ</th><th>Джерело</th><th>Напрямок рішення</th></tr></thead>
-          <tbody id="painTb"></tbody>
-        </table>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;flex-shrink:0;">
-      <div style="background:var(--white);border-radius:10px;border:1px solid var(--border);padding:10px 13px;">
-        <div style="font-family:var(--fm);font-size:9px;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.07em;">Легенда пріоритетів</div>
-        <div style="display:flex;flex-direction:column;gap:5px;">
-          <div style="display:flex;align-items:center;gap:7px;font-size:11px;"><span class="pri-dot" style="background:#EF4444;"></span>Критично — потрібне рішення до запуску КПІ</div>
-          <div style="display:flex;align-items:center;gap:7px;font-size:11px;"><span class="pri-dot" style="background:#F59E0B;"></span>Високий — важливо, але не блокує</div>
-          <div style="display:flex;align-items:center;gap:7px;font-size:11px;"><span class="pri-dot" style="background:#2ECC71;"></span>Середній — плановий розвиток</div>
-        </div>
-      </div>
-      <div style="background:var(--white);border-radius:10px;border:1px solid var(--border);padding:10px 13px;">
-        <div style="font-family:var(--fm);font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em;">Ключовий принцип</div>
-        <div style="font-size:11px;color:var(--text2);line-height:1.55;">Кожна роль відповідає лише за те, на що реально впливає. КПІ-система не має бути несправедливою — інакше втрачається довіра.</div>
-      </div>
+    <div class="fsep"></div>
+    <span class="flbl">Місяць:</span>
+    <div class="fg" id="mf">
+      <button class="fc on" onclick="setM('all',this)">Всі</button>
+      <button class="fc" onclick="setM(0,this)">Січ</button>
+      <button class="fc" onclick="setM(1,this)">Лют</button>
+      <button class="fc" onclick="setM(2,this)">Бер</button>
+      <button class="fc" onclick="setM(3,this)">Квіт</button>
+      <button class="fc" onclick="setM(4,this)">Трав</button>
+      <button class="fc" onclick="setM(5,this)">Чер</button>
+      <button class="fc" onclick="setM(6,this)">Лип</button>
+      <button class="fc" onclick="setM(7,this)">Сер</button>
+      <button class="fc" onclick="setM(8,this)">Вер</button>
+      <button class="fc" onclick="setM(9,this)">Жов</button>
+      <button class="fc" onclick="setM(10,this)">Лис</button>
+      <button class="fc" onclick="setM(11,this)">Гру</button>
     </div>
   </div>
 </div>
 
-<div class="save-toast" id="toast">Збережено ✓</div>
+<!-- ════════════════════════ CEO ════════════════════════ -->
+<div class="panel active" id="panel-ceo">
 
+  <div id="w-ceo-kpi">
+    <div class="sec">&#128202; Пульс компанії — 12 метрик CEO</div>
+    <div class="g4">
+      <div class="card"><div class="ctb tbg"></div><div class="kl">Виручка ОПТ (факт 2025)</div><div class="kv g">121.9M</div><div class="ks"><span class="du">&#9650; 203%</span> від плану 60M</div><div class="kt">Ціль 2026: <b>TBD</b></div></div>
+      <div class="card"><div class="ctb tba"></div><div class="kl">Виручка Роздріб (факт 2025)</div><div class="kv a">16.9M</div><div class="ks"><span class="dd">&#9660; 66%</span> від плану</div><div class="kt">Ціль: <b>&gt;1M/міс</b></div></div>
+      <div class="card wm"><div class="ctb tbr"></div><div class="kl">OEE / Операц. ефективність</div><div class="kv r">~30%</div><div class="ks">демо-дані</div><div class="kt">Ціль: <b>80%+</b></div><span class="wm-txt">ДЕМО · TBD</span></div>
+      <div class="card wm"><div class="ctb tbr"></div><div class="kl">% Браку (компанія)</div><div class="kv r">~12%</div><div class="ks">демо-дані</div><div class="kt">Ціль: <b>&lt;8–9%</b></div><span class="wm-txt">ДЕМО · TBD</span></div>
+      <div class="card"><div class="ctb tbr"></div><div class="kl">Частка ТОП-2 клієнтів</div><div class="kv r">94.7%</div><div class="ks">Ризик концентрації</div><div class="kt">Ціль: <b>&#8804;70%</b></div></div>
+      <div class="card wm"><div class="ctb tba"></div><div class="kl">Lead time замовлень</div><div class="kv a">~22 дні</div><div class="ks">демо</div><div class="kt">Ціль: <b>&lt;5 днів</b></div><span class="wm-txt">ДЕМО · TBD</span></div>
+      <div class="card"><div class="kl">Корисний маш. час (серед.)</div><div class="kv x">TBD год/добу</div><div class="kt"><span class="cov ct">ПО Стріляного</span></div></div>
+      <div class="card"><div class="ctb tbg"></div><div class="kl">Активних B2B-клієнтів</div><div class="kv g">20</div><div class="ks">Повторні: <b style="color:var(--gd)">45%</b></div><div class="kt">Ціль: <b>35–45</b></div></div>
+      <div class="card"><div class="kl">Нові B2B / міс</div><div class="kv x">TBD</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">Маржинальність компанії</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cn">Немає даних</span></div></div>
+      <div class="card"><div class="kl">Плинність персоналу</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">Прогрес проектів SS-2026</div><div class="kv x" id="ceo-pp">—%</div><div class="kt">Скоринг &#8594; Стратегія</div></div>
+    </div>
+  </div>
+
+  <div id="w-ceo-cov">
+    <div class="sec">&#127919; КПІ Проекту #3 — Діджиталізація (метрики на реальних даних)</div>
+    <div class="g4">
+      <div class="card s2"><div class="ctb tbg"></div>
+        <div class="kl">Реальні дані / всього метрик</div>
+        <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:5px">
+          <div class="kv g" id="cv-yes">12</div>
+          <div style="font-size:15px;color:var(--tm);margin-bottom:3px">/ 174</div>
+          <div style="font-size:18px;font-weight:800;color:var(--td)" id="cv-pct">6.9%</div>
+        </div>
+        <div class="ckpi"><div class="ckpi-f" id="cv-bar" style="width:6.9%"></div></div>
+        <div class="ks" style="margin-top:8px;flex-wrap:wrap;gap:5px">
+          <span class="cov cy" id="cc-y">12 є</span>
+          <span class="cov cp" id="cc-p">60 частково</span>
+          <span class="cov cc" id="cc-c">39 можна</span>
+          <span class="cov cn" id="cc-n">63 немає</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="kl">Є + Частково</div><div class="kv g" id="cv-ext">41.4%</div>
+        <div class="ks">72 із 174 метрик</div>
+        <div class="ckpi" style="margin-top:7px"><div class="ckpi-f" style="width:41.4%;background:linear-gradient(90deg,var(--g),var(--amb))"></div></div>
+      </div>
+      <div class="card">
+        <div class="kl">Потенціал (+ Можна)</div><div class="kv" style="color:var(--blu)" id="cv-pot">63.8%</div>
+        <div class="ks">111 із 174 метрик</div>
+        <div class="ckpi" style="margin-top:7px"><div class="ckpi-f" style="width:63.8%;background:linear-gradient(90deg,var(--g),var(--blu))"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="w-ceo-charts">
+    <div class="sec">&#128200; Динаміка та концентрація</div>
+    <div class="g3">
+      <div class="card s2 wm wmc"><div class="chdr"><div><div class="ct">Виручка ОПТ + Роздріб, млн грн</div><div class="cs">демо-дані · фільтр вгорі</div></div><span class="bdg bdg-a">ДЕМО</span></div><div class="cw ch200"><canvas id="revTrend"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+      <div class="card"><div class="chdr"><div><div class="ct">Концентрація клієнтів</div><div class="cs">ТОП-2 = 94.7%</div></div><span class="bdg bdg-r">РИЗИК</span></div><div class="cw ch200"><canvas id="clientConc"></canvas></div></div>
+    </div>
+  </div>
+
+  <div id="w-ceo-goals">
+    <div class="sec">&#127919; Стратегічні цілі 2026</div>
+    <div class="g2">
+      <div class="card">
+        <div class="ct" style="margin-bottom:10px">Ціль &#8594; Поточний стан</div>
+        <div class="pr"><div class="pn">OEE 80%+</div><div class="pbw"><div class="pb" style="width:30%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">~30%</div></div>
+        <div class="pr"><div class="pn">Брак &lt;9%</div><div class="pbw"><div class="pb" style="width:22%;background:var(--red)"></div></div><div class="pv" style="color:var(--red)">~12%</div></div>
+        <div class="pr"><div class="pn">Lead time &lt;5 днів</div><div class="pbw"><div class="pb" style="width:10%;background:var(--red)"></div></div><div class="pv" style="color:var(--red)">22 дн.</div></div>
+        <div class="pr"><div class="pn">ТОП-клієнт &#8804;35%</div><div class="pbw"><div class="pb" style="width:8%;background:var(--red)"></div></div><div class="pv" style="color:var(--red)">TBD</div></div>
+        <div class="pr"><div class="pn">15% не мілітарі</div><div class="pbw"><div class="pb" style="width:10%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">TBD</div></div>
+        <div class="pr"><div class="pn">Виручка 650M грн</div><div class="pbw"><div class="pb" style="width:21%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">TBD</div></div>
+      </div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:9px">Парк та команда</div>
+        <div class="mr"><div class="mn">Парк принтерів (факт)</div><div class="mv g">2 060</div></div>
+        <div class="mr"><div class="mn">Ціль принтерів</div><div class="mv" style="color:var(--tm)">10 000</div></div>
+        <div class="mr"><div class="mn">Штат поточний</div><div class="mv">130 осіб</div></div>
+        <div class="mr"><div class="mn">Ріст штату за рік</div><div class="mv g">+383%</div></div>
+        <div class="mr"><div class="mn">Активних локацій</div><div class="mv">5</div></div>
+        <div class="mr"><div class="mn">Виручка / 1 принтер / міс</div><div class="mtbd">TBD</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ STRATEGY ════════════════════════ -->
+<div class="panel" id="panel-str">
+  <div class="al al-g"><span class="ic">&#128208;</span><div><b>Джерело:</b> <a href="https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/" target="_blank">Google Sheets &#8594; Стратегічні цілі та проекти 2026</a> &#183; Скоринг: Відп. 70% / Учасники 30%</div></div>
+  <div id="w-str-goals"><div class="sec">&#127919; Цілі на 1 рік (SMART)</div><div class="g3" id="gg"></div></div>
+  <div id="w-str-proj"><div class="sec">&#128230; Проекти — Скоринг та прогрес</div><div class="g3" id="pg"></div></div>
+  <div id="w-str-pers"><div class="sec">&#128100; Скоринг по учасниках</div><div class="g5" id="perg"></div></div>
+  <div id="w-str-s2">
+    <div class="sec">&#9889; Поточний спринт (Спринт 2: 11.05 – 29.05)</div>
+    <div class="g2">
+      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct">Прогрес Спринту 2</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch150"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm">ДЕМО · TBD</span></div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:9px">Статистика Спринту 2</div>
+        <div class="mr"><div class="mn">Всього задач</div><div class="mv" id="s2t">—</div></div>
+        <div class="mr"><div class="mn">Виконано</div><div class="mv g" id="s2d">—</div></div>
+        <div class="mr"><div class="mn">В роботі</div><div class="mv a" id="s2w">—</div></div>
+        <div class="mr"><div class="mn">Прострочено</div><div class="mv r" id="s2o">—</div></div>
+        <div class="mr"><div class="mn">% виконання</div><div class="mv" id="s2p">—</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="w-str-s1">
+    <div class="sec">&#128197; Спринт 1 — підсумок (20.04 – 11.05)</div>
+    <div class="card" style="padding:0"><div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div><div class="tfoot">Спринт 1 завершено: 11.05.2026</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ PRODUCTION ════════════════════════ -->
+<div class="panel" id="panel-prod">
+  <div id="w-prod-cap">
+    <div class="sec">&#9881;&#65039; Потужність та завантаженість (19 метрик)</div>
+    <div class="g4">
+      <div class="card"><div class="ctb tbg"></div><div class="kl">Принтерів (активних)</div><div class="kv g">2 060</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card wm"><div class="ctb tba"></div><div class="kl">OEE</div><div class="kv a">~30%</div><div class="kt">Ціль: <b>80%+</b></div><span class="wm-txt">ДЕМО · TBD</span></div>
+      <div class="card"><div class="kl">Корисний маш. час</div><div class="kv x">TBD год/добу</div><div class="kt"><span class="cov cp">Частково</span> &#183; ПО Стріляного</div></div>
+      <div class="card"><div class="kl">% завантаженості</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">MTBF</div><div class="kv x">TBD год</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">MTTR</div><div class="kv x">TBD год</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Виручка / принтер / міс</div><div class="kv x">TBD грн</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Загальний простій</div><div class="kv x">TBD год</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+    </div>
+  </div>
+  <div id="w-prod-batch">
+    <div class="sec">&#128230; Партії (27 метрик)</div>
+    <div class="g3">
+      <div class="card wm"><div class="ct" style="margin-bottom:9px">Часові параметри</div><div class="mr"><div class="mn">Lead time (повний цикл)</div><div class="mv a">~22 дні</div></div><div class="mr"><div class="mn">Дата прийому</div><div class="mv"><span class="cov cy">Є</span></div></div><div class="mr"><div class="mn">Нормативний час</div><div class="mv"><span class="cov cn">Немає</span></div></div><div class="mr"><div class="mn">Відхилення від нормативу</div><div class="mtbd">TBD</div></div><span class="wm-txt">ДЕМО</span></div>
+      <div class="card"><div class="ct" style="margin-bottom:9px">Сировина</div><div class="mr"><div class="mn">Вид сировини</div><div class="mv"><span class="cov cp">Частково</span></div></div><div class="mr"><div class="mn">Нормативна витрата</div><div class="mv"><span class="cov cn">Немає</span></div></div><div class="mr"><div class="mn">Фактична витрата</div><div class="mv"><span class="cov cp">Частково</span></div></div><div class="mr"><div class="mn">Вартість сировини</div><div class="mv"><span class="cov cp">Частково</span></div></div></div>
+      <div class="card"><div class="ct" style="margin-bottom:9px">Економіка партій</div><div class="mr"><div class="mn">Виручка з партії</div><div class="mv"><span class="cov cy">Є</span></div></div><div class="mr"><div class="mn">Прямі витрати</div><div class="mtbd">TBD</div></div><div class="mr"><div class="mn">Маржинальність</div><div class="mtbd">TBD</div></div><div class="mr"><div class="mn">Собівартість 1 одиниці</div><div class="mtbd">TBD</div></div></div>
+    </div>
+  </div>
+  <div id="w-prod-trend">
+    <div class="sec">&#128201; Lead Time та виробіток</div>
+    <div class="g2">
+      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Lead time (дні)</div><div class="cs">демо · ціль &lt;5</div></div><span class="bdg bdg-r">ЦІЛЬ &lt;5</span></div><div class="cw ch170"><canvas id="leadCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Виробіток по локаціях</div><div class="cs">демо · кг/міс</div></div><span class="bdg bdg-b">TBD</span></div><div class="cw ch170"><canvas id="outCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ QUALITY ════════════════════════ -->
+<div class="panel" id="panel-qual">
+  <div id="w-qual-kpi">
+    <div class="sec">&#127919; Брак — 13 метрик</div>
+    <div class="g4">
+      <div class="card wm"><div class="ctb tbr"></div><div class="kl">% браку (компанія)</div><div class="kv r">~12%</div><div class="ks">Серед. 2025 · демо</div><div class="kt">Ціль: <b>&lt;8–9%</b></div><span class="wm-txt">ДЕМО · TBD</span></div>
+      <div class="card"><div class="kl">% браку по локації</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">ТОП-5 причин (Парето)</div><div class="kv x">TBD</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">Вартість браку грн/міс</div><div class="kv x">TBD</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">% браку по оператору</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">% браку по моделі принт.</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">Вхідний контроль (ВТК)</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">Вихідний контроль</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+    </div>
+  </div>
+  <div id="w-qual-trend">
+    <div class="sec">&#128200; Динаміка браку</div>
+    <div class="card wm wmc"><div class="chdr"><div><div class="ct">% браку по місяцях</div><div class="cs">демо · ціль &lt;9%</div></div><span class="bdg bdg-a">ДЕМО</span></div><div class="cw ch170"><canvas id="defCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ SALES ════════════════════════ -->
+<div class="panel" id="panel-sales">
+  <div id="w-sales-b2b">
+    <div class="sec">&#128202; Продажі ОПТ B2B (16 метрик)</div>
+    <div class="g4">
+      <div class="card"><div class="ctb tbg"></div><div class="kl">Виручка ОПТ (факт 2025)</div><div class="kv g">121.9M</div><div class="ks"><span class="du">&#9650; 203%</span> від плану</div><div class="kt"><span class="cov cy">Збирається</span></div></div>
+      <div class="card"><div class="kl">К-сть угод (2025)</div><div class="kv">42</div><div class="kt"><span class="cov cy">Збирається</span></div></div>
+      <div class="card"><div class="kl">Середній чек ОПТ</div><div class="kv">~2.9M</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Повторні замовлення</div><div class="kv g">45%</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="ctb tbr"></div><div class="kl">Частка ТОП-2 клієнтів</div><div class="kv r">94.7%</div><div class="kt">Ціль: <b>&#8804;70%</b></div></div>
+      <div class="card"><div class="kl">Загальна дебіторка</div><div class="kv x">TBD грн</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">DSO (Days Sales Outst.)</div><div class="kv x">TBD днів</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Виконання плану 2026</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+    </div>
+  </div>
+  <div id="w-sales-b2c">
+    <div class="sec">&#128722; Продажі Роздріб B2C (9 метрик)</div>
+    <div class="g4">
+      <div class="card"><div class="ctb tba"></div><div class="kl">Виручка В2С (факт 2025)</div><div class="kv a">16.9M</div><div class="ks"><span class="dd">&#9660; 66%</span></div><div class="kt">Ціль: <b>&gt;1M/міс</b></div></div>
+      <div class="card"><div class="kl">К-сть угод (роздріб)</div><div class="kv x">TBD</div><div class="kt"><span class="cov cy">Збирається</span></div></div>
+      <div class="card"><div class="kl">Середній чек В2С</div><div class="kv x">TBD грн</div><div class="kt">Ціль: <b>&gt;10K</b></div></div>
+      <div class="card"><div class="kl">Нові клієнти / міс</div><div class="kv x">TBD</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+    </div>
+  </div>
+  <div id="w-sales-trend">
+    <div class="sec">&#128200; Динаміка</div>
+    <div class="g2">
+      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Виручка по місяцях</div><div class="cs">демо</div></div><span class="bdg bdg-a">ДЕМО</span></div><div class="cw ch170"><canvas id="sTrend"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+      <div class="card"><div class="chdr"><div><div class="ct">Концентрація клієнтів</div></div><span class="bdg bdg-r">РИЗИК</span></div><div class="cw ch170"><canvas id="cRisk"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ CRM ════════════════════════ -->
+<div class="panel" id="panel-crm">
+  <div class="al al-a"><span class="ic">&#128227;</span><div><b>Маркетинг:</b> З 24 метрик — 2 "частково" збираються. Null-атрибуція = 34 кл., 10.2M грн &#183; Зупинити: DSA_RU, Competitors, Remarketing_b2b, Pmax_fid</div></div>
+  <div id="w-crm-funnel">
+    <div class="sec">&#128312; Воронка та CAC/LTV</div>
+    <div class="g4">
+      <div class="card"><div class="kl">К-сть лідів</div><div class="kv x">TBD</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">Конверсія Лід&#8594;Угода</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">CAC</div><div class="kv x">TBD грн</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">LTV / CAC</div><div class="kv x">TBD &#215;</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Null-атрибуція</div><div class="kv r">34 кл.</div><div class="ks" style="color:var(--red)">10.2M грн без джерела</div></div>
+      <div class="card"><div class="kl">ROAS</div><div class="kv x">TBD</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">CPL (вартість ліда)</div><div class="kv x">TBD грн</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">CTR / CPC</div><div class="kv x">TBD</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+    </div>
+  </div>
+  <div id="w-crm-camp">
+    <div class="sec">&#128226; Рекламні кампанії (аудит Дубровін)</div>
+    <div class="card" style="padding:0"><div class="tw"><table class="tbl"><thead><tr><th>Кампанія</th><th>ROI / ROAS</th><th>Рішення</th><th>Відп.</th></tr></thead><tbody>
+      <tr><td>B2B_convers</td><td style="color:var(--gd);font-weight:700">+70%</td><td><span class="pill plg">&#10003; Масштабувати</span></td><td>Дубровін</td></tr>
+      <tr><td>Brand_UA_new</td><td style="color:var(--gd);font-weight:700">+1 690%</td><td><span class="pill plg">&#10003; Масштабувати</span></td><td>Дубровін</td></tr>
+      <tr><td>DSA_RU</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">&#10007; Зупинити</span></td><td>Дубровін</td></tr>
+      <tr><td>Competitors</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">&#10007; Зупинити</span></td><td>Дубровін</td></tr>
+      <tr><td>Remarketing_b2b</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">&#10007; Зупинити</span></td><td>Дубровін</td></tr>
+      <tr><td>Pmax_fid</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">&#10007; Зупинити</span></td><td>Дубровін</td></tr>
+    </tbody></table></div><div class="tfoot">Фінальний голос: Щербань Сергій &#183; Комісія до 10-го числа &#183; 60 хв &#183; Правило 2 червоних місяців</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ FINANCE ════════════════════════ -->
+<div class="panel" id="panel-fin">
+  <div class="al al-a"><span class="ic">&#128295;</span><div><b>В розробці:</b> P&amp;L, Cashflow, Баланс — впроваджується управлінський облік (Дубровін / Пузавіков)</div></div>
+  <div id="w-fin-pl">
+    <div class="sec">&#128209; P&amp;L (8 метрик)</div>
+    <div class="g4">
+      <div class="card"><div class="ctb tbg"></div><div class="kl">Виручка (загальна 2025)</div><div class="kv g">138.8M</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">Собівартість (COGS)</div><div class="kv x">TBD</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Валова маржа</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">EBITDA</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Чистий прибуток</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">ФОП (грн/міс)</div><div class="kv x">TBD</div><div class="kt"><span class="cov cp">Частково</span> &#183; Щуліпенко</div></div>
+      <div class="card"><div class="kl">Залишок на рахунку</div><div class="kv x">TBD грн</div><div class="kt"><span class="cov cy">Збирається</span></div></div>
+      <div class="card"><div class="kl">Касовий розрив</div><div class="kv x">TBD</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+    </div>
+  </div>
+  <div id="w-fin-unit">
+    <div class="sec">&#128290; Юніт-економіка</div>
+    <div class="g4">
+      <div class="card"><div class="kl">Маржа / одиниця</div><div class="kv x">TBD грн</div><div class="kt"><span class="cov cc">Можна (авт. локація)</span></div></div>
+      <div class="card"><div class="kl">Виручка / год маш. часу</div><div class="kv x">TBD грн</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Витрати / год маш. часу</div><div class="kv x">TBD грн</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+      <div class="card"><div class="kl">Маржинальність локації</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ HR ════════════════════════ -->
+<div class="panel" id="panel-hr">
+  <div id="w-hr-kpi">
+    <div class="sec">&#128101; HR та Персонал (9 метрик)</div>
+    <div class="g4">
+      <div class="card"><div class="ctb tbg"></div><div class="kl">Загальна к-сть співробітників</div><div class="kv g">130</div><div class="ks"><span class="du">&#9650; +383%</span> за рік</div><div class="kt"><span class="cov cy">Збирається</span> &#183; Щуліпенко</div></div>
+      <div class="card"><div class="kl">Штат факт vs план</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">Плинність кадрів</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cp">Частково</span></div></div>
+      <div class="card"><div class="kl">К-сть відкритих вакансій</div><div class="kv x">TBD</div><div class="kt"><span class="cov cy">Збирається</span></div></div>
+      <div class="card"><div class="kl">Час закриття вакансії</div><div class="kv x">TBD днів</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">Виробіток / 1 оператора</div><div class="kv x">TBD кг/зміна</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">% співробітників KPI&gt;100%</div><div class="kv x">TBD %</div><div class="kt"><span class="cov cn">Не збирається</span></div></div>
+      <div class="card"><div class="kl">eNPS</div><div class="kv x">TBD</div><div class="kt"><span class="cov cc">Можна</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ LOCATIONS ════════════════════════ -->
+<div class="panel" id="panel-loc">
+  <div id="w-loc-tbl">
+    <div class="sec">&#128205; Зведена таблиця локацій (демо)</div>
+    <div class="card" style="padding:0;margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody>
+      <tr><td>Локація 1</td><td>1.0&#215;</td><td class="wm"><span class="pill pla">~62%</span></td><td><span class="pill pla">~89%</span></td><td><span class="pill pla">78%</span></td><td><span class="cov ct">TBD</span></td></tr>
+      <tr><td>Локація 2</td><td>1.15&#215;</td><td><span class="pill pla">~55%</span></td><td><span class="pill pla">~87%</span></td><td><span class="pill pla">72%</span></td><td><span class="cov ct">TBD</span></td></tr>
+      <tr><td>Локація 4</td><td>1.4&#215;</td><td><span class="pill plr">~40%</span></td><td><span class="pill plr">~85%</span></td><td><span class="pill plr">65%</span></td><td><span class="cov ct">TBD</span></td></tr>
+      <tr><td>Локація 5</td><td>2.0&#215;</td><td><span class="pill plr">~28%</span></td><td><span class="pill pla">~82%</span></td><td><span class="pill plr">50%</span></td><td><span class="cov ct">TBD</span></td></tr>
+    </tbody></table></div><div class="tfoot">&#9888;&#65039; Числові дані — демо-заглушки &#183; TBD: підключаються через ПО Стріляного</div></div>
+  </div>
+  <div id="w-loc-cards">
+    <div class="sec">&#128202; Деталізація по локаціях (демо)</div>
+    <div class="g4">
+      <div class="lc wm"><div class="lch"><div class="lcn">&#127981; Локація 1</div><span class="pill plg">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fa" style="width:62%"></div></div><div class="lbv">62%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fa" style="width:11%"></div></div><div class="lbv">~11%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fa" style="width:78%"></div></div><div class="lbv">78%</div></div><span class="wm-txt">ДЕМО</span></div>
+      <div class="lc wm"><div class="lch"><div class="lcn">&#127981; Локація 2</div><span class="pill plg">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fa" style="width:55%"></div></div><div class="lbv">55%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:13%"></div></div><div class="lbv">~13%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fa" style="width:72%"></div></div><div class="lbv">72%</div></div><span class="wm-txt">ДЕМО</span></div>
+      <div class="lc wm"><div class="lch"><div class="lcn">&#127981; Локація 4</div><span class="pill pla">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fr" style="width:40%"></div></div><div class="lbv">40%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:15%"></div></div><div class="lbv">~15%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fr" style="width:65%"></div></div><div class="lbv">65%</div></div><span class="wm-txt">ДЕМО</span></div>
+      <div class="lc wm"><div class="lch"><div class="lcn">&#127981; Локація 5</div><span class="pill pla">Розгортання</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fr" style="width:28%"></div></div><div class="lbv">28%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:18%"></div></div><div class="lbv">~18%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fr" style="width:50%"></div></div><div class="lbv">50%</div></div><div style="font-size:9px;color:var(--red);margin-top:5px;font-weight:600">Факт. завант. нижче проєктного</div><span class="wm-txt">ДЕМО</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ REGISTRY ════════════════════════ -->
+<div class="panel" id="panel-reg">
+  <div id="w-reg-ch">
+    <div class="sec">&#128203; Покриття метрик &#183; 174 &#183; 12 розділів</div>
+    <div class="g3" style="margin-bottom:12px">
+      <div class="card"><div class="chdr"><div><div class="ct">Статус покриття</div></div></div><div class="cw ch170"><canvas id="covDon"></canvas></div></div>
+      <div class="card s2"><div class="chdr"><div><div class="ct">Покриття по розділах</div></div></div><div class="cw ch170"><canvas id="covBar"></canvas></div></div>
+    </div>
+  </div>
+  <div id="w-reg-tbl">
+    <div class="card" style="padding:0">
+      <div class="tw"><table class="tbl"><thead><tr><th>Розділ</th><th>Всього</th><th><span class="cov cy">Так</span></th><th><span class="cov cp">Частково</span></th><th><span class="cov cc">Можна</span></th><th><span class="cov cn">Немає</span></th><th>Покриття</th></tr></thead><tbody id="regB"></tbody></table></div>
+      <div class="tfoot">Реєстр v1.0 &#183; Квітень 2026 &#183; Іванов Олег &#183; <a href="https://docs.google.com/spreadsheets/d/1RFZV9ChnSXAkBgW4nv86mWvVqh4vjUKU/edit?gid=485374783" target="_blank">Google Sheets</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SCRIPTS ════════ -->
 <script>
-const SKEY='e3d_kpi_v8';
-function saveState(){
-  try{
-    localStorage.setItem(SKEY,JSON.stringify({
-      locIdx:ST.locIdx,vals:ST.vals,w:ST.w,
-      base:+document.getElementById('base').value||20000,
-      pool:+document.getElementById('pool').value||20000,
-      overPool:+document.getElementById('overPool').value||0,
-      floor:+document.getElementById('floor').value||0,
-      locCoef:+document.getElementById('locCoef').value||1,
-    }));
-    const t=document.getElementById('toast');
-    t.classList.add('show');clearTimeout(saveState._t);
-    saveState._t=setTimeout(()=>t.classList.remove('show'),1800);
-  }catch(e){}
-}
-function loadState(){try{const r=localStorage.getItem(SKEY);return r?JSON.parse(r):null;}catch(e){return null;}}
-let _st;function scheduleSave(){clearTimeout(_st);_st=setTimeout(saveState,600);}
+// ── DATA ──────────────────────────────────────────────
+const ML=['Лп','Сп','Вр','Жв','Тр','Чв','Лн','Лп','Св','Жн','Лс','Гр'];
+const G='#3CB648',A='#c07820',R='#d94040',B='#3b82f6';
+const GB='rgba(60,182,72,.12)',AB='rgba(192,120,32,.1)',RB='rgba(217,64,64,.1)';
+Chart.defaults.font.family='Inter';Chart.defaults.font.size=10;
+Chart.defaults.color='#7a9a7a';Chart.defaults.borderColor='#e0e8e0';
 
-function switchTab(i){
-  [0,1,2,3,4].forEach(j=>{
-    const el=document.getElementById('tab'+j);if(!el)return;
-    if(j===i){
-      el.style.display='flex';
-      if(j===0){el.style.flex='1';el.style.overflow='hidden';el.style.minHeight='0';}
-      if(j===4){el.style.flexDirection='column';el.style.overflow='hidden';el.style.flex='1';el.style.minHeight='0';}
-    }else el.style.display='none';
-  });
-  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  if(i===4)renderPainTable('all');
-  if(i===0)setTimeout(resizeBubble,60);
-}
-
-const LOCS=[
-  {name:'Лок 1', sub:'219 машин',coef:1.00},
-  {name:'Лок 2', sub:'262 Mini', coef:1.15},
-  {name:'Лок 3/4',sub:'456 маш.', coef:1.40},
-  {name:'Лок 5', sub:'1132 P1S', coef:2.00},
-];
-const KPI=[
-  {n:1,name:'Виконання плану',sh:'План',unit:'%',min:0,max:130,step:1,def:100,hex:'#3B82F6',
-   desc:'Факт/план по доступних машино-годинах. Не теоретичний максимум парку — лише час коли машини реально доступні. Мотивує мінімізувати простої та забезпечувати запуск обладнання.',
-   formula:'MIN(факт/план, 1.2)',scoreOf:v=>Math.min(v/100,1.2)},
-  {n:2,name:'Якість (% придатної)',sh:'Якість',unit:'%',min:70,max:100,step:.5,def:90,hex:'#2ECC71',
-   desc:'Частка придатної продукції від обсягу друку. Ціль — ≥90%. Дані з системи автоматично. Стимулює стежити за якістю пластику, слайсингом та своєчасним виявленням браку.',
-   formula:'MIN(факт%/90%, 1.0)',scoreOf:v=>Math.min(v/90,1.0)},
-  {n:3,name:'Ефективність персоналу',sh:'Персонал',unit:'%',min:0,max:130,step:1,def:95,hex:'#06B6D4',
-   desc:'Принтерів на оператора у зміні (середнє день+ніч). Ціль індивідуальна для кожної локації. Мотивує тримати оптимальний штат — не роздувати і не допускати дефіциту.',
-   formula:'MIN(факт/ціль, 1.2)',scoreOf:v=>Math.min(v/100,1.2)},
-  {n:4,name:'Завантаження обладнання',sh:'Завантаж.',unit:'%',min:0,max:120,step:1,def:85,hex:'#F59E0B',
-   desc:'Частка принтерів в активній роботі від парку локації. Ціль — ≥85%. Антипростойний КПІ: кожна година зупиненого принтера — прямі втрати. Пов\'язаний з ТО та WiFi-моніторингом.',
-   formula:'MIN(факт%/85%, 1.2)',scoreOf:v=>Math.min(v/85,1.2)},
-  {n:5,name:'Lean-культура',sh:'Lean',unit:'%',min:0,max:100,step:5,def:70,hex:'#8B5CF6',
-   desc:'Квартальна оцінка: щоденні Asakai-стендапи (15 хв), ведення дошки проблем, рац. пропозиції, дотримання 5S (Сортування · Порядок · Чистота · Стандартизація · Вдосконалення). Робить керівника драйвером покращень, а не пасивним адміністратором.',
-   formula:'пряма оцінка 0–100%',scoreOf:v=>Math.min(v/100,1.0)},
-];
-const SCEN=[
-  {l:'Відмінний',v:[115,96,110,95,90]},
-  {l:'Хороший',  v:[103,92,96,88,80]},
-  {l:'Середній', v:[95,87,100,82,60]},
-  {l:'Слабкий',  v:[82,81,85,72,40]},
-];
-const ROLES_DEF={
-  mgr:{l:'Рук. локації',bg:'#EFF6FF',fg:'#2563EB'},
-  op: {l:'Оператор',   bg:'#E8FAF1',fg:'#27AE60'},
-  tech:{l:'Технік',    bg:'#FEF3C7',fg:'#D97706'},
-  otk:{l:'ОТК',        bg:'#F3E8FF',fg:'#7C3AED'},
-  sale:{l:'Продажі',   bg:'#FEE2E2',fg:'#DC2626'},
+const RAW={
+  opt:[5.1,5.8,6.2,7.4,8.1,9.3,10.2,11.8,13.4,15.2,14.8,14.6],
+  retail:[.8,.9,1,1.1,1.2,1.4,1.5,1.6,1.8,2,1.9,1.7],
+  defect:[15,14,13.5,13,12.5,12,11.5,12,12,11.5,12,12],
+  lead:[24,23,22.5,23,22,21.5,22,22,21.5,22,22,22],
 };
-const PAINS=[
-  {pri:1,name:'Немає видимості зупинених принтерів (WiFi)',roles:['mgr','tech'],kpi:'КПІ 4',src:'Звіт',fix:'WiFi-інфраструктура, моніторинг'},
-  {pri:1,name:'70 засмічень сопел/добу → 11–17 люд-год простою',roles:['tech','op'],kpi:'MTTR',src:'Звіт',fix:'Зниження запиленості та вологості'},
-  {pri:1,name:'Немає стандарту якості → тотальний брак',roles:['otk','sale'],kpi:'% браку',src:'LIU+Звіт',fix:'Критерії якості від замовника до оператора'},
-  {pri:1,name:'Дефіцит операторів, невихід = +25% навантаж.',roles:['mgr'],kpi:'КПІ 3',src:'Звіт',fix:'Норматив штату, резервні зміни'},
-  {pri:1,name:'Немає передачі зміни, немає старших у зміні',roles:['mgr','op'],kpi:'КПІ 5',src:'Звіт',fix:'Посадові інструкції, грейди в зміні'},
-  {pri:2,name:'Один слайсер на всі локації — вузьке горло',roles:['mgr','sale'],kpi:'Час циклу',src:'Звіт',fix:'Додатковий спеціаліст зі слайсингу'},
-  {pri:2,name:'Зволоження котушок → нестабільний % браку',roles:['tech','op'],kpi:'% браку',src:'Звіт',fix:'Контроль вологості'},
-  {pri:2,name:'Немає планового ТО — лише аварійний ремонт',roles:['tech'],kpi:'MTBF',src:'LIU',fix:'ТРМ: чек-листи, графік ТО'},
-  {pri:2,name:'Немає обліку браку по машині/зміні/оператору',roles:['otk','mgr'],kpi:'КПІ 2',src:'LIU',fix:'Система обліку дефектів (LIU 1.13)'},
-  {pri:2,name:'Короткий цикл → великий міжцикловий простій',roles:['mgr','op'],kpi:'КПІ 4',src:'Звіт',fix:'Оптимізація слайсингу'},
-  {pri:3,name:'Немає 5S: адресації, розмітки, зон відповід.',roles:['mgr'],kpi:'КПІ 5',src:'LIU',fix:'5S-впровадження (LIU 1.8)'},
-  {pri:3,name:'Рукописний облік — неточний, витрачає час',roles:['mgr','op'],kpi:'КПІ 3',src:'Звіт',fix:'Автоматизація обліку'},
-  {pri:3,name:'Немає Kaizen / щоденних стендапів',roles:['mgr'],kpi:'КПІ 5',src:'LIU',fix:'Asakai 15 хв, дошка проблем'},
-];
 
-let ST={locIdx:0,vals:KPI.map(k=>k.def),w:[30,25,20,15,10]};
+// ── FILTER ────────────────────────────────────────────
+const F={year:'all',month:'all'};
+function fd(arr){
+  if(F.month!=='all'){const m=parseInt(F.month);return{l:[ML[m]],d:[arr[m]]};}
+  return{l:ML,d:arr};
+}
+function setY(v,btn){F.year=v;document.querySelectorAll('#yf .fc').forEach(b=>b.classList.remove('on'));btn.classList.add('on');refreshCharts();}
+function setM(v,btn){F.month=v;document.querySelectorAll('#mf .fc').forEach(b=>b.classList.remove('on'));btn.classList.add('on');refreshCharts();}
 
-function applyLoaded(s){
-  if(!s)return;
-  if(s.locIdx!=null)ST.locIdx=s.locIdx;
-  if(s.vals?.length===5)ST.vals=[...s.vals];
-  if(s.w?.length===5)ST.w=[...s.w];
-  ['base','pool','overPool','floor'].forEach(id=>{if(s[id]!=null)document.getElementById(id).value=s[id];});
-  if(s.locCoef!=null)document.getElementById('locCoef').value=s.locCoef;
-}
-
-function bdg(s){
-  if(s>=1.15)return{t:'Відмінно',bg:'#DCFCE7',fg:'#15803D'};
-  if(s>=1.00)return{t:'В нормі', bg:'#DBEAFE',fg:'#1D4ED8'};
-  if(s>=0.85)return{t:'↓ цілі',  bg:'#FEF9C3',fg:'#A16207'};
-  return       {t:'Ризик',   bg:'#FEE2E2',fg:'#B91C1C'};
-}
-function fmt(n){return Math.round(n).toLocaleString('uk-UA');}
-
-// ── BUBBLE ─────────────────────────────────────────────
-let sim,nodes=[],gBub;
-const svgEl=document.getElementById('bsvg');
-const sv=d3.select(svgEl);
-
-function getBSz(){
-  const wrap=document.querySelector('.bubble-panel');
-  if(!wrap)return{w:400,h:220};
-  const r=wrap.getBoundingClientRect();
-  return{w:Math.max(100,r.width-4),h:Math.max(80,r.height-4)};
-}
-function rOf(d,w,h){
-  const sz=Math.min(w,h);
-  return (sz*.075+d.w*(sz*.0072))*Math.max(d.sc,.12);
-}
-
-function initBubble(){
-  const{w,h}=getBSz();
-  svgEl.setAttribute('width',w);svgEl.setAttribute('height',h);
-  sv.selectAll('*').remove();
-  const defs=sv.append('defs');
-  KPI.forEach(k=>{
-    const g=defs.append('radialGradient').attr('id','rg'+k.n).attr('cx','35%').attr('cy','35%').attr('r','65%');
-    g.append('stop').attr('offset','0%').attr('stop-color',k.hex).attr('stop-opacity',.13);
-    g.append('stop').attr('offset','100%').attr('stop-color',k.hex).attr('stop-opacity',.85);
-  });
-  gBub=sv.append('g').attr('transform',`translate(${w/2},${h/2})`);
-  nodes=KPI.map((k,i)=>({i,k,sc:k.scoreOf(ST.vals[i]),w:ST.w[i],
-    x:(Math.random()-.5)*4,y:(Math.random()-.5)*4,vx:0,vy:0}));
-  // bond links: each node connects to next, creating a ring molecule
-  const links=[
-    {source:0,target:1},{source:1,target:2},{source:2,target:3},
-    {source:3,target:4},{source:4,target:0},{source:0,target:2},
-  ];
-  sim=d3.forceSimulation(nodes)
-    .force('link',d3.forceLink(links).id(d=>d.i)
-      .distance(d=>{const s=Math.min(w,h);return rOf(d.source,w,h)+rOf(d.target,w,h)+0.5;})
-      .strength(0.7))
-    .force('charge',d3.forceManyBody().strength(-2))
-    .force('collide',d3.forceCollide().radius(d=>rOf(d,w,h)+0.5).strength(1).iterations(10))
-    .force('center',d3.forceCenter(0,0).strength(1.0))
-    .alphaDecay(.010)
-    .on('tick',()=>gBub.selectAll('.bn').attr('transform',d=>`translate(${d.x},${d.y})`));
-  renderBNodes(w,h);
-}
-function renderBNodes(w,h){
-  gBub.selectAll('*').remove();
-  const g=gBub.selectAll('.bn').data(nodes).join('g').attr('class','bn');
-  g.append('circle').attr('r',d=>rOf(d,w,h))
-    .attr('fill',d=>`url(#rg${d.k.n})`).attr('stroke',d=>d.k.hex)
-    .attr('stroke-width',1.5).attr('stroke-opacity',.4);
-  // inner glow
-  g.append('circle').attr('r',d=>rOf(d,w,h)*.28)
-    .attr('fill',d=>d.k.hex).attr('opacity',.12);
-  g.append('text').attr('text-anchor','middle').attr('dy','-.2em')
-    .style('font-family',"'Unbounded',sans-serif").style('font-weight','700').style('pointer-events','none')
-    .style('font-size',d=>`${Math.max(7,Math.min(15,rOf(d,w,h)*.3))}px`)
-    .style('fill',d=>d.k.hex).text(d=>d.k.sh);
-  g.append('text').attr('class','slbl').attr('text-anchor','middle').attr('dy','1.15em')
-    .style('font-family',"'JetBrains Mono',monospace").style('pointer-events','none')
-    .style('font-size',d=>`${Math.max(6,Math.min(11,rOf(d,w,h)*.22))}px`)
-    .style('fill',d=>d.k.hex).text(d=>`${(d.sc*100).toFixed(0)}%`);
-}
-function resizeBubble(){
-  const{w,h}=getBSz();
-  svgEl.setAttribute('width',w);svgEl.setAttribute('height',h);
-  if(gBub)gBub.attr('transform',`translate(${w/2},${h/2})`);
-  if(sim){
-    sim.force('collide').radius(d=>rOf(d,w,h)+0.5);
-    sim.force('link').distance(d=>rOf(d.source,w,h)+rOf(d.target,w,h)+0.5);
-    sim.force('center',d3.forceCenter(0,0)).alpha(.3).restart();
-    gBub.selectAll('.bn').each(function(d){
-      const g=d3.select(this),r=rOf(d,w,h);
-      g.select('circle').attr('r',r);
-      g.select('circle:nth-of-type(2)').attr('r',r*.28);
-      g.select('text').style('font-size',`${Math.max(7,Math.min(15,r*.3))}px`);
-      g.select('.slbl').style('font-size',`${Math.max(6,Math.min(11,r*.22))}px`);
-    });
+// ── CHARTS ────────────────────────────────────────────
+const CH={};
+function safeChart(id,cfg){
+  try{
+    const el=document.getElementById(id);if(!el)return null;
+    if(CH[id]){try{CH[id].destroy();}catch(e){}}
+    CH[id]=new Chart(el,cfg);return CH[id];
+  }catch(e){
+    console.warn('[Chart:'+id+']',e.message);
+    try{
+      const wrap=document.getElementById(id)?.closest('.cw');
+      if(wrap){
+        wrap.classList.add('wm','wme');
+        let lbl=wrap.querySelector('.wm-cr');
+        if(!lbl){lbl=document.createElement('span');lbl.className='wm-cr';wrap.appendChild(lbl);}
+        lbl.textContent='ДАНІ НЕДОСТУПНІ';
+      }
+    }catch(e2){}
+    return null;
   }
 }
-function updBubble(){
-  if(!gBub||!sim)return;
-  const{w,h}=getBSz();
-  nodes.forEach((d,i)=>{d.sc=KPI[i].scoreOf(ST.vals[i]);d.w=ST.w[i];});
-  sim.force('collide').radius(d=>rOf(d,w,h)+0.5);
-  if(sim.force('link'))sim.force('link').distance(d=>rOf(d.source,w,h)+rOf(d.target,w,h)+0.5);
-  gBub.selectAll('.bn').each(function(d){
-    const g=d3.select(this),r=rOf(d,w,h);
-    g.select('circle').attr('r',r);
-    g.select('circle:nth-of-type(2)').attr('r',r*.28);
-    g.select('text').style('font-size',`${Math.max(7,Math.min(15,r*.3))}px`);
-    g.select('.slbl').style('font-size',`${Math.max(6,Math.min(11,r*.22))}px`).text(`${(d.sc*100).toFixed(0)}%`);
-  });
-  sim.alpha(.4).restart();
+
+function buildRev(){
+  const{l,d:opt}=fd(RAW.opt);const{d:ret}=fd(RAW.retail);
+  safeChart('revTrend',{type:'bar',data:{labels:l,datasets:[
+    {label:'ОПТ, млн грн',data:opt,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4},
+    {label:'Роздріб, млн грн',data:ret,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{padding:10,usePointStyle:true}}},
+    scales:{x:{grid:{color:'#f0f4f0'}},y:{grid:{color:'#f0f4f0'},ticks:{callback:v=>v+'M'}}}}});
+}
+function buildDef(){
+  const{l,d}=fd(RAW.defect);
+  safeChart('defCh',{type:'line',data:{labels:l,datasets:[
+    {label:'% браку',data:d,borderColor:R,borderWidth:2,tension:.4,fill:true,backgroundColor:RB,pointRadius:3,pointBackgroundColor:R},
+    {label:'Ціль 9%',data:d.map(()=>9),borderColor:G,borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},
+    scales:{x:{grid:{color:'#f0f4f0'}},y:{grid:{color:'#f0f4f0'},ticks:{callback:v=>v+'%'},min:6,max:17}}}});
+}
+function buildLead(){
+  const{l,d}=fd(RAW.lead);
+  safeChart('leadCh',{type:'bar',data:{labels:l,datasets:[
+    {label:'Lead time, днів',data:d,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4},
+    {label:'Ціль 5 днів',data:d.map(()=>5),borderColor:G,borderWidth:1.5,borderDash:[5,4],type:'line',pointRadius:0,fill:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},
+    scales:{x:{grid:{color:'#f0f4f0'}},y:{grid:{color:'#f0f4f0'},min:0}}}});
+}
+function buildSales(){
+  const{l,d}=fd(RAW.opt);
+  safeChart('sTrend',{type:'line',data:{labels:l,datasets:[{label:'ОПТ',data:d,borderColor:G,borderWidth:2,tension:.4,fill:true,backgroundColor:GB,pointRadius:3,pointBackgroundColor:G}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:'#f0f4f0'}},y:{grid:{color:'#f0f4f0'},ticks:{callback:v=>v+'M'}}}}});
+}
+function refreshCharts(){buildRev();buildDef();buildLead();buildSales();}
+
+function buildStatic(){
+  safeChart('clientConc',{type:'doughnut',data:{labels:['ТОП-1 ~62%','ТОП-2 ~33%','Решта 18 кл.'],datasets:[{data:[62,32.7,5.3],backgroundColor:[R,A,G],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
+  safeChart('cRisk',{type:'bar',data:{labels:['Кл.1','Кл.2','Кл.3','Кл.4','Кл.5','Інші'],datasets:[{data:[62,32.7,1.8,.9,.7,1.9],backgroundColor:[R,A,G,G,G,G],borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0f4f0'},ticks:{callback:v=>v+'%'}}}}});
+  safeChart('outCh',{type:'bar',data:{labels:['Лок.1','Лок.2','Лок.4','Лок.5'],datasets:[{data:[850,720,410,280],backgroundColor:[GB,GB,AB,RB],borderColor:[G,G,A,R],borderWidth:1.5,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0f4f0'}}}}});
+  // Registry
+  const reg=window.E3D_STATIC.metrics_coverage;
+  const tots=reg.reduce((a,r)=>{a[0]+=r.yes;a[1]+=r.part;a[2]+=r.calc;a[3]+=r.no;return a;},[0,0,0,0]);
+  safeChart('covDon',{type:'doughnut',data:{labels:['Так','Частково','Можна','Не збирається'],datasets:[{data:tots,backgroundColor:[G,A,B,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'60%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
+  safeChart('covBar',{type:'bar',data:{
+    labels:reg.map(r=>r.section.replace('Виробництво — ','В.').replace(/ \(.+\)/g,'').replace(' та P&L','').replace(' та Персонал','').replace(' та Маркетинг','').replace(' та брак','')),
+    datasets:[{label:'Так',data:reg.map(r=>r.yes),backgroundColor:G,borderRadius:2,stack:'s'},{label:'Частково',data:reg.map(r=>r.part),backgroundColor:A,borderRadius:2,stack:'s'},{label:'Можна',data:reg.map(r=>r.calc),backgroundColor:B,borderRadius:2,stack:'s'},{label:'Немає',data:reg.map(r=>r.no),backgroundColor:R,borderRadius:2,stack:'s'}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#f0f4f0'},stacked:true}}}});
+  const rb=document.getElementById('regB');
+  if(rb){
+    rb.innerHTML='';let T={total:0,yes:0,part:0,calc:0,no:0};
+    reg.forEach(r=>{
+      T.total+=r.total;T.yes+=r.yes;T.part+=r.part;T.calc+=r.calc;T.no+=r.no;
+      const bg=~~(r.yes/r.total*100),ba=~~(r.part/r.total*100),bb=~~(r.calc/r.total*100),br=~~(r.no/r.total*100);
+      rb.innerHTML+=`<tr><td>${r.section}</td><td style="font-weight:700">${r.total}</td><td><span class="cov cy">${r.yes}</span></td><td><span class="cov cp">${r.part}</span></td><td><span class="cov cc">${r.calc}</span></td><td><span class="cov cn">${r.no}</span></td><td><div class="covbar" style="width:100px"><div class="cbs" style="width:${bg}%;background:${G}"></div><div class="cbs" style="width:${ba}%;background:${A}"></div><div class="cbs" style="width:${bb}%;background:${B}"></div><div class="cbs" style="width:${br}%;background:${R}"></div></div></td></tr>`;
+    });
+    rb.innerHTML+=`<tr style="background:var(--sur2);font-weight:700"><td>ВСЬОГО</td><td>${T.total}</td><td><span class="cov cy">${T.yes}</span></td><td><span class="cov cp">${T.part}</span></td><td><span class="cov cc">${T.calc}</span></td><td><span class="cov cn">${T.no}</span></td><td></td></tr>`;
+  }
 }
 
-// ── WEIGHTS ────────────────────────────────────────────
-let _lockW=false;
-function initWts(){
-  document.getElementById('weightGrid').innerHTML=KPI.map((k,i)=>`
-    <div class="ws-row">
-      <span class="ws-dot" style="background:${k.hex};"></span>
-      <span class="ws-name" style="color:${k.hex}60;">${k.name}</span>
-      <input type="range" id="ws${i}" min="0" max="100" step="1" value="${ST.w[i]}"
-        style="flex:1;accent-color:${k.hex};" oninput="setW(${i},parseFloat(this.value))">
-      <span class="ws-val" id="wsv${i}">${ST.w[i]}%</span>
-    </div>`).join('');
-  KPI.forEach((_,i)=>updWSl(i));
-}
-function updWSl(i){
-  const sl=document.getElementById('ws'+i);if(!sl)return;
-  sl.style.background=`linear-gradient(to right,${KPI[i].hex} 0%,${KPI[i].hex} ${ST.w[i]}%,rgba(255,255,255,.12) ${ST.w[i]}%,rgba(255,255,255,.12) 100%)`;
-}
-function setW(i,v){
-  if(_lockW)return;_lockW=true;
-  const delta=v-ST.w[i];ST.w[i]=v;
-  const oth=KPI.map((_,j)=>j).filter(j=>j!==i);
-  const sumO=oth.reduce((a,j)=>a+ST.w[j],0);
-  if(sumO>0)oth.forEach(j=>{ST.w[j]=Math.max(0,ST.w[j]-delta*(ST.w[j]/sumO));});
-  const tot=ST.w.reduce((a,b)=>a+b,0);
-  if(tot>0)ST.w=ST.w.map(w=>Math.round(w/tot*100));
-  const diff=100-ST.w.reduce((a,b)=>a+b,0);
-  if(diff!==0){const alt=oth.find(j=>ST.w[j]+diff>=0);if(alt!=null)ST.w[alt]+=diff;else ST.w[i]+=diff;}
-  KPI.forEach((_,j)=>{
-    const s=document.getElementById('ws'+j),v2=document.getElementById('wsv'+j);
-    if(s)s.value=ST.w[j];if(v2)v2.textContent=ST.w[j]+'%';updWSl(j);
-  });
-  updWtot();_lockW=false;calc();scheduleSave();
-}
-function updWtot(){
-  const t=ST.w.reduce((a,b)=>a+b,0);
-  const el=document.getElementById('wtot');
-  el.textContent=t+'%';el.className=Math.abs(t-100)<1?'wok':'werr';
-}
+// ── STRATEGY ─────────────────────────────────────────
+let SDC=null;
 
-function initLoc(){
-  document.getElementById('locGrid').innerHTML=LOCS.map((l,i)=>`
-    <button class="lb${i===ST.locIdx?' active':''}" onclick="selLoc(${i})">
-      <span class="lb-n">${l.name}</span><span class="lb-s">${l.sub}</span>
-      <span class="lb-c">${l.coef.toFixed(2)}×</span>
-    </button>`).join('');
-  document.getElementById('locCoef').value=LOCS[ST.locIdx].coef.toFixed(2);
-}
-function selLoc(i){ST.locIdx=i;document.getElementById('locCoef').value=LOCS[i].coef.toFixed(2);initLoc();calc();scheduleSave();}
+function renderStrategy(ov={}){
+  const proj=ov.projects||window.E3D_STATIC.projects;
+  const s1=ov.sprint1||staticS1();
+  const s2=ov.sprint2||staticS2();
 
-function initPresets(){
-  document.getElementById('presets').innerHTML=SCEN.map((s,i)=>`
-    <button class="pbt" onclick="applyP(${i})">${s.l}</button>`).join('');
-}
-function applyP(i){
-  ST.vals=[...SCEN[i].v];
-  KPI.forEach((k,j)=>{const sl=document.getElementById('sl'+j);if(sl){sl.value=ST.vals[j];updSl(sl,k,ST.vals[j]);}});
-  calc();scheduleSave();
-}
+  // Annual goals
+  try{
+    const g=document.getElementById('gg');if(!g)return;g.innerHTML='';
+    (window.E3D_STATIC.goals_1y||[]).forEach(go=>{
+      g.innerHTML+=`<div class="card"><div style="font-size:9px;font-weight:800;color:var(--tm);letter-spacing:1px;margin-bottom:4px">${go.id}</div><div style="font-size:12px;color:var(--tx);line-height:1.4">${go.text}</div></div>`;
+    });
+  }catch(e){}
 
-function initKpiRows(){
-  document.getElementById('kpiRows').innerHTML=KPI.map((k,i)=>`
-    <div class="kpi-row">
-      <div class="kr-accent" style="background:${k.hex};"></div>
-      <div class="kr-num-wrap"><div class="kr-num" style="background:${k.hex};">${k.n}</div></div>
-      <div class="kr-body">
-        <div class="kr-name" style="color:${k.hex};">${k.name}</div>
-        <div class="kr-desc">${k.desc}</div>
-        <div class="kr-slider-row">
-          <input type="range" id="sl${i}" min="${k.min}" max="${k.max}" step="${k.step}"
-            value="${ST.vals[i]}" style="flex:1;accent-color:${k.hex};"
-            oninput="setK(${i},parseFloat(this.value),this)">
-          <span class="kr-val" style="color:${k.hex};" id="val${i}">${ST.vals[i]}${k.unit}</span>
-          <span class="kr-badge" id="bdg${i}"></span>
-          <span class="kr-formula">${k.formula}</span>
+  // Scores
+  let ps=[],pers={};
+  try{
+    ps=proj.map(p=>E3D_SCORING.scoreProject(p,s2.filter(t=>t.project_id===p.id)));
+    pers=E3D_SCORING.calcPersonScores(proj,ps);
+  }catch(e){console.warn('[Score]',e.message);}
+
+  // Projects grid
+  try{
+    const g=document.getElementById('pg');if(!g)return;g.innerHTML='';
+    proj.forEach(p=>{
+      const sc=ps.find(s=>s.project_id===p.id)||{score:0,health:'on-track'};
+      const bc=sc.score>=70?G:sc.score>=40?A:R;
+      const hc=E3D_SCORING._healthColor(sc.health);
+      const hl=E3D_SCORING._statusLabel(sc.health);
+      const isv=(p.owner||'').includes('Вакансія');
+      g.innerHTML+=`<div class="pjc">
+        <div class="pji">Проект #${p.id} <span class="pjpr pr${p.priority}">${p.priority}</span></div>
+        <div class="pjn">${p.name}</div>
+        <div class="pjo">Відп.: <b>${p.owner}</b>${isv?' ⚠️':''}</div>
+        ${p.helpers&&p.helpers.length?`<div style="font-size:9px;color:var(--tm);margin-bottom:4px">Учасники (${p.helpers.length}): ${p.helpers.slice(0,3).join(', ')}${p.helpers.length>3?'…':''}</div>`:''}
+        <div class="pjbw"><div class="pjb" style="width:${sc.score}%;background:${bc}"></div></div>
+        <div class="pjm">
+          <div style="font-size:11px;font-weight:700;color:${bc}">${sc.score}%</div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <span style="font-size:9px;font-weight:700;color:${hc}">${hl}</span>
+            <span style="font-size:10px;color:var(--tm)">📅 ${(p.deadline||'').substring(0,10)||'—'}</span>
+          </div>
         </div>
-      </div>
-      <div class="kr-score-col" id="krs${i}">
-        <div class="kr-score-num" style="color:${k.hex};" id="ksv${i}">—</div>
-        <div class="kr-score-bar"><div class="kr-score-fill" id="ksb${i}" style="background:${k.hex};width:0%;"></div></div>
-        <div class="kr-contrib" id="ksc${i}">—</div>
-      </div>
-    </div>`).join('');
-  KPI.forEach((k,i)=>updSl(document.getElementById('sl'+i),k,ST.vals[i]));
-}
-function updSl(sl,k,v){
-  if(!sl)return;
-  const p=((v-k.min)/(k.max-k.min)*100).toFixed(1);
-  sl.style.background=`linear-gradient(to right,${k.hex} 0%,${k.hex} ${p}%,var(--border) ${p}%,var(--border) 100%)`;
-}
-function setK(i,v,sl){ST.vals[i]=v;updSl(sl,KPI[i],v);calc();scheduleSave();}
+        ${isv?'<div style="font-size:9px;color:var(--red);margin-top:4px;font-weight:600">⚠️ Відповідальний не призначений</div>':''}
+      </div>`;
+    });
+  }catch(e){}
 
-function initPainFilters(){
-  const fs=[{id:'all',l:'Усі'},{id:'mgr',l:'Рук. локації'},
-    {id:'op',l:'Оператор'},{id:'tech',l:'Технік'},{id:'otk',l:'ОТК'},{id:'sale',l:'Продажі'}];
-  document.getElementById('painFilters').innerHTML=fs.map(f=>`
-    <button class="pbt${f.id==='all'?' active':''}" data-filter="${f.id}"
-      onclick="renderPainTable('${f.id}')">${f.l}</button>`).join('');
-}
-function renderPainTable(filter){
-  document.querySelectorAll('#painFilters .pbt').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter));
-  const priC={1:'#EF4444',2:'#F59E0B',3:'#2ECC71'};
-  const rows=filter==='all'?PAINS:PAINS.filter(p=>p.roles.includes(filter));
-  document.getElementById('painTb').innerHTML=rows.map(p=>`
-    <tr>
-      <td><span class="pri-dot" style="background:${priC[p.pri]};"></span></td>
-      <td style="font-weight:500;font-size:11px;">${p.name}</td>
-      <td>${p.roles.map(r=>`<span class="role-chip" style="background:${ROLES_DEF[r].bg};color:${ROLES_DEF[r].fg};">${ROLES_DEF[r].l}</span>`).join('')}</td>
-      <td style="font-family:var(--fm);font-size:10px;color:var(--text2);white-space:nowrap;">${p.kpi}</td>
-      <td style="font-size:10px;color:var(--muted);white-space:nowrap;">${p.src}</td>
-      <td style="font-size:10px;color:var(--text2);">${p.fix}</td>
-    </tr>`).join('');
+  // CEO pct
+  try{const avg=~~(ps.reduce((s,p)=>s+p.score,0)/Math.max(ps.length,1));const el=document.getElementById('ceo-pp');if(el)el.textContent=avg+'%';}catch(e){}
+
+  // Person scores
+  try{
+    const g=document.getElementById('perg');if(!g)return;g.innerHTML='';
+    Object.entries(pers).filter(([n])=>!['Вакансія','Аутсорс'].includes(n))
+      .sort((a,b)=>b[1].total-a[1].total)
+      .forEach(([name,p])=>{
+        const bc=p.normalized>=70?G:p.normalized>=40?A:R;
+        g.innerHTML+=`<div class="pec"><div class="pen" title="${name}">${name}</div><div class="pebw"><div class="pef" style="width:${p.normalized}%;background:${bc}"></div></div><div class="pept">Бали: <b>${~~p.total}</b> &#183; Відп.:${p.owned.length} &#183; Уч.:${p.helped.length}</div></div>`;
+      });
+  }catch(e){}
+
+  // Sprint 1 table
+  try{
+    const b=document.getElementById('s1b');if(!b)return;b.innerHTML='';
+    s1.forEach(t=>{
+      const done=E3D_SCORING._isDone(t.status||'');
+      b.innerHTML+=`<tr class="${done?'tdone':''}"><td>${t.project_id||'—'}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.project}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.task}">${t.task}</td><td>${(t.owner||'').split(',')[0].trim()}</td><td>${(t.deadline||'').substring(0,10)||'—'}</td><td>${done?'<span class="pill plg">✓ Виконано</span>':t.status?`<span class="pill pla">${t.status}</span>`:'<span class="cov ct">В роботі</span>'}</td></tr>`;
+    });
+  }catch(e){}
+
+  // Sprint 2 donut
+  try{
+    const st=E3D_SCORING.sprintStats(s2);
+    const isStatic=!ov.sprint2;
+    document.getElementById('s2t').textContent=st.total;
+    document.getElementById('s2d').textContent=st.done;
+    document.getElementById('s2w').textContent=Math.max(0,st.total-st.done-st.overdue);
+    document.getElementById('s2o').textContent=st.overdue;
+    document.getElementById('s2p').textContent=st.completion+'%';
+    document.getElementById('s2b').textContent=st.completion+'% виконано';
+    const wm=document.getElementById('s2wm');if(wm)wm.style.display=isStatic?'block':'none';
+    if(SDC){try{SDC.destroy();}catch(e){}}
+    SDC=safeChart('spDon',{type:'doughnut',data:{labels:['Виконано','В роботі','Прострочено'],datasets:[{data:[st.done,Math.max(0,st.total-st.done-st.overdue),st.overdue],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}}}}});
+  }catch(e){}
 }
 
-function calc(){
-  const coef=parseFloat(document.getElementById('locCoef').value)||LOCS[ST.locIdx].coef;
-  const base=parseFloat(document.getElementById('base').value)||0;
-  const pool=parseFloat(document.getElementById('pool').value)||0;
-  const overP=parseFloat(document.getElementById('overPool').value)||0;
-  const flr=parseFloat(document.getElementById('floor').value)||0;
-  const wS=ST.w.reduce((a,b)=>a+b,0)||100;
-  const wN=ST.w.map(w=>w/wS);
-  const sc=KPI.map((k,i)=>k.scoreOf(ST.vals[i]));
-  const ks=sc.reduce((a,s,i)=>a+s*wN[i],0);
-  const baseAdj=Math.round(base*coef);
-  const bBase=Math.round(pool*Math.min(ks,1.0));
-  const bOver=ks>1&&overP>0?Math.round(overP*(ks-1)/.2):0;
-  const bTot=bBase+bOver;
-  const total=Math.max(baseAdj+bTot,flr);
-  const pct=(ks*100).toFixed(1);
-  const scoreColor=ks>=1?'var(--green)':ks>=.85?'var(--amber)':'var(--red)';
+function staticS1(){return[
+  {project_id:1,project:'Система планування',task:'Реєстр проектів SS-2026',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},
+  {project_id:1,project:'Система планування',task:'Дзвінок CEO: структура фінансового блоку',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},
+  {project_id:1,project:'Система планування',task:'Зібрати дані від постачальників',owner:'Іванов Олег',deadline:'2026-05-04',status:''},
+  {project_id:1,project:'Система планування',task:'ADR по інструменту планування',owner:'Іванов Олег',deadline:'2026-05-06',status:''},
+  {project_id:3,project:'Діджиталізація',task:'Аудит джерел даних. FTE учасників',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},
+  {project_id:3,project:'Діджиталізація',task:'Сесія «Словник показників»',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},
+  {project_id:3,project:'Діджиталізація',task:'ADR по технології дашборду',owner:'Іванов Олег',deadline:'2026-05-04',status:''},
+  {project_id:3,project:'Діджиталізація',task:'Dashboard v0.1 — перші дані',owner:'Іванов Олег',deadline:'2026-05-08',status:''},
+  {project_id:7,project:'Система оцінки індустрій',task:'Збір точок входу та ключових гравців',owner:'Дубровін Вадим',deadline:'2026-04-28',status:'Виконано'},
+  {project_id:7,project:'Система оцінки індустрій',task:'Бренд-бук, описи, тези для сайту',owner:'Дубровін Вадим',deadline:'2026-05-02',status:'Виконано'},
+  {project_id:8,project:'Авт. локація',task:'Отримання OTTOeject MK1 Rev 1.0',owner:'Жолудь Максим',deadline:'2026-04-21',status:'Виконано'},
+  {project_id:8,project:'Авт. локація',task:'Визначення техніка — Болдижев Олексій',owner:'Стріляний Олександр',deadline:'2026-04-27',status:'Виконано'},
+  {project_id:8,project:'Авт. локація',task:'Локальна версія ПЗ для оффлайн-контролю',owner:'Стріляний Олександр',deadline:'2026-05-08',status:''},
+];}
+function staticS2(){return[
+  {project_id:1,project:'Система планування',task:'Фінансовий блок v1.1',owner:'Іванов Олег',deadline:'2026-05-20',status:''},
+  {project_id:3,project:'Діджиталізація',task:'Dashboard v1 — публічна версія',owner:'Іванов Олег',deadline:'2026-05-25',status:''},
+  {project_id:7,project:'Система оцінки індустрій',task:'Netpek наскрізна аналітика',owner:'Дубровін Вадим',deadline:'2026-05-22',status:''},
+  {project_id:7,project:'Система оцінки індустрій',task:'LinkedIn — холодний контакт',owner:'Дубровін Вадим',deadline:'2026-05-29',status:''},
+  {project_id:8,project:'Авт. локація',task:'3Д-друк всіх комплектуючих',owner:'Жолудь Максим',deadline:'2026-05-15',status:'Виконано'},
+  {project_id:2,project:'Сильна команда',task:'Профілі ролей + KPI',owner:'Зубрицька Олександра',deadline:'2026-05-29',status:''},
+  {project_id:9,project:'Відділ Якості',task:'Визначення системи ОТК',owner:'Вакансія',deadline:'2026-05-29',status:''},
+];}
 
-  // KPI rows
-  KPI.forEach((k,i)=>{
-    const b=bdg(sc[i]),v=ST.vals[i];
-    const bw=Math.min(sc[i]/1.2,1)*100;
-    const contrib=Math.round(pool*sc[i]*wN[i]);
-    const vEl=document.getElementById('val'+i),bEl=document.getElementById('bdg'+i);
-    const ksvEl=document.getElementById('ksv'+i),ksbEl=document.getElementById('ksb'+i),kscEl=document.getElementById('ksc'+i);
-    if(vEl)vEl.textContent=(v%1===0?v:v.toFixed(1))+k.unit;
-    if(bEl){bEl.textContent=b.t;bEl.style.background=b.bg;bEl.style.color=b.fg;}
-    if(ksvEl)ksvEl.textContent=(sc[i]*100).toFixed(1)+'%';
-    if(ksbEl)ksbEl.style.width=bw.toFixed(1)+'%';
-    if(kscEl)kscEl.textContent=fmt(contrib)+' ₴';
+// ── WIDGET MANAGER ─────────────────────────────────────
+const WKEY='e3d_widget_prefs_v1';
+let _tab='ceo';
+
+const WCAT=[
+  {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації (покриття метрик)'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі 2026'},
+  {id:'str-goals',tab:'str',label:'Річні цілі SMART'},{id:'str-proj',tab:'str',label:'Проекти — скоринг'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},
+  {id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batch',tab:'prod',label:'Партії (Batch)'},{id:'prod-trend',tab:'prod',label:'Lead Time та виробіток'},
+  {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
+  {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
+  {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},
+  {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
+  {id:'hr-kpi',tab:'hr',label:'HR показники'},
+  {id:'loc-tbl',tab:'loc',label:'Зведена таблиця локацій'},{id:'loc-cards',tab:'loc',label:'Картки локацій'},
+  {id:'reg-ch',tab:'reg',label:'Графіки покриття'},{id:'reg-tbl',tab:'reg',label:'Таблиця реєстру'},
+];
+
+function loadPrefs(){try{return JSON.parse(localStorage.getItem(WKEY)||'{}');}catch(e){return{};}}
+function savePrefs(p){try{localStorage.setItem(WKEY,JSON.stringify(p));}catch(e){}}
+function isVis(id){const p=loadPrefs();return p[id]!==undefined?p[id]:true;}
+function setVis(id,v){const p=loadPrefs();p[id]=v;savePrefs(p);const el=document.getElementById('w-'+id);if(el)el.classList.toggle('widget-hidden',!v);}
+function applyPrefs(){WCAT.forEach(w=>{const el=document.getElementById('w-'+w.id);if(el)el.classList.toggle('widget-hidden',!isVis(w.id));});}
+
+const TNMS={ceo:'🏢 CEO',str:'🎯 Стратегія',prod:'🏭 Виробництво',qual:'✅ Якість',sales:'💼 Продажі',crm:'📣 CRM',fin:'💰 Фінанси',hr:'👥 HR',loc:'📍 Локації',reg:'📋 Реєстр'};
+
+function openWM(){
+  const b=document.getElementById('wmB');b.innerHTML='';
+  const tabs=[...new Set(WCAT.map(w=>w.tab))];
+  tabs.forEach(tab=>{
+    const ws=WCAT.filter(w=>w.tab===tab);
+    b.innerHTML+=`<div class="wms"><div class="wmsl">${TNMS[tab]||tab}</div>${ws.map(w=>`<div class="wmr"><div class="wmrn">${w.label}</div><label class="wmtog"><input type="checkbox" ${isVis(w.id)?'checked':''} onchange="setVis('${w.id}',this.checked)"><span class="wmslr"></span></label></div>`).join('')}</div>`;
   });
+  document.getElementById('wmO').classList.add('open');
+}
+function closeWM(){document.getElementById('wmO').classList.remove('open');}
+function resetWidgets(){if(!confirm('Скинути всі налаштування до стандартних?'))return;try{localStorage.removeItem(WKEY);}catch(e){}WCAT.forEach(w=>{const el=document.getElementById('w-'+w.id);if(el)el.classList.remove('widget-hidden');});closeWM();}
 
-  // Result panel
-  document.getElementById('resTotal').textContent=fmt(total)+' ₴';
-  document.getElementById('rpScore').textContent=pct+'%';
-  document.getElementById('rpScore').style.color=scoreColor;
-  document.getElementById('rpScoreSub').textContent=ks>=1?'ціль виконано ✓':ks>=.85?'нижче цілі':'ризик';
-  document.getElementById('rpBase').textContent=fmt(baseAdj)+' ₴';
-  document.getElementById('rpBaseSub').textContent=`${fmt(base)} × ${coef.toFixed(2)}`;
-  document.getElementById('rpBonus').textContent=fmt(bTot)+' ₴';
-  document.getElementById('rpBonusSub').textContent=`${pct}% від ${fmt(pool)}`;
-
-  updBubble();
+// ── SOURCE STATUS ─────────────────────────────────────
+function updSrc(key,status){
+  const el=document.getElementById('sp-'+key);if(!el)return;
+  const cls={ok:'sp-ok',error:'sp-err',loading:'sp-ld',idle:'sp-idle'};
+  const ico={ok:'✓ ',error:'✗ ',loading:'… ',idle:''};
+  const nm={projects:'📦 Проекти',sprint1:'⚡ Спринт 1',sprint2:'⚡ Спринт 2',metrics:'📋 Метрики'};
+  el.className='sp '+(cls[status]||'sp-idle');
+  el.textContent=(ico[status]||'')+(nm[key]||key);
+}
+function updDot(sum){
+  const d=document.getElementById('ld'),s=document.getElementById('ls');if(!d||!s)return;
+  if(sum.ok>0&&sum.error===0){d.className='ld ok';s.textContent='Дані актуальні';}
+  else if(sum.ok>0){d.className='ld warn';s.textContent=sum.ok+'/'+sum.total+' джерел';}
+  else if(sum.error>0){d.className='ld err';s.textContent='Статичні дані';}
+  else{d.className='ld';s.textContent='…';}
 }
 
-['locCoef','base','pool','overPool','floor'].forEach(id=>{
-  document.getElementById(id).addEventListener('input',()=>{calc();scheduleSave();});
-});
-let _rt;
-window.addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(resizeBubble,100);});
+// ── NAV ───────────────────────────────────────────────
+function go(id,btn){
+  _tab=id;
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+  setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
+}
 
-const saved=loadState();
-if(saved)applyLoaded(saved);
-initLoc();initWts();initPresets();initKpiRows();initPainFilters();updWtot();
-KPI.forEach((k,i)=>{const sl=document.getElementById('sl'+i);if(sl){sl.value=ST.vals[i];updSl(sl,k,ST.vals[i]);}});
-setTimeout(()=>{initBubble();calc();},80);
+// ── BOOT ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  // 1. widget prefs
+  applyPrefs();
+
+  // 2. static charts
+  buildStatic();
+  refreshCharts();
+
+  // 3. strategy (static data)
+  renderStrategy();
+
+  // 4. data source observers
+  if(window.E3D_DATA){
+    E3D_DATA.on('*',({key,status})=>{updSrc(key,status);updDot(E3D_DATA.summary());});
+    E3D_DATA.on('projects',({status,data})=>{if(status==='ok'&&data)renderStrategy({projects:data});});
+    E3D_DATA.on('sprint1', ({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint1:data});});
+    E3D_DATA.on('sprint2', ({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint2:data});});
+    // init all — fault-isolated
+    E3D_DATA.initAll().catch(()=>{});
+  } else {
+    document.getElementById('ls').textContent='Статичні дані';
+  }
+});
 </script>
 </body>
 </html>
