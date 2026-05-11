@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="data/static.js"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js"></script>
@@ -183,10 +184,10 @@ a{color:var(--gd);text-decoration:none}
 .pla{background:var(--abl);color:var(--amb);border:1px solid var(--abb)}
 .plb{background:var(--bl);color:var(--bd2);border:1px solid var(--bb)}
 .cov{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px}
-.cy{background:var(--gl);color:var(--gd);border:1px solid var(--gb)}
-.cp{background:var(--abl);color:var(--amb);border:1px solid var(--abb)}
-.cc{background:var(--bl);color:var(--bd2);border:1px solid var(--bb)}
-.cn{background:var(--rl);color:var(--red);border:1px solid var(--rb)}
+.cy{background:#e6f4f2;color:#2A9D8F;border:1px solid #b2ddd8}
+.cp{background:#e8f0f7;color:#457B9D;border:1px solid #b8cfe0}
+.cc{background:#eef4f8;color:#5a87a8;border:1px solid #c5d9e8}
+.cn{background:#f4f5f6;color:#7a8a96;border:1px solid #d0d8de}
 .ctt{background:var(--s2);color:var(--tl);border:1px dashed var(--bd3)}
 .covbar{display:flex;height:6px;border-radius:4px;overflow:hidden;gap:1px}
 .cbs{height:100%;flex-shrink:0}
@@ -549,6 +550,9 @@ a{color:var(--gd);text-decoration:none}
     <div class="sec">🔽 Воронка та вартість залучення</div>
     <div class="g6">
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">К-сть лідів</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-r"></div><div class="krow-lbl">MQL (маркетинг. ліди)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-r"></div><div class="krow-lbl">SQL (кваліф. продажами)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-r"></div><div class="krow-lbl">Розрив MQL→SQL</div><div class="krow-val x">TBD %</div><div class="krow-tgt">⚠ Ключовий розрив</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Конверсія Лід→Угода</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">CAC</div><div class="krow-val x">TBD грн</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">LTV / CAC</div><div class="krow-val x">TBD ×</div><div class="tbd-lbl">TBD</div></div>
@@ -557,7 +561,7 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
   <div id="w-crm-camp">
-    <div class="sec">📢 Рекламні кампанії (аудит Дубровін)</div>
+    <div class="sec">📢 Рекламні кампанії (маркетинг-аудит)</div>
     <div class="card-flat"><div class="tw"><table class="tbl"><thead><tr><th>Кампанія</th><th>ROI / ROAS</th><th>Рішення</th></tr></thead><tbody>
       <tr><td>B2B_convers</td><td style="color:var(--gd);font-weight:700">+70%</td><td><span class="pill plg">✓ Масштабувати</span></td></tr>
       <tr><td>Brand_UA_new</td><td style="color:var(--gd);font-weight:700">+1 690%</td><td><span class="pill plg">✓ Масштабувати</span></td></tr>
@@ -565,13 +569,13 @@ a{color:var(--gd);text-decoration:none}
       <tr><td>Competitors</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">✗ Зупинити</span></td></tr>
       <tr><td>Remarketing_b2b</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">✗ Зупинити</span></td></tr>
       <tr><td>Pmax_fid</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">✗ Зупинити</span></td></tr>
-    </tbody></table></div><div class="tfoot">Відп.: Дубровін Вадим · Фінальний голос: Щербань Сергій · Комісія до 10-го числа · 60 хв</div></div>
+    </tbody></table></div><div class="tfoot">Відп.: Маркетинг · Фінальний голос: Продажі · Комісія до 10-го числа · 60 хв</div></div>
   </div>
 </div>
 
 <!-- ═════════════ ФІНАНСИ ═════════════ -->
 <div class="panel" id="panel-fin">
-  <div class="al al-a"><span class="ic">🔧</span><div><b>В розробці:</b> P&L, Cashflow, Баланс — впроваджується управлінський облік (Дубровін / Пузавіков)</div></div>
+  <div class="al al-a"><span class="ic">🔧</span><div><b>В розробці:</b> P&L, Cashflow, Баланс — впроваджується управлінський облік (Аналітика / Склад)</div></div>
   <div id="w-fin-pl">
     <div class="sec">📑 P&L — 8 метрик</div>
     <div class="g6">
@@ -645,7 +649,7 @@ a{color:var(--gd);text-decoration:none}
   <div id="w-reg-tbl">
     <div class="card-flat">
       <div class="tw"><table class="tbl"><thead><tr><th>Розділ</th><th>Всього</th><th><span class="cov cy">Так</span></th><th><span class="cov cp">Частково</span></th><th><span class="cov cc">Можна</span></th><th><span class="cov cn">Немає</span></th><th>Покриття</th></tr></thead><tbody id="regB"></tbody></table></div>
-      <div class="tfoot">Реєстр v1.0 · Квітень 2026 · Іванов Олег · <a href="https://docs.google.com/spreadsheets/d/1RFZV9ChnSXAkBgW4nv86mWvVqh4vjUKU/edit?gid=485374783" target="_blank">Google Sheets</a></div>
+      <div class="tfoot">Реєстр v1.0 · Квітень 2026 · Консультант · <a href="https://docs.google.com/spreadsheets/d/1RFZV9ChnSXAkBgW4nv86mWvVqh4vjUKU/edit?gid=485374783" target="_blank">Google Sheets</a></div>
     </div>
   </div>
 </div>
@@ -660,6 +664,7 @@ document.getElementById('motiv').textContent = PHRASES[Math.floor(Date.now()/864
 const ML=['Лп','Сп','Вр','Жв','Тр','Чв','Лн','Лп','Св','Жн','Лс','Гр'];
 const G='#2A9D8F',A='#D4820A',R='#C0392B',B='#457B9D';
 const GB='rgba(42,157,143,.13)',AB='rgba(212,130,10,.13)',RB='rgba(192,57,43,.11)',BB='rgba(69,123,157,.12)';
+if(window.ChartDataLabels){Chart.register(ChartDataLabels);}
 Chart.defaults.font.family='Inter'; Chart.defaults.font.size=10;
 Chart.defaults.color='#6b836a'; Chart.defaults.borderColor='#e6e9e3';
 const GRID='#f0f2ee';
@@ -679,19 +684,21 @@ function safeChart(id,cfg){
 function buildRev(){const{l,d:o}=fd(RAW.opt);const{d:r}=fd(RAW.retail);safeChart('revTrend',{type:'bar',data:{labels:l,datasets:[{label:'ОПТ, млн грн',data:o,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4},{label:'Роздріб, млн грн',data:r,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{padding:10,usePointStyle:true}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'M'}}}}});}
 function buildDef(){const{l,d}=fd(RAW.defect);safeChart('defCh',{type:'line',data:{labels:l,datasets:[{label:'% браку',data:d,borderColor:R,borderWidth:2,tension:.4,fill:true,backgroundColor:RB,pointRadius:3,pointBackgroundColor:R},{label:'Ціль 9%',data:d.map(()=>9),borderColor:G,borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'},min:6,max:17}}}});}
 function buildLead(){const{l,d}=fd(RAW.lead);safeChart('leadCh',{type:'bar',data:{labels:l,datasets:[{label:'Lead time, днів',data:d,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4},{label:'Ціль 5 днів',data:d.map(()=>5),borderColor:G,borderWidth:1.5,borderDash:[5,4],type:'line',pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},min:0}}}});}
-function buildSales(){const{l,d}=fd(RAW.opt);safeChart('sTrend',{type:'line',data:{labels:l,datasets:[{label:'ОПТ',data:d,borderColor:G,borderWidth:2,tension:.4,fill:true,backgroundColor:GB,pointRadius:3,pointBackgroundColor:G}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'M'}}}}});}
+function fmtMoney(v){return new Intl.NumberFormat('uk-UA',{style:'currency',currency:'UAH',minimumFractionDigits:2,maximumFractionDigits:2}).format(v*1e6);}
+function buildSales(){const{l,d}=fd(RAW.opt);safeChart('sTrend',{type:'line',data:{labels:l,datasets:[{label:'ОПТ',data:d,borderColor:G,borderWidth:2,tension:.4,fill:true,backgroundColor:GB,pointRadius:3,pointBackgroundColor:G}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmtMoney(ctx.parsed.y)}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>new Intl.NumberFormat('uk-UA',{style:'currency',currency:'UAH',minimumFractionDigits:2,maximumFractionDigits:2}).format(v*1e6)}}}}}});}
 function refreshCharts(){buildRev();buildDef();buildLead();buildSales();}
 
 function buildStatic(){
   safeChart('clientConc',{type:'doughnut',data:{labels:['ТОП-1 ~62%','ТОП-2 ~33%','Решта 18 кл.'],datasets:[{data:[62,32.7,5.3],backgroundColor:[R,A,G],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
-  safeChart('cRisk',{type:'bar',data:{labels:['Кл.1','Кл.2','Кл.3','Кл.4','Кл.5','Інші'],datasets:[{data:[62,32.7,1.8,.9,.7,1.9],backgroundColor:[R,A,G,G,G,G],borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
+  safeChart('cRisk',{type:'bar',data:{labels:['Кл.1','Кл.2','Кл.3','Кл.4','Кл.5','Інші'],datasets:[{data:[62,32.7,1.8,.9,.7,1.9],backgroundColor:[R,A,G,G,G,G],borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',formatter:v=>v+'%',font:{size:9,weight:'600'},color:'#445243'}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
   safeChart('outCh',{type:'bar',data:{labels:['Лок.1','Лок.2','Лок.4','Лок.5'],datasets:[{data:[850,720,410,280],backgroundColor:[GB,GB,AB,RB],borderColor:[G,G,A,R],borderWidth:1.5,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID}}}}});
   const reg=window.E3D_STATIC.metrics_coverage;
   const tots=reg.reduce((a,r)=>{a[0]+=r.yes;a[1]+=r.part;a[2]+=r.calc;a[3]+=r.no;return a;},[0,0,0,0]);
-  safeChart('covDon',{type:'doughnut',data:{labels:['Так','Частково','Можна','Не збирається'],datasets:[{data:tots,backgroundColor:[G,A,B,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'60%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
-  safeChart('covBar',{type:'bar',data:{labels:reg.map(r=>r.section.replace('Виробництво — ','В.').replace(/ \(.+\)/g,'').replace(' та P&L','').replace(' та Персонал','').replace(' та Маркетинг','').replace(' та брак','')),datasets:[{label:'Так',data:reg.map(r=>r.yes),backgroundColor:G,borderRadius:2,stack:'s'},{label:'Частково',data:reg.map(r=>r.part),backgroundColor:A,borderRadius:2,stack:'s'},{label:'Можна',data:reg.map(r=>r.calc),backgroundColor:B,borderRadius:2,stack:'s'},{label:'Немає',data:reg.map(r=>r.no),backgroundColor:R,borderRadius:2,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:GRID},stacked:true}}}});
+  const COV_C=['#2A9D8F','#457B9D','#A8C5DA','#CBD5E0'];
+  safeChart('covDon',{type:'doughnut',data:{labels:['Так','Частково','Можна розрахувати','Не збирається'],datasets:[{data:tots,backgroundColor:COV_C,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'60%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
+  safeChart('covBar',{type:'bar',data:{labels:reg.map(r=>r.section.replace('Виробництво — ','В.').replace(/ \(.+\)/g,'').replace(' та P&L','').replace(' та Персонал','').replace(' та Маркетинг','').replace(' та брак','')),datasets:[{label:'Так',data:reg.map(r=>r.yes),backgroundColor:'#2A9D8F',borderRadius:2,stack:'s'},{label:'Частково',data:reg.map(r=>r.part),backgroundColor:'#457B9D',borderRadius:2,stack:'s'},{label:'Можна розрахувати',data:reg.map(r=>r.calc),backgroundColor:'#A8C5DA',borderRadius:2,stack:'s'},{label:'Не збирається',data:reg.map(r=>r.no),backgroundColor:'#CBD5E0',borderRadius:2,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:GRID},stacked:true}}}});
   const rb=document.getElementById('regB');
-  if(rb){rb.innerHTML='';let T={total:0,yes:0,part:0,calc:0,no:0};reg.forEach(r=>{T.total+=r.total;T.yes+=r.yes;T.part+=r.part;T.calc+=r.calc;T.no+=r.no;const bg=~~(r.yes/r.total*100),ba=~~(r.part/r.total*100),bb=~~(r.calc/r.total*100),br=~~(r.no/r.total*100);rb.innerHTML+=`<tr><td>${r.section}</td><td style="font-weight:700">${r.total}</td><td><span class="cov cy">${r.yes}</span></td><td><span class="cov cp">${r.part}</span></td><td><span class="cov cc">${r.calc}</span></td><td><span class="cov cn">${r.no}</span></td><td><div class="covbar" style="width:100px"><div class="cbs" style="width:${bg}%;background:${G}"></div><div class="cbs" style="width:${ba}%;background:${A}"></div><div class="cbs" style="width:${bb}%;background:${B}"></div><div class="cbs" style="width:${br}%;background:${R}"></div></div></td></tr>`;});rb.innerHTML+=`<tr style="background:var(--s2);font-weight:700"><td>ВСЬОГО</td><td>${T.total}</td><td><span class="cov cy">${T.yes}</span></td><td><span class="cov cp">${T.part}</span></td><td><span class="cov cc">${T.calc}</span></td><td><span class="cov cn">${T.no}</span></td><td></td></tr>`;}
+  if(rb){rb.innerHTML='';let T={total:0,yes:0,part:0,calc:0,no:0};reg.forEach(r=>{T.total+=r.total;T.yes+=r.yes;T.part+=r.part;T.calc+=r.calc;T.no+=r.no;const bg=~~(r.yes/r.total*100),ba=~~(r.part/r.total*100),bb=~~(r.calc/r.total*100),br=~~(r.no/r.total*100);rb.innerHTML+=`<tr><td>${r.section}</td><td style="font-weight:700">${r.total}</td><td><span class="cov cy">${r.yes}</span></td><td><span class="cov cp">${r.part}</span></td><td><span class="cov cc">${r.calc}</span></td><td><span class="cov cn">${r.no}</span></td><td><div class="covbar" style="width:100px"><div class="cbs" style="width:${bg}%;background:#2A9D8F"></div><div class="cbs" style="width:${ba}%;background:#457B9D"></div><div class="cbs" style="width:${bb}%;background:#A8C5DA"></div><div class="cbs" style="width:${br}%;background:#CBD5E0"></div></div></td></tr>`;});rb.innerHTML+=`<tr style="background:var(--s2);font-weight:700"><td>ВСЬОГО</td><td>${T.total}</td><td><span class="cov cy">${T.yes}</span></td><td><span class="cov cp">${T.part}</span></td><td><span class="cov cc">${T.calc}</span></td><td><span class="cov cn">${T.no}</span></td><td></td></tr>`;}
 }
 
 // ── GOALS with progress indicators ───────────────────
@@ -728,7 +735,7 @@ const PROJECTS = [
 ];
 
 const MONTHS_UA = ['Січ','Лют','Бер','Квіт','Трав','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
-const TODAY = new Date('2026-05-10');
+const TODAY = (function(){ const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),d.getDate()); })();
 const YEAR_START = new Date('2026-01-01');
 const YEAR_DAYS = 365;
 
@@ -747,7 +754,7 @@ function buildGantt(){
     const daysInMonth = new Date(2026,m+1,0).getDate();
     const w = Math.round(daysInMonth/YEAR_DAYS*700);
     monthWidths.push({m,w,start:totalW,daysInMonth});
-    const isTodayMonth = (m===4); // May
+    const isTodayMonth = (m===TODAY.getMonth());
     hdrs += `<th class="gcol ${isTodayMonth?'today-col':''}" style="width:${w}px"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
     totalW+=w;
   }
@@ -772,7 +779,7 @@ function buildGantt(){
     for(let mi=0;mi<12;mi++){
       const {start:mStart,daysInMonth,w:mW} = monthWidths[mi];
       const mEnd = mStart+daysInMonth;
-      const isTodayMonth=(mi===4);
+      const isTodayMonth=(mi===TODAY.getMonth());
 
       // does bar overlap this month?
       const barStart = clamp(sDoy,mStart,mEnd);
@@ -786,9 +793,10 @@ function buildGantt(){
         const cls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
         inner=`<div class="${cls}" style="width:${barWidth}px;margin-left:${barLeft}px" title="${p.name}: ${p.start}–${p.end}"></div>`;
       }
-      // today line in may col
+      // today line in current month col
       if(isTodayMonth){
-        const todayX=Math.round((todayDoy-monthWidths[4].start)/31*mW);
+        const curMW=monthWidths[mi];
+        const todayX=Math.round((todayDoy-curMW.start)/curMW.daysInMonth*curMW.w);
         inner+=`<div style="position:absolute;left:${todayX}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10" title="Сьогодні"></div>`;
       }
       cells+=`<td class="gcell ${isTodayMonth?'today-col':''}">${inner}</td>`;
