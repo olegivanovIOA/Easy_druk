@@ -1,166 +1,218 @@
-// ═══════════════════════════════════════════════════════
-// Easy 3D Print — Google Sheets live loader
-// Reads published CSV exports from two Sheets files.
-//
-// HOW TO PUBLISH:
-//   Google Sheets → File → Share → Publish to web
-//   Choose sheet → CSV → Copy link
-//   Paste the CSV URL below for each sheet/tab
-//
-// The dashboard works fully offline from static.js;
-// this module progressively enhances with live data
-// when the sheets are published and accessible.
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// sheets_loader.js  —  Easy 3D Print Dashboard
+// Завантажує CSV з Google Sheets, парсить задачі по спринтах і проектах,
+// кешує в localStorage, автооновлення раз на годину.
+// ═══════════════════════════════════════════════════════════════════════════
 
-window.E3D_SHEETS = {
+const E3D_LOADER = (() => {
 
-  // ── CONFIG ────────────────────────────────────────────
-  // Replace these with your actual Published-CSV URLs
-  // Format: https://docs.google.com/spreadsheets/d/{ID}/export?format=csv&gid={GID}
+  const SHEET_ID   = '1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A';
+  const CACHE_TTL  = 60 * 60 * 1000; // 1 година
 
-  urls: {
-    // Стратегічні цілі та проекти (Проекти sheet)
-    // Source: https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/edit#gid=0
-    projects:      'https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/export?format=csv&gid=0',
-    sprints_s1:    'https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/export?format=csv&gid=sprint1_gid',
-    sprints_s2:    'https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/export?format=csv&gid=sprint2_gid',
-    goals:         'https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/export?format=csv&gid=goals_gid',
+  // gid кожного листа — беремо з URL Google Sheets (параметр gid=)
+  const GIDS = {
+    sprint1: '739884490',
+    sprint2: '1832832800',
+    sprint3: '601192624',
+  };
 
-    // Реєстр метрик (Реєстр метрик sheet)
-    // Source: https://docs.google.com/spreadsheets/d/1RFZV9ChnSXAkBgW4nv86mWvVqh4vjUKU/edit?gid=485374783
-    metrics:       'https://docs.google.com/spreadsheets/d/1RFZV9ChnSXAkBgW4nv86mWvVqh4vjUKU/export?format=csv&gid=485374783',
-    metrics_summary: 'https://docs.google.com/spreadsheets/d/1RFZV9ChnSXAkBgW4nv86mWvVqh4vjUKU/export?format=csv&gid=summary_gid',
-  },
+  const CACHE_KEY  = 'e3d_sheets_cache_v2';
+  const _listeners = {};
+  let   _summary   = { ok: 0, error: 0, total: Object.keys(GIDS).length };
 
-  // ── CSV PARSER ────────────────────────────────────────
-  parseCSV(text) {
-    const lines = text.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
-    return lines.slice(1).map(line => {
-      // handle quoted commas
-      const vals = [];
-      let cur = '', inQ = false;
-      for (const ch of line) {
-        if (ch==='"') { inQ=!inQ; } 
-        else if (ch===',' && !inQ) { vals.push(cur.trim()); cur=''; }
-        else cur += ch;
+  // ── CSV helpers ──────────────────────────────────────────────────────────
+  function csvUrl(gid) {
+    return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+  }
+
+  function parseCsvLine(line) {
+    const cells = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === ',' && !inQ) { cells.push(cur.trim()); cur = ''; continue; }
+      cur += c;
+    }
+    cells.push(cur.trim());
+    return cells;
+  }
+
+  function parseCsv(text) {
+    return text.split('\n').map(parseCsvLine);
+  }
+
+  // ── Визначити чи задача виконана ─────────────────────────────────────────
+  function isDone(status) {
+    return (status || '').trim() === 'Виконано';
+  }
+
+  // ── Парсинг одного CSV-листа спринту ─────────────────────────────────────
+  // Повертає: { 'proj_id': { name, tasks:[{task,owner,deadline,status,done}] }, ... }
+  function parseSprintCsv(csvText) {
+    const rows = parseCsv(csvText);
+    const projects = {};
+    let currentProj = null;
+
+    for (let i = 0; i < rows.length; i++) {
+      const row  = rows[i];
+      const colA = (row[0] || '').trim();  // №  / proj id
+      const colB = (row[1] || '').trim();  // Проект
+      const colC = (row[2] || '').trim();  // Задача
+      const colD = (row[3] || '').trim();  // Відповідальний
+      const colF = (row[5] || '').trim();  // Дедлайн
+      const colH = (row[7] || '').trim();  // Статус
+
+      // Пропускаємо рядки заголовків
+      if (colA === '№' || colB === 'Проекти (назва)') continue;
+
+      // Заголовок проекту: colA = "1.0" / "3.0" і colC пустий
+      const isProjHeader = /^\d+\.\d+$/.test(colA) && !colC;
+      if (isProjHeader) {
+        currentProj = colA;
+        if (!projects[colA]) {
+          projects[colA] = { name: colB || colA, tasks: [] };
+        }
+        continue;
       }
-      vals.push(cur.trim());
-      const obj = {};
-      headers.forEach((h,i) => obj[h] = (vals[i]||'').replace(/^"|"$/g,''));
-      return obj;
-    }).filter(r => Object.values(r).some(v=>v));
-  },
 
-  // ── FETCH WITH TIMEOUT ────────────────────────────────
-  async fetchCSV(url, timeoutMs=6000) {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-    try {
-      const r = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(timer);
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return await r.text();
-    } catch(e) {
-      clearTimeout(timer);
-      throw e;
+      // Задача: є вміст в colC і є поточний проект
+      if (currentProj && colC && colC.length > 2) {
+        projects[currentProj].tasks.push({
+          task:     colC,
+          owner:    colD,
+          deadline: colF,
+          status:   colH,
+          done:     isDone(colH),
+        });
+      }
     }
-  },
 
-  // ── LOAD PROJECTS from Sheets ─────────────────────────
-  async loadProjects() {
-    try {
-      const csv = await this.fetchCSV(this.urls.projects);
-      const rows = this.parseCSV(csv);
-      // Map columns: №, Проект (назва), Пріоритет, Відповідальний, Дата старту, Дедлайн, ...
-      const projects = rows
-        .filter(r => r['№'] && !isNaN(parseInt(r['№'])))
-        .map(r => ({
-          id:       parseInt(r['№']),
-          name:     r['Проект (назва)'] || r['Назва'] || '',
-          priority: r['Пріоритет'] || 'B',
-          owner:    r['Відповідальний (керівник проекту)'] || r['Відповідальний'] || '',
-          start:    r['Дата старту проекту'] || r['Дата старту'] || '',
-          deadline: r['Дедлайн'] || '',
-          kpi:      r['Які KPI потрібно встановити?'] || r['KPI'] || '',
-          // parse progress if column exists
-          progress: parseFloat(r['Прогрес'] || r['Progress'] || '0') || 0,
-        }));
-      console.log(`[Sheets] Loaded ${projects.length} projects`);
-      return projects;
-    } catch(e) {
-      console.warn('[Sheets] Projects load failed, using static data:', e.message);
-      return null;
-    }
-  },
+    return projects;
+  }
 
-  // ── LOAD SPRINT TASKS ─────────────────────────────────
-  async loadSprintTasks(sprintUrl) {
-    try {
-      const csv = await this.fetchCSV(sprintUrl);
-      const rows = this.parseCSV(csv);
-      return rows
-        .filter(r => r['Задача'] || r['Task'])
-        .map(r => ({
-          project_id: parseInt(r['№']) || 0,
-          project:    r['Проекти (назва)'] || r['Проект'] || '',
-          task:       r['Задача'] || r['Task'] || '',
-          owner:      r['Відповідальний'] || r['Відповідальний + учасники'] || '',
-          start:      r['Дата старту (або проведення зустрічі)'] || '',
-          deadline:   r['Дедлайн'] || '',
-          result:     r['Очікуваний результат'] || '',
-          status:     r['Статус'] || '',
-        }));
-    } catch(e) {
-      console.warn('[Sheets] Sprint load failed:', e.message);
-      return null;
-    }
-  },
-
-  // ── LOAD METRICS REGISTRY ─────────────────────────────
-  async loadMetrics() {
-    try {
-      const csv = await this.fetchCSV(this.urls.metrics);
-      const rows = this.parseCSV(csv);
-      // columns: consider(ТАК/НІ), section, subsection, metric, formula, granularity, status, comments
-      return rows
-        .filter(r => {
-          const v = (r['Врахову-\nвати?'] || r['Враховувати?'] || r[Object.keys(r)[0]] || '').toUpperCase();
-          return v.includes('ТАК') || v.includes('YES');
-        })
-        .map(r => ({
-          consider:    true,
-          section:     r['Розділ'] || r[Object.keys(r)[1]] || '',
-          subsection:  r['Підрозділ'] || r[Object.keys(r)[2]] || '',
-          metric:      r['Метрика / KPI'] || r[Object.keys(r)[3]] || '',
-          status:      r['Статус'] || r[Object.keys(r)[6]] || '',
-        }));
-    } catch(e) {
-      console.warn('[Sheets] Metrics load failed, using static data:', e.message);
-      return null;
-    }
-  },
-
-  // ── MAIN INIT (called from dashboard) ─────────────────
-  async init(onUpdate) {
-    const results = await Promise.allSettled([
-      this.loadProjects(),
-      this.loadSprintTasks(this.urls.sprints_s2),
-      this.loadMetrics(),
-    ]);
-
-    const live = {
-      projects:    results[0].value,
-      sprint_tasks: results[1].value,
-      metrics:     results[2].value,
-      loaded_at:   new Date().toISOString(),
+  // ── Агрегат по проекту в спринті ─────────────────────────────────────────
+  function sprintSummary(projects, projId) {
+    if (!projects || !projects[projId]) return { done: 0, total: 0, tasks: [] };
+    const tasks = projects[projId].tasks;
+    return {
+      done:  tasks.filter(t => t.done).length,
+      total: tasks.length,
+      tasks,
     };
+  }
 
-    // Only call onUpdate if at least one source loaded
-    const anyLoaded = Object.values(live).some(v => Array.isArray(v) && v.length > 0);
-    if (anyLoaded && typeof onUpdate === 'function') {
-      onUpdate(live);
+  // ── Завантаження одного листа ─────────────────────────────────────────────
+  async function fetchSheet(key, gid) {
+    const res = await fetch(csvUrl(gid), { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    return parseSprintCsv(text);
+  }
+
+  // ── Кеш ──────────────────────────────────────────────────────────────────
+  function loadCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { ts, data } = JSON.parse(raw);
+      if (Date.now() - ts > CACHE_TTL) return null;
+      return { ts, data };
+    } catch { return null; }
+  }
+
+  function saveCache(data) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    } catch {}
+  }
+
+  // ── Event emitter ─────────────────────────────────────────────────────────
+  function emit(key, payload) {
+    (_listeners[key] || []).forEach(fn => { try { fn(payload); } catch {} });
+    (_listeners['*']  || []).forEach(fn => { try { fn({ key, ...payload }); } catch {} });
+  }
+
+  // ── Публічний API ─────────────────────────────────────────────────────────
+  function on(key, fn)  { (_listeners[key] = _listeners[key] || []).push(fn); }
+  function summary()    { return { ..._summary }; }
+
+  // Побудувати об'єкт даних для дашборду з розпарсених листів
+  function buildDashData(sheets) {
+    // sheets = { sprint1: {projId: {tasks}}, sprint2: ..., sprint3: ... }
+    const projs = ['1.0', '3.0'];
+    const result = {};
+    projs.forEach(pid => {
+      result[pid] = {
+        sprint1: sprintSummary(sheets.sprint1, pid),
+        sprint2: sprintSummary(sheets.sprint2, pid),
+        sprint3: sprintSummary(sheets.sprint3, pid),
+      };
+    });
+    // Також повертаємо всі задачі Спринту 2 для таблиці
+    result._sprint2_all = sheets.sprint2;
+    result._sprint1_all = sheets.sprint1;
+    result._sprint3_all = sheets.sprint3;
+    result._ts = Date.now();
+    return result;
+  }
+
+  async function initAll(force = false) {
+    _summary = { ok: 0, error: 0, total: Object.keys(GIDS).length };
+
+    // Спробувати кеш
+    if (!force) {
+      const cached = loadCache();
+      if (cached) {
+        emit('sheets', { status: 'ok', data: cached.data, fromCache: true, ts: cached.ts });
+        emit('*',      { key: 'sheets', status: 'ok' });
+        _summary.ok = _summary.total;
+        return cached.data;
+      }
     }
-    return live;
-  },
-};
+
+    // Завантажити всі три листи
+    const sheets = {};
+    const errors = [];
+
+    await Promise.all(
+      Object.entries(GIDS).map(async ([key, gid]) => {
+        try {
+          sheets[key] = await fetchSheet(key, gid);
+          _summary.ok++;
+        } catch (e) {
+          console.warn(`[E3D_LOADER] Не вдалося завантажити ${key}:`, e.message);
+          sheets[key] = null;
+          errors.push(key);
+          _summary.error++;
+        }
+      })
+    );
+
+    if (_summary.ok === 0) {
+      emit('sheets', { status: 'error', data: null });
+      return null;
+    }
+
+    const dashData = buildDashData(sheets);
+    saveCache(dashData);
+    emit('sheets', { status: 'ok', data: dashData, fromCache: false, ts: dashData._ts });
+    return dashData;
+  }
+
+  // Автооновлення кожну годину
+  function startAutoRefresh() {
+    setInterval(() => initAll(true), CACHE_TTL);
+  }
+
+  return { on, summary, initAll, startAutoRefresh, isDone, sprintSummary };
+})();
+
+// Зворотна сумісність з data_layer.js (якщо він є)
+if (!window.E3D_DATA) {
+  window.E3D_DATA = {
+    on:      E3D_LOADER.on,
+    summary: E3D_LOADER.summary,
+    initAll: E3D_LOADER.initAll,
+  };
+}
