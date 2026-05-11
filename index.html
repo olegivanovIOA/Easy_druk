@@ -664,7 +664,7 @@ document.getElementById('motiv').textContent = PHRASES[Math.floor(Date.now()/864
 const ML=['Лп','Сп','Вр','Жв','Тр','Чв','Лн','Лп','Св','Жн','Лс','Гр'];
 const G='#2A9D8F',A='#D4820A',R='#C0392B',B='#457B9D';
 const GB='rgba(42,157,143,.13)',AB='rgba(212,130,10,.13)',RB='rgba(192,57,43,.11)',BB='rgba(69,123,157,.12)';
-if(window.ChartDataLabels){Chart.register(ChartDataLabels);}
+// datalabels реєструється локально лише там де потрібно
 Chart.defaults.font.family='Inter'; Chart.defaults.font.size=10;
 Chart.defaults.color='#6b836a'; Chart.defaults.borderColor='#e6e9e3';
 const GRID='#f0f2ee';
@@ -690,7 +690,8 @@ function refreshCharts(){buildRev();buildDef();buildLead();buildSales();}
 
 function buildStatic(){
   safeChart('clientConc',{type:'doughnut',data:{labels:['ТОП-1 ~62%','ТОП-2 ~33%','Решта 18 кл.'],datasets:[{data:[62,32.7,5.3],backgroundColor:[R,A,G],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
-  safeChart('cRisk',{type:'bar',data:{labels:['Кл.1','Кл.2','Кл.3','Кл.4','Кл.5','Інші'],datasets:[{data:[62,32.7,1.8,.9,.7,1.9],backgroundColor:[R,A,G,G,G,G],borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',formatter:v=>v+'%',font:{size:9,weight:'600'},color:'#445243'}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
+  const DL = window.ChartDataLabels;
+  safeChart('cRisk',{type:'bar',plugins:DL?[DL]:[],data:{labels:['Кл.1','Кл.2','Кл.3','Кл.4','Кл.5','Інші'],datasets:[{data:[62,32.7,1.8,.9,.7,1.9],backgroundColor:[R,A,G,G,G,G],borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',formatter:v=>v+'%',font:{size:9,weight:'600'},color:'#445243'}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
   safeChart('outCh',{type:'bar',data:{labels:['Лок.1','Лок.2','Лок.4','Лок.5'],datasets:[{data:[850,720,410,280],backgroundColor:[GB,GB,AB,RB],borderColor:[G,G,A,R],borderWidth:1.5,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID}}}}});
   const reg=window.E3D_STATIC.metrics_coverage;
   const tots=reg.reduce((a,r)=>{a[0]+=r.yes;a[1]+=r.part;a[2]+=r.calc;a[3]+=r.no;return a;},[0,0,0,0]);
