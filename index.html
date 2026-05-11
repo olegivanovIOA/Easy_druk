@@ -9,6 +9,7 @@
 <script src="data/static.js"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js"></script>
+<script src="js/strategy_scoring.js"></script>
 <script src="js/data_layer.js"></script>
 <script src="js/widgets.js"></script>
 <style>
@@ -426,6 +427,15 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ СТРАТЕГІЯ ═════════════ -->
 <div class="panel" id="panel-str">
   <div class="al al-g"><span class="ic">📐</span><div><b>Джерело:</b> <a href="https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/" target="_blank">Google Sheets → Стратегічні цілі та проекти 2026</a> · Скоринг: Відп. 70% / Учасники 30%</div></div>
+
+
+  <!-- SCORING MODEL — dynamic goals progress -->
+  <div id="w-str-scoring">
+    <div class="sec">🎯 Скорінг цілей 2026 — прогрес виконання стратегії</div>
+    <div id="str-scoring-root">
+      <div class="al al-b"><span class="ic">⟳</span> Ініціалізація…</div>
+    </div>
+  </div>
 
   <!-- ЦІЛІ — vertical list with progress indicator -->
   <div id="w-str-goals">
@@ -893,7 +903,7 @@ function staticS2(){return[{project_id:1,project:'Система планува�
 const WKEY='e3d_widget_prefs_v1';
 const WCAT=[
   {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
-  {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},
+  {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
   {id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batch',tab:'prod',label:'Партії (Batch)'},{id:'prod-trend',tab:'prod',label:'Lead Time та виробіток'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
@@ -955,13 +965,39 @@ document.addEventListener('DOMContentLoaded',()=>{
   refreshCharts();
   renderStrategy();
   restoreTab();
-  if(window.E3D_DATA){
-    E3D_DATA.on('*',({key,status})=>updDot(E3D_DATA.summary()));
-    E3D_DATA.on('sprint1',({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint1:data});});
-    E3D_DATA.on('sprint2',({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint2:data});});
-    E3D_DATA.initAll().catch(()=>{});
+
+  // Ініціалізація скорінг-моделі стратегії
+  if(window.E3D_STRATEGY){ E3D_STRATEGY.init(); }
+
+  // Завантаження даних з Google Sheets
+  if(window.E3D_LOADER){
+    E3D_LOADER.on('*',({key,status})=>updDot(E3D_LOADER.summary()));
+    E3D_LOADER.on('sheets',({status,data})=>{
+      if(status==='ok'&&data){
+        // Оновити існуючі спринт-таблиці (зворотна сумісність)
+        if(data._sprint1_all) renderStrategy({sprint1: flattenSprint(data._sprint1_all)});
+        if(data._sprint2_all) renderStrategy({sprint2: flattenSprint(data._sprint2_all)});
+      }
+      updDot(E3D_LOADER.summary());
+    });
+    E3D_LOADER.initAll().catch(()=>{
+      document.getElementById('ls').textContent='Статичні дані';
+    });
+    E3D_LOADER.startAutoRefresh();
   } else {document.getElementById('ls').textContent='Статичні дані';}
 });
+
+// Конвертер формату: {projId:{tasks}} → [{project,task,owner,deadline,status}]
+function flattenSprint(projMap){
+  if(!projMap) return [];
+  const rows=[];
+  Object.entries(projMap).forEach(([pid,p])=>{
+    (p.tasks||[]).forEach(t=>{
+      rows.push({project_id:parseInt(pid),project:p.name||pid,task:t.task,owner:t.owner,deadline:t.deadline,status:t.status});
+    });
+  });
+  return rows;
+}
 </script>
 </body>
 </html>
