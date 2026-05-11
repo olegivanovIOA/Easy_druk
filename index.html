@@ -106,8 +106,16 @@ a{color:var(--gd);text-decoration:none}
 .g6{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
 .s2{grid-column:span 2}.s3{grid-column:span 3}
 @media(max-width:1100px){.g6{grid-template-columns:repeat(3,1fr)}.g5{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:750px){.g6,.g5,.g4,.g3{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.s2,.s3{grid-column:span 1}.panel{padding:10px 10px 48px}}
-@media(max-width:480px){.g6,.g5,.g4,.g3,.g2{grid-template-columns:1fr}.ltag,.lp span{display:none}}
+@media(max-width:750px){.g6,.g5,.g4,.g3{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.s2,.s3{grid-column:span 1}.panel{padding:10px 10px 48px}
+  .ti{font-size:14px}.tb{padding:6px 8px;font-size:11px;letter-spacing:0}
+  .nav-top{padding:0 10px;gap:4px}.lname{font-size:13px}.lcube{width:24px;height:24px}
+  .card{padding:10px 12px}.sec{font-size:12px;padding:10px 0 6px}
+  .ch210{height:160px}.ch180{height:140px}.ch160{height:130px}.ch140{height:120px}
+}
+@media(max-width:480px){.g6,.g5,.g4,.g3,.g2{grid-template-columns:1fr}.ltag,.lp span{display:none}
+  .ti{display:none}.tb{padding:5px 7px;font-size:11px}
+  .nav-acts .btn-sm:not(#wmBtn){display:none}
+}
 
 /* cards */
 .card{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
@@ -149,7 +157,7 @@ a{color:var(--gd);text-decoration:none}
 .bdg-tbd{background:var(--s2);color:var(--tl);border:1px dashed var(--bd3);font-style:italic}
 .cw{position:relative}
 .ch140{height:140px}.ch160{height:160px}.ch180{height:180px}.ch210{height:210px}
-@media(max-width:580px){.ch210{height:170px}.ch180{height:150px}}
+
 
 /* WATERMARKS */
 .wm{position:relative;overflow:hidden}
@@ -796,7 +804,7 @@ function buildGantt(){
       }
       // today line in current month col
       if(isTodayMonth){
-        const todayX=Math.round((TODAY.getDate()-1)/curMW.daysInMonth*curMW.w);
+        const todayX=Math.round((TODAY.getDate()-1)/daysInMonth*mW);
         inner+=`<div style="position:absolute;left:${todayX}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10" title="Сьогодні (${TODAY.toLocaleDateString('uk-UA')})"></div>`;
       }
       cells+=`<td class="gcell ${isTodayMonth?'today-col':''}">${inner}</td>`;
@@ -923,7 +931,22 @@ function go(id,btn){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('panel-'+id).classList.add('active');
+  try{localStorage.setItem('e3d_tab',id);}catch(e){}
   setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
+}
+function restoreTab(){
+  try{
+    const saved=localStorage.getItem('e3d_tab');
+    if(!saved)return;
+    const btn=document.querySelector(`.tb[onclick*="'${saved}'"]`);
+    const panel=document.getElementById('panel-'+saved);
+    if(btn&&panel){
+      document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      panel.classList.add('active');
+    }
+  }catch(e){}
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -931,6 +954,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildStatic();
   refreshCharts();
   renderStrategy();
+  restoreTab();
   if(window.E3D_DATA){
     E3D_DATA.on('*',({key,status})=>updDot(E3D_DATA.summary()));
     E3D_DATA.on('sprint1',({status,data})=>{if(status==='ok'&&data)renderStrategy({sprint1:data});});
