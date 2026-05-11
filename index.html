@@ -16,7 +16,7 @@
 :root{
   --g:#2A9D8F; --gd:#1e7a6e; --gl:#edfaf8; --gm:#52b8ac; --gb:#9ed4cf; --ga:#d0ecea;
   --b:#457B9D; --bd2:#2c607e; --bl:#edf4f9; --bb:#8bbdd8;
-  --amb:#D4820A; --abl:#fef6e4; --abb:#f5d48a;
+  --amb:#457B9D; --abl:#edf4f9; --abb:#8bbdd8;
   --red:#C0392B; --rl:#fef0ee; --rb:#f0b0a8;
   --bg:#f9fafb; --sur:#ffffff; --s2:#f3f5f2; --s3:#ecefeb;
   --bd:#e6e9e3; --bd3:#d8dcd5;
@@ -662,8 +662,8 @@ document.getElementById('motiv').textContent = PHRASES[Math.floor(Date.now()/864
 
 // ── CHART SETUP ───────────────────────────────────────
 const ML=['Лп','Сп','Вр','Жв','Тр','Чв','Лн','Лп','Св','Жн','Лс','Гр'];
-const G='#2A9D8F',A='#D4820A',R='#C0392B',B='#457B9D';
-const GB='rgba(42,157,143,.13)',AB='rgba(212,130,10,.13)',RB='rgba(192,57,43,.11)',BB='rgba(69,123,157,.12)';
+const G='#2A9D8F',A='#457B9D',R='#C0392B',B='#6aA5C2';
+const GB='rgba(42,157,143,.13)',AB='rgba(69,123,157,.13)',RB='rgba(192,57,43,.11)',BB='rgba(106,165,194,.12)';
 // datalabels реєструється локально лише там де потрібно
 Chart.defaults.font.family='Inter'; Chart.defaults.font.size=10;
 Chart.defaults.color='#6b836a'; Chart.defaults.borderColor='#e6e9e3';
@@ -796,9 +796,8 @@ function buildGantt(){
       }
       // today line in current month col
       if(isTodayMonth){
-        const curMW=monthWidths[mi];
-        const todayX=Math.round((todayDoy-curMW.start)/curMW.daysInMonth*curMW.w);
-        inner+=`<div style="position:absolute;left:${todayX}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10" title="Сьогодні"></div>`;
+        const todayX=Math.round((TODAY.getDate()-1)/curMW.daysInMonth*curMW.w);
+        inner+=`<div style="position:absolute;left:${todayX}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10" title="Сьогодні (${TODAY.toLocaleDateString('uk-UA')})"></div>`;
       }
       cells+=`<td class="gcell ${isTodayMonth?'today-col':''}">${inner}</td>`;
     }
@@ -811,7 +810,7 @@ function buildGantt(){
   wrap.innerHTML+=`<div style="display:flex;align-items:center;gap:16px;padding:8px 10px;font-size:10px;color:var(--tm);border-top:1px solid var(--bd)">
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--g),var(--gd))"></div>Пріоритет A</span>
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--b),var(--bd2));opacity:.75"></div>Пріоритет B</span>
-    <span style="display:flex;align-items:center;gap:5px"><div style="width:2px;height:12px;border-radius:1px;background:rgba(192,57,43,.6)"></div>Сьогодні (10.05.2026)</span>
+    <span style="display:flex;align-items:center;gap:5px"><div style="width:2px;height:12px;border-radius:1px;background:rgba(192,57,43,.6)"></div>Сьогодні (${TODAY.toLocaleDateString('uk-UA')})</span>
   </div>`;
 }
 
