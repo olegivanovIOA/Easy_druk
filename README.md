@@ -1,4 +1,4 @@
-# Easy 3D Print · Dashboard v1.0
+  # Easy 3D Print · Dashboard v1.0
 
 ## Структура файлів
 
@@ -17,7 +17,7 @@ e3d_dashboard/
 ```
 
 ## Розгортання на GitHub Pages
-
+ 
 1. Завантажити всі файли в репозиторій `olegivanovIOA/Easy_druk`
    (або в окремий репо, наприклад `Easy_druk_dashboard`)
 2. GitHub → Settings → Pages → Source: `main` branch, `/ (root)`
