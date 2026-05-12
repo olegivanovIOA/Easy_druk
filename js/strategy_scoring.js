@@ -354,3 +354,29 @@ const E3D_STRATEGY = (() => {
 
   return { init, render, refresh, resetWeights };
 })();
+
+// Автозапуск — чекає поки DOM готовий і E3D_LOADER доступний
+(function autoInit() {
+  function tryInit() {
+    if (!document.getElementById('str-scoring-root')) return; // DOM ще не готовий
+    if (!window.E3D_LOADER) return; // loader ще не завантажений
+
+    // Підписатись на дані і одразу запустити завантаження
+    E3D_LOADER.on('sheets', function(payload) {
+      if (payload.status === 'ok' && payload.data) {
+        // applyDynamic викликається всередині init — просто рендеримо
+      }
+      E3D_STRATEGY.render();
+    });
+
+    E3D_STRATEGY.init();
+    E3D_LOADER.initAll();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInit);
+  } else {
+    // DOM вже готовий — чекаємо трохи поки інші скрипти ініціалізуються
+    setTimeout(tryInit, 100);
+  }
+})();
