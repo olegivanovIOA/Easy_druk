@@ -155,21 +155,34 @@ const E3D_STRATEGY = (() => {
   let _dataStatus = 'static'; // 'static' | 'loading' | 'live' | 'error'
   let _lastUpdated = null;
 
-  // Оновити спринти проектів 1.0 і 3.0 з живих даних
+  // Оновити спринти проектів 1.0 і 3.0 з живих даних.
+  // Динамічно підхоплює ВСІ спринти (1,2,3,4...N) — жодного хардкоду.
   function applyDynamic(dashData) {
     if (!dashData) return;
+
+    // Всі спринти з Web App (відсортовані)
+    const allSprints = (dashData._sprints || []).sort((a,b) => a.num - b.num);
+
     _goals.forEach(goal => {
       goal.projects.forEach(proj => {
         if (!proj.dynamic) return;
         const pid = proj.id;
         const pd  = dashData[pid];
         if (!pd) return;
-        // Оновлюємо done/total у кожному спринті
-        ['sprint1','sprint2','sprint3'].forEach((key, idx) => {
-          if (!pd[key] || !proj.sprints[idx]) return;
-          proj.sprints[idx].done  = pd[key].done;
-          proj.sprints[idx].total = pd[key].total;
-        });
+
+        // Rebuild sprints array from live data (may be more than 3)
+        const liveSprints = allSprints
+          .filter(sp => pd['sprint' + sp.num] && pd['sprint' + sp.num].total > 0)
+          .map(sp => ({
+            n:     sp.num,
+            dates: sp.dates || '',
+            done:  pd['sprint' + sp.num].done,
+            total: pd['sprint' + sp.num].total,
+          }));
+
+        if (liveSprints.length > 0) {
+          proj.sprints = liveSprints;
+        }
       });
     });
     _dataStatus  = 'live';

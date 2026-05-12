@@ -1,214 +1,138 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// sheets_loader.js  —  Easy 3D Print Dashboard
-// Завантажує CSV з Google Sheets, парсить задачі по спринтах і проектах,
-// кешує в localStorage, автооновлення раз на годину.
+// sheets_loader.js  —  Easy 3D Print Dashboard  v4
+//
+// Читає /data/strategy.json — статичний файл, який GitHub Actions
+// оновлює раз на годину з Google Sheets.
+// Жодних API ключів, жодних обмежень корпоративного акаунту.
 // ═══════════════════════════════════════════════════════════════════════════
 
 const E3D_LOADER = (() => {
 
-  const SHEET_ID   = '1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A';
-  const CACHE_TTL  = 60 * 60 * 1000; // 1 година
+  // Шлях до JSON — відносний, працює і локально і на GitHub Pages
+  const DATA_URL  = './data/strategy.json';
+  const CACHE_KEY = 'e3d_loader_cache_v4';
+  const CACHE_TTL = 60 * 60 * 1000; // 1 година
 
-  // gid кожного листа — беремо з URL Google Sheets (параметр gid=)
-  const GIDS = {
-    sprint1: '739884490',
-    sprint2: '1832832800',
-    sprint3: '601192624',
-  };
-
-  const CACHE_KEY  = 'e3d_sheets_cache_v2';
   const _listeners = {};
-  let   _summary   = { ok: 0, error: 0, total: Object.keys(GIDS).length };
+  let _data    = null;
+  let _summary = { ok: 0, error: 0, total: 1 };
 
-  // ── CSV helpers ──────────────────────────────────────────────────────────
-  function csvUrl(gid) {
-    return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+  // ── Event emitter ────────────────────────────────────────────────────────
+  function on(key, fn) { (_listeners[key] = _listeners[key] || []).push(fn); }
+  function emit(key, payload) {
+    (_listeners[key] || []).forEach(fn => { try { fn(payload); } catch(e){} });
+    (_listeners['*']  || []).forEach(fn => { try { fn({key,...payload}); } catch(e){} });
   }
+  function summary() { return {..._summary}; }
 
-  function parseCsvLine(line) {
-    const cells = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"') { inQ = !inQ; continue; }
-      if (c === ',' && !inQ) { cells.push(cur.trim()); cur = ''; continue; }
-      cur += c;
-    }
-    cells.push(cur.trim());
-    return cells;
-  }
-
-  function parseCsv(text) {
-    return text.split('\n').map(parseCsvLine);
-  }
-
-  // ── Визначити чи задача виконана ─────────────────────────────────────────
-  function isDone(status) {
-    return (status || '').trim() === 'Виконано';
-  }
-
-  // ── Парсинг одного CSV-листа спринту ─────────────────────────────────────
-  // Повертає: { 'proj_id': { name, tasks:[{task,owner,deadline,status,done}] }, ... }
-  function parseSprintCsv(csvText) {
-    const rows = parseCsv(csvText);
-    const projects = {};
-    let currentProj = null;
-
-    for (let i = 0; i < rows.length; i++) {
-      const row  = rows[i];
-      const colA = (row[0] || '').trim();  // №  / proj id
-      const colB = (row[1] || '').trim();  // Проект
-      const colC = (row[2] || '').trim();  // Задача
-      const colD = (row[3] || '').trim();  // Відповідальний
-      const colF = (row[5] || '').trim();  // Дедлайн
-      const colH = (row[7] || '').trim();  // Статус
-
-      // Пропускаємо рядки заголовків
-      if (colA === '№' || colB === 'Проекти (назва)') continue;
-
-      // Заголовок проекту: colA = "1.0" / "3.0" і colC пустий
-      const isProjHeader = /^\d+\.\d+$/.test(colA) && !colC;
-      if (isProjHeader) {
-        currentProj = colA;
-        if (!projects[colA]) {
-          projects[colA] = { name: colB || colA, tasks: [] };
-        }
-        continue;
-      }
-
-      // Задача: є вміст в colC і є поточний проект
-      if (currentProj && colC && colC.length > 2) {
-        projects[currentProj].tasks.push({
-          task:     colC,
-          owner:    colD,
-          deadline: colF,
-          status:   colH,
-          done:     isDone(colH),
-        });
-      }
-    }
-
-    return projects;
-  }
-
-  // ── Агрегат по проекту в спринті ─────────────────────────────────────────
-  function sprintSummary(projects, projId) {
-    if (!projects || !projects[projId]) return { done: 0, total: 0, tasks: [] };
-    const tasks = projects[projId].tasks;
-    return {
-      done:  tasks.filter(t => t.done).length,
-      total: tasks.length,
-      tasks,
-    };
-  }
-
-  // ── Завантаження одного листа ─────────────────────────────────────────────
-  async function fetchSheet(key, gid) {
-    const res = await fetch(csvUrl(gid), { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    return parseSprintCsv(text);
-  }
-
-  // ── Кеш ──────────────────────────────────────────────────────────────────
-  function loadCache() {
+  // ── localStorage кеш ─────────────────────────────────────────────────────
+  function loadCache(allowStale = false) {
     try {
       const raw = localStorage.getItem(CACHE_KEY);
       if (!raw) return null;
-      const { ts, data } = JSON.parse(raw);
-      if (Date.now() - ts > CACHE_TTL) return null;
-      return { ts, data };
+      const {ts, data} = JSON.parse(raw);
+      if (!allowStale && Date.now() - ts > CACHE_TTL) return null;
+      return {ts, data};
     } catch { return null; }
   }
-
   function saveCache(data) {
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-    } catch {}
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ts: Date.now(), data})); } catch {}
   }
 
-  // ── Event emitter ─────────────────────────────────────────────────────────
-  function emit(key, payload) {
-    (_listeners[key] || []).forEach(fn => { try { fn(payload); } catch {} });
-    (_listeners['*']  || []).forEach(fn => { try { fn({ key, ...payload }); } catch {} });
-  }
-
-  // ── Публічний API ─────────────────────────────────────────────────────────
-  function on(key, fn)  { (_listeners[key] = _listeners[key] || []).push(fn); }
-  function summary()    { return { ..._summary }; }
-
-  // Побудувати об'єкт даних для дашборду з розпарсених листів
-  function buildDashData(sheets) {
-    // sheets = { sprint1: {projId: {tasks}}, sprint2: ..., sprint3: ... }
-    const projs = ['1.0', '3.0'];
-    const result = {};
-    projs.forEach(pid => {
-      result[pid] = {
-        sprint1: sprintSummary(sheets.sprint1, pid),
-        sprint2: sprintSummary(sheets.sprint2, pid),
-        sprint3: sprintSummary(sheets.sprint3, pid),
-      };
-    });
-    // Також повертаємо всі задачі Спринту 2 для таблиці
-    result._sprint2_all = sheets.sprint2;
-    result._sprint1_all = sheets.sprint1;
-    result._sprint3_all = sheets.sprint3;
-    result._ts = Date.now();
-    return result;
-  }
-
+  // ── Завантаження ─────────────────────────────────────────────────────────
   async function initAll(force = false) {
-    _summary = { ok: 0, error: 0, total: Object.keys(GIDS).length };
-
-    // Спробувати кеш
+    // Кеш (якщо не примусово)
     if (!force) {
-      const cached = loadCache();
+      const cached = loadCache(false);
       if (cached) {
-        emit('sheets', { status: 'ok', data: cached.data, fromCache: true, ts: cached.ts });
-        emit('*',      { key: 'sheets', status: 'ok' });
-        _summary.ok = _summary.total;
-        return cached.data;
+        _data = cached.data;
+        _summary = {ok:1, error:0, total:1};
+        emit('sheets', {status:'ok', data:_data, fromCache:true, ts:cached.ts});
+        return _data;
       }
     }
 
-    // Завантажити всі три листи
-    const sheets = {};
-    const errors = [];
+    try {
+      // Додаємо ?ts= щоб обійти кеш браузера/CDN
+      const res = await fetch(`${DATA_URL}?ts=${Date.now()}`, {cache: 'no-store'});
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
 
-    await Promise.all(
-      Object.entries(GIDS).map(async ([key, gid]) => {
-        try {
-          sheets[key] = await fetchSheet(key, gid);
-          _summary.ok++;
-        } catch (e) {
-          console.warn(`[E3D_LOADER] Не вдалося завантажити ${key}:`, e.message);
-          sheets[key] = null;
-          errors.push(key);
-          _summary.error++;
-        }
-      })
-    );
+      _data = normalizeData(json);
+      _summary = {ok:1, error:0, total:1};
+      saveCache(_data);
+      emit('sheets', {status:'ok', data:_data, fromCache:false, ts:_data._ts});
+      return _data;
 
-    if (_summary.ok === 0) {
-      emit('sheets', { status: 'error', data: null });
+    } catch(e) {
+      console.warn('[E3D_LOADER] fetch failed:', e.message);
+      _summary = {ok:0, error:1, total:1};
+
+      // Fallback: застарілий кеш краще ніж нічого
+      const stale = loadCache(true);
+      if (stale) {
+        _data = stale.data;
+        emit('sheets', {status:'ok', data:_data, fromCache:true, stale:true, ts:stale.ts});
+        return _data;
+      }
+
+      emit('sheets', {status:'error', data:null, error:e.message});
       return null;
     }
-
-    const dashData = buildDashData(sheets);
-    saveCache(dashData);
-    emit('sheets', { status: 'ok', data: dashData, fromCache: false, ts: dashData._ts });
-    return dashData;
   }
 
-  // Автооновлення кожну годину
+  // ── Нормалізація JSON → внутрішній формат ────────────────────────────────
+  // Вхід:  {ts, sprints:[{num, name, dates, projects:{pid:{done,total,tasks}}}]}
+  // Вихід: {_ts, _sprints:[...], [pid]: {sprint1:{done,total}, sprint2:...}}
+  function normalizeData(raw) {
+    const sprints = (raw.sprints || []).sort((a,b) => a.num - b.num);
+    const result  = {_ts: raw.ts, _sprints: sprints, _projects: raw.projects || {}};
+
+    // Зібрати всі унікальні proj IDs
+    const allPids = new Set();
+    sprints.forEach(sp => Object.keys(sp.projects || {}).forEach(p => allPids.add(p)));
+
+    // Для кожного проекту — дані по кожному спринту
+    allPids.forEach(pid => {
+      result[pid] = {};
+      sprints.forEach(sp => {
+        const proj = (sp.projects || {})[pid];
+        result[pid]['sprint' + sp.num] = proj
+          ? {done: proj.done || 0, total: proj.total || 0, tasks: proj.tasks || []}
+          : {done: 0, total: 0, tasks: []};
+      });
+    });
+
+    // Плоскі мапи для зворотної сумісності з renderStrategy()
+    result._sprint1_all = getSprint(sprints, 1);
+    result._sprint2_all = getSprint(sprints, 2);
+    result._sprint3_all = getSprint(sprints, 3);
+
+    return result;
+  }
+
+  function getSprint(sprints, num) {
+    const sp = sprints.find(s => s.num === num);
+    return sp ? (sp.projects || null) : null;
+  }
+
+  // ── Допоміжні ─────────────────────────────────────────────────────────────
+  function sprintSummary(projId, sprintNum) {
+    if (!_data || !_data[projId]) return {done:0, total:0, tasks:[]};
+    return _data[projId]['sprint' + sprintNum] || {done:0, total:0, tasks:[]};
+  }
+  function getAllSprints() { return _data ? (_data._sprints || []) : []; }
+
+  // Автооновлення раз на годину
   function startAutoRefresh() {
-    setInterval(() => initAll(true), CACHE_TTL);
+    setInterval(() => initAll(true).catch(() => {}), CACHE_TTL);
   }
 
-  return { on, summary, initAll, startAutoRefresh, isDone, sprintSummary };
+  return { on, summary, initAll, startAutoRefresh, sprintSummary, getAllSprints };
 })();
 
-// Зворотна сумісність з data_layer.js (якщо він є)
+// Зворотна сумісність
 if (!window.E3D_DATA) {
   window.E3D_DATA = {
     on:      E3D_LOADER.on,
