@@ -6,7 +6,7 @@
 //   3. Проекти без прогресу також відображаються (з позначкою ⚠️)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const E3D_STRATEGY = (() => {
+const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
 
   const WEIGHT_KEY = 'e3d_strategy_weights_v1';
 
