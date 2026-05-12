@@ -1005,16 +1005,5 @@ function flattenSprint(projMap){
   return rows;
 }
 </script>
-<script>
-(function startScoring(){
-  if(!window.E3D_LOADER || !window.E3D_STRATEGY){ setTimeout(startScoring,200); return; }
-  // 1. Рендеримо зі статичними даними ОДРАЗУ — без очікування HTTP
-  E3D_STRATEGY.render();
-  // 2. Підписуємось — перемалюємо коли прийдуть живі дані з Google Sheets
-  E3D_LOADER.on('sheets', function(){ E3D_STRATEGY.render(); });
-  // 3. Запускаємо завантаження в фоні
-  E3D_LOADER.initAll(true);
-})();
-</script>
 </body>
 </html>
