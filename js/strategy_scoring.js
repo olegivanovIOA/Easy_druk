@@ -18,11 +18,11 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
       participants:'Зубрицька О., Дубровін В., Жолудь М., Стріляний О.',
       projects:[
         { id:'1.0', name:'Система планування (люди, ресурси, гроші)',
-          owner:'Іванов Олег', dynamic:true,
+          owner:'Іванов Олег',
           participants:'Стріляний О., Жолудь М., Дубровін В., Щуліпенко З., Щербань С.',
           sprints:[{n:1,dates:'20.04–11.05',done:5,total:8},{n:2,dates:'11.05–31.05',done:4,total:4},{n:3,dates:'01.06–14.06',done:0,total:2}]},
         { id:'3.0', name:'Діджиталізація поточних показників',
-          owner:'Іванов Олег', dynamic:true,
+          owner:'Іванов Олег',
           participants:'Стріляний О., Дубровін В., Зубрицька О., Жолудь М.',
           sprints:[{n:1,dates:'20.04–11.05',done:6,total:7},{n:2,dates:'11.05–31.05',done:4,total:4},{n:3,dates:'01.06–14.06',done:0,total:4}]},
       ]},
@@ -96,7 +96,7 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
     const sprints = (dashData._sprints || []).sort((a,b)=>a.num-b.num);
     _goals.forEach(goal => {
       goal.projects.forEach(proj => {
-        if (!proj.dynamic) return;
+        // всі проекти можуть отримати живі дані
         const pd = dashData[proj.id];
         if (!pd) return;
         const live = sprints
@@ -144,7 +144,8 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
   function renderProject(proj, color) {
     const p       = projPct(proj);
     const noMove  = proj.sprints.every(sp=>sp.done===0);  // немає жодного виконаного
-    const dyn     = proj.dynamic ? ` <span style="font-size:9px;background:#DBEAFE;color:#1D4ED8;padding:1px 5px;border-radius:8px">live</span>` : '';
+    const liveP = window.E3D_LOADER && E3D_LOADER.getAllSprints ? new Set(E3D_LOADER.getAllSprints().flatMap(s=>Object.keys(s.projects||{}))) : new Set();
+    const dyn = liveP.has(proj.id) ? ` <span style="font-size:9px;background:#DBEAFE;color:#1D4ED8;padding:1px 5px;border-radius:8px">live</span>` : '';
     const rowBg   = noMove ? '#FFFBEB' : 'transparent';
 
     const sprintRows = proj.sprints.map(sp=>renderSprint(sp,color)).join('');
@@ -320,7 +321,10 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
             const projRows = g.projects.map(proj => {
               const pp     = projPct(proj);
               const noMove = proj.sprints.every(sp=>sp.done===0) && proj.sprints.some(sp=>sp.total>0);
-              const dyn    = proj.dynamic ? ' <span style="font-size:9px;background:#DBEAFE;color:#1D4ED8;padding:1px 4px;border-radius:6px">live</span>' : '';
+              // live = проект є в живих даних Google Sheets
+              const liveProjs = window.E3D_LOADER && E3D_LOADER.getAllSprints ?
+                new Set(E3D_LOADER.getAllSprints().flatMap(s=>Object.keys(s.projects||{}))) : new Set();
+              const dyn = liveProjs.has(proj.id) ? ' <span style="font-size:9px;background:#DBEAFE;color:#1D4ED8;padding:1px 4px;border-radius:6px">live</span>' : '';
               return `<tr class="proj-row" style="border-bottom:0.5px solid var(--bd);cursor:pointer;font-size:11px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
                 <td style="padding:3px 8px"></td>
                 <td style="padding:3px 8px;padding-left:18px">
