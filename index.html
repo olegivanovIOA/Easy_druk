@@ -426,9 +426,6 @@ a{color:var(--gd);text-decoration:none}
 
 <!-- ═════════════ СТРАТЕГІЯ ═════════════ -->
 <div class="panel" id="panel-str">
-  <div class="al al-g"><span class="ic">📐</span><div><b>Джерело:</b> <a href="https://docs.google.com/spreadsheets/d/1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A/" target="_blank">Google Sheets → Стратегічні цілі та проекти 2026</a> · Скоринг: Відп. 70% / Учасники 30%</div></div>
-
-
   <!-- SCORING MODEL — dynamic goals progress -->
   <div id="w-str-scoring">
     <div class="sec">🎯 Скорінг цілей 2026 — прогрес виконання стратегії</div>
@@ -437,11 +434,8 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
-  <!-- ЦІЛІ — vertical list with progress indicator -->
-  <div id="w-str-goals">
-    <div class="sec">🎯 Цілі на 1 рік (SMART) — прогрес</div>
-    <div id="goals-list"></div>
-  </div>
+  <!-- Цілі SMART інтегровані у скорінг вище -->
+  <div id="w-str-goals" style="display:none"><div id="goals-list"></div></div>
 
   <!-- GANTT timeline -->
   <div id="w-str-gantt">
@@ -472,10 +466,16 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
-  <!-- SPRINT 1 -->
+  <!-- СПРИНТИ — перемикач -->
   <div id="w-str-s1">
-    <div class="sec">📅 Спринт 1 — підсумок (20.04 – 11.05)</div>
-    <div class="card-flat"><div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div><div class="tfoot">Спринт 1 завершено: 11.05.2026</div></div>
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between">
+      <span id="sprint-title">📅 Спринт 1 — підсумок (20.04 – 11.05)</span>
+      <div id="sprint-switcher" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+    <div class="card-flat">
+      <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div>
+      <div class="tfoot" id="sprint-footer">Спринт 1 завершено: 11.05.2026</div>
+    </div>
   </div>
 </div>
 
