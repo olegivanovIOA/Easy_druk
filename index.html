@@ -9,7 +9,7 @@
 <script src="data/static.js"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js"></script>
-  <script src="js/strategy_scoring.js"></script>
+<script src="js/strategy_scoring.js"></script>
 <script src="js/data_layer.js"></script>
 <script src="js/widgets.js"></script>
 <style>
@@ -967,6 +967,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   refreshCharts();
   renderStrategy();
   restoreTab();
+  setTimeout(()=>{ if(window.E3D_LOADER&&window.E3D_STRATEGY){ E3D_LOADER.initAll().then(d=>{if(d)E3D_STRATEGY.render();}); } },300);
 
   // Завантаження даних + ініціалізація скорінгу
   if(window.E3D_LOADER){
