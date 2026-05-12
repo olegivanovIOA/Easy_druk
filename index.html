@@ -1008,8 +1008,10 @@ function flattenSprint(projMap){
 <script>
 setTimeout(function(){
   if(window.E3D_LOADER&&window.E3D_STRATEGY){
+    // Підписуємось на sheets подію (для майбутніх оновлень)
     E3D_LOADER.on('sheets',function(){E3D_STRATEGY.render();});
-    E3D_LOADER.initAll().then(function(d){if(d)E3D_STRATEGY.render();});
+    // Завжди завантажуємо свіжі дані (force=true обходить кеш)
+    E3D_LOADER.initAll(true).then(function(d){if(d)E3D_STRATEGY.render();});
   }
 },500);
 </script>
