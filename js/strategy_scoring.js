@@ -355,14 +355,18 @@ const E3D_STRATEGY = (() => {
   return { init, render, refresh, resetWeights };
 })();
 
-
-// Автозапуск після завантаження DOM
-document.addEventListener('DOMContentLoaded', function() {
-  // Рендеримо статичні дані одразу
-  E3D_STRATEGY.render();
-  // Коли прийдуть живі дані — перемалюємо
-  if (window.E3D_LOADER) {
-    E3D_LOADER.on('sheets', function() { E3D_STRATEGY.render(); });
-    E3D_LOADER.initAll(true);
+// Автозапуск — працює незалежно від того коли скрипт завантажився
+(function(){
+  function run(){
+    E3D_STRATEGY.render();
+    if(window.E3D_LOADER){
+      E3D_LOADER.on('sheets', function(){ E3D_STRATEGY.render(); });
+      E3D_LOADER.initAll(true);
+    }
   }
-});
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run(); // DOM вже готовий
+  }
+})();
