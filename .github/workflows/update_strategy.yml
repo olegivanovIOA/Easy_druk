@@ -2,11 +2,11 @@ name: Update Strategy Data
 
 on:
   schedule:
-    - cron: '0 * * * *'   # кожну годину, о :00
-  workflow_dispatch:       # можна запустити вручну з GitHub UI
+    - cron: '0 * * * *'   # кожну годину
+  workflow_dispatch:       # ручний запуск
 
 permissions:
-  contents: write          # потрібно для git push
+  contents: write
 
 jobs:
   update-data:
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: main_root   # ← головна гілка репо
+          ref: main_root
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,7 +27,8 @@ jobs:
 
       - name: Fetch and parse Google Sheets
         env:
-          SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_API_KEY:  ${{ secrets.GOOGLE_API_KEY }}
         run: python fetch_strategy.py
 
       - name: Commit and push if data changed
