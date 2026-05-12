@@ -943,6 +943,8 @@ function go(id,btn){
   document.getElementById('panel-'+id).classList.add('active');
   try{localStorage.setItem('e3d_tab',id);}catch(e){}
   setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
+  // Рендер скорінгу при переключенні на вкладку Стратегія
+  if(id==='str' && window.E3D_STRATEGY){ E3D_STRATEGY.render(); }
 }
 function restoreTab(){
   try{
@@ -966,26 +968,26 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderStrategy();
   restoreTab();
 
-  // Завантаження даних + ініціалізація скорінгу (правильний порядок)
+  // Завантаження даних + ініціалізація скорінгу
   if(window.E3D_LOADER){
-    // 1. Спочатку підписуємось на події
     E3D_LOADER.on('*',({key,status})=>updDot(E3D_LOADER.summary()));
     E3D_LOADER.on('sheets',({status,data})=>{
       if(status==='ok'&&data){
         if(data._sprint1_all) renderStrategy({sprint1: flattenSprint(data._sprint1_all)});
         if(data._sprint2_all) renderStrategy({sprint2: flattenSprint(data._sprint2_all)});
       }
+      // Перерендерити скорінг після отримання даних
+      if(window.E3D_STRATEGY){ E3D_STRATEGY.render(); }
       updDot(E3D_LOADER.summary());
     });
-    // 2. Потім ініціалізуємо скорінг (він підпишеться на ті самі події)
+    // Ініціалізуємо скорінг — він одразу рендерить статичні дані
     if(window.E3D_STRATEGY){ E3D_STRATEGY.init(); }
-    // 3. Запускаємо завантаження — події спрацюють для всіх підписників
+    // Запускаємо завантаження — після отримання даних спрацює 'sheets' подія вище
     E3D_LOADER.initAll().catch(()=>{
       document.getElementById('ls').textContent='Статичні дані';
     });
     E3D_LOADER.startAutoRefresh();
   } else {
-    // Немає loader-а — рендеримо скорінг зі статичними даними
     if(window.E3D_STRATEGY){ E3D_STRATEGY.init(); }
     document.getElementById('ls').textContent='Статичні дані';
   }
