@@ -274,43 +274,101 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
         </div>
       </div>`;
 
-    // Заголовок таблиці
-    const thead = `
-      <div style="display:grid;grid-template-columns:76px 1fr 110px 70px 140px 100px;gap:8px;padding:5px 12px;background:var(--s2);border-radius:8px;margin-bottom:6px;font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.5px">
-        <span style="text-align:center">Вага %</span>
-        <span>Ціль / Проект</span><span>Учасники</span>
-        <span style="text-align:center">Спринти</span>
-        <span>% виконання</span><span>Статус</span>
-      </div>`;
-
-    const goalsHtml  = _goals.map(g=>renderGoal(g,_weights,weightOk,totalW)).join('');
     const weightWarn = !weightOk
       ? `<div class="al al-r" style="margin:6px 0 10px"><span class="ic">⚠️</span> Сума ваг = <b>${totalW}%</b>. Має бути 100%. <button onclick="E3D_STRATEGY.resetWeights()" style="margin-left:8px;padding:2px 10px;border:1px solid #C0392B;border-radius:12px;background:transparent;cursor:pointer;font-size:11px;color:#C0392B">Скинути</button></div>` : '';
 
-    // Двоколонковий layout: ліво = таблиця (70%), право = опис (30%)
+    // Зведена таблиця: Ціль → Проекти → Спринти → Учасники → %
+    const summaryTable = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:var(--s2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm)">
+            <th style="padding:6px 10px;text-align:center;width:76px">Вага</th>
+            <th style="padding:6px 10px;text-align:left">Ціль / Проект</th>
+            <th style="padding:6px 10px;text-align:left;width:140px">Відповідальний</th>
+            <th style="padding:6px 10px;text-align:left;width:130px">Учасники</th>
+            <th style="padding:6px 10px;text-align:center;width:80px">Спринти</th>
+            <th style="padding:6px 10px;text-align:right;width:140px">% виконання</th>
+            <th style="padding:6px 10px;text-align:center;width:100px">Статус</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${_goals.map(g => {
+            const gp = goalPct(g);
+            const w  = (_weights[g.id]??g.defaultWeight)/100;
+            const totSp  = g.projects.reduce((s,p)=>s+p.sprints.length,0);
+            const doneSp = g.projects.reduce((s,p)=>s+p.sprints.filter(sp=>sp.done===sp.total&&sp.total>0).length,0);
+            const bClr   = !weightOk?'#EF4444':'#D1D5DB';
+            const goalRow = `<tr style="background:${g.light};font-weight:600;border-bottom:1px solid var(--bd)">
+              <td style="padding:8px 10px;text-align:center">
+                <div style="display:flex;align-items:center;gap:2px;justify-content:center">
+                  <input class="weight-input" type="number" min="0" max="100" step="1" data-gid="${g.id}" value="${_weights[g.id]??g.defaultWeight}"
+                    style="width:42px;padding:2px 3px;border:2px solid ${bClr};border-radius:5px;font-size:12px;font-weight:700;text-align:center;color:${g.color};outline:none">
+                  <span style="font-size:11px;color:#6B7280">%</span>
+                </div>
+                <div style="font-size:9px;color:#9CA3AF;margin-top:2px">↗${fmt(gp*w)}</div>
+              </td>
+              <td style="padding:8px 10px">
+                <div style="font-size:10px;font-weight:700;color:${g.color};text-transform:uppercase;letter-spacing:.5px">${g.id}</div>
+                <div style="color:#1F2937">${g.name}</div>
+              </td>
+              <td style="padding:8px 10px;color:#374151">${g.owner}</td>
+              <td style="padding:8px 10px;font-size:10px;color:#9CA3AF">${g.participants}</td>
+              <td style="padding:8px 10px;text-align:center;color:#374151;font-weight:600">${doneSp}/${totSp}</td>
+              <td style="padding:8px 10px;text-align:right">${miniBar(gp,g.color)}</td>
+              <td style="padding:8px 10px;text-align:center">${badge(gp)}</td>
+            </tr>`;
+            const projRows = g.projects.map(proj => {
+              const pp     = projPct(proj);
+              const noMove = proj.sprints.every(sp=>sp.done===0) && proj.sprints.some(sp=>sp.total>0);
+              const dyn    = proj.dynamic ? ' <span style="font-size:9px;background:#DBEAFE;color:#1D4ED8;padding:1px 4px;border-radius:6px">live</span>' : '';
+              return `<tr class="proj-row" style="border-bottom:0.5px solid var(--bd);cursor:pointer" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+                <td style="padding:5px 10px"></td>
+                <td style="padding:5px 10px;padding-left:20px">
+                  <span style="color:#9CA3AF;font-size:10px">► ${proj.id}${dyn}</span>
+                  <span style="color:#374151;margin-left:6px">${proj.name}</span>
+                </td>
+                <td style="padding:5px 10px;font-size:11px;color:#374151">${proj.owner}</td>
+                <td style="padding:5px 10px;font-size:10px;color:#9CA3AF">${proj.participants}</td>
+                <td style="padding:5px 10px;text-align:center;font-size:11px;color:#9CA3AF">${proj.sprints.length}</td>
+                <td style="padding:5px 10px">${miniBar(pp,g.color)}</td>
+                <td style="padding:5px 10px;text-align:center">${badge(pp, noMove)}</td>
+              </tr>
+              <tr class="sprint-rows" style="display:none">
+                <td colspan="7" style="padding:0">
+                  ${proj.sprints.map(sp=>{
+                    const sp_p = sprintPct(sp);
+                    return `<div style="display:grid;grid-template-columns:76px 60px 130px 1fr 80px 140px 100px;gap:8px;align-items:center;padding:3px 10px 3px 36px;font-size:11px;background:${sp_p===1?'#F0FDF4':sp_p>0?'#FFFBEB':'#F9FAFB'};border-bottom:0.5px solid #F3F4F6">
+                      <span></span>
+                      <span style="color:#9CA3AF">С${sp.n}</span>
+                      <span style="color:#6B7280">${sp.dates}</span>
+                      <span></span>
+                      <span style="color:#9CA3AF;text-align:center">${sp.done}/${sp.total}</span>
+                      ${miniBar(sp_p,g.color)}
+                      <span style="text-align:center">${badge(sp_p)}</span>
+                    </div>`;
+                  }).join('')}
+                </td>
+              </tr>`;
+            }).join('');
+            return goalRow + projRows;
+          }).join('')}
+        </tbody>
+      </table>`;
+
     const twoCol = `
-      <div style="display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start">
-        <div>${weightWarn}${thead}${goalsHtml}</div>
+      <div style="display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:start">
+        <div>${weightWarn}${summaryTable}</div>
         <div style="position:sticky;top:60px">${scoringDesc}</div>
       </div>`;
 
     container.innerHTML = topBar + twoCol;
 
     // ── Events ──
-    container.querySelectorAll('.goal-toggle').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const body = this.closest('.goal-row').nextElementSibling;
-        if (!body) return;
-        const open = body.style.display !== 'none';
-        body.style.display = open ? 'none' : 'block';
-        this.textContent   = open ? '▼' : '▲';
-      });
-    });
     container.querySelectorAll('.proj-row').forEach(row => {
       row.addEventListener('click', function() {
         const body = this.nextElementSibling;
-        if (!body) return;
-        body.style.display = body.style.display === 'none' ? 'block' : 'none';
+        if (!body || !body.classList.contains('sprint-rows')) return;
+        body.style.display = body.style.display === 'none' ? 'table-row' : 'none';
       });
     });
     container.querySelectorAll('.weight-input').forEach(inp => {
