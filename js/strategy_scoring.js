@@ -282,13 +282,13 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
       <table style="width:100%;border-collapse:collapse;font-size:12px">
         <thead>
           <tr style="background:var(--s2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm)">
-            <th style="padding:6px 10px;text-align:center;width:76px">Вага</th>
-            <th style="padding:6px 10px;text-align:left">Ціль / Проект</th>
-            <th style="padding:6px 10px;text-align:left;width:140px">Відповідальний</th>
-            <th style="padding:6px 10px;text-align:left;width:130px">Учасники</th>
-            <th style="padding:6px 10px;text-align:center;width:80px">Спринти</th>
-            <th style="padding:6px 10px;text-align:right;width:140px">% виконання</th>
-            <th style="padding:6px 10px;text-align:center;width:100px">Статус</th>
+            <th style="padding:6px 8px;text-align:center;width:70px">Вага</th>
+            <th style="padding:6px 8px;text-align:left;width:220px">Ціль / Проект</th>
+            <th style="padding:6px 8px;text-align:left;width:120px">Відповідальний</th>
+            <th style="padding:6px 8px;text-align:left">Учасники</th>
+            <th style="padding:6px 8px;text-align:center;width:70px">Спринти</th>
+            <th style="padding:6px 8px;text-align:right;width:130px">% виконання</th>
+            <th style="padding:6px 8px;text-align:center;width:95px">Статус</th>
           </tr>
         </thead>
         <tbody>
@@ -298,8 +298,8 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
             const totSp  = g.projects.reduce((s,p)=>s+p.sprints.length,0);
             const doneSp = g.projects.reduce((s,p)=>s+p.sprints.filter(sp=>sp.done===sp.total&&sp.total>0).length,0);
             const bClr   = !weightOk?'#EF4444':'#D1D5DB';
-            const goalRow = `<tr style="background:${g.light};font-weight:600;border-bottom:1px solid var(--bd)">
-              <td style="padding:8px 10px;text-align:center">
+            const goalRow = `<tr style="background:${g.light};font-weight:600;border-bottom:1px solid var(--bd);border-top:2px solid ${g.color}20">
+              <td style="padding:6px 8px;text-align:center">
                 <div style="display:flex;align-items:center;gap:2px;justify-content:center">
                   <input class="weight-input" type="number" min="0" max="100" step="1" data-gid="${g.id}" value="${_weights[g.id]??g.defaultWeight}"
                     style="width:42px;padding:2px 3px;border:2px solid ${bClr};border-radius:5px;font-size:12px;font-weight:700;text-align:center;color:${g.color};outline:none">
@@ -321,17 +321,17 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
               const pp     = projPct(proj);
               const noMove = proj.sprints.every(sp=>sp.done===0) && proj.sprints.some(sp=>sp.total>0);
               const dyn    = proj.dynamic ? ' <span style="font-size:9px;background:#DBEAFE;color:#1D4ED8;padding:1px 4px;border-radius:6px">live</span>' : '';
-              return `<tr class="proj-row" style="border-bottom:0.5px solid var(--bd);cursor:pointer" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
-                <td style="padding:5px 10px"></td>
-                <td style="padding:5px 10px;padding-left:20px">
+              return `<tr class="proj-row" style="border-bottom:0.5px solid var(--bd);cursor:pointer;font-size:11px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+                <td style="padding:3px 8px"></td>
+                <td style="padding:3px 8px;padding-left:18px">
                   <span style="color:#9CA3AF;font-size:10px">► ${proj.id}${dyn}</span>
-                  <span style="color:#374151;margin-left:6px">${proj.name}</span>
+                  <span style="color:#374151;margin-left:4px">${proj.name}</span>
                 </td>
-                <td style="padding:5px 10px;font-size:11px;color:#374151">${proj.owner}</td>
-                <td style="padding:5px 10px;font-size:10px;color:#9CA3AF">${proj.participants}</td>
-                <td style="padding:5px 10px;text-align:center;font-size:11px;color:#9CA3AF">${proj.sprints.length}</td>
-                <td style="padding:5px 10px">${miniBar(pp,g.color)}</td>
-                <td style="padding:5px 10px;text-align:center">${badge(pp, noMove)}</td>
+                <td style="padding:3px 8px;color:#374151">${proj.owner}</td>
+                <td style="padding:3px 8px;font-size:10px;color:#9CA3AF">${proj.participants}</td>
+                <td style="padding:3px 8px;text-align:center;color:#9CA3AF">${proj.sprints.length}</td>
+                <td style="padding:3px 8px">${miniBar(pp,g.color)}</td>
+                <td style="padding:3px 8px;text-align:center">${badge(pp, noMove)}</td>
               </tr>
               <tr class="sprint-rows" style="display:none">
                 <td colspan="7" style="padding:0">
@@ -362,6 +362,19 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
       </div>`;
 
     container.innerHTML = topBar + twoCol;
+
+    // Рендер перемикача спринтів
+    if (window.E3D_LOADER) {
+      var d = E3D_LOADER.initAll ? null : null;
+      // Дані вже в кеші — беремо через getAllSprints
+      var sprints = E3D_LOADER.getAllSprints ? E3D_LOADER.getAllSprints() : [];
+      if (sprints.length) {
+        // Формуємо data-like об'єкт з кешованих спринтів
+        renderSprintSwitcher({ _sprints: sprints });
+      } else {
+        E3D_LOADER.initAll(false).then(function(d){ if(d) renderSprintSwitcher(d); });
+      }
+    }
 
     // ── Events ──
     container.querySelectorAll('.proj-row').forEach(row => {
