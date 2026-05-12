@@ -966,25 +966,29 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderStrategy();
   restoreTab();
 
-  // Ініціалізація скорінг-моделі стратегії
-  if(window.E3D_STRATEGY){ E3D_STRATEGY.init(); }
-
-  // Завантаження даних з Google Sheets
+  // Завантаження даних + ініціалізація скорінгу (правильний порядок)
   if(window.E3D_LOADER){
+    // 1. Спочатку підписуємось на події
     E3D_LOADER.on('*',({key,status})=>updDot(E3D_LOADER.summary()));
     E3D_LOADER.on('sheets',({status,data})=>{
       if(status==='ok'&&data){
-        // Оновити існуючі спринт-таблиці (зворотна сумісність)
         if(data._sprint1_all) renderStrategy({sprint1: flattenSprint(data._sprint1_all)});
         if(data._sprint2_all) renderStrategy({sprint2: flattenSprint(data._sprint2_all)});
       }
       updDot(E3D_LOADER.summary());
     });
+    // 2. Потім ініціалізуємо скорінг (він підпишеться на ті самі події)
+    if(window.E3D_STRATEGY){ E3D_STRATEGY.init(); }
+    // 3. Запускаємо завантаження — події спрацюють для всіх підписників
     E3D_LOADER.initAll().catch(()=>{
       document.getElementById('ls').textContent='Статичні дані';
     });
     E3D_LOADER.startAutoRefresh();
-  } else {document.getElementById('ls').textContent='Статичні дані';}
+  } else {
+    // Немає loader-а — рендеримо скорінг зі статичними даними
+    if(window.E3D_STRATEGY){ E3D_STRATEGY.init(); }
+    document.getElementById('ls').textContent='Статичні дані';
+  }
 });
 
 // Конвертер формату: {projId:{tasks}} → [{project,task,owner,deadline,status}]
