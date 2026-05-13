@@ -94,10 +94,21 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
   function applyDynamic(dashData) {
     if (!dashData) return;
     const sprints = (dashData._sprints || []).sort((a,b)=>a.num-b.num);
+    // Мета по проектах з листа "Проекти" (owner, team)
+    const projMeta = dashData._projects || {};
+
     _goals.forEach(goal => {
       goal.projects.forEach(proj => {
-        // всі проекти можуть отримати живі дані
         const pd = dashData[proj.id];
+        const pm = projMeta[proj.id];
+
+        // Оновити відповідального і команду з листа "Проекти"
+        if (pm) {
+          if (pm.owner) proj.owner = pm.owner;
+          if (pm.team)  proj.participants = pm.team;
+          if (pm.name)  proj.name = pm.name;
+        }
+
         if (!pd) return;
         const live = sprints
           .filter(sp => pd['sprint'+sp.num] && pd['sprint'+sp.num].total > 0)
