@@ -43,6 +43,25 @@ def _add_task(proj, c, d, f, h):
     if done:
         proj["done"] += 1
 
+def fetch_projects_meta(gid):
+    """Читає лист Проекти: ID → {name, owner, team, goal}"""
+    rows = fetch_csv(gid)
+    meta = {}
+    for row in rows[1:]:  # пропустити заголовок
+        row = row + [''] * max(0, 13 - len(row))
+        pid   = row[0].strip()
+        name  = row[1].strip()
+        owner = row[3].strip()
+        team  = row[11].strip()  # колонка L
+        if pid and re.match(r'^\d+\.\d+$', pid):
+            meta[pid] = {
+                'name':  name,
+                'owner': owner or 'Вакансія',
+                'team':  team,
+            }
+    return meta
+
+
 def parse_sprint(rows):
     projects, current = {}, None
     for row in rows:
@@ -96,6 +115,19 @@ def main():
     if not sprint_sheets:
         raise SystemExit("[ERROR] Жодного листа-спринту не знайдено")
 
+    # Завантажити мета по проектах з листа "Проекти" (gid=0)
+    projects_owner_map = {}
+    projects_sheet = next((s for s in all_sheets if s['title'] == 'Проекти'), None)
+    if projects_sheet:
+        print(f"[INFO] Читаю лист Проекти (gid={projects_sheet['gid']})")
+        try:
+            projects_owner_map = fetch_projects_meta(projects_sheet['gid'])
+            print(f"       Знайдено {len(projects_owner_map)} проектів")
+            for pid, p in sorted(projects_owner_map.items()):
+                print(f"       {pid}: {p['owner']} — {p['name'][:40]}")
+        except Exception as e:
+            print(f"[WARN] Лист Проекти: {e}")
+
     result_sprints, projects_meta = [], {}
     for sp in sprint_sheets:
         print(f"[INFO] Спринт {sp['num']}: gid={sp['gid']}")
@@ -105,7 +137,13 @@ def main():
             for pid, p in sorted(projects.items()):
                 print(f"       {pid}: {p['done']}/{p['total']} задач")
                 if pid not in projects_meta:
-                    projects_meta[pid] = {"name": p["name"], "sprintNums": []}
+                    pm = projects_owner_map.get(pid, {})
+                    projects_meta[pid] = {
+                        "name":  pm.get("name") or p["name"],
+                        "owner": pm.get("owner", ""),
+                        "team":  pm.get("team", ""),
+                        "sprintNums": []
+                    }
                 projects_meta[pid]["sprintNums"].append(sp["num"])
             result_sprints.append({
                 "num": sp["num"], "name": sp["name"],
