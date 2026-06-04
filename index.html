@@ -284,6 +284,12 @@ a{color:var(--gd);text-decoration:none}
 .lbf{height:100%;border-radius:3px}.fg{background:var(--g)}.fa{background:var(--amb)}.fr{background:var(--red)}
 .lbv{font-size:10px;font-weight:600;color:var(--td);width:32px;text-align:right}
 
+
+/* ── TAB STATUS DOTS & TOOLTIPS ── */
+.tb{position:relative}
+.e3d-tooltip{display:none;position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--bd);border-radius:8px;padding:9px 13px;font-size:11px;white-space:nowrap;z-index:1000;color:var(--tx);min-width:170px;box-shadow:0 4px 16px rgba(20,60,20,.10);pointer-events:none}
+.tb:hover .e3d-tooltip{display:block}
+.e3d-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0;vertical-align:middle;position:relative;top:-1px;margin-left:3px}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--ga);border-radius:3px}
 </style>
@@ -304,19 +310,19 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v1.0</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v1.1</div></div>
     </div>
     <div class="tabs-s">
-      <button class="tb active" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO</button>
-      <button class="tb" onclick="go('str',this)"><span class="ti">🎯</span>Стратегія</button>
-      <button class="tb" onclick="go('prod',this)"><span class="ti">🏭</span>Виробництво</button>
-      <button class="tb" onclick="go('qual',this)"><span class="ti">✅</span>Якість</button>
-      <button class="tb" onclick="go('sales',this)"><span class="ti">💼</span>Продажі</button>
-      <button class="tb" onclick="go('crm',this)"><span class="ti">📣</span>CRM</button>
-      <button class="tb" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
-      <button class="tb" onclick="go('hr',this)"><span class="ti">👥</span>HR</button>
-      <button class="tb" onclick="go('loc',this)"><span class="ti">📍</span>Локації</button>
-      <button class="tb" onclick="go('reg',this)"><span class="ti">📋</span>Реєстр</button>
+      <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO</button>
+      <button class="tb" data-tab="str" onclick="go('str',this)"><span class="ti">🎯</span>Стратегія<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-str"></div></button>
+      <button class="tb" data-tab="prod" onclick="go('prod',this)"><span class="ti">🏭</span>Виробництво</button>
+      <button class="tb" data-tab="qual" onclick="go('qual',this)"><span class="ti">✅</span>Якість</button>
+      <button class="tb" data-tab="sales" onclick="go('sales',this)"><span class="ti">💼</span>Продажі</button>
+      <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>CRM<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
+      <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
+      <button class="tb" data-tab="hr" onclick="go('hr',this)"><span class="ti">👥</span>HR<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-hr"></div></button>
+      <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації</button>
+      <button class="tb" data-tab="reg" onclick="go('reg',this)"><span class="ti">📋</span>Реєстр</button>
     </div>
     <div class="nav-acts">
       <div class="lp"><div class="ld" id="ld"></div><span id="ls">…</span></div>
@@ -414,7 +420,7 @@ a{color:var(--gd);text-decoration:none}
       <div class="card"><div class="ct" style="margin-bottom:9px">Парк та команда</div>
         <div class="mr"><div class="mn">Парк принтерів (факт)</div><div class="mv g">2 060</div></div>
         <div class="mr"><div class="mn">Ціль принтерів</div><div class="mv" style="color:var(--tm)">10 000</div></div>
-        <div class="mr"><div class="mn">Штат поточний</div><div class="mv">130 осіб</div></div>
+        <div class="mr"><div class="mn">Штат поточний</div><div class="mv" id="ceo-staff">130 осіб</div></div>
         <div class="mr"><div class="mn">Ріст штату за рік</div><div class="mv g">+383%</div></div>
         <div class="mr"><div class="mn">Активних локацій</div><div class="mv">5</div></div>
         <div class="mr"><div class="mn">Виручка / принтер / міс</div><div class="mtbd">TBD</div></div>
@@ -621,15 +627,36 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ HR ═════════════ -->
 <div class="panel" id="panel-hr">
   <div id="w-hr-kpi">
-    <div class="sec">👥 HR та Персонал — 9 метрик</div>
-    <div class="g6">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Всього співробітників</div><div class="krow-val g">130</div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Штат факт vs план</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Плинність кадрів</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Відкриті вакансії</div><div class="krow-val x">TBD</div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Час закриття вак.</div><div class="krow-val x">TBD днів</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">eNPS</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div class="sec" style="margin-bottom:9px">👥 HR та Персонал — реальні дані</div>
+      <span id="hr-updated-at" style="font-size:11px;color:var(--tl)">Завантаження…</span>
     </div>
+    <div class="g6" style="margin-bottom:14px">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Всього співробітників</div><div class="krow-val g" id="hr-employees-count">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Відкриті вакансії</div><div class="krow-val" id="hr-open-vacancies-count">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Плинність (остан. міс.)</div><div class="krow-val" id="hr-turnover-latest">—</div><div class="krow-tgt">Ціль: <b>&lt;5%</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Стажерів зараз</div><div class="krow-val" id="hr-interns-latest">—</div><div class="real-dot"></div></div>
+    </div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card"><div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Стажери по місяцях</div><div class="cw ch160"><canvas id="hr-interns-chart" role="img" aria-label="Стажери по місяцях"></canvas></div></div>
+      <div class="card"><div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Плинність кадрів, %</div><div class="cw ch160"><canvas id="hr-turnover-chart" role="img" aria-label="Плинність кадрів"></canvas></div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Відкриті вакансії — поточний місяць</div>
+      <div id="hr-vacancies-current"><p style="color:var(--tl);font-size:12px">Завантаження…</p></div>
+    </div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:6px">Динаміка вакансій по місяцях</div>
+        <div style="font-size:11px;color:var(--tl);margin-bottom:10px">Накопичується щомісячно</div>
+        <div class="cw ch160"><canvas id="hr-vacancies-history-chart" role="img" aria-label="Динаміка вакансій"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Норми закриття вакансій</div>
+        <div id="hr-closing-norms"><p style="color:var(--tl);font-size:12px">Завантаження…</p></div>
+      </div>
+    </div>
+    <div id="hr-status" style="font-size:11px;color:var(--tl)"></div>
   </div>
 </div>
 
@@ -943,8 +970,10 @@ function go(id,btn){
   document.getElementById('panel-'+id).classList.add('active');
   try{localStorage.setItem('e3d_tab',id);}catch(e){}
   setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
-  // Рендер скорінгу при переключенні на вкладку Стратегія
-  if(id==='str' && window.E3D_STRATEGY){ E3D_STRATEGY.render(); }
+  if(id==='str'&&window.E3D_STRATEGY){E3D_STRATEGY.render();}
+  if(id==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
+    window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
+  }
 }
 function restoreTab(){
   try{
@@ -966,6 +995,29 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildStatic();
   refreshCharts();
   renderStrategy();
+  // Ініціалізація тултіпів статусу табів
+  (function(){
+    function tipHTML(status,source,ts,hasDemo){
+      var c=status==='live'?'#16A34A':'#BA7517',l=status==='live'?'Реальні дані':'Частково реальні';
+      return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--bd)"><span style="width:7px;height:7px;border-radius:50%;background:'+c+';display:inline-block;flex-shrink:0"></span><span style="font-weight:700;color:'+c+'">'+l+'</span></div>'+(source?'<div style="display:flex;justify-content:space-between;gap:14px;margin-bottom:3px"><span style="color:var(--tm)">Джерело</span><span style="font-weight:600">'+source+'</span></div>':'')+'<div style="display:flex;justify-content:space-between;gap:14px;margin-bottom:3px"><span style="color:var(--tm)">Оновлено</span><span style="font-weight:600">'+(ts||'—')+'</span></div><div style="display:flex;justify-content:space-between;gap:14px"><span style="color:var(--tm)">Демо-блоки</span><span style="font-weight:600">'+(hasDemo?'є':'немає')+'</span></div>';
+    }
+    function fmtTs(iso){if(!iso)return'—';try{return new Date(iso).toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}}
+    var ts=document.getElementById('tip-str');if(ts)ts.innerHTML=tipHTML('partial','Google Sheets','—',true);
+    var tc=document.getElementById('tip-crm');if(tc)tc.innerHTML=tipHTML('partial','Google Ads','—',true);
+    var th=document.getElementById('tip-hr');if(th)th.innerHTML=tipHTML('live','Google Sheets','—',false);
+    // HR: завантажити одразу і оновити тултіп
+    if(window.HRLoader){
+      Promise.resolve(window.HRLoader.load()).then(function(){
+        fetch('data/hr.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+          var th2=document.getElementById('tip-hr');
+          if(th2&&d.fetched_at)th2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
+          var cs=document.getElementById('ceo-staff');
+          if(cs&&d.employees_count)cs.textContent=d.employees_count+' осіб';
+        }).catch(function(){});
+      }).catch(function(){});
+      document.getElementById('hr-employees-count').dataset.loaded='1';
+    }
+  })();
   restoreTab();
 
   // Завантаження даних + ініціалізація скорінгу
@@ -1005,5 +1057,6 @@ function flattenSprint(projMap){
   return rows;
 }
 </script>
+<script src="js/hr_loader.js"></script>
 </body>
 </html>
