@@ -1,0 +1,62 @@
+name: Update Dashboard Data
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # щогодини (стратегія)
+    - cron: '30 5 * * *'  # щодня о 05:30 UTC (HR — після того як Ads-скрипт відпрацює о 07:00 Kyiv)
+  workflow_dispatch:
+
+jobs:
+  update-strategy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Fetch strategy data
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: python fetch_strategy.py
+
+      - name: Commit strategy.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/strategy.json
+          git diff --cached --quiet || git commit -m "chore: update strategy data [skip ci]"
+          git push
+
+  update-hr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Fetch HR data
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          HR_SHEET_ID: ${{ secrets.HR_SHEET_ID }}
+        run: python fetch_hr.py
+
+      - name: Commit HR data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/hr.json data/hr_vacancies_history.json
+          git diff --cached --quiet || git commit -m "chore: update HR data [skip ci]"
+          git push
