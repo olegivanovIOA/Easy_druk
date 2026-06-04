@@ -569,31 +569,51 @@ a{color:var(--gd);text-decoration:none}
 
 <!-- ═════════════ CRM ═════════════ -->
 <div class="panel" id="panel-crm">
-  <div class="al al-a"><span class="ic">📣</span><div><b>Маркетинг:</b> З 24 метрик — 2 "частково" збираються. Null-атрибуція = 34 кл., 10.2M грн · Зупинити: DSA_RU, Competitors, Remarketing_b2b, Pmax_fid</div></div>
   <div id="w-crm-funnel">
-    <div class="sec">🔽 Воронка та вартість залучення</div>
-    <div class="g6">
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">К-сть лідів</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-r"></div><div class="krow-lbl">MQL (маркетинг. ліди)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-r"></div><div class="krow-lbl">SQL (кваліф. продажами)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-r"></div><div class="krow-lbl">Розрив MQL→SQL</div><div class="krow-val x">TBD %</div><div class="krow-tgt">⚠ Ключовий розрив</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Конверсія Лід→Угода</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">CAC</div><div class="krow-val x">TBD грн</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">LTV / CAC</div><div class="krow-val x">TBD ×</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Null-атрибуція</div><div class="krow-val r">34 кл.</div><div class="krow-tgt">10.2M грн</div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ROAS</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+
+    <!-- Заголовок -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div class="sec" style="margin-bottom:9px">📣 Google Ads — реальні дані</div>
+      <span id="ads-updated-at" style="font-size:11px;color:var(--tl)">Завантаження…</span>
     </div>
-  </div>
-  <div id="w-crm-camp">
-    <div class="sec">📢 Рекламні кампанії (маркетинг-аудит)</div>
-    <div class="card-flat"><div class="tw"><table class="tbl"><thead><tr><th>Кампанія</th><th>ROI / ROAS</th><th>Рішення</th></tr></thead><tbody>
-      <tr><td>B2B_convers</td><td style="color:var(--gd);font-weight:700">+70%</td><td><span class="pill plg">✓ Масштабувати</span></td></tr>
-      <tr><td>Brand_UA_new</td><td style="color:var(--gd);font-weight:700">+1 690%</td><td><span class="pill plg">✓ Масштабувати</span></td></tr>
-      <tr><td>DSA_RU</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">✗ Зупинити</span></td></tr>
-      <tr><td>Competitors</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">✗ Зупинити</span></td></tr>
-      <tr><td>Remarketing_b2b</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">✗ Зупинити</span></td></tr>
-      <tr><td>Pmax_fid</td><td style="color:var(--red);font-weight:700">Збитк.</td><td><span class="pill plr">✗ Зупинити</span></td></tr>
-    </tbody></table></div><div class="tfoot">Відп.: Маркетинг · Фінальний голос: Продажі · Комісія до 10-го числа · 60 хв</div></div>
+
+    <!-- 6 KPI карток -->
+    <div class="g6" style="margin-bottom:14px">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Витрати 30 днів</div><div class="krow-val" id="ads-cost-total">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Конверсії (ліди)</div><div class="krow-val g" id="ads-conv-total">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Avg ROAS</div><div class="krow-val" id="ads-roas-avg">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Активних кампаній</div><div class="krow-val" id="ads-active-count">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">RED кампанії</div><div class="krow-val r" id="ads-red-count">—</div><div class="krow-tgt">потребують уваги</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Null-атрибуція</div><div class="krow-val r">34 кл.</div><div class="krow-tgt">10.2M грн</div><div class="real-dot"></div></div>
+    </div>
+
+    <!-- Воронка + CTR/CVR -->
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Воронка по днях — кліки та ліди</div>
+        <div class="cw ch180"><canvas id="ads-funnel-chart" role="img" aria-label="Воронка по днях"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">CTR% та CVR% по днях</div>
+        <div class="cw ch180"><canvas id="ads-ctr-chart" role="img" aria-label="CTR та CVR по днях"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Таблиця активних кампаній -->
+    <div id="w-crm-camp">
+      <div class="sec">📢 Активні кампанії — 30 днів</div>
+      <div class="card-flat" style="margin-bottom:14px">
+        <div id="ads-campaigns-table"><p style="padding:12px;color:var(--tl);font-size:12px">Завантаження…</p></div>
+      </div>
+    </div>
+
+    <!-- Розподіл бюджету -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Розподіл бюджету по кампаніях (топ-10)</div>
+      <div class="cw" style="height:260px"><canvas id="ads-budget-chart" role="img" aria-label="Розподіл бюджету"></canvas></div>
+    </div>
+
+    <div id="ads-status" style="font-size:11px;color:var(--tl)"></div>
   </div>
 </div>
 
@@ -974,6 +994,9 @@ function go(id,btn){
   if(id==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
     window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
   }
+  if(id==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
+    window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
+  }
 }
 function restoreTab(){
   try{
@@ -1004,6 +1027,19 @@ document.addEventListener('DOMContentLoaded',()=>{
     function fmtTs(iso){if(!iso)return'—';try{return new Date(iso).toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}}
     var ts=document.getElementById('tip-str');if(ts)ts.innerHTML=tipHTML('partial','Google Sheets','—',true);
     var tc=document.getElementById('tip-crm');if(tc)tc.innerHTML=tipHTML('partial','Google Ads','—',true);
+    // CRM: статус 'live' після завантаження ads.json
+    if(window.AdsLoader){
+      Promise.resolve(window.AdsLoader.load()).then(function(){
+        fetch('data/ads.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+          var tc2=document.getElementById('tip-crm');
+          if(tc2&&d.fetched_at)tc2.innerHTML=tipHTML('live','Google Ads',fmtTs(d.fetched_at),false);
+          // Оновлюємо точку статусу на жовту → зелену
+          var btn=document.querySelector('[data-tab="crm"]');
+          if(btn){var dot=btn.querySelector('.e3d-dot');if(dot)dot.style.background='#16A34A';}
+        }).catch(function(){});
+      }).catch(function(){});
+      document.getElementById('panel-crm').dataset.loaded='1';
+    }
     var th=document.getElementById('tip-hr');if(th)th.innerHTML=tipHTML('live','Google Sheets','—',false);
     // HR: завантажити одразу і оновити тултіп
     if(window.HRLoader){
@@ -1058,5 +1094,6 @@ function flattenSprint(projMap){
 }
 </script>
 <script src="js/hr_loader.js"></script>
+<script src="js/ads_loader.js"></script>
 </body>
 </html>
