@@ -261,7 +261,11 @@ window.AdsLoader = (() => {
           tooltip: { callbacks: { label: ctx => _fmt(ctx.parsed.x) + ' грн' } }
         },
         scales: {
-          x: { grid: { color: GRID }, ticks: { callback: v => _fmt(v) } },
+          x: {
+            grid: { color: GRID },
+            title: { display: true, text: 'Витрати, грн (за 30 днів)', font: { size: 10 }, color: '#6b836a' },
+            ticks: { callback: v => _fmt(v) + ' грн' }
+          },
           y: { grid: { display: false }, ticks: { font: { size: 10 } } }
         }
       }
