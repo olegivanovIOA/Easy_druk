@@ -24,8 +24,8 @@ VAC_HISTORY = Path(__file__).parent / "data" / "hr_vacancies_history.json"
 SHEET_EMPLOYEES   = "Співробітники"
 SHEET_INTERNS     = "Стажери"
 SHEET_VACANCIES   = "Відкриті вакансії"
-SHEET_CLOSE_NORMS = "Час закриття вакансій"
-SHEET_TURNOVER    = "Плинність кадрів "   # пробіл наприкінці
+SHEET_CLOSE_NORMS = "Час закритття позицій"   # реальна назва в файлі
+SHEET_TURNOVER    = "Текучість"
 
 UA_MONTHS = {
     "Січень":"01","Лютий":"02","Березень":"03","Квітень":"04",
