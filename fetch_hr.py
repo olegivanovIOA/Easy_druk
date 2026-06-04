@@ -192,8 +192,8 @@ def parse_turnover(rows):
         # Рядок з місяцями — перша клітинка порожня, далі місяці через одну
         if not cell(row, 0) and any(str(c).strip() in UA_MONTHS for c in row):
             months_row = row
-        # Рядок текучості
-        if "текуч" in label:
+        # Рядок текучості — беремо ПЕРШИЙ (персонал), не стажерів
+        if "текуч" in label and turnover_row is None:
             turnover_row = row
         # Таргет
         if "таргет" in label and result["target_staff"] is None:
