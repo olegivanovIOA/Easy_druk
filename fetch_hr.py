@@ -284,6 +284,13 @@ def main():
         "turnover": {},
     }
 
+    # Дебаг: виводимо перші рядки листа Плинність
+    if SHEET_TURNOVER in sheet_names:
+        debug_rows = sheets_get(token, f"{SHEET_TURNOVER}!A1:Z15")
+        print(f"[HR] Плинність debug (перші 12 рядків):")
+        for i, r in enumerate(debug_rows[:12]):
+            print(f"  Row {i}: {r}")
+
     PARSERS = [
         (SHEET_EMPLOYEES,   "A:N",  parse_employees,    "employees_count"),
         (SHEET_INTERNS,     "A:A",  parse_interns,      "interns_by_month"),
