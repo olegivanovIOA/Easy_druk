@@ -270,6 +270,9 @@ def main():
 
     sheet_names = get_sheet_names(token)
     print(f"[HR] Листів: {sheet_names}")
+    print(f"[HR] Шукаємо: {[SHEET_EMPLOYEES, SHEET_INTERNS, SHEET_VACANCIES, SHEET_CLOSE_NORMS, SHEET_TURNOVER]}")
+    for s in [SHEET_INTERNS, SHEET_VACANCIES, SHEET_CLOSE_NORMS, SHEET_TURNOVER]:
+        print(f"[HR] '{s}' in sheets: {s in sheet_names}")
 
     result = {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
