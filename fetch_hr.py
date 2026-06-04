@@ -110,35 +110,63 @@ def parse_interns(rows):
 
 
 def parse_vacancies(rows):
+    """
+    Row 0: заголовки (Вакансія, Локація...)
+    Row 1: назва місяця (Червень)
+    Row 2+: вакансії
+    Row з 'Кількість відкритих' — стоп
+    """
     vacancies, current_month = [], None
     for row in rows:
-        if not any(cell(row, i) for i in range(6)):
+        val = cell(row, 0).strip()
+        if not val:
             continue
-        val = cell(row, 0)
-        matched = next((m for m in UA_MONTHS if m.lower() in val.lower() and len(val) < 20), None)
+        # Заголовок таблиці
+        if val.lower() in ("вакансія",):
+            continue
+        # Рядок з місяцем
+        matched = next((m for m in UA_MONTHS if val == m), None)
         if matched:
             current_month = matched
             continue
-        if val.lower() in ("вакансія", ""):
-            continue
-        if val:
-            vacancies.append({
-                "vacancy":  val,
-                "location": cell(row, 1),
-                "qty":      cell(row, 2),
-                "reason":   cell(row, 3),
-                "urgency":  cell(row, 4),
-                "status":   cell(row, 5),
-            })
+        # Стоп-рядок
+        if "кількість відкритих" in val.lower():
+            break
+        # Вакансія
+        vacancies.append({
+            "vacancy":  val,
+            "location": cell(row, 1),
+            "qty":      cell(row, 2),
+            "reason":   cell(row, 3),
+            "urgency":  cell(row, 4),
+            "status":   cell(row, 5),
+        })
     return {"month": current_month, "vacancies": vacancies}
 
 
 def parse_closing_norms(rows):
+    """
+    Row 3: [Назва посади:, Днів]
+    Row 4+: [Директор виробництва, 30]
+    Дані в колонках B (idx 1) та C (idx 2) — але через merged cells
+    іноді в A (idx 0) і B (idx 1)
+    """
     norms = []
+    header_found = False
     for row in rows:
-        pos  = cell(row, 1) or cell(row, 0)
-        days = cell(row, 2) or cell(row, 1)
-        if not pos:
+        val0 = cell(row, 0).strip()
+        val1 = cell(row, 1).strip()
+        val2 = cell(row, 2).strip()
+        
+        if "назва посади" in val1.lower():
+            header_found = True
+            continue
+        if not header_found:
+            continue
+        # Позиція в col B, дні в col C
+        pos  = val1 if val1 else val0
+        days = val2 if val2 else val1
+        if not pos or pos.lower() in ("назва посади:", ""):
             continue
         try:
             norms.append({"position": pos, "days": int(days)})
@@ -148,34 +176,59 @@ def parse_closing_norms(rows):
 
 
 def parse_turnover(rows):
+    """
+    Структура (рядки 0-indexed):
+    Row 2: місяці [Березень, Квітень, Травень, ...]  — кожен займає 2 колонки
+    Row 9: [Текучість, %, 0.023, 0.031, 0.068, ...]  — значення через колонку
+    Row 11: [Таргет, до 5%]
+    """
     result = {"staff": [], "target_staff": None}
-    months_row, turnover_row, target_val = [], None, None
+    months_row = None
+    turnover_row = None
+    target_val = None
 
     for row in rows:
-        label = cell(row, 0).lower()
-        if not months_row:
-            for c in row:
-                if any(m.lower() in str(c).lower() for m in UA_MONTHS):
-                    months_row = row
-                    break
-        if "текуч" in label or "плинн" in label:
-            if "%" in cell(row, 0) or any("%" in str(c) for c in row):
-                turnover_row = row
-        if "таргет" in label or "target" in label:
-            target_val = next((cell(row, j) for j in range(1, 10) if cell(row, j)), None)
+        label = cell(row, 0).lower().strip()
+        # Рядок з місяцями
+        if any(m.lower() in " ".join(str(c) for c in row).lower() for m in UA_MONTHS):
+            if months_row is None and any(m.lower() == str(cell(row, j)).lower()
+                                          for j in range(len(row)) for m in UA_MONTHS):
+                months_row = row
+        # Рядок текучості
+        if "текуч" in label and months_row is not None:
+            turnover_row = row
+        # Таргет
+        if "таргет" in label and months_row is not None and target_val is None:
+            target_val = cell(row, 1) or cell(row, 2)
 
     result["target_staff"] = target_val
+
     if months_row and turnover_row:
+        # Місяці: кожен займає 2 колонки (початок/кінець)
+        # Текучість: значення стоять у кожній другій колонці (0.023, 0.031...)
+        month_cols = []
         for j, c in enumerate(months_row):
             for m in UA_MONTHS:
-                if m.lower() in str(c).lower():
-                    val = cell(turnover_row, j) if j < len(turnover_row) else ""
-                    if val:
-                        result["staff"].append({
-                            "month": m,
-                            "turnover_pct": val.replace("%","").replace(",",".").strip()
-                        })
+                if str(c).strip() == m:
+                    month_cols.append((j, m))
                     break
+
+        # Значення текучості — є стільки значень скільки місяців
+        turnover_vals = []
+        for c in turnover_row[1:]:
+            v = str(c).strip()
+            if v and v != "nan" and v not in ("", "0"):
+                try:
+                    f = float(v)
+                    turnover_vals.append(f)
+                except ValueError:
+                    pass
+
+        for i, (_, month) in enumerate(month_cols):
+            if i < len(turnover_vals):
+                pct = round(turnover_vals[i] * 100, 1)
+                result["staff"].append({"month": month, "turnover_pct": str(pct)})
+
     return result
 
 
