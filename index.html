@@ -1026,63 +1026,75 @@ function buildGantt(){
 }
 
 // ── FORECAST: прогноз виконання стратегії до кінця 2026 ──────────────────
-// Динамічно бере дані з усіх спринтів через E3D_LOADER.getAllSprints()
-const SPRINT_LENGTH_DAYS = 18; // ~ S1=21д, S2=23д, S3=14д → беремо середнє орієнтовне
+// Читає strategy.json напряму (надійніше за E3D_LOADER, який інколи
+// не встигає прогрітись до моменту першого рендеру)
+const SPRINT_LENGTH_DAYS = 18;
 const YEAR_END = new Date('2026-12-31');
 
 function sprintCompletionPct(sprintObj){
-  // sprintObj.projects = {pid:{done,total,tasks}}
   const projects = sprintObj.projects || {};
   let totalDone=0, totalAll=0;
   Object.values(projects).forEach(p=>{
     totalDone += p.done||0;
     totalAll  += p.total||0;
   });
-  return totalAll>0 ? (totalDone/totalAll*100) : 0;
+  return {pct: totalAll>0 ? (totalDone/totalAll*100) : null, total: totalAll};
 }
 
 function parseSprintEndDate(sprint){
-  // dates: "20.04–11.05" → беремо другу дату, рік 2026
   try{
     const parts = (sprint.dates||'').split(/[–-]/);
-    const endPart = parts[parts.length-1].trim(); // "11.05"
+    const endPart = parts[parts.length-1].trim();
     const [d,m] = endPart.split('.');
     return new Date(`2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
   }catch(e){ return new Date(); }
 }
 
-function buildForecast(){
+async function buildForecast(){
   const canvas = document.getElementById('forecastChart');
   if(!canvas) return;
-  if(!window.E3D_LOADER || !E3D_LOADER.getAllSprints) return;
 
-  const sprints = E3D_LOADER.getAllSprints().slice().sort((a,b)=>a.num-b.num);
+  let raw;
+  try{
+    const r = await fetch('data/strategy.json?t='+Date.now());
+    raw = await r.json();
+  }catch(e){
+    const note=document.getElementById('fc-note');
+    if(note) note.textContent='Не вдалось завантажити дані стратегії';
+    return;
+  }
+
+  const sprints = (raw.sprints||[]).slice().sort((a,b)=>a.num-b.num);
   if(!sprints.length){
     const note=document.getElementById('fc-note');
     if(note) note.textContent='Дані спринтів ще не завантажено';
     return;
   }
 
-  const sprintHistory = sprints.map(sp=>({
-    label: 'Спринт '+sp.num,
-    pct: sprintCompletionPct(sp),
-    endDate: parseSprintEndDate(sp),
-  }));
+  // Повна історія (для графіка) — включно з ще не заповненими спринтами (pct=null)
+  const fullHistory = sprints.map(sp=>{
+    const {pct, total} = sprintCompletionPct(sp);
+    return { label: 'Спринт '+sp.num, pct, total, endDate: parseSprintEndDate(sp) };
+  });
 
-  if(sprintHistory.length < 2){
+  // Для розрахунку темпу беремо ТІЛЬКИ заповнені спринти (total>0) —
+  // спринт що ще формується (беклог) не повинен тягнути прогноз до нуля
+  const validHistory = fullHistory.filter(h => h.total > 0);
+
+  if(validHistory.length < 2){
     const note = document.getElementById('fc-note');
-    if(note) note.textContent = 'Розрахунок з\'явиться після 2+ спринтів (зараз: '+sprintHistory.length+')';
-    safeChart('forecastChart',{type:'line',data:{labels:sprintHistory.map(s=>s.label),datasets:[{label:'% виконання',data:sprintHistory.map(s=>s.pct),borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID}}}}});
+    if(note) note.textContent = 'Розрахунок з\'явиться після 2+ заповнених спринтів (зараз: '+validHistory.length+')';
+    safeChart('forecastChart',{type:'line',data:{labels:fullHistory.map(s=>s.label),datasets:[{label:'% виконання',data:fullHistory.map(s=>s.pct),borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID}}}}});
     return;
   }
 
   const deltas = [];
-  for(let i=1;i<sprintHistory.length;i++){
-    deltas.push(sprintHistory[i].pct - sprintHistory[i-1].pct);
+  for(let i=1;i<validHistory.length;i++){
+    deltas.push(validHistory[i].pct - validHistory[i-1].pct);
   }
   const avgDelta = deltas.reduce((a,b)=>a+b,0)/deltas.length;
-  const lastPct = sprintHistory[sprintHistory.length-1].pct;
-  const lastDate = sprintHistory[sprintHistory.length-1].endDate;
+  const lastPct = validHistory[validHistory.length-1].pct;
+  const lastDate = validHistory[validHistory.length-1].endDate;
 
   const daysLeft = Math.max(0,(YEAR_END - lastDate)/86400000);
   const sprintsLeft = Math.round(daysLeft/SPRINT_LENGTH_DAYS);
@@ -1090,9 +1102,15 @@ function buildForecast(){
   let forecastPct = lastPct + avgDelta*sprintsLeft;
   forecastPct = Math.max(0,Math.min(100,forecastPct));
 
-  const forecastLabels=[...sprintHistory.map(s=>s.label)];
-  const forecastData=[...sprintHistory.map(s=>s.pct)];
-  const actualData=[...sprintHistory.map(s=>s.pct)];
+  // Графік: показуємо ПОВНУ історію (включно з порожнім беклог-спринтом як розрив),
+  // прогнозна лінія стартує від останньої ЗАПОВНЕНОЇ точки
+  const forecastLabels=[...fullHistory.map(s=>s.label)];
+  const actualData=fullHistory.map(s=>s.pct);
+  const forecastData=fullHistory.map(s=>s.total>0 ? s.pct : null);
+  // Прив'язуємо старт прогнозної лінії до останньої валідної точки
+  const lastValidIdx = fullHistory.findIndex(h => h.label === validHistory[validHistory.length-1].label);
+  forecastData[lastValidIdx] = lastPct;
+
   for(let i=1;i<=Math.min(sprintsLeft,12);i++){
     forecastLabels.push('Прогноз '+i);
     const val = Math.max(0,Math.min(100,lastPct+avgDelta*i));
@@ -1109,7 +1127,8 @@ function buildForecast(){
   const trendEl=document.getElementById('fc-trend');
   if(trendEl){ trendEl.textContent=trend; trendEl.style.color=trendColor; }
   const noteEl=document.getElementById('fc-note');
-  if(noteEl) noteEl.textContent='Розрахунок на основі темпу '+sprintHistory.length+' спринтів (живі дані Google Sheets)';
+  const skippedCount = fullHistory.length - validHistory.length;
+  if(noteEl) noteEl.textContent='Темп на основі '+validHistory.length+' заповнених спринтів'+(skippedCount>0?' ('+skippedCount+' ще формується)':'')+' · живі дані Google Sheets';
   const badge=document.getElementById('fc-badge');
   if(badge){badge.textContent=forecastPct>=80?'НА ЦІЛІ':forecastPct>=50?'ПОТРЕБУЄ ПРИСКОРЕННЯ':'РИЗИК';badge.className='bdg '+(forecastPct>=80?'bdg-g':forecastPct>=50?'bdg-a':'bdg-r');}
 
@@ -1117,23 +1136,28 @@ function buildForecast(){
     type:'line',
     data:{labels:forecastLabels,datasets:[
       {label:'Факт',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
-      {label:'Прогноз',data:forecastData,borderColor:trendColor,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:trendColor}
+      {label:'Прогноз',data:forecastData,borderColor:trendColor,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:trendColor,spanGaps:true}
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}
   });
 }
 
-// ── Проекти не в фокусі: динамічно з листа "Проекти" (data._projects) ──────
-function buildNoFocusProjects(dashData){
+// ── Проекти не в фокусі: динамічно з листа "Проекти" (strategy.json) ───────
+async function buildNoFocusProjects(){
   const el=document.getElementById('no-focus-list');
   if(!el) return;
-  if(!dashData){
-    el.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Дані ще не завантажено</p>';
+
+  let raw;
+  try{
+    const r = await fetch('data/strategy.json?t='+Date.now());
+    raw = await r.json();
+  }catch(e){
+    el.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Не вдалось завантажити дані</p>';
     return;
   }
 
-  const sprints = dashData._sprints || [];
-  const metaMap = dashData._projects || {};
+  const sprints = raw.sprints || [];
+  const metaMap = raw.projects || {};
 
   // Проекти що зустрічались хоча б в одному спринті з реальними задачами
   const activePids = new Set();
@@ -1313,6 +1337,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildStatic();
   refreshCharts();
   renderStrategy();
+  // Гарантований виклик прогнозу та "не в фокусі" — напряму з strategy.json,
+  // не залежить від стану E3D_LOADER (який інколи не встигає прогрітись)
+  try{ buildForecast(); }catch(e){console.warn('[Forecast init]',e.message);}
+  try{ buildNoFocusProjects(); }catch(e){console.warn('[NoFocus init]',e.message);}
   // Ініціалізація тултіпів статусу табів
   (function(){
     function tipHTML(status,source,ts,hasDemo){
@@ -1373,7 +1401,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       // Перерендерити скорінг після отримання даних
       if(window.E3D_STRATEGY){ E3D_STRATEGY.render(); }
       try{ buildForecast(); }catch(e){console.warn('[Forecast]',e.message);}
-      try{ buildNoFocusProjects(data); }catch(e){console.warn('[NoFocus]',e.message);}
+      try{ buildNoFocusProjects(); }catch(e){console.warn('[NoFocus]',e.message);}
       updDot(E3D_LOADER.summary());
     });
     // Ініціалізуємо скорінг — він одразу рендерить статичні дані
