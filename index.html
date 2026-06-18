@@ -341,7 +341,7 @@ a{color:var(--gd);text-decoration:none}
     <div class="fsel-w"><select class="fsel" id="msel" onchange="setM(this.value)">
       <option value="all">Усі місяці</option>
       <option value="0">Січень</option><option value="1">Лютий</option><option value="2">Березень</option>
-      <option value="3">Квітень</option><option value="4" selected>Травень</option><option value="5">Червень</option>
+      <option value="3">Квітень</option><option value="4">Травень</option><option value="5" selected>Червень</option>
       <option value="6">Липень</option><option value="7">Серпень</option><option value="8">Вересень</option>
       <option value="9">Жовтень</option><option value="10">Листопад</option><option value="11">Грудень</option>
     </select><span class="fsel-a">▾</span></div>
@@ -561,34 +561,62 @@ a{color:var(--gd);text-decoration:none}
 
 <!-- ═════════════ ПРОДАЖІ ═════════════ -->
 <div class="panel" id="panel-sales">
-  <div id="w-sales-b2b">
-    <div class="sec">📊 Продажі ОПТ B2B (16 метрик)</div>
-    <div class="g6">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка ОПТ 2025</div><div class="krow-val g">121.9M</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">К-сть угод (2025)</div><div class="krow-val g">42</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Середній чек ОПТ</div><div class="krow-val">~2.9M</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Повторні замовлення</div><div class="krow-val g">45%</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Частка ТОП-2 клієнтів</div><div class="krow-val r">94.7%</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Загальна дебіторка</div><div class="krow-val x">TBD грн</div><div class="tbd-lbl">TBD</div></div>
+
+  <!-- ═══ ЗВЕДЕНІ ДАНІ ═══ -->
+  <div id="w-sales-summary">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div class="sec" style="margin-bottom:9px">📊 Зведені показники продажів — реальні дані</div>
+      <span id="sales-updated-at" style="font-size:11px;color:var(--tl)"></span>
+    </div>
+    <div class="g6" style="margin-bottom:14px">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ YTD факт</div><div class="krow-val g" id="sales-wh-fact">—</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ YTD %</div><div class="krow-val g" id="sales-wh-pct">—</div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Роздріб YTD факт</div><div class="krow-val a" id="sales-rt-fact">—</div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Роздріб YTD %</div><div class="krow-val a" id="sales-rt-pct">—</div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Лідів / міс (останній)</div><div class="krow-val" id="sales-leads">—</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Конверсія лідів</div><div class="krow-val" id="sales-conv">—</div><div class="krow-tgt">Ціль: <b>15%</b></div></div>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Виручка ОПТ + Роздріб, факт по місяцях</div>
+      <div class="cw ch210"><canvas id="sales-combined-chart"></canvas></div>
     </div>
   </div>
-  <div id="w-sales-b2c">
-    <div class="sec">🛒 Продажі Роздріб B2C (9 метрик)</div>
-    <div class="g6">
-      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка В2С 2025</div><div class="krow-val a">16.9M</div><div class="krow-tgt">Ціль: <b>&gt;1M/міс</b></div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Середній чек В2С</div><div class="krow-val x">TBD грн</div><div class="krow-tgt">Ціль: <b>&gt;10K</b></div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Нові клієнти / міс</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Повторні звернення</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow demo"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виконання плану В2С</div><div class="krow-val a">66%</div><div class="demo-lbl">ДЕМО</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Retention rate</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+
+  <!-- ═══ РОЗДРІБ + ОПТ ═══ -->
+  <div class="g2" style="margin-top:18px">
+
+    <!-- РОЗДРІБ -->
+    <div id="w-sales-b2c">
+      <div class="sec">🛒 Роздріб B2C</div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val a">16.9M</div><div class="real-dot"></div></div>
+        <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Сер. чек (останній міс.)</div><div class="krow-val" id="sales-rt-check">—</div></div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">План/факт по місяцях</div>
+        <div class="cw ch180"><canvas id="sales-retail-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
+      </div>
     </div>
-  </div>
-  <div id="w-sales-trend">
-    <div class="sec">📈 Динаміка</div>
-    <div class="g2">
-      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Виручка по місяцях</div><div class="cs">демо</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="sTrend"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
-      <div class="card"><div class="chdr"><div><div class="ct">Концентрація клієнтів</div></div><span class="bdg bdg-r">РИЗИК</span></div><div class="cw ch160"><canvas id="cRisk"></canvas></div><div class="real-dot"></div></div>
+
+    <!-- ОПТ -->
+    <div id="w-sales-b2b">
+      <div class="sec">📦 Опт B2B</div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val g">121.9M</div><div class="real-dot"></div></div>
+        <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">ТОП-2 клієнти</div><div class="krow-val r">94.7%</div><div class="real-dot"></div></div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">План/факт по місяцях</div>
+        <div class="cw ch180"><canvas id="sales-wholesale-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody id="sales-wholesale-table"></tbody></table></div>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -804,7 +832,24 @@ Chart.defaults.color='#6b836a'; Chart.defaults.borderColor='#e6e9e3';
 const GRID='#f0f2ee';
 
 const RAW={opt:[5.1,5.8,6.2,7.4,8.1,9.3,10.2,11.8,13.4,15.2,14.8,14.6],retail:[.8,.9,1,1.1,1.2,1.4,1.5,1.6,1.8,2,1.9,1.7],defect:[15,14,13.5,13,12.5,12,11.5,12,12,11.5,12,12],lead:[24,23,22.5,23,22,21.5,22,22,21.5,22,22,22]};
-const F={year:'2026',month:'4'};
+const F={year:'2026',month:'5'};
+
+// ── Автовизначення поточного місяця/року (синхронізує dropdown і F) ────────
+(function(){
+  const now = new Date();
+  const curMonth = String(now.getMonth()); // 0=Січень ... 5=Червень
+  const curYear  = String(now.getFullYear());
+  const msel = document.getElementById('msel');
+  const ysel = document.getElementById('ysel');
+  if (msel && msel.querySelector(`option[value="${curMonth}"]`)) {
+    msel.value = curMonth;
+    F.month = curMonth;
+  }
+  if (ysel && ysel.querySelector(`option[value="${curYear}"]`)) {
+    ysel.value = curYear;
+    F.year = curYear;
+  }
+})();
 function fd(arr){if(F.month!=='all'){const m=parseInt(F.month);return{l:[ML[m]],d:[arr[m]]};}return{l:ML,d:arr};}
 function setY(v){F.year=v;refreshCharts();}
 function setM(v){F.month=v;refreshCharts();}
@@ -1212,6 +1257,9 @@ function go(id,btn){
     window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
     if(window.MqlLoader) window.MqlLoader.load();
   }
+  if(id==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
+    window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
+  }
 }
 function restoreTab(){
   try{
@@ -1256,6 +1304,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       document.getElementById('panel-crm').dataset.loaded='1';
     }
     if(window.MqlLoader) window.MqlLoader.load();
+    if(window.SalesLoader){ window.SalesLoader.load(); document.getElementById('panel-sales').dataset.loaded='1'; }
     var th=document.getElementById('tip-hr');if(th)th.innerHTML=tipHTML('live','Google Sheets','—',false);
     // HR: завантажити одразу і оновити тултіп
     if(window.HRLoader){
@@ -1314,5 +1363,6 @@ function flattenSprint(projMap){
 <script src="js/hr_loader.js"></script>
 <script src="js/ads_loader.js"></script>
 <script src="js/mql_loader.js"></script>
+<script src="js/sales_loader.js"></script>
 </body>
 </html>
