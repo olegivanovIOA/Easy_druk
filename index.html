@@ -25,6 +25,9 @@
   --sh: 0 1px 3px rgba(20,60,20,.06), 0 0px 1px rgba(20,60,20,.04);
   --shm: 0 4px 16px rgba(20,60,20,.08);
   --r:10px; --rs:7px; --nh:54px;
+  /* Насичена корпоративна палітра — для акцентних блоків (Продажі: Опт/Роздріб) */
+  --retail-c:#0F6CBD; --retail-cd:#0A4D87; --retail-bg:#E8F1FB; --retail-bd:#9EC5EC;
+  --wh-c:#0A7D4B; --wh-cd:#075C37; --wh-bg:#E6F7EE; --wh-bd:#8FD4B0;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;-webkit-text-size-adjust:100%}
@@ -276,6 +279,25 @@ a{color:var(--gd);text-decoration:none}
 
 /* loc card */
 .lc{background:#fff;border:1px solid var(--bd);border-radius:var(--rs);padding:11px;box-shadow:var(--sh)}
+
+/* ── SALES: Роздріб / Опт — насичене кольорове розділення ── */
+.sales-zone{border-radius:var(--r);overflow:hidden;border:2px solid transparent}
+.sales-zone-retail{border-color:var(--retail-bd);background:linear-gradient(180deg,var(--retail-bg) 0%,transparent 70px)}
+.sales-zone-wh{border-color:var(--wh-bd);background:linear-gradient(180deg,var(--wh-bg) 0%,transparent 70px)}
+.sales-zone-header{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}
+.sales-zone-header .sec{margin:0;flex:1}
+.sales-zone-retail .sales-zone-header{border-bottom:3px solid var(--retail-c)}
+.sales-zone-wh .sales-zone-header{border-bottom:3px solid var(--wh-c)}
+.sales-zone-body{padding:4px 14px 14px}
+.sales-badge{font-size:10px;font-weight:800;letter-spacing:.5px;padding:3px 10px;border-radius:20px;color:#fff;text-transform:uppercase}
+.sales-badge-retail{background:var(--retail-c)}
+.sales-badge-wh{background:var(--wh-c)}
+.krow-retail{border-left:3px solid var(--retail-c)}
+.krow-retail .krow-bar{background:var(--retail-c)}
+.krow-retail .krow-val{color:var(--retail-cd)}
+.krow-wh{border-left:3px solid var(--wh-c)}
+.krow-wh .krow-bar{background:var(--wh-c)}
+.krow-wh .krow-val{color:var(--wh-cd)}
 .lch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .lcn{font-size:12px;font-weight:700;color:var(--tx)}
 .lrw{display:flex;align-items:center;gap:6px;margin-bottom:4px}
@@ -317,7 +339,7 @@ a{color:var(--gd);text-decoration:none}
       <button class="tb" data-tab="str" onclick="go('str',this)"><span class="ti">🎯</span>Стратегія<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-str"></div></button>
       <button class="tb" data-tab="prod" onclick="go('prod',this)"><span class="ti">🏭</span>Виробництво</button>
       <button class="tb" data-tab="qual" onclick="go('qual',this)"><span class="ti">✅</span>Якість</button>
-      <button class="tb" data-tab="sales" onclick="go('sales',this)"><span class="ti">💼</span>Продажі</button>
+      <button class="tb" data-tab="sales" onclick="go('sales',this)"><span class="ti">💼</span>Продажі<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-sales"></div></button>
       <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>CRM<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
       <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
       <button class="tb" data-tab="hr" onclick="go('hr',this)"><span class="ti">👥</span>HR<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-hr"></div></button>
@@ -583,37 +605,47 @@ a{color:var(--gd);text-decoration:none}
   </div>
 
   <!-- ═══ РОЗДРІБ + ОПТ ═══ -->
-  <div class="g2" style="margin-top:18px">
+  <div class="g2" style="margin-top:18px;align-items:start">
 
     <!-- РОЗДРІБ -->
-    <div id="w-sales-b2c">
-      <div class="sec">🛒 Роздріб B2C</div>
-      <div class="g2" style="margin-bottom:12px">
-        <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val a">16.9M</div><div class="real-dot"></div></div>
-        <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Сер. чек (останній міс.)</div><div class="krow-val" id="sales-rt-check">—</div></div>
+    <div class="sales-zone sales-zone-retail">
+      <div class="sales-zone-header">
+        <div class="sec" style="color:var(--retail-cd)">🛒 Роздріб B2C</div>
+        <span class="sales-badge sales-badge-retail">Retail</span>
       </div>
-      <div class="card" style="margin-bottom:12px">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">План/факт по місяцях</div>
-        <div class="cw ch180"><canvas id="sales-retail-chart"></canvas></div>
-      </div>
-      <div class="card-flat">
-        <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
+      <div class="sales-zone-body">
+        <div class="g2" style="margin-bottom:12px">
+          <div class="krow krow-retail"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val">16.9M</div><div class="real-dot"></div></div>
+          <div class="krow krow-retail"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек (останній міс.)</div><div class="krow-val" id="sales-rt-check">—</div></div>
+        </div>
+        <div class="card" style="margin-bottom:12px;border-color:var(--retail-bd)">
+          <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">План/факт по місяцях</div>
+          <div class="cw ch180"><canvas id="sales-retail-chart"></canvas></div>
+        </div>
+        <div class="card-flat" style="border-color:var(--retail-bd)">
+          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
+        </div>
       </div>
     </div>
 
     <!-- ОПТ -->
-    <div id="w-sales-b2b">
-      <div class="sec">📦 Опт B2B</div>
-      <div class="g2" style="margin-bottom:12px">
-        <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val g">121.9M</div><div class="real-dot"></div></div>
-        <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">ТОП-2 клієнти</div><div class="krow-val r">94.7%</div><div class="real-dot"></div></div>
+    <div class="sales-zone sales-zone-wh">
+      <div class="sales-zone-header">
+        <div class="sec" style="color:var(--wh-cd)">📦 Опт B2B</div>
+        <span class="sales-badge sales-badge-wh">Wholesale</span>
       </div>
-      <div class="card" style="margin-bottom:12px">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">План/факт по місяцях</div>
-        <div class="cw ch180"><canvas id="sales-wholesale-chart"></canvas></div>
-      </div>
-      <div class="card-flat">
-        <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody id="sales-wholesale-table"></tbody></table></div>
+      <div class="sales-zone-body">
+        <div class="g2" style="margin-bottom:12px">
+          <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val">121.9M</div><div class="real-dot"></div></div>
+          <div class="krow" style="border-left:3px solid var(--red)"><div class="krow-bar kb-r"></div><div class="krow-lbl">ТОП-2 клієнти</div><div class="krow-val r">94.7%</div><div class="real-dot"></div></div>
+        </div>
+        <div class="card" style="margin-bottom:12px;border-color:var(--wh-bd)">
+          <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">План/факт по місяцях</div>
+          <div class="cw ch180"><canvas id="sales-wholesale-chart"></canvas></div>
+        </div>
+        <div class="card-flat" style="border-color:var(--wh-bd)">
+          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody id="sales-wholesale-table"></tbody></table></div>
+        </div>
       </div>
     </div>
 
@@ -1304,7 +1336,16 @@ document.addEventListener('DOMContentLoaded',()=>{
       document.getElementById('panel-crm').dataset.loaded='1';
     }
     if(window.MqlLoader) window.MqlLoader.load();
-    if(window.SalesLoader){ window.SalesLoader.load(); document.getElementById('panel-sales').dataset.loaded='1'; }
+    if(window.SalesLoader){
+      var ts=document.getElementById('tip-sales');if(ts)ts.innerHTML=tipHTML('live','Google Sheets','—',false);
+      Promise.resolve(window.SalesLoader.load()).then(function(){
+        fetch('data/sales_planner.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+          var ts2=document.getElementById('tip-sales');
+          if(ts2&&d.fetched_at)ts2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
+        }).catch(function(){});
+      }).catch(function(){});
+      document.getElementById('panel-sales').dataset.loaded='1';
+    }
     var th=document.getElementById('tip-hr');if(th)th.innerHTML=tipHTML('live','Google Sheets','—',false);
     // HR: завантажити одразу і оновити тултіп
     if(window.HRLoader){
