@@ -13,6 +13,10 @@ API_KEY   = os.environ.get("GOOGLE_API_KEY", "")
 OUTPUT    = Path(__file__).parent / "data" / "strategy.json"
 SPRINT_RE = re.compile(r"^Спринт\s+(\d+)\s*\(([^)]+)\)", re.IGNORECASE)
 
+# ID проекту тепер може бути "1", "2", "7" АБО старий формат "1.0", "3.0"
+PROJ_ID_RE = re.compile(r"^\d+(\.\d+)?$")
+
+
 def get_sheet_list():
     url = (f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}"
            f"?fields=sheets.properties(sheetId,title)&key={API_KEY}")
@@ -26,9 +30,15 @@ def fetch_csv(gid):
            f"/export?format=csv&gid={gid}")
     r = requests.get(url, timeout=20)
     r.raise_for_status()
-    # Явно декодуємо як UTF-8 — фікс кирилиці
     content = r.content.decode("utf-8-sig")
     return list(csv.reader(io.StringIO(content)))
+
+def normalize_pid(pid):
+    """Нормалізує ID проекту до формату X.0 для сумісності з усіма спринтами/листом Проекти."""
+    pid = pid.strip()
+    if "." in pid:
+        return pid
+    return f"{pid}.0"
 
 def _add_task(proj, c, d, f, h):
     done = h.strip() == "Виконано"
@@ -47,13 +57,14 @@ def fetch_projects_meta(gid):
     """Читає лист Проекти: ID → {name, owner, team, goal}"""
     rows = fetch_csv(gid)
     meta = {}
-    for row in rows[1:]:  # пропустити заголовок
+    for row in rows[1:]:
         row = row + [''] * max(0, 13 - len(row))
-        pid   = row[0].strip()
+        pid_raw = row[0].strip()
         name  = row[1].strip()
         owner = row[3].strip()
-        team  = row[11].strip()  # колонка L
-        if pid and re.match(r'^\d+\.\d+$', pid):
+        team  = row[11].strip()
+        if pid_raw and PROJ_ID_RE.match(pid_raw):
+            pid = normalize_pid(pid_raw)
             meta[pid] = {
                 'name':  name,
                 'owner': owner or 'Вакансія',
@@ -70,20 +81,17 @@ def parse_sprint(rows):
         a, b, c, d = row[0], row[1], row[2], row[3]
         f, h = row[5], row[7]
 
-        # Пропустити рядки заголовків
         if b in ("Проекти (назва)", "Задача") or a == "№":
             continue
-        # Порожні рядки
         if not a and not b and not c:
             continue
 
-        is_proj_id = bool(re.match(r"^\d+\.\d+$", a))
+        is_proj_id = bool(PROJ_ID_RE.match(a))
 
         if is_proj_id:
-            current = a
+            current = normalize_pid(a)
             if current not in projects:
                 projects[current] = {"name": b or a, "done": 0, "total": 0, "tasks": []}
-            # Рядок є і заголовком і першою задачею (Спринт 1)
             if c and len(c) > 2:
                 _add_task(projects[current], c, d, f, h)
         elif current and c and len(c) > 2:
@@ -115,7 +123,6 @@ def main():
     if not sprint_sheets:
         raise SystemExit("[ERROR] Жодного листа-спринту не знайдено")
 
-    # Завантажити мета по проектах з листа "Проекти" (gid=0)
     projects_owner_map = {}
     projects_sheet = next((s for s in all_sheets if s['title'] == 'Проекти'), None)
     if projects_sheet:
@@ -134,8 +141,9 @@ def main():
         try:
             rows     = fetch_csv(sp["gid"])
             projects = parse_sprint(rows)
+            print(f"       Розпарсено проектів: {len(projects)}")
             for pid, p in sorted(projects.items()):
-                print(f"       {pid}: {p['done']}/{p['total']} задач")
+                print(f"       {pid}: {p['done']}/{p['total']} задач — {p['name'][:40]}")
                 if pid not in projects_meta:
                     pm = projects_owner_map.get(pid, {})
                     projects_meta[pid] = {
