@@ -46,11 +46,17 @@ def cell(row, idx):
 
 
 def to_float(v):
+    """Парсить число з рядка. Прибирає пробіли, %, заміняє кому на крапку."""
     if v is None:
         return None
     s = str(v).replace(" ", "").replace("\xa0", "").replace(",", ".")
+    had_pct = "%" in s
+    s = s.replace("%", "")
     try:
-        return float(s)
+        f = float(s)
+        # Якщо в оригіналі був символ % — повертаємо як частку (63% → 0.63)
+        # ЩОБ уніфікувати з форматом без %, де 0.63 теж означає 63%
+        return f / 100 if had_pct else f
     except ValueError:
         return None
 
@@ -79,6 +85,8 @@ def parse_simple_3col_row(rows, row_idx, max_months=12):
         if pct_raw is not None:
             pv = to_float(pct_raw)
             if pv is not None:
+                # pv тепер завжди частка (0.63 = 63%), якщо в клітинці був %
+                # або вже частка, або вже відсоток (63) — нормалізуємо
                 pct = round(pv * 100, 1) if pv <= 2 else round(pv, 1)
 
         if plan is None and fact is None:
@@ -86,10 +94,8 @@ def parse_simple_3col_row(rows, row_idx, max_months=12):
             month_i += 1
             continue
 
-        # Захист від "сміття" після кінця валідної таблиці:
-        # якщо pct виходить за межі здорового глузду (>500% або від'ємний) — зупиняємось
         if pct is not None and (pct > 500 or pct < -10):
-            break
+            pct = None  # аномалія — приховуємо лише %, лишаємо план/факт
 
         if month_i < len(MONTH_SEQUENCE):
             result.append({
@@ -115,7 +121,6 @@ def parse_wholesale_row(rows, row_idx, max_months=6):
     result = []
     idx = 1
     month_i = 0
-    last_plan = None
 
     while idx < len(row) and month_i < max_months:
         plan = to_float(cell(row, idx))
@@ -125,8 +130,6 @@ def parse_wholesale_row(rows, row_idx, max_months=6):
             idx += 1
             continue
 
-        # Sanity-check: план ОПТ типово в діапазоні 5M-30M грн/міс.
-        # Якщо число поза цим діапазоном — це вже не "План", а залишок тижневих даних.
         if plan < 1_000_000 or plan > 100_000_000:
             idx += 1
             continue
@@ -135,7 +138,7 @@ def parse_wholesale_row(rows, row_idx, max_months=6):
         if plan and fact is not None:
             pct = round(fact / plan * 100, 1)
             if pct > 500 or pct < -10:
-                pct = None  # аномалія — приховуємо % але лишаємо факт
+                pct = None
 
         if month_i < len(MONTH_SEQUENCE):
             result.append({
@@ -144,7 +147,6 @@ def parse_wholesale_row(rows, row_idx, max_months=6):
                 "fact": fact,
                 "pct": pct,
             })
-        last_plan = plan
         month_i += 1
         idx += 9
 
@@ -177,6 +179,11 @@ def main():
 
     print(f"[SALES] Рядки: роздріб={retail_idx}, опт={wholesale_idx}, чек={check_idx}, ліди={leads_idx}, угоди={deals_idx}")
 
+    # Дебаг: показуємо сирі значення першого блоку (3 колонки) роздробу для діагностики
+    if retail_idx >= 0:
+        raw_row = rows[retail_idx]
+        print(f"[SALES] DEBUG retail row[0:8]: {raw_row[0:8]}")
+
     retail_monthly = parse_simple_3col_row(rows, retail_idx) if retail_idx >= 0 else []
     wholesale_monthly = parse_wholesale_row(rows, wholesale_idx) if wholesale_idx >= 0 else []
     check_monthly = parse_simple_3col_row(rows, check_idx) if check_idx >= 0 else []
@@ -188,6 +195,9 @@ def main():
         print(f"         {m}")
     print(f"[SALES] Опт: {len(wholesale_monthly)} місяців")
     for m in wholesale_monthly:
+        print(f"         {m}")
+    print(f"[SALES] Сер.чек: {len(check_monthly)} місяців")
+    for m in check_monthly:
         print(f"         {m}")
 
     def ytd(monthly):
