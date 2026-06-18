@@ -2,7 +2,7 @@ name: Update Dashboard Data
 
 on:
   schedule:
-    - cron: '0 * * * *'   # щогодини (стратегія)
+    - cron: '0 * * * *'   # щогодини (стратегія + MQL)
     - cron: '30 5 * * *'  # щодня о 05:30 UTC (HR — після того як Ads-скрипт відпрацює о 07:00 Kyiv)
   workflow_dispatch:
 
@@ -94,6 +94,35 @@ jobs:
           git add data/ads.json
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: update ads data [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main_root && git push && break || sleep $((i*3))
+          done
+  update-mql:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Fetch MQL/SQL data
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          MQL_SHEET_ID: ${{ secrets.MQL_SHEET_ID }}
+        run: python fetch_mql.py
+
+      - name: Commit MQL data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/mql_sql.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: update MQL/SQL data [skip ci]"
           for i in 1 2 3 4 5; do
             git pull --rebase origin main_root && git push && break || sleep $((i*3))
           done
