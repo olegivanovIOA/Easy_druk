@@ -2,6 +2,7 @@
 """
 fetch_strategy.py — Easy 3D Print Dashboard
 Читає всі листи-спринти з Google Sheets через Sheets API v4 + CSV export.
+Також читає start/deadline проектів з листа "Проекти" для побудови Gantt.
 """
 
 import csv, io, json, os, re, time
@@ -15,6 +16,13 @@ SPRINT_RE = re.compile(r"^Спринт\s+(\d+)\s*\(([^)]+)\)", re.IGNORECASE)
 
 # ID проекту тепер може бути "1", "2", "7" АБО старий формат "1.0", "3.0"
 PROJ_ID_RE = re.compile(r"^\d+(\.\d+)?$")
+
+# Колонки листа "Проекти" (0-indexed):
+# A=0 ID, B=1 Назва, C=2 Пріоритет, D=3 Відповідальний,
+# E=4 Дата старту, F=5 Дедлайн, H=7 Кінцевий результат, L=11 Команда
+COL_ID, COL_NAME, COL_PRIO, COL_OWNER = 0, 1, 2, 3
+COL_START, COL_DEADLINE = 4, 5
+COL_TEAM = 11
 
 
 def get_sheet_list():
@@ -40,6 +48,28 @@ def normalize_pid(pid):
         return pid
     return f"{pid}.0"
 
+def normalize_date(raw):
+    """
+    Приводить дату до формату YYYY-MM-DD.
+    Підтримує: DD.MM.YYYY, DD.MM.YY, YYYY-MM-DD.
+    Повертає '' якщо не вдалось розпарсити (напр. "Тиждень 3").
+    """
+    raw = (raw or "").strip()
+    if not raw:
+        return ""
+    # Вже ISO
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", raw)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+    # DD.MM.YYYY або DD.MM.YY (можливо з часом після, напр. "01.05.2026 0:00:00")
+    m = re.match(r"^(\d{1,2})\.(\d{1,2})\.(\d{2,4})", raw)
+    if m:
+        d, mo, y = m.groups()
+        if len(y) == 2:
+            y = "20" + y
+        return f"{y}-{mo.zfill(2)}-{d.zfill(2)}"
+    return ""  # формати типу "Тиждень 3" — не дата, ігноруємо
+
 def _add_task(proj, c, d, f, h):
     done = h.strip() == "Виконано"
     proj["tasks"].append({
@@ -54,21 +84,28 @@ def _add_task(proj, c, d, f, h):
         proj["done"] += 1
 
 def fetch_projects_meta(gid):
-    """Читає лист Проекти: ID → {name, owner, team, goal}"""
+    """Читає лист Проекти: ID → {name, owner, team, priority, start, deadline}"""
     rows = fetch_csv(gid)
     meta = {}
     for row in rows[1:]:
         row = row + [''] * max(0, 13 - len(row))
-        pid_raw = row[0].strip()
-        name  = row[1].strip()
-        owner = row[3].strip()
-        team  = row[11].strip()
+        pid_raw = row[COL_ID].strip()
+        name    = row[COL_NAME].strip()
+        prio    = row[COL_PRIO].strip()
+        owner   = row[COL_OWNER].strip()
+        team    = row[COL_TEAM].strip()
+        start_raw = row[COL_START].strip() if len(row) > COL_START else ""
+        deadline_raw = row[COL_DEADLINE].strip() if len(row) > COL_DEADLINE else ""
+
         if pid_raw and PROJ_ID_RE.match(pid_raw):
             pid = normalize_pid(pid_raw)
             meta[pid] = {
-                'name':  name,
-                'owner': owner or 'Вакансія',
-                'team':  team,
+                'name':     name,
+                'owner':    owner or 'Вакансія',
+                'team':     team,
+                'priority': prio or 'B',
+                'start':    normalize_date(start_raw),
+                'deadline': normalize_date(deadline_raw),
             }
     return meta
 
@@ -131,7 +168,7 @@ def main():
             projects_owner_map = fetch_projects_meta(projects_sheet['gid'])
             print(f"       Знайдено {len(projects_owner_map)} проектів")
             for pid, p in sorted(projects_owner_map.items()):
-                print(f"       {pid}: {p['owner']} — {p['name'][:40]}")
+                print(f"       {pid}: {p['owner']} | старт={p['start']} дедлайн={p['deadline']} — {p['name'][:40]}")
         except Exception as e:
             print(f"[WARN] Лист Проекти: {e}")
 
@@ -147,9 +184,12 @@ def main():
                 if pid not in projects_meta:
                     pm = projects_owner_map.get(pid, {})
                     projects_meta[pid] = {
-                        "name":  pm.get("name") or p["name"],
-                        "owner": pm.get("owner", ""),
-                        "team":  pm.get("team", ""),
+                        "name":     pm.get("name") or p["name"],
+                        "owner":    pm.get("owner", ""),
+                        "team":     pm.get("team", ""),
+                        "priority": pm.get("priority", "B"),
+                        "start":    pm.get("start", ""),
+                        "deadline": pm.get("deadline", ""),
                         "sprintNums": []
                     }
                 projects_meta[pid]["sprintNums"].append(sp["num"])
@@ -160,11 +200,25 @@ def main():
         except Exception as e:
             print(f"[WARN] Спринт {sp['num']}: {e}")
 
+    # Проекти що є в листі "Проекти" але не з'явились в жодному спринті —
+    # додаємо їх теж, щоб Gantt і "не в фокусі" бачили повну картину
+    for pid, pm in projects_owner_map.items():
+        if pid not in projects_meta:
+            projects_meta[pid] = {
+                "name":     pm.get("name", pid),
+                "owner":    pm.get("owner", "Вакансія"),
+                "team":     pm.get("team", ""),
+                "priority": pm.get("priority", "B"),
+                "start":    pm.get("start", ""),
+                "deadline": pm.get("deadline", ""),
+                "sprintNums": []
+            }
+
     output = {"ts": int(time.time() * 1000), "sprints": result_sprints, "projects": projects_meta}
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     size = OUTPUT.stat().st_size
-    print(f"[OK] {OUTPUT} — {size} байт, {len(result_sprints)} спринтів")
+    print(f"[OK] {OUTPUT} — {size} байт, {len(result_sprints)} спринтів, {len(projects_meta)} проектів")
 
 if __name__ == "__main__":
     main()

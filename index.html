@@ -954,11 +954,35 @@ const YEAR_DAYS = 365;
 function dayOfYear(d){return Math.round((d-YEAR_START)/86400000);}
 function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 
-function buildGantt(){
+async function buildGantt(){
   const wrap=document.getElementById('ganttWrap');if(!wrap)return;
-  const todayDoy = dayOfYear(TODAY); // ~130
 
-  // Build header: 12 months
+  // Намагаємось взяти реальні дані з strategy.json; якщо не вдалось — fallback на статичний PROJECTS
+  let projectsData = PROJECTS;
+  try{
+    const r = await fetch('data/strategy.json?t='+Date.now());
+    const raw = await r.json();
+    const metaMap = raw.projects || {};
+    const dynamic = Object.entries(metaMap)
+      .filter(([pid,meta]) => meta.start && meta.deadline)
+      .map(([pid,meta]) => ({
+        id: pid.replace('.0',''),
+        name: meta.name,
+        owner: meta.owner || 'Вакансія',
+        prio: meta.priority || 'B',
+        start: meta.start,
+        end: meta.deadline,
+      }))
+      .sort((a,b) => parseInt(a.id) - parseInt(b.id));
+    if(dynamic.length){
+      projectsData = dynamic;
+    }
+  }catch(e){
+    console.warn('[Gantt] Не вдалось завантажити реальні дати, використовую статичні:', e.message);
+  }
+
+  const todayDoy = dayOfYear(TODAY);
+
   let hdrs = '<tr><th style="min-width:160px;text-align:left">Проект</th><th style="min-width:90px;text-align:left">Відп.</th><th style="min-width:40px">Пр.</th>';
   let totalW = 0;
   const monthWidths = [];
@@ -972,15 +996,14 @@ function buildGantt(){
   }
   hdrs+='</tr>';
 
-  // Build rows
   let rows='';
-  PROJECTS.forEach(p=>{
+  projectsData.forEach(p=>{
     const pStart = new Date(p.start+'T00:00:00');
     const pEnd   = new Date(p.end+'T00:00:00');
     const sDoy = clamp(dayOfYear(pStart),0,YEAR_DAYS);
     const eDoy = clamp(dayOfYear(pEnd),0,YEAR_DAYS);
     const isDone = pEnd < TODAY;
-    const isVac  = p.owner.includes('Вакансія');
+    const isVac  = (p.owner||'').includes('Вакансія');
     const prioClass = p.prio==='A'?'prio-A':'prio-B';
     const nm = p.name.length>40 ? p.name.substring(0,38)+'…' : p.name;
 
@@ -993,7 +1016,6 @@ function buildGantt(){
       const mEnd = mStart+daysInMonth;
       const isTodayMonth=(mi===TODAY.getMonth());
 
-      // does bar overlap this month?
       const barStart = clamp(sDoy,mStart,mEnd);
       const barEnd   = clamp(eDoy,mStart,mEnd);
       const barLen   = barEnd-barStart;
@@ -1005,7 +1027,6 @@ function buildGantt(){
         const cls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
         inner=`<div class="${cls}" style="width:${barWidth}px;margin-left:${barLeft}px" title="${p.name}: ${p.start}–${p.end}"></div>`;
       }
-      // today line in current month col
       if(isTodayMonth){
         const todayX=Math.round((TODAY.getDate()-1)/daysInMonth*mW);
         inner+=`<div style="position:absolute;left:${todayX}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10" title="Сьогодні (${TODAY.toLocaleDateString('uk-UA')})"></div>`;
@@ -1017,7 +1038,6 @@ function buildGantt(){
 
   wrap.innerHTML=`<table class="gantt-table"><thead>${hdrs}</thead><tbody>${rows}</tbody></table>`;
 
-  // Legend
   wrap.innerHTML+=`<div style="display:flex;align-items:center;gap:16px;padding:8px 10px;font-size:10px;color:var(--tm);border-top:1px solid var(--bd)">
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--g),var(--gd))"></div>Пріоритет A</span>
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--b),var(--bd2));opacity:.75"></div>Пріоритет B</span>
