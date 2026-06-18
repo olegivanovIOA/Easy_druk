@@ -451,6 +451,31 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
+  <!-- FORECAST -->
+  <div id="w-str-forecast">
+    <div class="sec">📈 Динаміка виконання та прогноз до кінця 2026</div>
+    <div class="g3">
+      <div class="card s2">
+        <div class="chdr"><div><div class="ct">% виконання по спринтах + прогноз</div><div class="cs">Динамічно з усіх спринтів Google Sheets</div></div><span class="bdg bdg-b" id="fc-badge">—</span></div>
+        <div class="cw ch210"><canvas id="forecastChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:9px">Прогноз на кінець 2026</div>
+        <div class="mr"><div class="mn">Поточний темп / спринт</div><div class="mv" id="fc-rate">—</div></div>
+        <div class="mr"><div class="mn">Спринтів залишилось</div><div class="mv" id="fc-remaining">—</div></div>
+        <div class="mr"><div class="mn">Прогноз % на 31.12</div><div class="mv" id="fc-final">—</div></div>
+        <div class="mr"><div class="mn">Тренд</div><div class="mv" id="fc-trend">—</div></div>
+        <div style="margin-top:8px;font-size:10px;color:var(--tl)" id="fc-note">Очікую дані...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS NO FOCUS -->
+  <div id="w-str-nofocus">
+    <div class="sec">⚠️ Проекти не в фокусі / без відповідального</div>
+    <div id="no-focus-list" class="card-flat" style="padding:10px"><p style="font-size:12px;color:var(--tl);padding:8px">Завантаження…</p></div>
+  </div>
+
   <!-- PERSON SCORES -->
   <div id="w-str-pers">
     <div class="sec">👤 Скоринг по учасниках</div>
@@ -614,6 +639,50 @@ a{color:var(--gd);text-decoration:none}
     </div>
 
     <div id="ads-status" style="font-size:11px;color:var(--tl)"></div>
+  </div>
+
+  <!-- ═══ MQL→SQL АНАЛІТИКА ═══ -->
+  <div id="w-crm-mql">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
+      <div class="sec" style="margin-bottom:0">🎯 MQL→SQL Аналітика</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="mql-month-switcher" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <span id="mql-updated-at" style="font-size:11px;color:var(--tl)"></span>
+      </div>
+    </div>
+    <div class="al al-a"><span class="ic">⚠</span><div id="mql-critical-insight">Завантаження…</div></div>
+
+    <div class="g6" style="margin-bottom:14px">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Всього лідів</div><div class="krow-val" id="mql-total-leads">—</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Закрито угод</div><div class="krow-val g" id="mql-deals">—</div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Заг. конверсія</div><div class="krow-val" id="mql-conv">—</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка</div><div class="krow-val g" id="mql-revenue">—</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Угод без MQL</div><div class="krow-val r" id="mql-no-mql">—</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Хибних MQL=1</div><div class="krow-val r" id="mql-false">—</div><div class="krow-tgt">дублі/спам</div></div>
+    </div>
+
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card s2">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Воронка MQL→SQL — де втрачаються ліди</div>
+        <div class="cw ch210"><canvas id="mql-funnel-chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec">📡 Ефективність каналів (UTM Source/Medium)</div>
+    <div class="card-flat" style="margin-bottom:14px">
+      <div class="tw"><table class="tbl"><thead><tr><th>Канал</th><th>Лідів</th><th>Угод</th><th>Конв.</th><th>Виручка</th><th>Шум</th><th>Оцінка</th></tr></thead><tbody id="mql-channels-body"></tbody></table></div>
+    </div>
+
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Топ кампаній за конверсією</div>
+        <div id="mql-campaigns-table"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Менеджери — лідів / угод / виручка</div>
+        <div id="mql-managers-table"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -879,6 +948,148 @@ function buildGantt(){
   </div>`;
 }
 
+// ── FORECAST: прогноз виконання стратегії до кінця 2026 ──────────────────
+// Динамічно бере дані з усіх спринтів через E3D_LOADER.getAllSprints()
+const SPRINT_LENGTH_DAYS = 18; // ~ S1=21д, S2=23д, S3=14д → беремо середнє орієнтовне
+const YEAR_END = new Date('2026-12-31');
+
+function sprintCompletionPct(sprintObj){
+  // sprintObj.projects = {pid:{done,total,tasks}}
+  const projects = sprintObj.projects || {};
+  let totalDone=0, totalAll=0;
+  Object.values(projects).forEach(p=>{
+    totalDone += p.done||0;
+    totalAll  += p.total||0;
+  });
+  return totalAll>0 ? (totalDone/totalAll*100) : 0;
+}
+
+function parseSprintEndDate(sprint){
+  // dates: "20.04–11.05" → беремо другу дату, рік 2026
+  try{
+    const parts = (sprint.dates||'').split(/[–-]/);
+    const endPart = parts[parts.length-1].trim(); // "11.05"
+    const [d,m] = endPart.split('.');
+    return new Date(`2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+  }catch(e){ return new Date(); }
+}
+
+function buildForecast(){
+  const canvas = document.getElementById('forecastChart');
+  if(!canvas) return;
+  if(!window.E3D_LOADER || !E3D_LOADER.getAllSprints) return;
+
+  const sprints = E3D_LOADER.getAllSprints().slice().sort((a,b)=>a.num-b.num);
+  if(!sprints.length){
+    const note=document.getElementById('fc-note');
+    if(note) note.textContent='Дані спринтів ще не завантажено';
+    return;
+  }
+
+  const sprintHistory = sprints.map(sp=>({
+    label: 'Спринт '+sp.num,
+    pct: sprintCompletionPct(sp),
+    endDate: parseSprintEndDate(sp),
+  }));
+
+  if(sprintHistory.length < 2){
+    const note = document.getElementById('fc-note');
+    if(note) note.textContent = 'Розрахунок з\'явиться після 2+ спринтів (зараз: '+sprintHistory.length+')';
+    safeChart('forecastChart',{type:'line',data:{labels:sprintHistory.map(s=>s.label),datasets:[{label:'% виконання',data:sprintHistory.map(s=>s.pct),borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID}}}}});
+    return;
+  }
+
+  const deltas = [];
+  for(let i=1;i<sprintHistory.length;i++){
+    deltas.push(sprintHistory[i].pct - sprintHistory[i-1].pct);
+  }
+  const avgDelta = deltas.reduce((a,b)=>a+b,0)/deltas.length;
+  const lastPct = sprintHistory[sprintHistory.length-1].pct;
+  const lastDate = sprintHistory[sprintHistory.length-1].endDate;
+
+  const daysLeft = Math.max(0,(YEAR_END - lastDate)/86400000);
+  const sprintsLeft = Math.round(daysLeft/SPRINT_LENGTH_DAYS);
+
+  let forecastPct = lastPct + avgDelta*sprintsLeft;
+  forecastPct = Math.max(0,Math.min(100,forecastPct));
+
+  const forecastLabels=[...sprintHistory.map(s=>s.label)];
+  const forecastData=[...sprintHistory.map(s=>s.pct)];
+  const actualData=[...sprintHistory.map(s=>s.pct)];
+  for(let i=1;i<=Math.min(sprintsLeft,12);i++){
+    forecastLabels.push('Прогноз '+i);
+    const val = Math.max(0,Math.min(100,lastPct+avgDelta*i));
+    forecastData.push(val);
+    actualData.push(null);
+  }
+
+  const trend = avgDelta>0.5?'📈 Прогрес':avgDelta<-0.5?'📉 Регрес':'➡️ Стабільно';
+  const trendColor = avgDelta>0.5?G:avgDelta<-0.5?R:A;
+
+  const elRate=document.getElementById('fc-rate'); if(elRate) elRate.textContent=(avgDelta>=0?'+':'')+avgDelta.toFixed(1)+'%/спринт';
+  const elRem=document.getElementById('fc-remaining'); if(elRem) elRem.textContent=sprintsLeft;
+  const elFinal=document.getElementById('fc-final'); if(elFinal) elFinal.textContent=forecastPct.toFixed(0)+'%';
+  const trendEl=document.getElementById('fc-trend');
+  if(trendEl){ trendEl.textContent=trend; trendEl.style.color=trendColor; }
+  const noteEl=document.getElementById('fc-note');
+  if(noteEl) noteEl.textContent='Розрахунок на основі темпу '+sprintHistory.length+' спринтів (живі дані Google Sheets)';
+  const badge=document.getElementById('fc-badge');
+  if(badge){badge.textContent=forecastPct>=80?'НА ЦІЛІ':forecastPct>=50?'ПОТРЕБУЄ ПРИСКОРЕННЯ':'РИЗИК';badge.className='bdg '+(forecastPct>=80?'bdg-g':forecastPct>=50?'bdg-a':'bdg-r');}
+
+  safeChart('forecastChart',{
+    type:'line',
+    data:{labels:forecastLabels,datasets:[
+      {label:'Факт',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
+      {label:'Прогноз',data:forecastData,borderColor:trendColor,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:trendColor}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}
+  });
+}
+
+// ── Проекти не в фокусі: динамічно з листа "Проекти" (data._projects) ──────
+function buildNoFocusProjects(dashData){
+  const el=document.getElementById('no-focus-list');
+  if(!el) return;
+  if(!dashData){
+    el.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Дані ще не завантажено</p>';
+    return;
+  }
+
+  const sprints = dashData._sprints || [];
+  const metaMap = dashData._projects || {};
+
+  // Проекти що зустрічались хоча б в одному спринті з реальними задачами
+  const activePids = new Set();
+  sprints.forEach(sp=>Object.entries(sp.projects||{}).forEach(([pid,p])=>{
+    if((p.total||0) > 0) activePids.add(pid);
+  }));
+
+  const noFocus = [];
+  Object.entries(metaMap).forEach(([pid,meta])=>{
+    const owner = (meta.owner||'').trim();
+    const isVacant = !owner || owner==='Вакансія';
+    const inSprints = activePids.has(pid);
+    if(isVacant || !inSprints){
+      noFocus.push({
+        id: pid,
+        name: meta.name||pid,
+        owner: owner||'Вакансія',
+        reason: isVacant ? 'Немає відповідального' : 'Не зустрічається в активних спринтах'
+      });
+    }
+  });
+
+  if(!noFocus.length){
+    el.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Усі проекти в фокусі ✓</p>';
+    return;
+  }
+
+  el.innerHTML = noFocus.map(p=>{
+    const isVac = p.owner==='Вакансія';
+    return `<div class="krow tbd" style="margin-bottom:6px"><div class="krow-bar kb-r"></div><div class="krow-lbl" style="flex:2;white-space:normal">#${p.id} ${p.name}</div><div class="krow-val x" style="font-size:11px;color:${isVac?'var(--red)':'var(--amb)'}">${p.owner}</div><div class="krow-tgt" style="white-space:normal;max-width:220px;text-align:right">${p.reason}</div></div>`;
+  }).join('');
+}
+
 // ── STRATEGY render ───────────────────────────────────
 let SDC=null;
 function renderStrategy(ov={}){
@@ -950,7 +1161,7 @@ function staticS2(){return[{project_id:1,project:'Система планува�
 const WKEY='e3d_widget_prefs_v1';
 const WCAT=[
   {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
-  {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
+  {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
   {id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batch',tab:'prod',label:'Партії (Batch)'},{id:'prod-trend',tab:'prod',label:'Lead Time та виробіток'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
@@ -990,12 +1201,16 @@ function go(id,btn){
   document.getElementById('panel-'+id).classList.add('active');
   try{localStorage.setItem('e3d_tab',id);}catch(e){}
   setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
-  if(id==='str'&&window.E3D_STRATEGY){E3D_STRATEGY.render();}
+  if(id==='str'&&window.E3D_STRATEGY){
+    E3D_STRATEGY.render();
+    try{ buildForecast(); }catch(e){}
+  }
   if(id==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
     window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
   }
   if(id==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
     window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
+    if(window.MqlLoader) window.MqlLoader.load();
   }
 }
 function restoreTab(){
@@ -1040,6 +1255,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       }).catch(function(){});
       document.getElementById('panel-crm').dataset.loaded='1';
     }
+    if(window.MqlLoader) window.MqlLoader.load();
     var th=document.getElementById('tip-hr');if(th)th.innerHTML=tipHTML('live','Google Sheets','—',false);
     // HR: завантажити одразу і оновити тултіп
     if(window.HRLoader){
@@ -1066,6 +1282,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
       // Перерендерити скорінг після отримання даних
       if(window.E3D_STRATEGY){ E3D_STRATEGY.render(); }
+      try{ buildForecast(); }catch(e){console.warn('[Forecast]',e.message);}
+      try{ buildNoFocusProjects(data); }catch(e){console.warn('[NoFocus]',e.message);}
       updDot(E3D_LOADER.summary());
     });
     // Ініціалізуємо скорінг — він одразу рендерить статичні дані
@@ -1095,5 +1313,6 @@ function flattenSprint(projMap){
 </script>
 <script src="js/hr_loader.js"></script>
 <script src="js/ads_loader.js"></script>
+<script src="js/mql_loader.js"></script>
 </body>
 </html>
