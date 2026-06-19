@@ -242,11 +242,15 @@ a{color:var(--gd);text-decoration:none}
 .goal-pct{font-size:12px;font-weight:800;color:var(--gd);min-width:36px;text-align:right}
 .goal-pct.tbd{color:var(--tl)}
 
+/* Gantt sort buttons */
+.gsort-btn{padding:2px 9px;border:1px solid var(--bd);border-radius:10px;background:transparent;color:var(--tm);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s}
+.gsort-btn:hover{border-color:var(--g);color:var(--gd)}
+.gsort-btn.active-sort{background:var(--g);color:#fff;border-color:var(--g)}
 /* Gantt */
 .gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .gantt-table{width:100%;border-collapse:collapse;min-width:700px;font-size:11px}
 .gantt-table th{background:var(--s2);border-bottom:1px solid var(--bd);padding:7px 10px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--tm);white-space:nowrap;text-align:left}
-.gantt-table th.gcol{text-align:center;min-width:68px;border-left:1px solid var(--bd)}
+.gantt-table th.gcol{text-align:center;min-width:90px;border-left:1px solid var(--bd)}
 .gantt-table td{padding:5px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
 .gantt-table tr:last-child td{border-bottom:none}
 .gantt-table tr:hover td{background:var(--s2)}
@@ -467,7 +471,15 @@ a{color:var(--gd);text-decoration:none}
 
   <!-- GANTT timeline -->
   <div id="w-str-gantt">
-    <div class="sec">📅 Часова шкала проектів 2026</div>
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>📅 Часова шкала проектів 2026</span>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px">
+        <span style="color:var(--tm);font-weight:500">Сортувати:</span>
+        <button id="gsort-num"  onclick="ganttSort('num')"  class="gsort-btn active-sort">№</button>
+        <button id="gsort-prio" onclick="ganttSort('prio')" class="gsort-btn">A→B</button>
+        <button id="gsort-owner"onclick="ganttSort('owner')"class="gsort-btn">Відп.</button>
+      </div>
+    </div>
     <div class="card-flat">
       <div class="gantt-wrap" id="ganttWrap"></div>
     </div>
@@ -964,6 +976,14 @@ const YEAR_DAYS = 365;
 function dayOfYear(d){return Math.round((d-YEAR_START)/86400000);}
 function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 
+let _ganttSortKey='num';
+function ganttSort(key){
+  _ganttSortKey=key;
+  document.querySelectorAll('.gsort-btn').forEach(b=>b.classList.remove('active-sort'));
+  const btn=document.getElementById('gsort-'+key);
+  if(btn) btn.classList.add('active-sort');
+  buildGantt();
+}
 async function buildGantt(){
   const wrap=document.getElementById('ganttWrap');if(!wrap)return;
   let projectsData=PROJECTS;
@@ -985,11 +1005,18 @@ async function buildGantt(){
       .sort((a,b)=>parseInt(a.id)-parseInt(b.id));
     if(dynamic.length>=5) projectsData=dynamic;
   }catch(e){}
-  let hdrs='<tr><th style="min-width:140px;max-width:220px;text-align:left;position:sticky;left:0;background:var(--s2);z-index:2">Проект</th><th style="min-width:70px;text-align:left">Відп.</th><th style="min-width:28px">Пр.</th>';
+  // Сортування
+  const sortFns={
+    num:  (a,b)=>parseInt(a.id)-parseInt(b.id),
+    prio: (a,b)=>{const pa=a.prio==='A'?0:1,pb=b.prio==='A'?0:1;return pa-pb||parseInt(a.id)-parseInt(b.id);},
+    owner:(a,b)=>(a.owner||'').localeCompare(b.owner||'','uk')
+  };
+  projectsData=[...projectsData].sort(sortFns[_ganttSortKey]||sortFns.num);
+  let hdrs='<tr><th style="min-width:80px;max-width:160px;width:12%;text-align:left;position:sticky;left:0;background:var(--s2);z-index:2">Проект</th><th style="min-width:55px;width:7%;text-align:left">Відп.</th><th style="min-width:24px;width:3%">Пр.</th>';
   let totalDays=0;const monthWidths=[];
   for(let m=0;m<12;m++){
     const dim=new Date(2026,m+1,0).getDate();
-    const w=Math.round(dim/YEAR_DAYS*90);
+    const w=Math.round(dim/YEAR_DAYS*120);
     monthWidths.push({m,w,dayStart:totalDays,daysInMonth:dim});
     const isT=(m===TODAY.getMonth());
     hdrs+=`<th class="gcol ${isT?'today-col':''}" style="min-width:${w}px;width:${w}px"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
@@ -1454,55 +1481,78 @@ async function buildForecast(){
   catch(e){const n=document.getElementById('fc-note');if(n)n.textContent='Не вдалось завантажити дані';return;}
   const sprints=(raw.sprints||[]).slice().sort((a,b)=>a.num-b.num);
   if(!sprints.length)return;
+
+  // Кумулятивний % — наростаючий підсумок по закритих спринтах
+  let cumDone=0,cumTotal=0;
   const fullHistory=sprints.map(sp=>{
-    const projects=sp.projects||{};let done=0,total=0;
-    Object.values(projects).forEach(p=>{done+=p.done||0;total+=p.total||0;});
-    const pct=total>0?(done/total*100):null;
+    const projects=sp.projects||{};let spDone=0,spTotal=0;
+    Object.values(projects).forEach(p=>{spDone+=p.done||0;spTotal+=p.total||0;});
+    cumDone+=spDone; cumTotal+=spTotal;
+    const pct=cumTotal>0?(cumDone/cumTotal*100):null;
     try{
       const pts=(sp.dates||'').split(/[–-]/);
       const ep=pts[pts.length-1].trim();const[d,m]=ep.split('.');
-      return{label:'Спринт '+sp.num,pct,total,endDate:new Date(`2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`)};
-    }catch(e){return{label:'Спринт '+sp.num,pct,total,endDate:new Date()};}
+      return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,
+             endDate:new Date(`2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`)};
+    }catch(e){return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,endDate:new Date()};}
   });
-  const validHistory=fullHistory.filter(h=>h.total>0);
-  if(validHistory.length<2){
+
+  // Для тренду — лише завершені спринти (endDate <= сьогодні)
+  const completedHistory=fullHistory.filter(h=>h.spTotal>0&&h.endDate<=TODAY);
+  // Поточний спринт (в процесі)
+  const activeHistory=fullHistory.filter(h=>h.spTotal>0&&h.endDate>TODAY);
+  // Для відображення факту використовуємо завершені + поточний
+  const validHistory=completedHistory.length>=1?completedHistory:(fullHistory.filter(h=>h.spTotal>0));
+
+  if(validHistory.length<1){
     const n=document.getElementById('fc-note');
-    if(n)n.textContent='Розрахунок з\'явиться після 2+ заповнених спринтів (зараз: '+validHistory.length+')';
-    safeChart('forecastChart',{type:'line',data:{labels:fullHistory.map(s=>s.label),datasets:[{label:'% виконання',data:fullHistory.map(s=>s.pct),borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G}]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID}}}}});
-    return;
+    if(n)n.textContent='Очікую дані спринтів...';return;
   }
-  const deltas=[];for(let i=1;i<validHistory.length;i++) deltas.push(validHistory[i].pct-validHistory[i-1].pct);
-  const avgDelta=deltas.reduce((a,b)=>a+b,0)/deltas.length;
-  const lastPct=validHistory[validHistory.length-1].pct;
-  const lastDate=validHistory[validHistory.length-1].endDate;
+
+  // Дельти тільки між завершеними спринтами
+  const deltas=[];
+  for(let i=1;i<completedHistory.length;i++) deltas.push(completedHistory[i].pct-completedHistory[i-1].pct);
+  const avgDelta=deltas.length?deltas.reduce((a,b)=>a+b,0)/deltas.length:0;
+  const lastCompleted=completedHistory[completedHistory.length-1]||validHistory[validHistory.length-1];
+  const lastPct=lastCompleted.pct;
+  const lastDate=lastCompleted.endDate;
+
   const YEAR_END=new Date('2026-12-31');
   const daysLeft=Math.max(0,(YEAR_END-lastDate)/86400000);
   const sprintsLeft=Math.round(daysLeft/18);
   const forecastPct=Math.max(0,Math.min(100,lastPct+avgDelta*sprintsLeft));
-  const forecastLabels=[...fullHistory.map(s=>s.label)];
-  const actualData=fullHistory.map(s=>s.pct);
-  const forecastData=fullHistory.map(s=>s.total>0?s.pct:null);
-  const lvi=fullHistory.findIndex(h=>h.label===validHistory[validHistory.length-1].label);
-  forecastData[lvi]=lastPct;
-  for(let i=1;i<=Math.min(sprintsLeft,12);i++){forecastLabels.push('С+'+i);forecastData.push(Math.max(0,Math.min(100,lastPct+avgDelta*i)));actualData.push(null);}
+
+  // Формуємо дані для графіку
+  const forecastLabels=fullHistory.map(s=>s.label);
+  const actualData=fullHistory.map(s=>s.spTotal>0?s.pct:null);
+  const forecastData=fullHistory.map(s=>s.endDate<=TODAY&&s.spTotal>0?s.pct:null);
+  // Точка з'єднання прогнозу з фактом
+  const lvi=fullHistory.findIndex(h=>h.label===lastCompleted.label);
+  if(lvi>=0) forecastData[lvi]=lastPct;
+  for(let i=1;i<=Math.min(sprintsLeft,12);i++){
+    forecastLabels.push('С+'+i);
+    forecastData.push(Math.max(0,Math.min(100,lastPct+avgDelta*i)));
+    actualData.push(null);
+  }
+
   const trend=avgDelta>0.5?'📈 Прогрес':avgDelta<-0.5?'📉 Регрес':'➡️ Стабільно';
   const trendColor=avgDelta>0.5?G:avgDelta<-0.5?R:A;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('fc-rate',(avgDelta>=0?'+':'')+avgDelta.toFixed(1)+'%/спринт');
-  set('fc-remaining',sprintsLeft);set('fc-final',forecastPct.toFixed(0)+'%');
+  set('fc-remaining',sprintsLeft);
+  set('fc-final',forecastPct.toFixed(0)+'%');
   const te=document.getElementById('fc-trend');if(te){te.textContent=trend;te.style.color=trendColor;}
   const w100=document.getElementById('fc-when100');
   if(w100){
     if(avgDelta<=0){w100.textContent='Не досягнемо при поточному темпі';w100.style.color=R;}
     else{const sp100=Math.ceil((100-lastPct)/avgDelta);const dt100=new Date(lastDate.getTime()+sp100*18*86400000);w100.textContent=dt100.toLocaleDateString('uk-UA',{month:'long',year:'numeric'});w100.style.color=dt100<=YEAR_END?G:A;}
   }
-  const sk=fullHistory.length-validHistory.length;
   const note=document.getElementById('fc-note');
-  if(note)note.textContent='Темп з '+validHistory.length+' спринтів'+(sk>0?' ('+sk+' формується)':'')+' · живі дані';
+  if(note)note.textContent='Кумулятивний % · тренд з '+completedHistory.length+' закритих спринтів'+(activeHistory.length?' · '+activeHistory.length+' в процесі':'')+' · живі дані';
   const badge=document.getElementById('fc-badge');
   if(badge){badge.textContent=forecastPct>=80?'НА ЦІЛІ':forecastPct>=50?'ПОТРЕБУЄ ПРИСКОРЕННЯ':'РИЗИК';badge.className='bdg '+(forecastPct>=80?'bdg-g':forecastPct>=50?'bdg-a':'bdg-r');}
   safeChart('forecastChart',{type:'line',data:{labels:forecastLabels,datasets:[
-    {label:'Факт',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
+    {label:'Факт (кум.%)',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
     {label:'Прогноз',data:forecastData,borderColor:trendColor,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:trendColor,spanGaps:true}
   ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
 }
