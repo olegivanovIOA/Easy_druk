@@ -977,8 +977,16 @@ async function buildGantt(){
     const raw=await r.json();
     const metaMap=raw.projects||{};
     const dynamic=Object.entries(metaMap)
-      .filter(([,m])=>m.start&&m.deadline)
-      .map(([pid,m])=>({id:pid.replace('.0',''),name:m.name,owner:m.owner||'Вакансія',prio:m.priority||'B',start:m.start,end:m.deadline}))
+      .filter(([,m])=>m.start)
+      .map(([pid,m])=>({
+        id:pid.replace('.0',''),
+        name:m.name,
+        owner:m.owner||'Вакансія',
+        prio:(m.priority||'B').replace(/А/g,'A').replace(/В/g,'B'),
+        start:m.start,
+        end:m.deadline||'2026-12-31',
+        openEnd:!m.deadline
+      }))
       .sort((a,b)=>parseInt(a.id)-parseInt(b.id));
     if(dynamic.length>=5) projectsData=dynamic;
   }catch(e){}
@@ -995,8 +1003,8 @@ async function buildGantt(){
   hdrs+='</tr>';
   let rows='';
   projectsData.forEach(p=>{
-    if(!p.start||!p.end)return;
-    const pS=new Date(p.start+'T00:00:00'),pE=new Date(p.end+'T00:00:00');
+    if(!p.start)return;
+    const pS=new Date(p.start+'T00:00:00'),pE=new Date((p.end||'2026-12-31')+'T00:00:00');
     const sDoy=clamp(dayOfYear(pS),0,YEAR_DAYS),eDoy=clamp(dayOfYear(pE),0,YEAR_DAYS);
     const isDone=pE<TODAY,isVac=(p.owner||'').includes('Вакансія');
     const pc=p.prio==='A'?'prio-A':'prio-B';
@@ -1010,7 +1018,11 @@ async function buildGantt(){
       const bS=clamp(sDoy,mS,mE),bE=clamp(eDoy,mS,mE);
       const bL=Math.round((bS-mS)/dim*mW),bW=Math.max(0,Math.round((bE-bS)/dim*mW));
       let inner='';
-      if(bW>0){const cls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');inner=`<div class="${cls}" style="width:${bW}px;margin-left:${bL}px" title="${p.name}: ${p.start}–${p.end}"></div>`;}
+      if(bW>0){
+        const barCls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
+        const dashStyle=p.openEnd?';border-right:3px dashed rgba(255,255,255,.6);opacity:.65':'';
+        inner=`<div class="${barCls}" style="width:${bW}px;margin-left:${bL}px${dashStyle}" title="${p.name}: ${p.start}${p.openEnd?' → без дедлайну':'–'+p.end}"></div>`;
+      }
       if(isT){const tx=Math.round((TODAY.getDate()-1)/dim*mW);inner+=`<div style="position:absolute;left:${tx}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10"></div>`;}
       cells+=`<td class="gcell ${isT?'today-col':''}">${inner}</td>`;
     }
@@ -1033,6 +1045,8 @@ function renderStrategy(ov={}){
   buildGantt();
   _renderPersonScores();
   _loadAndRenderSprints();
+  buildForecast().catch(()=>{});
+  buildNoFocusProjects().catch(()=>{});
 }
 
 // ── Гістограма учасників з підписами (пункт 5) ────────────────────────────
@@ -1071,25 +1085,27 @@ async function _renderPersonScores(){
     window._persChart=new Chart(canvas,{
       type:'bar',
       data:{labels,datasets:[
-        {label:'Виконано %',data:donePct,backgroundColor:'rgba(42,157,143,.85)',borderRadius:3,borderSkipped:false},
-        {label:'В роботі %',data:inPct,backgroundColor:'rgba(69,123,157,.7)',borderRadius:3,borderSkipped:false},
-        {label:'Перенесено %',data:movPct,backgroundColor:'rgba(192,57,43,.6)',borderRadius:3,borderSkipped:false},
+        {label:'Виконано %',data:donePct,backgroundColor:'#10B981',borderRadius:3,borderSkipped:false},
+        {label:'В роботі %',data:inPct,backgroundColor:'#3B82F6',borderRadius:3,borderSkipped:false},
+        {label:'Перенесено %',data:movPct,backgroundColor:'#EF4444',borderRadius:3,borderSkipped:false},
       ]},
       plugins:[{
         afterDatasetsDraw(chart){
-          // Підписи над стовпчиками "Виконано"
           const ctx=chart.ctx;
-          const ds=chart.data.datasets[0];
-          const meta=chart.getDatasetMeta(0);
-          ctx.save();
-          ctx.font='bold 10px Inter,sans-serif';
-          ctx.fillStyle='#0A3D20';
-          ctx.textAlign='center';
-          meta.data.forEach((bar,i)=>{
-            const v=ds.data[i];
-            if(v>5) ctx.fillText(v+'%',bar.x,bar.y-4);
+          const labelColors=['#065F46','#1e3a5f','#7b0e0e'];
+          [0,1,2].forEach(di=>{
+            const ds=chart.data.datasets[di];
+            const meta=chart.getDatasetMeta(di);
+            ctx.save();
+            ctx.font='bold 10px Inter,sans-serif';
+            ctx.fillStyle=labelColors[di];
+            ctx.textAlign='center';
+            meta.data.forEach((bar,i)=>{
+              const v=ds.data[i];
+              if(v>7) ctx.fillText(v+'%',bar.x,bar.y-4);
+            });
+            ctx.restore();
           });
-          ctx.restore();
         }
       }],
       options:{
@@ -1211,17 +1227,24 @@ function _renderActiveSprint(){
     if(!groups[k]) groups[k]={name:t.project||k,tasks:[]};
     groups[k].tasks.push(t);
   });
+  let gIdx=0;
   Object.values(groups).forEach(g=>{
     const gD=g.tasks.filter(t=>t.done).length;
     const gM=g.tasks.filter(t=>t.status==='Перенесено').length;
     const gT=g.tasks.length;
     const gP=gT>0?Math.round(gD/gT*100):0;
     const gc=gP>=80?'var(--gd)':gP>=40?'var(--amb)':'var(--red)';
-    b.innerHTML+=`<tr style="background:var(--s2)"><td colspan="3" style="padding:6px 10px;font-weight:700;font-size:12px;color:var(--td)">${g.name}</td><td style="padding:6px 10px;text-align:right;font-size:11px;font-weight:700;color:${gc}">${gD}/${gT} (${gP}%)</td></tr>`;
+    const grpId='grp-'+gIdx++;
+    b.innerHTML+=`<tr class="grp-hdr" style="background:var(--s2);cursor:pointer" onclick="toggleGroup('${grpId}',this)">
+      <td colspan="3" style="padding:6px 10px;font-weight:700;font-size:12px;color:var(--td)">
+        <span class="grp-arrow" style="display:inline-block;margin-right:5px;transition:transform .2s">▶</span>${g.name}
+      </td>
+      <td style="padding:6px 10px;text-align:right;font-size:11px;font-weight:700;color:${gc}">${gD}/${gT} (${gP}%)</td>
+    </tr>`;
     g.tasks.forEach(t=>{
       const isDone=t.done,isMoved=t.status==='Перенесено';
       const sh=isDone?'<span class="pill plg">✓ Виконано</span>':isMoved?'<span class="pill" style="background:#fef0ee;color:#c0392b">↪ Перенесено</span>':t.status?`<span class="pill pla">${t.status}</span>`:'<span class="cov ctt">В роботі</span>';
-      b.innerHTML+=`<tr class="${isDone?'tdone':isMoved?'tmoved':''}">
+      b.innerHTML+=`<tr class="grp-row ${grpId} ${isDone?'tdone':isMoved?'tmoved':''}" style="display:none">
         <td style="padding-left:18px;color:var(--tl);width:12px">↳</td>
         <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.task}" colspan="1">${t.task}</td>
         <td>${(t.owner||'').split(',')[0].trim()}</td>
@@ -1245,12 +1268,19 @@ function _renderTransfersChart(sprints){
   const canvas=document.getElementById('transfersChart');if(!canvas)return;
   const owners=Object.keys(_transferStats).sort((a,b)=>_transferStats[b].total-_transferStats[a].total).slice(0,8);
   if(!owners.length){canvas.parentElement.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Перенесень немає ✓</p>';return;}
-  const colors=['rgba(192,57,43,.7)','rgba(69,123,157,.7)','rgba(42,157,143,.6)','rgba(183,110,42,.65)'];
+  const colors=['#EF4444','#3B82F6','#10B981','#F59E0B','#8B5CF6','#EC4899'];
   if(window._transChart){try{window._transChart.destroy();}catch(e){}}
   window._transChart=new Chart(canvas,{type:'bar',
     data:{labels:owners.map(o=>o.split(' ')[0]),
       datasets:sprints.map((sp,i)=>({label:'С'+sp.num,data:owners.map(o=>(_transferStats[o]?.perSprint[sp.num]||0)),backgroundColor:colors[i%colors.length],borderRadius:3}))},
     options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:6,font:{size:9}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:GRID},ticks:{stepSize:1}}}}});
+}
+function toggleGroup(grpId, hdrRow){
+  const rows=document.querySelectorAll('.grp-row.'+grpId);
+  const arrow=hdrRow.querySelector('.grp-arrow');
+  const isOpen=rows.length&&rows[0].style.display!=='none';
+  rows.forEach(r=>r.style.display=isOpen?'none':'');
+  if(arrow) arrow.style.transform=isOpen?'':'rotate(90deg)';
 }
 function staticS1(){return[{project_id:1,project:'Система планування',task:'Реєстр проектів SS-2026',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},{project_id:1,project:'Система планування',task:'Дзвінок CEO: структура фінансового блоку',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},{project_id:1,project:'Система планування',task:'Зібрати дані від постачальників',owner:'Іванов Олег',deadline:'2026-05-04',status:''},{project_id:1,project:'Система планування',task:'ADR по інструменту планування',owner:'Іванов Олег',deadline:'2026-05-06',status:''},{project_id:3,project:'Діджиталізація',task:'Аудит джерел даних. FTE учасників',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},{project_id:3,project:'Діджиталізація',task:'Сесія «Словник показників»',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},{project_id:3,project:'Діджиталізація',task:'ADR по технології дашборду',owner:'Іванов Олег',deadline:'2026-05-04',status:''},{project_id:3,project:'Діджиталізація',task:'Dashboard v0.1 — перші дані',owner:'Іванов Олег',deadline:'2026-05-08',status:''},{project_id:7,project:'Система оцінки індустрій',task:'Збір точок входу та ключових гравців',owner:'Дубровін Вадим',deadline:'2026-04-28',status:'Виконано'},{project_id:7,project:'Система оцінки індустрій',task:'Бренд-бук, описи, тези для сайту',owner:'Дубровін Вадим',deadline:'2026-05-02',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Отримання OTTOeject MK1 Rev 1.0',owner:'Жолудь Максим',deadline:'2026-04-21',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Визначення техніка — Болдижев Олексій',owner:'Стріляний Олександр',deadline:'2026-04-27',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Локальна версія ПЗ',owner:'Стріляний Олександр',deadline:'2026-05-08',status:''}];}
 function staticS2(){return[{project_id:1,project:'Система планування',task:'Фінансовий блок v1.1',owner:'Іванов Олег',deadline:'2026-05-20',status:''},{project_id:3,project:'Діджиталізація',task:'Dashboard v1 — публічна версія',owner:'Іванов Олег',deadline:'2026-05-25',status:''},{project_id:7,project:'Система оцінки індустрій',task:'Netpek наскрізна аналітика',owner:'Дубровін Вадим',deadline:'2026-05-22',status:''},{project_id:7,project:'Система оцінки індустрій',task:'LinkedIn — холодний контакт',owner:'Дубровін Вадим',deadline:'2026-05-29',status:''},{project_id:8,project:'Авт. локація',task:'3Д-друк всіх комплектуючих',owner:'Жолудь Максим',deadline:'2026-05-15',status:'Виконано'},{project_id:2,project:'Сильна команда',task:'Профілі ролей + KPI',owner:'Зубрицька Олександра',deadline:'2026-05-29',status:''},{project_id:9,project:'Відділ Якості',task:'Визначення системи ОТК',owner:'Вакансія',deadline:'2026-05-29',status:''}];}
