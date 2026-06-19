@@ -490,11 +490,6 @@ a{color:var(--gd);text-decoration:none}
         <div class="mr"><div class="mn">📅 Досягнемо 100% орієнтовно</div><div class="mv b" id="fc-when100">—</div></div>
         <div style="margin-top:8px;font-size:10px;color:var(--tl)" id="fc-note">Очікую дані...</div>
       </div>
-    </div>
-    <div class="card" style="margin-top:14px">
-      <div class="chdr"><div><div class="ct">Динаміка загального % стратегії по спринтах</div><div class="cs">Кумулятивний % + прогноз до 100%</div></div></div>
-      <div class="cw ch160"><canvas id="scoreTrendChart"></canvas></div>
-    </div>
   </div>
 
   <!-- PROJECTS NO FOCUS -->
@@ -519,7 +514,7 @@ a{color:var(--gd);text-decoration:none}
       <div id="sprint-switcher" style="display:flex;gap:6px;flex-wrap:wrap"></div>
     </div>
     <div class="g2" style="margin-bottom:14px">
-      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct">Прогрес спринту</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm" style="display:none"></span></div>
+      <div class="card" id="s2c"><div class="chdr"><div><div class="ct">Прогрес спринту</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm" style="display:none"></span></div>
       <div class="card">
         <div class="ct" style="margin-bottom:9px">Статистика</div>
         <div class="mr"><div class="mn">Всього задач</div><div class="mv" id="s2t">—</div></div>
@@ -991,14 +986,14 @@ async function buildGantt(){
     if(dynamic.length>=5) projectsData=dynamic;
   }catch(e){}
   let hdrs='<tr><th style="min-width:180px;text-align:left;position:sticky;left:0;background:var(--s2);z-index:2">Проект</th><th style="min-width:85px;text-align:left">Відп.</th><th style="min-width:32px">Пр.</th>';
-  let totalW=0;const monthWidths=[];
+  let totalDays=0;const monthWidths=[];
   for(let m=0;m<12;m++){
     const dim=new Date(2026,m+1,0).getDate();
     const w=Math.round(dim/YEAR_DAYS*57);
-    monthWidths.push({m,w,start:totalW,daysInMonth:dim});
+    monthWidths.push({m,w,dayStart:totalDays,daysInMonth:dim});
     const isT=(m===TODAY.getMonth());
     hdrs+=`<th class="gcol ${isT?'today-col':''}" style="min-width:${w}px;width:${w}px"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
-    totalW+=w;
+    totalDays+=dim;
   }
   hdrs+='</tr>';
   let rows='';
@@ -1013,7 +1008,7 @@ async function buildGantt(){
     cells+=`<td><div class="gowner" style="${isVac?'color:var(--red)':''}">${(p.owner||'').split(' ')[0]}</div></td>`;
     cells+=`<td><span class="prio-badge ${pc}">${p.prio}</span></td>`;
     for(let mi=0;mi<12;mi++){
-      const {start:mS,daysInMonth:dim,w:mW}=monthWidths[mi];
+      const {dayStart:mS,daysInMonth:dim,w:mW}=monthWidths[mi];
       const mE=mS+dim,isT=(mi===TODAY.getMonth());
       const bS=clamp(sDoy,mS,mE),bE=clamp(eDoy,mS,mE);
       const bL=Math.round((bS-mS)/dim*mW),bW=Math.max(0,Math.round((bE-bS)/dim*mW));
@@ -1509,25 +1504,6 @@ async function buildForecast(){
   safeChart('forecastChart',{type:'line',data:{labels:forecastLabels,datasets:[
     {label:'Факт',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
     {label:'Прогноз',data:forecastData,borderColor:trendColor,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:trendColor,spanGaps:true}
-  ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
-  _buildScoreTrendChart(validHistory);
-}
-
-function _buildScoreTrendChart(history){
-  const canvas=document.getElementById('scoreTrendChart');if(!canvas||!history.length)return;
-  if(window._sTrChart){try{window._sTrChart.destroy();}catch(e){}}
-  const labels=history.map(h=>h.label);
-  const pcts=history.map(h=>Math.round(h.pct));
-  const avgD=history.length>1?(pcts[pcts.length-1]-pcts[0])/(history.length-1):0;
-  const lastP=pcts[pcts.length-1];
-  const fLabels=[...labels];const fData=[...pcts.map(()=>null)];
-  fData[fData.length-1]=lastP;
-  const sLeft=Math.round(Math.max(0,(new Date('2026-12-31')-history[history.length-1].endDate)/86400000/18));
-  const pctsFull=[...pcts];
-  for(let i=1;i<=Math.min(sLeft,10);i++){fLabels.push('С+'+i);pctsFull.push(null);fData.push(Math.max(0,Math.min(100,Math.round(lastP+avgD*i))));}
-  window._sTrChart=new Chart(canvas,{type:'line',data:{labels:fLabels,datasets:[
-    {label:'Факт %',data:pctsFull,borderColor:G,backgroundColor:GB,borderWidth:2.5,tension:.3,fill:true,pointRadius:6,pointBackgroundColor:G,spanGaps:false},
-    {label:'Прогноз',data:fData,borderColor:'rgba(69,123,157,.8)',borderWidth:1.5,borderDash:[5,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:A,spanGaps:true},
   ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
 }
 
