@@ -9,7 +9,7 @@ import csv, io, json, os, re, time
 from pathlib import Path
 import requests
 
-SHEET_ID  = os.environ.get("GOOGLE_SHEET_ID", "1GD3tyFOC7-0tSjAIR1uaS9H2nbVUwrUFGAbfgBJMV2A")
+SHEET_ID  = os.environ.get("GOOGLE_SHEET_ID", "1-BRONIOFVG4uES7iuDGIH7svebRzfbcCCNtddU2jo28")
 API_KEY   = os.environ.get("GOOGLE_API_KEY", "")
 OUTPUT    = Path(__file__).parent / "data" / "strategy.json"
 SPRINT_RE = re.compile(r"^Спринт\s+(\d+)\s*\(([^)]+)\)", re.IGNORECASE)
