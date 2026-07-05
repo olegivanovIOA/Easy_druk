@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """
-fetch_hr.py — Easy 3D Print Dashboard v1.1
+fetch_hr.py — Easy 3D Print Dashboard v1.2
 Читає HR через Google Sheets API v4 + Service Account.
 Не використовує CSV export (він не працює з корпоративними файлами).
+
+v1.2 changes:
+- Лист 'Співробітники' видалено з Google Sheets →
+  employees_count тепер читається з 'Плинність кадрів'
+  через parse_employees_from_turnover() (fallback)
 """
 
 import json, os, time, base64
@@ -85,6 +90,41 @@ def parse_employees(rows):
     return count
 
 
+def parse_employees_from_turnover(rows):
+    """
+    Fallback: читає кількість співробітників з листа 'Плинність кадрів'.
+    Шукає рядок з ключовими словами (факт на кінець периода тощо)
+    і повертає останнє непорожнє числове значення в рядку.
+    """
+    KEYWORDS = [
+        "факт на кінець",
+        "факт на конец",
+        "кількість на кінець",
+        "штатна чисельність",
+        "всього співробітників",
+        "всього",
+    ]
+    for row in rows:
+        if not row:
+            continue
+        label = str(row[0]).strip().lower()
+        if any(kw in label for kw in KEYWORDS):
+            last_num = 0
+            for cell_val in row[1:]:
+                s = str(cell_val).strip().replace(" ", "").replace("\xa0", "")
+                if s.isdigit():
+                    last_num = int(s)
+            if last_num > 0:
+                print(f"[HR] employees_from_turnover: '{row[0]}' → {last_num}")
+                return last_num
+    # Якщо ключовий рядок не знайдено — виводимо всі рядки для діагностики
+    print("[HR] employees_from_turnover: рядок не знайдено. Доступні рядки col[0]:")
+    for row in rows[:20]:
+        if row:
+            print(f"  '{row[0]}'")
+    return 0
+
+
 def parse_interns(rows):
     result, current_month, current_count = [], None, 0
     for row in rows:
@@ -110,29 +150,19 @@ def parse_interns(rows):
 
 
 def parse_vacancies(rows):
-    """
-    Row 0: заголовки (Вакансія, Локація...)
-    Row 1: назва місяця (Червень)
-    Row 2+: вакансії
-    Row з 'Кількість відкритих' — стоп
-    """
     vacancies, current_month = [], None
     for row in rows:
         val = cell(row, 0).strip()
         if not val:
             continue
-        # Заголовок таблиці
         if val.lower() in ("вакансія",):
             continue
-        # Рядок з місяцем
         matched = next((m for m in UA_MONTHS if val == m), None)
         if matched:
             current_month = matched
             continue
-        # Стоп-рядок
         if "кількість відкритих" in val.lower():
             break
-        # Вакансія
         vacancies.append({
             "vacancy":  val,
             "location": cell(row, 1),
@@ -145,25 +175,17 @@ def parse_vacancies(rows):
 
 
 def parse_closing_norms(rows):
-    """
-    Row 3: [Назва посади:, Днів]
-    Row 4+: [Директор виробництва, 30]
-    Дані в колонках B (idx 1) та C (idx 2) — але через merged cells
-    іноді в A (idx 0) і B (idx 1)
-    """
     norms = []
     header_found = False
     for row in rows:
         val0 = cell(row, 0).strip()
         val1 = cell(row, 1).strip()
         val2 = cell(row, 2).strip()
-        
         if "назва посади" in val1.lower():
             header_found = True
             continue
         if not header_found:
             continue
-        # Позиція в col B, дні в col C
         pos  = val1 if val1 else val0
         days = val2 if val2 else val1
         if not pos or pos.lower() in ("назва посади:", ""):
@@ -176,37 +198,24 @@ def parse_closing_norms(rows):
 
 
 def parse_turnover(rows):
-    """
-    Реальна структура з Sheets API (merged cells розпадаються):
-    Row 2: ['', 'Березень', '', 'Квітень', '', 'Травень', ...]
-    Row 9: ['Текучість, %', '2,4%', '', '3,1%', '', '6,8%']
-    Row 11: ['Таргет ', 'до 5%']
-    Місяці на непарних позиціях (1,3,5...), текучість теж на (1,3,5...)
-    """
     result = {"staff": [], "target_staff": None}
     months_row = None
     turnover_row = None
 
     for row in rows:
         label = cell(row, 0).lower().strip()
-        # Рядок з місяцями — перша клітинка порожня, далі місяці через одну
         if not cell(row, 0) and any(str(c).strip() in UA_MONTHS for c in row):
             months_row = row
-        # Рядок текучості — беремо ПЕРШИЙ (персонал), не стажерів
         if "текуч" in label and turnover_row is None:
             turnover_row = row
-        # Таргет
         if "таргет" in label and result["target_staff"] is None:
             result["target_staff"] = cell(row, 1)
 
     if months_row and turnover_row:
-        # Збираємо пари (колонка, місяць) для непорожніх місяців
         month_cols = []
         for j, c in enumerate(months_row):
             if str(c).strip() in UA_MONTHS:
                 month_cols.append((j, str(c).strip()))
-
-        # Значення текучості — беремо з тих самих колонок
         for col_idx, month in month_cols:
             val = cell(turnover_row, col_idx) if col_idx < len(turnover_row) else ""
             val = val.replace("%", "").replace(",", ".").strip()
@@ -258,9 +267,6 @@ def main():
 
     sheet_names = get_sheet_names(token)
     print(f"[HR] Листів: {sheet_names}")
-    print(f"[HR] Шукаємо: {[SHEET_EMPLOYEES, SHEET_INTERNS, SHEET_VACANCIES, SHEET_CLOSE_NORMS, SHEET_TURNOVER]}")
-    for s in [SHEET_INTERNS, SHEET_VACANCIES, SHEET_CLOSE_NORMS, SHEET_TURNOVER]:
-        print(f"[HR] '{s}' in sheets: {s in sheet_names}")
 
     result = {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -272,15 +278,15 @@ def main():
         "turnover": {},
     }
 
-    # Дебаг: виводимо перші рядки листа Плинність
+    # Дебаг: виводимо перші рядки листа Плинність для діагностики
     if SHEET_TURNOVER in sheet_names:
         debug_rows = sheets_get(token, f"{SHEET_TURNOVER}!A1:Z15")
         print(f"[HR] Плинність debug (перші 12 рядків):")
         for i, r in enumerate(debug_rows[:12]):
             print(f"  Row {i}: {r}")
 
+    # ── Основні парсери (без SHEET_EMPLOYEES — лист видалено) ──
     PARSERS = [
-        (SHEET_EMPLOYEES,   "A:N",  parse_employees,    "employees_count"),
         (SHEET_INTERNS,     "A:A",  parse_interns,      "interns_by_month"),
         (SHEET_VACANCIES,   "A:F",  parse_vacancies,    "vacancies_current"),
         (SHEET_CLOSE_NORMS, "A:C",  parse_closing_norms,"closing_norms"),
@@ -296,12 +302,25 @@ def main():
         val = result[key]
         print(f"[HR] ✓ {sheet_name}: {val if isinstance(val, int) else 'ok'}")
 
+    # ── employees_count: лист 'Співробітники' видалено —
+    #    fallback на 'Плинність кадрів' (рядок 'Факт на кінець периода') ──
+    if SHEET_EMPLOYEES in sheet_names:
+        rows = sheets_get(token, f"{SHEET_EMPLOYEES}!A:N")
+        result["employees_count"] = parse_employees(rows)
+        print(f"[HR] ✓ {SHEET_EMPLOYEES}: {result['employees_count']}")
+    elif SHEET_TURNOVER in sheet_names:
+        rows = sheets_get(token, f"{SHEET_TURNOVER}!A:Z")
+        result["employees_count"] = parse_employees_from_turnover(rows)
+        print(f"[HR] ✓ employees_count з '{SHEET_TURNOVER}': {result['employees_count']}")
+    else:
+        print("[HR] ⚠ Немає джерела для employees_count")
+
     if result["vacancies_current"]:
         result["vacancies_history"] = update_vacancies_history(result["vacancies_current"])
 
     HR_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     HR_OUTPUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[HR] ✓ Записано {HR_OUTPUT}")
+    print(f"[HR] ✓ Записано {HR_OUTPUT} | employees_count={result['employees_count']}")
 
 
 if __name__ == "__main__":

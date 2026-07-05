@@ -1377,6 +1377,19 @@ function restoreTab(){
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
       panel.classList.add('active');
+      // Запускаємо лоадер для відновленого табу (якщо ще не завантажено)
+      setTimeout(function(){
+        if(saved==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
+          window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
+        }
+        if(saved==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
+          window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
+          if(window.MqlLoader) window.MqlLoader.load();
+        }
+        if(saved==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
+          window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
+        }
+      }, 100); // невелика затримка щоб панель встигла стати видимою
     }
   }catch(e){}
 }
@@ -1395,43 +1408,27 @@ document.addEventListener('DOMContentLoaded',()=>{
     function fmtTs(iso){if(!iso)return'—';try{return new Date(iso).toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}}
     var ts=document.getElementById('tip-str');if(ts)ts.innerHTML=tipHTML('partial','Google Sheets','—',true);
     var tc=document.getElementById('tip-crm');if(tc)tc.innerHTML=tipHTML('partial','Google Ads','—',true);
-    // CRM: статус 'live' після завантаження ads.json
-    if(window.AdsLoader){
-      Promise.resolve(window.AdsLoader.load()).then(function(){
-        fetch('data/ads.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-          var tc2=document.getElementById('tip-crm');
-          if(tc2&&d.fetched_at)tc2.innerHTML=tipHTML('live','Google Ads',fmtTs(d.fetched_at),false);
-          // Оновлюємо точку статусу на жовту → зелену
-          var btn=document.querySelector('[data-tab="crm"]');
-          if(btn){var dot=btn.querySelector('.e3d-dot');if(dot)dot.style.background='#16A34A';}
-        }).catch(function(){});
-      }).catch(function(){});
-      document.getElementById('panel-crm').dataset.loaded='1';
-    }
-    if(window.MqlLoader) window.MqlLoader.load();
-    if(window.SalesLoader){
-      var ts=document.getElementById('tip-sales');if(ts)ts.innerHTML=tipHTML('live','Google Sheets','—',false);
-      Promise.resolve(window.SalesLoader.load()).then(function(){
-        fetch('data/sales_planner.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-          var ts2=document.getElementById('tip-sales');
-          if(ts2&&d.fetched_at)ts2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
-        }).catch(function(){});
-      }).catch(function(){});
-      document.getElementById('panel-sales').dataset.loaded='1';
-    }
+    // CRM: оновлюємо тултіп (без запуску лоадера — він стартує при кліку на таб)
+    fetch('data/ads.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      var tc2=document.getElementById('tip-crm');
+      if(tc2&&d.fetched_at)tc2.innerHTML=tipHTML('live','Google Ads',fmtTs(d.fetched_at),false);
+      var btn=document.querySelector('[data-tab="crm"]');
+      if(btn){var dot=btn.querySelector('.e3d-dot');if(dot)dot.style.background='#16A34A';}
+    }).catch(function(){});
+    // Sales: тултіп
+    var ts2=document.getElementById('tip-sales');if(ts2)ts2.innerHTML=tipHTML('live','Google Sheets','—',false);
+    fetch('data/sales_planner.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      var ts3=document.getElementById('tip-sales');
+      if(ts3&&d.fetched_at)ts3.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
+    }).catch(function(){});
+    // HR: тултіп + CEO картка (без запуску лоадера)
     var th=document.getElementById('tip-hr');if(th)th.innerHTML=tipHTML('live','Google Sheets','—',false);
-    // HR: завантажити одразу і оновити тултіп
-    if(window.HRLoader){
-      Promise.resolve(window.HRLoader.load()).then(function(){
-        fetch('data/hr.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-          var th2=document.getElementById('tip-hr');
-          if(th2&&d.fetched_at)th2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
-          var cs=document.getElementById('ceo-staff');
-          if(cs&&d.employees_count)cs.textContent=d.employees_count+' осіб';
-        }).catch(function(){});
-      }).catch(function(){});
-      document.getElementById('hr-employees-count').dataset.loaded='1';
-    }
+    fetch('data/hr.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      var th2=document.getElementById('tip-hr');
+      if(th2&&d.fetched_at)th2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
+      var cs=document.getElementById('ceo-staff');
+      if(cs&&d.employees_count)cs.textContent=d.employees_count+' осіб';
+    }).catch(function(){});
   })();
   restoreTab();
 
