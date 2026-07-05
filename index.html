@@ -887,11 +887,19 @@ const GRID='#f0f2ee';
 const RAW={opt:[5.1,5.8,6.2,7.4,8.1,9.3,10.2,11.8,13.4,15.2,14.8,14.6],retail:[.8,.9,1,1.1,1.2,1.4,1.5,1.6,1.8,2,1.9,1.7],defect:[15,14,13.5,13,12.5,12,11.5,12,12,11.5,12,12],lead:[24,23,22.5,23,22,21.5,22,22,21.5,22,22,22]};
 const F={year:'2026',month:'5'};
 
-// ── Автовизначення поточного місяця/року (синхронізує dropdown і F) ────────
+// ── Автовизначення місяця: ставимо місяць-1 від поточного ────────────────
 (function(){
   const now = new Date();
-  const curMonth = String(now.getMonth()); // 0=Січень ... 5=Червень
-  const curYear  = String(now.getFullYear());
+  // Якщо поточний місяць почався менше 10 днів тому — беремо попередній
+  // (бо даних за новий місяць ще немає)
+  const dayOfMonth = now.getDate();
+  const useMonthOffset = dayOfMonth <= 15 ? 1 : 0; // перші 15 днів місяця → попередній
+  let targetMonth = now.getMonth() - useMonthOffset;
+  let targetYear = now.getFullYear();
+  if(targetMonth < 0){ targetMonth = 11; targetYear--; }
+
+  const curMonth = String(targetMonth);
+  const curYear  = String(targetYear);
   const msel = document.getElementById('msel');
   const ysel = document.getElementById('ysel');
   if (msel && msel.querySelector(`option[value="${curMonth}"]`)) {
@@ -1237,7 +1245,8 @@ function _renderActiveSprint(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('s2t',total);set('s2d',done);set('s2w',inProg);set('s2moved',moved);set('s2p',dp+'%');set('s2movpct',mp+'%');set('s2b',dp+'% виконано');
   if(SDC){try{SDC.destroy();}catch(e){}}
-  SDC=safeChart('spDon',{type:'doughnut',data:{labels:['Виконано','В роботі','Перенесено'],datasets:[{data:[done,inProg,moved],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}}}}});
+  const DL=window.ChartDataLabels;
+  SDC=safeChart('spDon',{type:'doughnut',plugins:DL?[DL]:[],data:{labels:['Виконано','В роботі','Перенесено'],datasets:[{data:[done,inProg,moved],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,color:'#fff',font:{size:11,weight:'700'},formatter:(v,ctx)=>{const tot=ctx.dataset.data.reduce((a,b)=>a+b,0);return tot>0?v+'\n'+Math.round(v/tot*100)+'%':'';}}}}}); 
   const footer=document.getElementById('sprint-footer');
   if(footer) footer.textContent=`${num==='all'?'Всього':'Спринт '+num}: ${total} задач · ${done} виконано · ${moved} перенесено · ${dp}% завершення`;
 
@@ -1369,30 +1378,30 @@ function go(id,btn){
 function restoreTab(){
   try{
     const saved=localStorage.getItem('e3d_tab');
-    if(!saved)return;
-    const btn=document.querySelector(`.tb[onclick*="'${saved}'"]`);
-    const panel=document.getElementById('panel-'+saved);
+    // Якщо немає збереженого — беремо активний таб з HTML
+    const activeId=saved||(document.querySelector('.panel.active')?.id||'').replace('panel-','')||null;
+    if(!activeId)return;
+    const btn=document.querySelector(`.tb[onclick*="'${activeId}'"]`);
+    const panel=document.getElementById('panel-'+activeId);
     if(btn&&panel){
       document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
       panel.classList.add('active');
-      // Запускаємо лоадер після повного завантаження всіх скриптів
       function tryLoadTab(){
-        if(saved==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
+        if(activeId==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
           window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
         }
-        if(saved==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
+        if(activeId==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
           window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
           if(window.MqlLoader) window.MqlLoader.load();
         }
-        if(saved==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
+        if(activeId==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
           window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
         }
       }
-      // Чекаємо до 2с щоб лоадери ініціалізувались (defer scripts)
       const needed={'hr':'HRLoader','crm':'AdsLoader','sales':'SalesLoader'};
-      const loaderName=needed[saved];
+      const loaderName=needed[activeId];
       if(!loaderName||window[loaderName]){tryLoadTab();}
       else{
         let attempts=0;
@@ -1623,9 +1632,36 @@ async function buildForecast(){
   if(note)note.textContent='Кумулятивний % · тренд з '+completedHistory.length+' закритих спринтів'+(activeHistory.length?' · '+activeHistory.length+' в процесі':'')+' · живі дані';
   const badge=document.getElementById('fc-badge');
   if(badge){badge.textContent=forecastPct>=80?'НА ЦІЛІ':forecastPct>=50?'ПОТРЕБУЄ ПРИСКОРЕННЯ':'РИЗИК';badge.className='bdg '+(forecastPct>=80?'bdg-g':forecastPct>=50?'bdg-a':'bdg-r');}
+
+  // Лінія 3: "якщо темп погіршується" — лінійна регресія дельт між спринтами
+  // Будуємо спадний тренд на основі того що кожен наступний спринт дає менше
+  const sprintPcts=completedHistory.map(h=>h.spTotal>0?h.spDone/h.spTotal*100:0);
+  const avgSprintPct=sprintPcts.length?sprintPcts.reduce((a,b)=>a+b,0)/sprintPcts.length:0;
+  // Тренд спадання: якщо С4 гірше С1, екстраполюємо погіршення
+  const worstDelta=sprintPcts.length>1?(sprintPcts[sprintPcts.length-1]-sprintPcts[0])/(sprintPcts.length-1):0;
+  const pessimisticData=forecastLabels.map((_,i)=>{
+    const pastLen=fullHistory.filter(h=>h.spTotal>0).length;
+    if(i<pastLen) return null; // не показуємо на ділянці факту
+    const spIdx=i-pastLen+1;
+    const projSprintPct=Math.max(0,avgSprintPct+worstDelta*spIdx);
+    // Кумулятивний песимістичний
+    const projD=lastCumDone+avgDonePerSprint*(1+worstDelta/avgSprintPct*(spIdx-1)/2)*spIdx;
+    const projT=lastCumTotal+avgTotalPerSprint*spIdx;
+    return projT>0?Math.max(0,Math.min(100,projD/projT*100)):null;
+  });
+
+  // Лінія 2: "плато" — якщо більше нічого не виконується (поточний рівень)
+  const flatData=forecastLabels.map((_,i)=>{
+    const pastLen=fullHistory.filter(h=>h.spTotal>0).length;
+    if(i<pastLen-1) return null;
+    return lastPct; // стала горизонтальна лінія
+  });
+
   safeChart('forecastChart',{type:'line',data:{labels:forecastLabels,datasets:[
-    {label:'Факт (кум.%)',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
-    {label:'Прогноз',data:forecastData,borderColor:trendColor,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:trendColor,spanGaps:true}
+    {label:'Факт (кум.%)',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2.5,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
+    {label:'Прогноз (поточний темп)',data:forecastData,borderColor:A,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:A,spanGaps:true},
+    {label:'Плато (без нових задач)',data:flatData,borderColor:'#888',borderWidth:1.5,borderDash:[3,3],tension:0,fill:false,pointRadius:0,spanGaps:true},
+    {label:'Песимістичний тренд',data:pessimisticData,borderColor:R,borderWidth:1.5,borderDash:[4,2],tension:.2,fill:false,pointRadius:2,pointBackgroundColor:R,spanGaps:true},
   ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
 }
 
