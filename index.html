@@ -1478,13 +1478,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   // restoreTab: запускаємо і через load, і через pageshow (bfcache)
   // і одразу якщо документ вже завантажений
   function _doRestoreTab(){ try{restoreTab();}catch(e){} }
+  // setTimeout 500ms — запускаємо після всіх DOMContentLoaded у лоадерах
+  // (hr_loader, ads_loader, mql_loader, sales_loader теж слухають DOMContentLoaded)
   if(document.readyState==='complete'){
-    setTimeout(_doRestoreTab, 200);
+    setTimeout(_doRestoreTab, 500);
   } else {
-    window.addEventListener('load', _doRestoreTab);
+    window.addEventListener('load', function(){ setTimeout(_doRestoreTab, 300); });
   }
   window.addEventListener('pageshow', function(e){
-    if(e.persisted) _doRestoreTab(); // повернення з bfcache
+    if(e.persisted) setTimeout(_doRestoreTab, 300);
   });
 
   // Завантаження даних + ініціалізація скорінгу
