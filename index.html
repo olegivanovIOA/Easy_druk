@@ -12,10 +12,6 @@
 <script src="js/strategy_scoring.js?v=1778586309"></script>
 <script src="js/data_layer.js"></script>
 <script src="js/widgets.js"></script>
-<script src="js/hr_loader.js" defer></script>
-<script src="js/ads_loader.js" defer></script>
-<script src="js/mql_loader.js" defer></script>
-<script src="js/sales_loader.js" defer></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 :root{
@@ -1462,7 +1458,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(cs&&d.employees_count)cs.textContent=d.employees_count+' осіб';
     }).catch(function(){});
   })();
-  restoreTab();
+  // restoreTab викликаємо після window.load — тоді всі JS вже завантажені
+  window.addEventListener('load', function(){ restoreTab(); });
 
   // Завантаження даних + ініціалізація скорінгу
   if(window.E3D_LOADER){
@@ -1519,10 +1516,17 @@ async function buildForecast(){
     cumDone+=spDone; cumTotal+=spTotal;
     const pct=cumTotal>0?(cumDone/cumTotal*100):null;
     try{
-      const pts=(sp.dates||'').split(/[–-]/);
-      const ep=pts[pts.length-1].trim();const[d,m]=ep.split('.');
-      return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,
-             endDate:new Date(`2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`)};
+      const pts=(sp.dates||'').split(/[–\-—]/);
+      const ep=pts[pts.length-1].trim();
+      const dm=ep.match(/(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?/);
+      let endDate;
+      if(dm){
+        const dd=parseInt(dm[1]),mm=parseInt(dm[2])-1,yy=dm[3]?parseInt(dm[3]):2026;
+        endDate=new Date(yy,mm,dd);
+      } else {
+        endDate=new Date(2099,0,1); // невідома дата — вважаємо майбутнім (активний)
+      }
+      return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,endDate};
     }catch(e){return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,endDate:new Date()};}
   });
 
@@ -1666,5 +1670,9 @@ async function buildNoFocusProjects(){
 })();
 </script>
 
+<script src="js/hr_loader.js"></script>
+<script src="js/ads_loader.js"></script>
+<script src="js/mql_loader.js"></script>
+<script src="js/sales_loader.js"></script>
 </body>
 </html>
