@@ -336,7 +336,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v1.1</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v3.3</div><div id="build-ts" style="font-size:9px;color:var(--tl);margin-top:1px"></div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO</button>
@@ -1396,6 +1396,23 @@ function restoreTab(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   applyPrefs();
+  // Дата/час збірки — з strategy.json (ts) + поточний час відкриття
+  (function(){
+    var el=document.getElementById('build-ts');
+    if(!el) return;
+    var loaded=new Date().toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    el.textContent='Відкрито: '+loaded;
+    // Також спробуємо показати час останньої збірки даних
+    fetch('data/strategy.json?t='+Date.now())
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.ts){
+          var built=new Date(d.ts).toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+          el.textContent='Дані: '+built;
+          el.title='Відкрито: '+loaded;
+        }
+      }).catch(function(){});
+  })();
   buildStatic();
   refreshCharts();
   renderStrategy();
