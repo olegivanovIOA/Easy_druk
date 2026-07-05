@@ -912,8 +912,17 @@ const F={year:'2026',month:'5'};
   }
 })();
 function fd(arr){if(F.month!=='all'){const m=parseInt(F.month);return{l:[ML[m]],d:[arr[m]]};}return{l:ML,d:arr};}
-function setY(v){F.year=v;refreshCharts();}
-function setM(v){F.month=v;refreshCharts();}
+function setY(v){F.year=v;refreshCharts();_reloadActiveTab();}
+function setM(v){F.month=v;refreshCharts();_reloadActiveTab();}
+function _reloadActiveTab(){
+  const panel=document.querySelector('.panel.active');
+  if(!panel)return;
+  const id=panel.id.replace('panel-','');
+  if(id==='hr'&&window.HRLoader) window.HRLoader.load();
+  if(id==='crm'&&window.AdsLoader){ window.AdsLoader.load(); if(window.MqlLoader) window.MqlLoader.load(); }
+  if(id==='sales'&&window.SalesLoader) window.SalesLoader.load();
+  if(id==='str'&&window.E3D_STRATEGY){ E3D_STRATEGY.render(); try{buildForecast();}catch(e){} }
+}
 
 const CH={};
 function safeChart(id,cfg){
@@ -1364,16 +1373,12 @@ function go(id,btn){
     E3D_STRATEGY.render();
     try{ buildForecast(); }catch(e){}
   }
-  if(id==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
-    window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
-  }
-  if(id==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
-    window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
+  if(id==='hr'&&window.HRLoader) window.HRLoader.load();
+  if(id==='crm'&&window.AdsLoader){
+    window.AdsLoader.load();
     if(window.MqlLoader) window.MqlLoader.load();
   }
-  if(id==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
-    window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
-  }
+  if(id==='sales'&&window.SalesLoader) window.SalesLoader.load();
 }
 function restoreTab(){
   try{
@@ -1389,16 +1394,12 @@ function restoreTab(){
       btn.classList.add('active');
       panel.classList.add('active');
       function tryLoadTab(){
-        if(activeId==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
-          window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
-        }
-        if(activeId==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
-          window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
+        if(activeId==='hr'&&window.HRLoader) window.HRLoader.load();
+        if(activeId==='crm'&&window.AdsLoader){
+          window.AdsLoader.load();
           if(window.MqlLoader) window.MqlLoader.load();
         }
-        if(activeId==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
-          window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
-        }
+        if(activeId==='sales'&&window.SalesLoader) window.SalesLoader.load();
       }
       const needed={'hr':'HRLoader','crm':'AdsLoader','sales':'SalesLoader'};
       const loaderName=needed[activeId];
@@ -1416,6 +1417,13 @@ function restoreTab(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   applyPrefs();
+  // Синхронізуємо F.month/F.year з поточним станом select після браузерного відновлення форм
+  (function(){
+    const msel=document.getElementById('msel');
+    const ysel=document.getElementById('ysel');
+    if(msel && msel.value) F.month=msel.value;
+    if(ysel && ysel.value) F.year=ysel.value;
+  })();
   // Дата/час збірки — з strategy.json (ts) + поточний час відкриття
   (function(){
     var el=document.getElementById('build-ts');
@@ -1467,8 +1475,17 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(cs&&d.employees_count)cs.textContent=d.employees_count+' осіб';
     }).catch(function(){});
   })();
-  // restoreTab викликаємо після window.load — тоді всі JS вже завантажені
-  window.addEventListener('load', function(){ restoreTab(); });
+  // restoreTab: запускаємо і через load, і через pageshow (bfcache)
+  // і одразу якщо документ вже завантажений
+  function _doRestoreTab(){ try{restoreTab();}catch(e){} }
+  if(document.readyState==='complete'){
+    setTimeout(_doRestoreTab, 200);
+  } else {
+    window.addEventListener('load', _doRestoreTab);
+  }
+  window.addEventListener('pageshow', function(e){
+    if(e.persisted) _doRestoreTab(); // повернення з bfcache
+  });
 
   // Завантаження даних + ініціалізація скорінгу
   if(window.E3D_LOADER){
