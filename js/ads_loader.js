@@ -300,13 +300,7 @@ window.AdsLoader = (() => {
     if (el) el.textContent = '✗ Дані реклами недоступні';
   }
 
-  // Автозапуск при відкритті CRM таба
-  document.addEventListener('DOMContentLoaded', () => {
-    // Якщо CRM таб активний за замовчуванням
-    if (document.getElementById('panel-crm')?.classList.contains('active')) {
-      load();
-    }
-  });
+  // auto-trigger removed — керується з index.html через go() і restoreTab()
 
   return { load };
 })();

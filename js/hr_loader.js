@@ -340,18 +340,4 @@ window.HRLoader = (() => {
   return { load };
 })();
 
-// Автозапуск при завантаженні HR-табу
-document.addEventListener('DOMContentLoaded', () => {
-  const tab = document.querySelector('[data-tab="hr"]');
-  if (tab) {
-    tab.addEventListener('click', () => {
-      if (!document.getElementById('hr-employees-count')?.dataset.loaded) {
-        window.HRLoader.load();
-      }
-    });
-  }
-  // Якщо HR-таб активний за замовчуванням
-  if (document.getElementById('tab-hr')?.classList.contains('active')) {
-    window.HRLoader.load();
-  }
-});
+// auto-trigger removed — керується з index.html через go() і restoreTab()

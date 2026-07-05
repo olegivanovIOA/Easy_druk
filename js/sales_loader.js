@@ -204,9 +204,7 @@ window.SalesLoader = (() => {
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('panel-sales')?.classList.contains('active')) load();
-  });
+  // auto-trigger removed — керується з index.html через go() і restoreTab()
 
   return { load };
 })();

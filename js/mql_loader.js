@@ -181,9 +181,7 @@ window.MqlLoader = (() => {
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('panel-crm')?.classList.contains('active')) load();
-  });
+  // auto-trigger removed — керується з index.html через go() і restoreTab()
 
   return { load };
 })();
