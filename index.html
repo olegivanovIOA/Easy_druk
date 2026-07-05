@@ -1373,12 +1373,13 @@ function go(id,btn){
     E3D_STRATEGY.render();
     try{ buildForecast(); }catch(e){}
   }
-  if(id==='hr'&&window.HRLoader) window.HRLoader.load();
+  if(id==='hr'&&window.HRLoader){ console.log('[go] HRLoader.load()'); window.HRLoader.load(); }
   if(id==='crm'&&window.AdsLoader){
+    console.log('[go] AdsLoader.load()');
     window.AdsLoader.load();
     if(window.MqlLoader) window.MqlLoader.load();
   }
-  if(id==='sales'&&window.SalesLoader) window.SalesLoader.load();
+  if(id==='sales'&&window.SalesLoader){ console.log('[go] SalesLoader.load()'); window.SalesLoader.load(); }
 }
 function restoreTab(){
   try{
@@ -1394,11 +1395,9 @@ function restoreTab(){
       btn.classList.add('active');
       panel.classList.add('active');
       function tryLoadTab(){
+        console.log('[restoreTab] activeId='+activeId, 'HRLoader='+!!window.HRLoader, 'SalesLoader='+!!window.SalesLoader, 'AdsLoader='+!!window.AdsLoader);
         if(activeId==='hr'&&window.HRLoader) window.HRLoader.load();
-        if(activeId==='crm'&&window.AdsLoader){
-          window.AdsLoader.load();
-          if(window.MqlLoader) window.MqlLoader.load();
-        }
+        if(activeId==='crm'&&window.AdsLoader){ window.AdsLoader.load(); if(window.MqlLoader) window.MqlLoader.load(); }
         if(activeId==='sales'&&window.SalesLoader) window.SalesLoader.load();
       }
       const needed={'hr':'HRLoader','crm':'AdsLoader','sales':'SalesLoader'};
