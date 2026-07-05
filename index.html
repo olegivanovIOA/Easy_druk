@@ -1107,14 +1107,14 @@ async function _renderPersonScores(){
     window._persChart=new Chart(canvas,{
       type:'bar',
       data:{labels,datasets:[
-        {label:'Виконано %',data:donePct,backgroundColor:'#10B981',borderRadius:3,borderSkipped:false},
-        {label:'В роботі %',data:inPct,backgroundColor:'#3B82F6',borderRadius:3,borderSkipped:false},
-        {label:'Перенесено %',data:movPct,backgroundColor:'#EF4444',borderRadius:3,borderSkipped:false},
+        {label:'Виконано %',data:donePct,backgroundColor:'#D4A843',borderRadius:3,borderSkipped:false},
+        {label:'В роботі %',data:inPct,backgroundColor:'#4A90C4',borderRadius:3,borderSkipped:false},
+        {label:'Перенесено %',data:movPct,backgroundColor:'#C97B5A',borderRadius:3,borderSkipped:false},
       ]},
       plugins:[{
         afterDatasetsDraw(chart){
           const ctx=chart.ctx;
-          const labelColors=['#065F46','#1e3a5f','#7b0e0e'];
+          const labelColors=['#8B6914','#1e4a72','#8B4220'];
           [0,1,2].forEach(di=>{
             const ds=chart.data.datasets[di];
             const meta=chart.getDatasetMeta(di);
