@@ -12,6 +12,10 @@
 <script src="js/strategy_scoring.js?v=1778586309"></script>
 <script src="js/data_layer.js"></script>
 <script src="js/widgets.js"></script>
+<script src="js/hr_loader.js" defer></script>
+<script src="js/ads_loader.js" defer></script>
+<script src="js/mql_loader.js" defer></script>
+<script src="js/sales_loader.js" defer></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 :root{
@@ -1377,8 +1381,8 @@ function restoreTab(){
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
       panel.classList.add('active');
-      // Запускаємо лоадер для відновленого табу (якщо ще не завантажено)
-      setTimeout(function(){
+      // Запускаємо лоадер після повного завантаження всіх скриптів
+      function tryLoadTab(){
         if(saved==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
           window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
         }
@@ -1389,7 +1393,18 @@ function restoreTab(){
         if(saved==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
           window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
         }
-      }, 100); // невелика затримка щоб панель встигла стати видимою
+      }
+      // Чекаємо до 2с щоб лоадери ініціалізувались (defer scripts)
+      const needed={'hr':'HRLoader','crm':'AdsLoader','sales':'SalesLoader'};
+      const loaderName=needed[saved];
+      if(!loaderName||window[loaderName]){tryLoadTab();}
+      else{
+        let attempts=0;
+        const poll=setInterval(()=>{
+          attempts++;
+          if(window[loaderName]||attempts>20){clearInterval(poll);tryLoadTab();}
+        },100);
+      }
     }
   }catch(e){}
 }
@@ -1523,18 +1538,45 @@ async function buildForecast(){
     if(n)n.textContent='Очікую дані спринтів...';return;
   }
 
-  // Дельти тільки між завершеними спринтами
-  const deltas=[];
-  for(let i=1;i<completedHistory.length;i++) deltas.push(completedHistory[i].pct-completedHistory[i-1].pct);
-  const avgDelta=deltas.length?deltas.reduce((a,b)=>a+b,0)/deltas.length:0;
+  // ── ВИПРАВЛЕНИЙ ПРОГНОЗ ──────────────────────────────────────────────────
+  // Рахуємо середню кількість задач що ВИКОНУЮТЬСЯ за спринт
+  // (не дельту кумулятивного %, бо він може падати при додаванні нових задач)
+  const donePerSprint = completedHistory.map(h=>h.spDone);
+  const avgDonePerSprint = donePerSprint.length
+    ? donePerSprint.reduce((a,b)=>a+b,0)/donePerSprint.length : 0;
+
+  // Середня кількість задач за спринт (для оцінки нових задач)
+  const avgTotalPerSprint = completedHistory.length
+    ? completedHistory.reduce((a,h)=>a+h.spTotal,0)/completedHistory.length : 0;
+
   const lastCompleted=completedHistory[completedHistory.length-1]||validHistory[validHistory.length-1];
   const lastPct=lastCompleted.pct;
   const lastDate=lastCompleted.endDate;
+  const lastCumDone=lastCompleted.cumDone;
+  const lastCumTotal=lastCompleted.cumTotal;
 
   const YEAR_END=new Date('2026-12-31');
   const daysLeft=Math.max(0,(YEAR_END-lastDate)/86400000);
   const sprintsLeft=Math.round(daysLeft/18);
-  const forecastPct=Math.max(0,Math.min(100,lastPct+avgDelta*sprintsLeft));
+
+  // Прогноз: поточні виконані + avg_done_per_sprint * залишок спринтів
+  const projectedDone = lastCumDone + avgDonePerSprint * sprintsLeft;
+  const projectedTotal = lastCumTotal + avgTotalPerSprint * sprintsLeft;
+  const forecastPct = projectedTotal > 0
+    ? Math.min(100, projectedDone / projectedTotal * 100) : lastPct;
+
+  // Дельта для відображення темпу (% виконання за спринт)
+  const avgDelta = avgTotalPerSprint > 0
+    ? (avgDonePerSprint / avgTotalPerSprint * 100 - 100/sprints.length) : 0;
+  // Простіша метрика темпу: скільки % кумулятивного приросту за спринт
+  const cumDeltas=[];
+  for(let i=1;i<completedHistory.length;i++){
+    // Приріст виконання за спринт (задач) відносно поточного total
+    const d=completedHistory[i];
+    const prev=completedHistory[i-1];
+    if(d.cumTotal>0) cumDeltas.push(d.spDone/d.cumTotal*100);
+  }
+  const displayDelta = cumDeltas.length ? cumDeltas.reduce((a,b)=>a+b,0)/cumDeltas.length : 0;
 
   // Формуємо дані для графіку
   const forecastLabels=fullHistory.map(s=>s.label);
@@ -1543,23 +1585,35 @@ async function buildForecast(){
   // Точка з'єднання прогнозу з фактом
   const lvi=fullHistory.findIndex(h=>h.label===lastCompleted.label);
   if(lvi>=0) forecastData[lvi]=lastPct;
+  // Прогнозні точки: кумулятивно наростаючий % (не падає!)
   for(let i=1;i<=Math.min(sprintsLeft,12);i++){
     forecastLabels.push('С+'+i);
-    forecastData.push(Math.max(0,Math.min(100,lastPct+avgDelta*i)));
+    const projD = lastCumDone + avgDonePerSprint*i;
+    const projT = lastCumTotal + avgTotalPerSprint*i;
+    const projPct = projT>0 ? Math.min(100, projD/projT*100) : lastPct;
+    forecastData.push(Math.round(projPct*10)/10);
     actualData.push(null);
   }
 
-  const trend=avgDelta>0.5?'📈 Прогрес':avgDelta<-0.5?'📉 Регрес':'➡️ Стабільно';
-  const trendColor=avgDelta>0.5?G:avgDelta<-0.5?R:A;
+  const trend=forecastPct>=lastPct+5?'📈 Прогрес':forecastPct<=lastPct-5?'📉 Регрес':'➡️ Стабільно';
+  const trendColor=forecastPct>=lastPct+5?G:forecastPct<=lastPct-5?R:A;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  set('fc-rate',(avgDelta>=0?'+':'')+avgDelta.toFixed(1)+'%/спринт');
+  // Темп: скільки задач виконується за спринт
+  set('fc-rate','+'+Math.round(avgDonePerSprint)+' задач/спринт');
   set('fc-remaining',sprintsLeft);
   set('fc-final',forecastPct.toFixed(0)+'%');
   const te=document.getElementById('fc-trend');if(te){te.textContent=trend;te.style.color=trendColor;}
   const w100=document.getElementById('fc-when100');
   if(w100){
-    if(avgDelta<=0){w100.textContent='Не досягнемо при поточному темпі';w100.style.color=R;}
-    else{const sp100=Math.ceil((100-lastPct)/avgDelta);const dt100=new Date(lastDate.getTime()+sp100*18*86400000);w100.textContent=dt100.toLocaleDateString('uk-UA',{month:'long',year:'numeric'});w100.style.color=dt100<=YEAR_END?G:A;}
+    if(avgDonePerSprint<=0){w100.textContent='Не досягнемо при поточному темпі';w100.style.color=R;}
+    else{
+      // Скільки ще задач треба: якщо total теж росте, рахуємо через итерацію
+      let d=lastCumDone,t=lastCumTotal,sp=0;
+      while(d/Math.max(t,1)<1&&sp<50){d+=avgDonePerSprint;t+=avgTotalPerSprint;sp++;}
+      const dt100=new Date(lastDate.getTime()+sp*18*86400000);
+      if(sp>=50){w100.textContent='Поза горизонтом 2026 при +'+Math.round(avgTotalPerSprint)+' нових/спринт';w100.style.color=A;}
+      else{w100.textContent=dt100.toLocaleDateString('uk-UA',{month:'long',year:'numeric'});w100.style.color=dt100<=YEAR_END?G:A;}
+    }
   }
   const note=document.getElementById('fc-note');
   if(note)note.textContent='Кумулятивний % · тренд з '+completedHistory.length+' закритих спринтів'+(activeHistory.length?' · '+activeHistory.length+' в процесі':'')+' · живі дані';
@@ -1611,9 +1665,6 @@ async function buildNoFocusProjects(){
   document.head.appendChild(style);
 })();
 </script>
-<script src="js/hr_loader.js"></script>
-<script src="js/ads_loader.js"></script>
-<script src="js/mql_loader.js"></script>
-<script src="js/sales_loader.js"></script>
+
 </body>
 </html>
