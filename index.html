@@ -1724,9 +1724,1063 @@ async function buildNoFocusProjects(){
 })();
 </script>
 
-<script src="js/hr_loader.js"></script>
-<script src="js/ads_loader.js"></script>
-<script src="js/mql_loader.js"></script>
-<script src="js/sales_loader.js"></script>
+<script>/* hr_loader inline */
+/**
+ * hr_loader.js — Easy 3D Print Dashboard v1.1
+ * Завантажує data/hr.json і рендерить HR таб:
+ *   - Загальна кількість співробітників
+ *   - Графік стажерів по місяцях (Chart.js)
+ *   - Поточні відкриті вакансії (таблиця)
+ *   - Графік вакансій по місяцях (з history)
+ *   - Довідник норм закриття вакансій
+ *   - Графік плинності кадрів
+ */
+
+window.HRLoader = (() => {
+  const DATA_URL = 'data/hr.json';
+
+  let _data = null;
+  let _charts = {};
+
+  const UA_MONTH_ORDER = [
+    'Січень','Лютий','Березень','Квітень','Травень','Червень',
+    'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'
+  ];
+
+  // ─── Завантаження ──────────────────────────────────────────────────────────
+  async function load() {
+    try {
+      const r = await fetch(DATA_URL + '?t=' + Date.now());
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      _data = await r.json();
+      render();
+    } catch (e) {
+      console.warn('[HR] Не вдалось завантажити hr.json:', e);
+      renderError();
+    }
+  }
+
+  // ─── Головний рендер ───────────────────────────────────────────────────────
+  function render() {
+    if (!_data) return;
+    renderEmployeeCount();
+    renderInternsChart();
+    renderVacanciesCurrent();
+    renderVacanciesHistory();
+    renderClosingNorms();
+    renderTurnoverChart();
+    updateTimestamp();
+  }
+
+  // ─── 1. Загальна кількість співробітників + зведені картки ────────────────
+  function renderEmployeeCount() {
+    const el = document.getElementById('hr-employees-count');
+    if (el) el.textContent = _data.employees_count || 0;
+
+    const vacCount = (_data.vacancies_current?.vacancies || []).length;
+    const vacEl = document.getElementById('hr-open-vacancies-count');
+    if (vacEl) vacEl.textContent = vacCount || '—';
+
+    const staff = _data.turnover?.staff || [];
+    if (staff.length) {
+      const last = staff[staff.length - 1];
+      const turnEl = document.getElementById('hr-turnover-latest');
+      if (turnEl) {
+        turnEl.textContent = last.turnover_pct + '%';
+        const val = parseFloat(last.turnover_pct);
+        turnEl.style.color = val > 5 ? '#dc3545' : '#0A3D20';
+      }
+    }
+
+    const interns = _data.interns_by_month || [];
+    if (interns.length) {
+      const last = interns[interns.length - 1];
+      const intEl = document.getElementById('hr-interns-latest');
+      if (intEl) intEl.textContent = last.count;
+    }
+  }
+
+  // ─── 2. Графік стажерів по місяцях ────────────────────────────────────────
+  function renderInternsChart() {
+    const canvas = document.getElementById('hr-interns-chart');
+    if (!canvas) return;
+
+    const data = _data.interns_by_month || [];
+    if (!data.length) {
+      canvas.parentElement.innerHTML = '<p style="color:var(--color-text-secondary);font-size:13px;padding:1rem">Даних по стажерах немає</p>';
+      return;
+    }
+
+    // Сортуємо по порядку місяців
+    const sorted = [...data].sort((a, b) =>
+      UA_MONTH_ORDER.indexOf(a.month) - UA_MONTH_ORDER.indexOf(b.month)
+    );
+
+    if (_charts['interns']) _charts['interns'].destroy();
+    _charts['interns'] = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: sorted.map(d => d.month),
+        datasets: [{
+          label: 'Стажерів',
+          data: sorted.map(d => d.count),
+          backgroundColor: '#16A34A',
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            anchor: 'end', align: 'top',
+            font: { size: 12, weight: '500' },
+            color: '#0A3D20',
+            formatter: v => v
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } },
+          x: { ticks: { autoSkip: false } }
+        }
+      },
+      plugins: window.ChartDataLabels ? [window.ChartDataLabels] : []
+    });
+  }
+
+  // ─── 3. Поточні відкриті вакансії ─────────────────────────────────────────
+  function renderVacanciesCurrent() {
+    const container = document.getElementById('hr-vacancies-current');
+    if (!container) return;
+
+    const current = _data.vacancies_current || {};
+    const list = current.vacancies || [];
+    const month = current.month || '—';
+
+    if (!list.length) {
+      container.innerHTML = `<p style="color:var(--color-text-secondary);font-size:13px">Вакансій немає</p>`;
+      return;
+    }
+
+    const STATUS_COLORS = {
+      'Закрита':   { bg: '#d4edda', color: '#0A3D20' },
+      'Погоджена': { bg: '#fff3cd', color: '#856404' },
+      'Відкрита':  { bg: '#f8d7da', color: '#721c24' },
+    };
+
+    const REASON_COLORS = {
+      'Заміна співробітника': { bg: '#f8d7da', color: '#721c24' },
+      'Підсилення команди':   { bg: '#fff3cd', color: '#856404' },
+      'Розширення штату':     { bg: '#d4edda', color: '#0A3D20' },
+    };
+
+    const rows = list.map(v => {
+      const sc = STATUS_COLORS[v.status] || { bg: '#e9ecef', color: '#495057' };
+      const rc = REASON_COLORS[v.reason] || { bg: '#e9ecef', color: '#495057' };
+      return `<tr>
+        <td style="font-weight:500">${v.vacancy}</td>
+        <td style="text-align:center">${v.location || '—'}</td>
+        <td style="text-align:center">${v.qty || '1'}</td>
+        <td><span style="background:${rc.bg};color:${rc.color};padding:2px 8px;border-radius:4px;font-size:12px">${v.reason || '—'}</span></td>
+        <td><span style="background:${sc.bg};color:${sc.color};padding:2px 10px;border-radius:4px;font-size:12px;font-weight:500">${v.status || '—'}</span></td>
+      </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px">Місяць: <strong>${month}</strong> · Вакансій: <strong>${list.length}</strong></p>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:var(--color-background-secondary)">
+            <th style="padding:8px 10px;text-align:left;font-weight:500">Вакансія</th>
+            <th style="padding:8px 10px;font-weight:500">Локація</th>
+            <th style="padding:8px 10px;font-weight:500">К-сть</th>
+            <th style="padding:8px 10px;text-align:left;font-weight:500">Причина</th>
+            <th style="padding:8px 10px;text-align:left;font-weight:500">Статус</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>`;
+  }
+
+  // ─── 4. Графік вакансій по місяцях (history) ──────────────────────────────
+  function renderVacanciesHistory() {
+    const canvas = document.getElementById('hr-vacancies-history-chart');
+    if (!canvas) return;
+
+    const history = _data.vacancies_history || [];
+    if (history.length < 2) {
+      canvas.parentElement.innerHTML = `<p style="color:var(--color-text-secondary);font-size:13px;padding:1rem">Накопичується з кожним місяцем…</p>`;
+      return;
+    }
+
+    const sorted = [...history].sort((a, b) =>
+      UA_MONTH_ORDER.indexOf(a.month) - UA_MONTH_ORDER.indexOf(b.month)
+    );
+
+    if (_charts['vac_hist']) _charts['vac_hist'].destroy();
+    _charts['vac_hist'] = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: sorted.map(d => d.month),
+        datasets: [{
+          label: 'Відкриті вакансії',
+          data: sorted.map(d => d.total),
+          borderColor: '#0A3D20',
+          backgroundColor: 'rgba(10,61,32,0.1)',
+          pointBackgroundColor: '#16A34A',
+          pointRadius: 5,
+          tension: 0.3,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } },
+          x: { ticks: { autoSkip: false } }
+        }
+      }
+    });
+  }
+
+  // ─── 5. Довідник норм закриття вакансій ────────────────────────────────────
+  function renderClosingNorms() {
+    const container = document.getElementById('hr-closing-norms');
+    if (!container) return;
+
+    const norms = _data.closing_norms || [];
+    if (!norms.length) {
+      container.innerHTML = '<p style="color:var(--color-text-secondary);font-size:13px">Довідник не завантажено</p>';
+      return;
+    }
+
+    const rows = norms.map(n => {
+      const color = n.days <= 14 ? '#0A3D20' : '#1A2B3C';
+      const bg    = n.days <= 14 ? '#d4edda' : '#e6f1fb';
+      return `<tr>
+        <td style="padding:5px 10px;font-size:13px">${n.position}</td>
+        <td style="padding:5px 10px;text-align:center">
+          <span style="background:${bg};color:${color};padding:2px 10px;border-radius:4px;font-size:12px;font-weight:500">${n.days} дн.</span>
+        </td>
+      </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">* Відлік від погодження заявки та повного опису вакансії</p>
+      <div style="overflow-x:auto;max-height:340px;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:var(--color-background-secondary);position:sticky;top:0">
+            <th style="padding:8px 10px;text-align:left;font-weight:500;font-size:13px">Посада</th>
+            <th style="padding:8px 10px;font-weight:500;font-size:13px">Норма</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>`;
+  }
+
+  // ─── 6. Графік плинності кадрів ────────────────────────────────────────────
+  function renderTurnoverChart() {
+    const canvas = document.getElementById('hr-turnover-chart');
+    if (!canvas) return;
+
+    const turnover = _data.turnover || {};
+    const staff = turnover.staff || [];
+    const target = turnover.target_staff || null;
+
+    if (!staff.length) {
+      canvas.parentElement.innerHTML = '<p style="color:var(--color-text-secondary);font-size:13px;padding:1rem">Даних по плинності немає</p>';
+      return;
+    }
+
+    const sorted = [...staff].sort((a, b) =>
+      UA_MONTH_ORDER.indexOf(a.month) - UA_MONTH_ORDER.indexOf(b.month)
+    );
+    const labels = sorted.map(d => d.month);
+    const vals   = sorted.map(d => parseFloat(d.turnover_pct) || 0);
+
+    const datasets = [{
+      label: 'Плинність %',
+      data: vals,
+      borderColor: '#1A2B3C',
+      backgroundColor: 'rgba(26,43,60,0.1)',
+      pointBackgroundColor: vals.map(v => v > 5 ? '#dc3545' : '#16A34A'),
+      pointRadius: 5,
+      tension: 0.3,
+      fill: true,
+    }];
+
+    // Таргет лінія
+    if (target) {
+      const targetVal = parseFloat(target.replace('%','').replace(',','.')) || 5;
+      datasets.push({
+        label: 'Таргет ' + target,
+        data: labels.map(() => targetVal),
+        borderColor: '#dc3545',
+        borderDash: [6, 3],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+      });
+    }
+
+    if (_charts['turnover']) _charts['turnover'].destroy();
+    _charts['turnover'] = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: !!target, position: 'top', labels: { boxWidth: 12, font: { size: 12 } } }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: v => v + '%' }
+          },
+          x: { ticks: { autoSkip: false } }
+        }
+      }
+    });
+  }
+
+  // ─── Таймстамп ─────────────────────────────────────────────────────────────
+  function updateTimestamp() {
+    const el = document.getElementById('hr-updated-at');
+    if (!el || !_data?.fetched_at) return;
+    const d = new Date(_data.fetched_at);
+    el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' });
+  }
+
+  function renderError() {
+    const el = document.getElementById('hr-status');
+    if (el) el.textContent = '✗ HR дані недоступні';
+  }
+
+  return { load };
+})();
+
+// auto-trigger removed — керується з index.html через go() і restoreTab()
+
+</script>
+<script>/* ads_loader inline */
+/**
+ * ads_loader.js — Easy 3D Print Dashboard v1.1
+ * Завантажує data/ads.json (генерується fetch_ads.py з Google Ads)
+ * Рендерить CRM таб: зведення, воронка, кампанії, розподіл бюджету
+ */
+
+window.AdsLoader = (() => {
+  const DATA_URL = 'data/ads.json';
+  let _data = null;
+  let _charts = {};
+
+  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B';
+  const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)';
+  const GRID = '#f0f2ee';
+
+  // ── Завантаження ────────────────────────────────────────────────────────────
+  async function load() {
+    try {
+      const r = await fetch(DATA_URL + '?t=' + Date.now());
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      _data = await r.json();
+      render();
+    } catch (e) {
+      console.warn('[ADS] Не вдалось завантажити ads.json:', e);
+      _renderError();
+    }
+  }
+
+  // ── Головний рендер ──────────────────────────────────────────────────────────
+  function render() {
+    if (!_data) return;
+    _renderSummary();
+    _renderFunnelChart();
+    _renderCampaignsTable();
+    _renderBudgetChart();
+    _updateTimestamp();
+  }
+
+  // ── 1. Зведення KPI ─────────────────────────────────────────────────────────
+  function _renderSummary() {
+    const s = _data.analytics?.summary || {};
+
+    _set('ads-cost-total',    s.total_cost_uah   ? _fmt(s.total_cost_uah) + ' грн' : '—');
+    _set('ads-conv-total',    s.total_conversions != null ? s.total_conversions : '—');
+    _set('ads-roas-avg',      s.avg_roas          ? s.avg_roas + 'x'              : '—');
+    _set('ads-active-count',  s.active_count      != null ? s.active_count        : '—');
+
+    // Кольори для ROAS
+    const roasEl = document.getElementById('ads-roas-avg');
+    if (roasEl && s.avg_roas) {
+      roasEl.style.color = s.avg_roas >= 3 ? GD : s.avg_roas >= 1 ? A : R;
+    }
+
+    // RED кампанії — попередження
+    const redEl = document.getElementById('ads-red-count');
+    if (redEl) {
+      redEl.textContent = s.red_count || 0;
+      redEl.style.color = s.red_count > 0 ? R : GD;
+    }
+
+    // Воронка — останній день
+    const funnel = _data.funnel || [];
+    if (funnel.length) {
+      const last = funnel[funnel.length - 1];
+      _set('ads-leads-last',   last.leads);
+      _set('ads-ctr-last',     last.ctr_pct + '%');
+      _set('ads-cvr-last',     last.cvr_pct + '%');
+    }
+  }
+
+  // ── 2. Графік воронки по днях ────────────────────────────────────────────────
+  function _renderFunnelChart() {
+    const canvas = document.getElementById('ads-funnel-chart');
+    if (!canvas) return;
+
+    const funnel = _data.funnel || [];
+    if (!funnel.length) {
+      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних воронки немає</p>';
+      return;
+    }
+
+    // Показуємо останні 30 днів
+    const data = funnel.slice(-30);
+    const labels = data.map(d => {
+      const dt = new Date(d.date);
+      return (dt.getMonth()+1) + '/' + dt.getDate();
+    });
+
+    if (_charts.funnel) { try { _charts.funnel.destroy(); } catch(e){} }
+    _charts.funnel = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Ліди',
+            data: data.map(d => d.leads),
+            borderColor: GD, backgroundColor: GB,
+            borderWidth: 2, tension: 0.4, fill: true,
+            pointRadius: 3, pointBackgroundColor: GD, yAxisID: 'y',
+          },
+          {
+            label: 'Кліки',
+            data: data.map(d => d.clicks),
+            borderColor: A, backgroundColor: AB,
+            borderWidth: 1.5, tension: 0.4, fill: false,
+            pointRadius: 2, pointBackgroundColor: A, yAxisID: 'y1',
+          },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'top', labels: { usePointStyle: true, padding: 10, font: { size: 10 } } }
+        },
+        scales: {
+          x: { grid: { color: GRID }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+          y: {
+            type: 'linear', position: 'left',
+            grid: { color: GRID },
+            title: { display: true, text: 'Ліди', font: { size: 9 }, color: GD },
+            beginAtZero: true,
+          },
+          y1: {
+            type: 'linear', position: 'right',
+            grid: { drawOnChartArea: false },
+            title: { display: true, text: 'Кліки', font: { size: 9 }, color: A },
+            beginAtZero: true,
+          },
+        }
+      }
+    });
+
+    // CTR/CVR лінійний міні-графік
+    const canvas2 = document.getElementById('ads-ctr-chart');
+    if (canvas2) {
+      if (_charts.ctr) { try { _charts.ctr.destroy(); } catch(e){} }
+      _charts.ctr = new Chart(canvas2, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'CTR%', data: data.map(d => d.ctr_pct), borderColor: A, borderWidth: 1.5, tension: 0.4, fill: false, pointRadius: 2 },
+            { label: 'CVR%', data: data.map(d => d.cvr_pct), borderColor: GD, borderWidth: 1.5, tension: 0.4, fill: false, pointRadius: 2 },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } } },
+          scales: {
+            x: { grid: { color: GRID }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+            y: { grid: { color: GRID }, ticks: { callback: v => v + '%' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+  }
+
+  // ── 3. Таблиця кампаній ──────────────────────────────────────────────────────
+  function _renderCampaignsTable() {
+    const container = document.getElementById('ads-campaigns-table');
+    if (!container) return;
+
+    const active = _data.analytics?.active || [];
+    if (!active.length) {
+      container.innerHTML = '<p style="color:var(--tl);font-size:12px">Активних кампаній немає</p>';
+      return;
+    }
+
+    // Сортуємо: спочатку RED, потім GREEN за витратами
+    const sorted = [...active].sort((a, b) => {
+      if (a.traffic_light === 'RED' && b.traffic_light !== 'RED') return -1;
+      if (b.traffic_light === 'RED' && a.traffic_light !== 'RED') return 1;
+      return b.cost_uah - a.cost_uah;
+    });
+
+    const LIGHT = {
+      GREEN: { bg: '#d4edda', color: '#0A3D20', label: '✓' },
+      RED:   { bg: '#f8d7da', color: '#721c24', label: '✗' },
+      YELLOW:{ bg: '#fff3cd', color: '#856404', label: '~' },
+    };
+
+    const rows = sorted.map(c => {
+      const lc = LIGHT[c.traffic_light] || LIGHT.YELLOW;
+      const roasVal = c.roas !== 'N/A' ? parseFloat(c.roas) : null;
+      const roasColor = roasVal ? (roasVal >= 3 ? GD : roasVal >= 1 ? A : R) : 'var(--tl)';
+      const roasText = roasVal ? roasVal + 'x' : 'N/A';
+      const cplText = c.cpl !== 'N/A' ? c.cpl + ' грн' : 'N/A';
+
+      return `<tr>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.campaign}">${c.campaign}</td>
+        <td style="text-align:right;font-weight:600">${_fmt(c.cost_uah)} грн</td>
+        <td style="text-align:center">${c.conversions || 0}</td>
+        <td style="text-align:right;font-weight:700;color:${roasColor}">${roasText}</td>
+        <td style="text-align:right">${c.clicks.toLocaleString('uk-UA')}</td>
+        <td style="text-align:center">${c.ctr_pct}%</td>
+        <td style="text-align:center">
+          <span style="background:${lc.bg};color:${lc.color};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">${c.traffic_light}</span>
+        </td>
+      </tr>`;
+    }).join('');
+
+    const total = _data.analytics?.summary || {};
+    container.innerHTML = `
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:var(--s2)">
+            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Кампанія</th>
+            <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Витрати</th>
+            <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Конв.</th>
+            <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">ROAS</th>
+            <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Кліки</th>
+            <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">CTR</th>
+            <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Статус</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>
+      <div style="padding:7px 12px;font-size:10px;color:var(--tm);background:var(--s2);border-top:1px solid var(--bd);border-radius:0 0 var(--r) var(--r)">
+        Активних: ${total.active_count} · Бюджет 30 днів: ${_fmt(total.total_cost_uah)} грн · Ліди: ${total.total_conversions} · Avg ROAS: ${total.avg_roas}x
+      </div>`;
+  }
+
+  // ── 4. Розподіл бюджету (bar chart) ─────────────────────────────────────────
+  function _renderBudgetChart() {
+    const canvas = document.getElementById('ads-budget-chart');
+    if (!canvas) return;
+
+    const active = (_data.analytics?.active || []).filter(c => c.cost_uah > 0);
+    if (!active.length) {
+      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Немає даних по витратах</p>';
+      return;
+    }
+
+    const sorted = [...active].sort((a, b) => b.cost_uah - a.cost_uah).slice(0, 10);
+    const colors = sorted.map(c =>
+      c.traffic_light === 'RED' ? 'rgba(192,57,43,.7)' :
+      c.traffic_light === 'GREEN' ? 'rgba(42,157,143,.75)' : 'rgba(69,123,157,.6)'
+    );
+
+    if (_charts.budget) { try { _charts.budget.destroy(); } catch(e){} }
+    _charts.budget = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: sorted.map(c => c.campaign.length > 22 ? c.campaign.substring(0,20)+'…' : c.campaign),
+        datasets: [{
+          label: 'Витрати, грн',
+          data: sorted.map(c => c.cost_uah),
+          backgroundColor: colors,
+          borderRadius: 4, borderWidth: 0,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => _fmt(ctx.parsed.x) + ' грн' } }
+        },
+        scales: {
+          x: {
+            grid: { color: GRID },
+            title: { display: true, text: 'Витрати, грн (за 30 днів)', font: { size: 10 }, color: '#6b836a' },
+            ticks: { callback: v => _fmt(v) + ' грн' }
+          },
+          y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  // ── Утиліти ──────────────────────────────────────────────────────────────────
+  function _set(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  function _fmt(n) {
+    if (!n && n !== 0) return '—';
+    return Number(n).toLocaleString('uk-UA', { maximumFractionDigits: 0 });
+  }
+
+  function _updateTimestamp() {
+    const el = document.getElementById('ads-updated-at');
+    if (!el || !_data?.fetched_at) return;
+    try {
+      const d = new Date(_data.fetched_at);
+      el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', {
+        timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+    } catch(e) {}
+  }
+
+  function _renderError() {
+    const el = document.getElementById('ads-status');
+    if (el) el.textContent = '✗ Дані реклами недоступні';
+  }
+
+  // auto-trigger removed — керується з index.html через go() і restoreTab()
+
+  return { load };
+})();
+
+</script>
+<script>/* mql_loader inline */
+/**
+ * mql_loader.js — Easy 3D Print Dashboard
+ * Завантажує data/mql_sql.json (генерується fetch_mql.py, динамічно по місяцях)
+ * Рендерить блок на CRM таб: перемикач місяців, KPI, воронку, канали, кампанії, менеджерів
+ */
+
+window.MqlLoader = (() => {
+  const DATA_URL = 'data/mql_sql.json';
+  let _data = null;
+  let _activeMonth = null;
+  let _chart = null;
+
+  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B';
+  const GB = 'rgba(42,157,143,.15)';
+  const GRID = '#f0f2ee';
+
+  async function load() {
+    try {
+      const r = await fetch(DATA_URL + '?t=' + Date.now());
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      _data = await r.json();
+      const months = _data.months || [];
+      _activeMonth = months.length ? months[months.length - 1].period : null;
+      render();
+    } catch (e) {
+      console.warn('[MQL] Не вдалось завантажити mql_sql.json:', e);
+    }
+  }
+
+  function getCurrentMonthData() {
+    if (!_data) return null;
+    const months = _data.months || [];
+    return months.find(m => m.period === _activeMonth) || _data.latest || null;
+  }
+
+  function render() {
+    if (!_data) return;
+    renderMonthSwitcher();
+    const m = getCurrentMonthData();
+    if (!m) return;
+    _renderKPI(m);
+    _renderFunnelChart(m);
+    _renderChannels(m);
+    _renderCampaigns(m);
+    _renderManagers(m);
+    _updateTimestamp();
+  }
+
+  function renderMonthSwitcher() {
+    const el = document.getElementById('mql-month-switcher');
+    if (!el) return;
+    const months = _data.months || [];
+    if (months.length <= 1) { el.innerHTML = ''; return; }
+
+    el.innerHTML = months.map(m => {
+      const active = m.period === _activeMonth;
+      return `<button data-month="${m.period}" style="padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;font-size:11px;font-weight:600;transition:all .15s;background:${active ? 'var(--g)' : 'transparent'};color:${active ? '#fff' : 'var(--tm)'}">${m.period}</button>`;
+    }).join('');
+
+    el.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _activeMonth = btn.dataset.month;
+        render();
+      });
+    });
+  }
+
+  function _fmt(n) {
+    if (n == null) return '—';
+    if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+    return String(Math.round(n));
+  }
+
+  function _set(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  function _renderKPI(m) {
+    const k = m.kpi || {}, mq = m.mql || {};
+    _set('mql-total-leads', (k.total_leads || 0).toLocaleString('uk-UA'));
+    _set('mql-deals', k.deals_closed ?? '—');
+    _set('mql-conv', (k.conversion_pct ?? '—') + '%');
+    _set('mql-revenue', _fmt(k.revenue_uah) + ' грн');
+    _set('mql-no-mql', (mq.deals_without_mql ?? '—') + ' (' + (mq.deals_without_mql_pct ?? 0) + '%)');
+    _set('mql-false', (mq.false_mql1 ?? '—') + ' (' + (mq.false_mql1_pct ?? 0) + '%)');
+
+    const insightEl = document.getElementById('mql-critical-insight');
+    if (insightEl) {
+      insightEl.innerHTML = m.critical_insight
+        ? '<b>Критично:</b> ' + m.critical_insight
+        : 'Немає критичних інсайтів за цей період';
+    }
+  }
+
+  function _renderFunnelChart(m) {
+    const canvas = document.getElementById('mql-funnel-chart');
+    if (!canvas) return;
+    const funnel = m.funnel || [];
+    if (!funnel.length) {
+      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних воронки немає</p>';
+      return;
+    }
+
+    if (_chart) { try { _chart.destroy(); } catch(e){} }
+    _chart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: funnel.map(f => f.segment),
+        datasets: [
+          { label: 'Всього', data: funnel.map(f => f.total), backgroundColor: 'rgba(150,168,144,.25)', borderRadius: 4 },
+          { label: 'Угод', data: funnel.map(f => f.deals), backgroundColor: GB, borderColor: G, borderWidth: 1.5, borderRadius: 4 },
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 10 } } },
+        scales: {
+          x: { grid: { color: GRID } },
+          y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  function _renderChannels(m) {
+    const tbody = document.getElementById('mql-channels-body');
+    if (!tbody) return;
+    const channels = m.channels || [];
+    if (!channels.length) { tbody.innerHTML = '<tr><td colspan="7" style="padding:10px;color:var(--tl)">Даних немає</td></tr>'; return; }
+
+    tbody.innerHTML = channels.map(c => {
+      const convColor = c.conv_pct >= 12 ? GD : c.conv_pct >= 8 ? A : R;
+      return `<tr>
+        <td>${c.channel}</td>
+        <td style="text-align:right">${c.leads}</td>
+        <td style="text-align:right">${c.deals}</td>
+        <td style="text-align:right;font-weight:700;color:${convColor}">${c.conv_pct}%</td>
+        <td style="text-align:right">${_fmt(c.revenue_uah)} грн</td>
+        <td style="text-align:right">${c.noise_pct}%</td>
+        <td>${c.label || ''}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderCampaigns(m) {
+    const container = document.getElementById('mql-campaigns-table');
+    if (!container) return;
+    const campaigns = (m.campaigns || []).slice(0, 8);
+    if (!campaigns.length) { container.innerHTML = '<p style="color:var(--tl);font-size:12px">Даних немає</p>'; return; }
+
+    container.innerHTML = campaigns.map(c => {
+      const isStop = (c.label || '').includes('ЗУПИНИТИ');
+      const color = isStop ? R : c.conv_pct >= 20 ? GD : A;
+      return `<div class="mr"><div class="mn">${c.campaign}</div><div class="mv" style="color:${color}">${c.conv_pct}%</div></div>`;
+    }).join('');
+  }
+
+  function _renderManagers(m) {
+    const container = document.getElementById('mql-managers-table');
+    if (!container) return;
+    const sm = m.sources_managers || [[], []];
+    const managers = sm[1] || [];
+    if (!managers.length) { container.innerHTML = '<p style="color:var(--tl);font-size:12px">Даних немає</p>'; return; }
+
+    container.innerHTML = managers.map(mgr => {
+      return `<div class="mr"><div class="mn">${mgr.manager}</div><div class="mv g">${_fmt(mgr.revenue_uah)} грн</div></div>
+      <div style="font-size:9px;color:var(--tl);margin:-2px 0 6px">${mgr.leads} лідів · ${mgr.deals} угод · ${mgr.conv_pct}%</div>`;
+    }).join('');
+  }
+
+  function _updateTimestamp() {
+    const el = document.getElementById('mql-updated-at');
+    if (el && _data?.fetched_at) {
+      try {
+        const d = new Date(_data.fetched_at);
+        el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      } catch(e) {}
+    }
+  }
+
+  // auto-trigger removed — керується з index.html через go() і restoreTab()
+
+  return { load };
+})();
+
+</script>
+<script>/* sales_loader inline */
+/**
+ * sales_loader.js — Easy 3D Print Dashboard
+ * Завантажує data/sales_planner.json (генерується fetch_sales.py з Планувальника)
+ * Рендерить таб Продажі: зведення + Роздріб (план/факт) + Опт (план/факт)
+ */
+
+window.SalesLoader = (() => {
+  const DATA_URL = 'data/sales_planner.json';
+  let _data = null;
+  let _charts = {};
+
+  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B';
+  const GB = 'rgba(42,157,143,.15)', AB = 'rgba(69,123,157,.15)';
+  const GRID = '#f0f2ee';
+
+  async function load() {
+    try {
+      const r = await fetch(DATA_URL + '?t=' + Date.now());
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      _data = await r.json();
+      render();
+    } catch (e) {
+      console.warn('[SALES] Не вдалось завантажити sales_planner.json:', e);
+    }
+  }
+
+  function render() {
+    if (!_data) return;
+    _renderSummary();
+    _renderCombinedChart();
+    _renderRetail();
+    _renderWholesale();
+    _updateTimestamp();
+  }
+
+  function _fmt(n) {
+    if (n == null) return '—';
+    if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+    return String(Math.round(n));
+  }
+
+  function _set(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  function _renderSummary() {
+    const wh = _data.wholesale || {}, rt = _data.retail || {};
+    _set('sales-wh-fact', _fmt(wh.ytd_fact) + ' грн');
+    _set('sales-wh-pct', (wh.ytd_pct ?? '—') + '%');
+    _set('sales-rt-fact', _fmt(rt.ytd_fact) + ' грн');
+    _set('sales-rt-pct', (rt.ytd_pct ?? '—') + '%');
+
+    const leadsM = _data.leads_conversion?.monthly || [];
+    const leadsLast = leadsM.length ? leadsM[leadsM.length - 1] : null;
+    if (leadsLast) {
+      _set('sales-leads', leadsLast.leads != null ? Math.round(leadsLast.leads) : '—');
+      const convEl = document.getElementById('sales-conv');
+      if (convEl) {
+        if (leadsLast.conv_pct != null) {
+          convEl.textContent = leadsLast.conv_pct + '%';
+          convEl.style.color = leadsLast.conv_pct >= 15 ? GD : R;
+        } else {
+          convEl.textContent = '—';
+        }
+      }
+    }
+
+    const checkM = _data.avg_check?.monthly || [];
+    const checkLast = checkM.length ? checkM[checkM.length - 1] : null;
+    if (checkLast) _set('sales-rt-check', _fmt(checkLast.fact) + ' грн');
+  }
+
+  function _renderCombinedChart() {
+    const canvas = document.getElementById('sales-combined-chart');
+    if (!canvas) return;
+
+    const whM = _data.wholesale?.monthly || [];
+    const rtM = _data.retail?.monthly || [];
+    if (!whM.length && !rtM.length) {
+      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних немає</p>';
+      return;
+    }
+    const labels = (whM.length ? whM : rtM).map(m => m.month);
+
+    if (_charts.combined) { try { _charts.combined.destroy(); } catch(e){} }
+    _charts.combined = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'ОПТ факт', data: whM.map(m => m.fact), backgroundColor: GB, borderColor: G, borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+          { label: 'Роздріб факт', data: rtM.map(m => m.fact), backgroundColor: AB, borderColor: A, borderWidth: 1.5, borderRadius: 4, yAxisID: 'y1' },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 10 } } },
+        scales: {
+          x: { grid: { color: GRID } },
+          y: { type: 'linear', position: 'left', grid: { color: GRID }, ticks: { callback: v => _fmt(v) }, title: { display: true, text: 'ОПТ, грн', font: { size: 9 }, color: G } },
+          y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => _fmt(v) }, title: { display: true, text: 'Роздріб, грн', font: { size: 9 }, color: A } },
+        }
+      }
+    });
+  }
+
+  function _renderRetail() {
+    const canvas = document.getElementById('sales-retail-chart');
+    const data = _data.retail?.monthly || [];
+    if (canvas) {
+      if (!data.length) {
+        canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних немає</p>';
+      } else {
+        if (_charts.retail) { try { _charts.retail.destroy(); } catch(e){} }
+        _charts.retail = new Chart(canvas, {
+          type: 'bar',
+          data: {
+            labels: data.map(m => m.month),
+            datasets: [
+              { label: 'План', data: data.map(m => m.plan), backgroundColor: 'rgba(150,168,144,.25)', borderRadius: 4 },
+              { label: 'Факт', data: data.map(m => m.fact), backgroundColor: AB, borderColor: A, borderWidth: 1.5, borderRadius: 4 },
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } } },
+            scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID }, ticks: { callback: v => _fmt(v) } } }
+          }
+        });
+      }
+    }
+
+    const tbody = document.getElementById('sales-retail-table');
+    if (tbody) {
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="padding:10px;color:var(--tl)">Даних немає</td></tr>';
+      } else {
+        tbody.innerHTML = data.map(m => {
+          const pctColor = m.pct == null ? 'var(--tl)' : m.pct >= 90 ? GD : m.pct >= 60 ? A : R;
+          return `<tr>
+            <td>${m.month}</td>
+            <td style="text-align:right">${_fmt(m.plan)}</td>
+            <td style="text-align:right">${m.fact != null ? _fmt(m.fact) : '—'}</td>
+            <td style="text-align:right;font-weight:700;color:${pctColor}">${m.pct != null ? m.pct + '%' : '—'}</td>
+          </tr>`;
+        }).join('');
+      }
+    }
+  }
+
+  function _renderWholesale() {
+    const canvas = document.getElementById('sales-wholesale-chart');
+    const data = _data.wholesale?.monthly || [];
+    if (canvas) {
+      if (!data.length) {
+        canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних немає</p>';
+      } else {
+        if (_charts.wholesale) { try { _charts.wholesale.destroy(); } catch(e){} }
+        _charts.wholesale = new Chart(canvas, {
+          type: 'bar',
+          data: {
+            labels: data.map(m => m.month),
+            datasets: [
+              { label: 'План', data: data.map(m => m.plan), backgroundColor: 'rgba(150,168,144,.25)', borderRadius: 4 },
+              { label: 'Факт', data: data.map(m => m.fact), backgroundColor: GB, borderColor: G, borderWidth: 1.5, borderRadius: 4 },
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } } },
+            scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID }, ticks: { callback: v => _fmt(v) } } }
+          }
+        });
+      }
+    }
+
+    const tbody = document.getElementById('sales-wholesale-table');
+    if (tbody) {
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="padding:10px;color:var(--tl)">Даних немає</td></tr>';
+      } else {
+        tbody.innerHTML = data.map(m => {
+          const pctColor = m.pct == null ? 'var(--tl)' : m.pct >= 100 ? GD : m.pct >= 70 ? A : R;
+          return `<tr>
+            <td>${m.month}</td>
+            <td style="text-align:right">${m.plan != null ? _fmt(m.plan) : '—'}</td>
+            <td style="text-align:right">${m.fact != null ? _fmt(m.fact) : '—'}</td>
+            <td style="text-align:right;font-weight:700;color:${pctColor}">${m.pct != null ? m.pct + '%' : '—'}</td>
+          </tr>`;
+        }).join('');
+      }
+    }
+  }
+
+  function _updateTimestamp() {
+    const el = document.getElementById('sales-updated-at');
+    if (el && _data?.fetched_at) {
+      try {
+        const d = new Date(_data.fetched_at);
+        el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      } catch(e) {}
+    }
+  }
+
+  // auto-trigger removed — керується з index.html через go() і restoreTab()
+
+  return { load };
+})();
+
+</script>
 </body>
 </html>
