@@ -2958,31 +2958,50 @@ window.LocLoader = (() => {
   }
 
   // ─── Фільтр місяців для графіків ───────────────────────────────────────
+  const DEFECT_THRESHOLD = 7.5;
+
+  function maxSelectableMonth() {
+    const now = new Date();
+    const curYear = now.getFullYear();
+    if (curYear > 2026) return 11;
+    if (curYear < 2026) return -1; // ще не почався рік — доступне лише "Всі"
+    return now.getMonth(); // 0-based, поточний місяць включно
+  }
+
   function renderMonthFilters() {
     const box = document.getElementById('loc-month-filters');
     if (!box) return;
-    const btns = [`<button class="gsort-btn${_chartMonth==='all'?' active-sort':''}" data-m="all">Всі</button>`]
-      .concat(UA_MONTHS_FULL.map((name, i) =>
-        `<button class="gsort-btn${_chartMonth===String(i)?' active-sort':''}" data-m="${i}">${name.slice(0,3)}</button>`
-      ));
+    const maxMonth = maxSelectableMonth();
+    const btns = [`<button class="gsort-btn${_chartMonth==='all'?' active-sort':''}" data-m="all">Всі</button>`];
+    UA_MONTHS_FULL.forEach((name, i) => {
+      const disabled = i > maxMonth;
+      btns.push(`<button class="gsort-btn${_chartMonth===String(i)?' active-sort':''}" data-m="${i}"${disabled?' disabled':''} style="${disabled?'opacity:.35;cursor:not-allowed':''}">${name.slice(0,3)}</button>`);
+    });
     box.innerHTML = btns.join('');
-    box.querySelectorAll('button').forEach(b => {
+    box.querySelectorAll('button:not([disabled])').forEach(b => {
       b.onclick = () => { _chartMonth = b.dataset.m; renderMonthFilters(); renderCharts(); };
     });
   }
 
   // ─── Графіки динаміки (2026) ───────────────────────────────────────────
-  function filteredDays() {
-    const days = (_history && _history.days) || [];
-    if (_chartMonth === 'all') return days;
-    const m = parseInt(_chartMonth, 10);
-    return days.filter(d => {
-      const dt = new Date(d.date);
-      return dt.getMonth() === m;
-    });
+  function hasSignal(day) {
+    const locs = (day && day.locations) || {};
+    return Object.values(locs).some(l => (l.util || 0) > 0 || (l.defectPct || 0) > 0);
   }
 
-  function buildLineChart(canvasId, field, yFmt) {
+  function filteredDays() {
+    const days = (_history && _history.days) || [];
+    if (_chartMonth === 'all') {
+      // не малюємо порожній хвіст до старту реальних даних
+      const startIdx = days.findIndex(hasSignal);
+      return startIdx > 0 ? days.slice(startIdx) : days;
+    }
+    const m = parseInt(_chartMonth, 10);
+    return days.filter(d => new Date(d.date).getMonth() === m);
+  }
+
+  function buildLineChart(canvasId, field, yFmt, opts) {
+    opts = opts || {};
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const days = filteredDays();
@@ -2998,7 +3017,7 @@ window.LocLoader = (() => {
         const v = loc ? loc[field] : null;
         return v == null ? null : v;
       });
-      return {
+      const ds = {
         label: 'Локація ' + num,
         data,
         borderColor: colors.line,
@@ -3006,10 +3025,33 @@ window.LocLoader = (() => {
         borderWidth: 2,
         tension: .35,
         spanGaps: true,
-        pointRadius: days.length > 40 ? 0 : 2,
         fill: false,
       };
+      if (opts.threshold != null) {
+        // точки, що перевищують поріг — виділяємо більшим червоним маркером
+        ds.pointRadius = data.map(v => (v != null && v > opts.threshold) ? 5 : (days.length > 40 ? 0 : 2));
+        ds.pointBackgroundColor = data.map(v => (v != null && v > opts.threshold) ? '#C0392B' : colors.line);
+        ds.pointBorderColor = data.map(v => (v != null && v > opts.threshold) ? '#7a1f14' : colors.line);
+        ds.pointBorderWidth = data.map(v => (v != null && v > opts.threshold) ? 2 : 1);
+      } else {
+        ds.pointRadius = days.length > 40 ? 0 : 2;
+      }
+      return ds;
     });
+
+    if (opts.threshold != null) {
+      datasets.push({
+        label: `Поріг ${opts.threshold}%`,
+        data: labels.map(() => opts.threshold),
+        borderColor: '#1A2B3C',
+        borderWidth: 2,
+        borderDash: [7, 4],
+        pointRadius: 0,
+        tension: 0,
+        fill: false,
+      });
+    }
+
     if (_charts[canvasId]) { _charts[canvasId].destroy(); }
     _charts[canvasId] = new Chart(canvas, {
       type: 'line',
@@ -3028,14 +3070,14 @@ window.LocLoader = (() => {
 
   function renderCharts() {
     buildLineChart('loc-util-chart', 'util', v => v + '%');
-    buildLineChart('loc-defect-chart', 'defectPct', v => v + '%');
+    buildLineChart('loc-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD });
     const el = document.getElementById('loc-trend-status');
     if (el) {
       const days = (_history && _history.days) || [];
       if (!days.length) {
         el.textContent = '⏳ Історія по днях ще порожня';
       } else {
-        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини`;
+        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини · поріг браку ${DEFECT_THRESHOLD}% позначено пунктиром, точки вище — червоні`;
       }
     }
   }
