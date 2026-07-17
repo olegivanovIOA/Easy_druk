@@ -347,7 +347,7 @@ a{color:var(--gd);text-decoration:none}
       <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>CRM<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
       <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
       <button class="tb" data-tab="hr" onclick="go('hr',this)"><span class="ti">👥</span>HR<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-hr"></div></button>
-      <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації</button>
+      <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації<span class="e3d-dot" id="loc-nav-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-loc"></div></button>
       <button class="tb" data-tab="reg" onclick="go('reg',this)"><span class="ti">📋</span>Реєстр</button>
     </div>
     <div class="nav-acts">
@@ -1489,6 +1489,14 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(th2&&d.fetched_at)th2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
       var cs=document.getElementById('ceo-staff');
       if(cs&&d.employees_count)cs.textContent=d.employees_count+' осіб';
+    }).catch(function(){});
+    // Локації: тултіп + дот (без запуску лоадера)
+    var tl=document.getElementById('tip-loc');if(tl)tl.innerHTML=tipHTML('partial','/api/capacity','—',false);
+    fetch('data/capacity.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      var tl2=document.getElementById('tip-loc');
+      if(tl2&&d.fetched_at)tl2.innerHTML=tipHTML('live','/api/capacity',fmtTs(d.fetched_at),false);
+      var btn=document.querySelector('[data-tab="loc"]');
+      if(btn&&d.fetched_at){var dot=btn.querySelector('.e3d-dot');if(dot){dot.style.background='#16A34A';dot.style.animation='pulse 2.5s infinite';}}
     }).catch(function(){});
   })();
   // restoreTab: запускаємо і через load, і через pageshow (bfcache)
@@ -2917,6 +2925,33 @@ window.LocLoader = (() => {
     }).join('');
   }
 
+  // ─── Середні показники за поточний рік (з історії) ─────────────────────
+  function hasSignal(day) {
+    const locs = (day && day.locations) || {};
+    return Object.values(locs).some(l => (l.util || 0) > 0 || (l.defectPct || 0) > 0);
+  }
+
+  function yearAverages() {
+    const days = (_history && _history.days) || [];
+    const startIdx = days.findIndex(hasSignal);
+    const relevant = startIdx > 0 ? days.slice(startIdx) : days;
+    const result = {};
+    Object.keys(LOC_META).forEach(num => {
+      let utilSum = 0, utilN = 0, defSum = 0, defN = 0;
+      relevant.forEach(d => {
+        const loc = d.locations && d.locations[num];
+        if (!loc) return;
+        if (loc.util != null) { utilSum += loc.util; utilN++; }
+        if (loc.defectPct != null) { defSum += loc.defectPct; defN++; }
+      });
+      result[num] = {
+        avgUtil: utilN ? utilSum / utilN : null,
+        avgDefect: defN ? defSum / defN : null,
+      };
+    });
+    return result;
+  }
+
   // ─── Картки ─────────────────────────────────────────────────────────────
   function renderCards() {
     const container = document.getElementById('loc-cards-container');
@@ -2926,20 +2961,24 @@ window.LocLoader = (() => {
       container.innerHTML = `<div class="lc"><div class="lcn">Дані ще не синхронізовано</div></div>`;
       return;
     }
+    const avgs = yearAverages();
     container.innerHTML = locations.map(loc => {
       const num = locNum(loc.location);
       const meta = LOC_META[num] || { status: '—', badge: 'pla' };
-      const { util, quality, completion, defectPct } = metrics(loc);
-      const utilW = util != null ? Math.min(100, util) : 0;
-      const defW  = defectPct != null ? Math.min(100, defectPct) : 0;
-      const compW = completion != null ? Math.min(100, completion) : 0;
+      const { util, defectPct } = metrics(loc);
+      const avg = avgs[num] || { avgUtil: null, avgDefect: null };
+      const utilW    = util != null ? Math.min(100, util) : 0;
+      const avgUtilW = avg.avgUtil != null ? Math.min(100, avg.avgUtil) : 0;
+      const defW     = defectPct != null ? Math.min(100, defectPct) : 0;
+      const avgDefW  = avg.avgDefect != null ? Math.min(100, avg.avgDefect) : 0;
       const warn = (util != null && util < 40)
         ? `<div style="font-size:9px;color:var(--red);margin-top:5px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
       return `<div class="lc">
         <div class="lch"><div class="lcn">🏭 ${loc.location}</div><span class="pill ${meta.badge}">${meta.status}</span></div>
-        <div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf ${barClass(util,40)}" style="width:${utilW}%"></div></div><div class="lbv">${util != null ? util.toFixed(0)+'%' : '—'}</div></div>
-        <div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf ${barClass(100-defectPct,85)}" style="width:${defW}%"></div></div><div class="lbv">~${defectPct.toFixed(1)}%</div></div>
-        <div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf ${barClass(completion,60)}" style="width:${compW}%"></div></div><div class="lbv">${completion != null ? completion.toFixed(0)+'%' : '—'}</div></div>
+        <div class="lrw"><div class="ll">Завант. зараз</div><div class="lbw"><div class="lbf ${barClass(util,40)}" style="width:${utilW}%"></div></div><div class="lbv">${util != null ? util.toFixed(0)+'%' : '—'}</div></div>
+        <div class="lrw"><div class="ll">Сер. завант. 2026</div><div class="lbw"><div class="lbf ${barClass(avg.avgUtil,40)}" style="width:${avgUtilW}%"></div></div><div class="lbv">${avg.avgUtil != null ? avg.avgUtil.toFixed(0)+'%' : '—'}</div></div>
+        <div class="lrw"><div class="ll">Брак зараз</div><div class="lbw"><div class="lbf ${barClass(100-defectPct,85)}" style="width:${defW}%"></div></div><div class="lbv">~${defectPct.toFixed(1)}%</div></div>
+        <div class="lrw"><div class="ll">Сер. брак 2026</div><div class="lbw"><div class="lbf ${avg.avgDefect!=null?barClass(100-avg.avgDefect,85):'fr'}" style="width:${avgDefW}%"></div></div><div class="lbv">${avg.avgDefect != null ? '~'+avg.avgDefect.toFixed(1)+'%' : '—'}</div></div>
         ${warn}
       </div>`;
     }).join('');
@@ -2984,11 +3023,6 @@ window.LocLoader = (() => {
   }
 
   // ─── Графіки динаміки (2026) ───────────────────────────────────────────
-  function hasSignal(day) {
-    const locs = (day && day.locations) || {};
-    return Object.values(locs).some(l => (l.util || 0) > 0 || (l.defectPct || 0) > 0);
-  }
-
   function filteredDays() {
     const days = (_history && _history.days) || [];
     if (_chartMonth === 'all') {
@@ -2998,6 +3032,26 @@ window.LocLoader = (() => {
     }
     const m = parseInt(_chartMonth, 10);
     return days.filter(d => new Date(d.date).getMonth() === m);
+  }
+
+  // ─── Логарифмічний тренд ────────────────────────────────────────────────
+  function logTrend(data) {
+    // data: масив значень (можливо з null), x = 1..N (позиція в масиві)
+    const pts = [];
+    data.forEach((v, i) => { if (v != null) pts.push([i + 1, v]); });
+    if (pts.length < 3) return null;
+    let sumLnX = 0, sumY = 0, sumLnX2 = 0, sumLnXY = 0;
+    pts.forEach(([x, y]) => {
+      const lx = Math.log(x);
+      sumLnX += lx; sumY += y; sumLnX2 += lx * lx; sumLnXY += lx * y;
+    });
+    const n = pts.length;
+    const meanLnX = sumLnX / n, meanY = sumY / n;
+    const varLnX = sumLnX2 / n - meanLnX * meanLnX;
+    if (!varLnX) return null;
+    const b = (sumLnXY / n - meanLnX * meanY) / varLnX;
+    const a = meanY - b * meanLnX;
+    return (x) => a + b * Math.log(x);
   }
 
   function buildLineChart(canvasId, field, yFmt, opts) {
@@ -3010,13 +3064,32 @@ window.LocLoader = (() => {
       return;
     }
     const labels = days.map(d => d.date.slice(5)); // MM-DD
-    const datasets = Object.keys(LOC_META).map(num => {
+    const datasets = [];
+
+    Object.keys(LOC_META).forEach(num => {
       const colors = LOC_COLORS[num] || { line: A, bg: AB };
       const data = days.map(d => {
         const loc = d.locations && d.locations[num];
         const v = loc ? loc[field] : null;
         return v == null ? null : v;
       });
+
+      // тренд-лінія (логарифмічна регресія) — малюємо ПІД основною лінією
+      const trendFn = logTrend(data);
+      if (trendFn) {
+        datasets.push({
+          label: 'Тренд ' + 'Локація ' + num,
+          data: data.map((v, i) => v == null ? null : trendFn(i + 1)),
+          borderColor: colors.line,
+          borderWidth: 3,
+          borderDash: [9, 5],
+          pointRadius: 0,
+          tension: 0,
+          fill: false,
+          order: 1,
+        });
+      }
+
       const ds = {
         label: 'Локація ' + num,
         data,
@@ -3026,17 +3099,18 @@ window.LocLoader = (() => {
         tension: .35,
         spanGaps: true,
         fill: false,
+        order: 2,
       };
       if (opts.threshold != null) {
-        // точки, що перевищують поріг — виділяємо більшим червоним маркером
+        // точки, що перевищують поріг — виділяємо збільшеним маркером у кольорі локації
         ds.pointRadius = data.map(v => (v != null && v > opts.threshold) ? 5 : (days.length > 40 ? 0 : 2));
-        ds.pointBackgroundColor = data.map(v => (v != null && v > opts.threshold) ? '#C0392B' : colors.line);
-        ds.pointBorderColor = data.map(v => (v != null && v > opts.threshold) ? '#7a1f14' : colors.line);
+        ds.pointBackgroundColor = colors.line;
+        ds.pointBorderColor = data.map(v => (v != null && v > opts.threshold) ? '#000' : colors.line);
         ds.pointBorderWidth = data.map(v => (v != null && v > opts.threshold) ? 2 : 1);
       } else {
         ds.pointRadius = days.length > 40 ? 0 : 2;
       }
-      return ds;
+      datasets.push(ds);
     });
 
     if (opts.threshold != null) {
@@ -3049,6 +3123,7 @@ window.LocLoader = (() => {
         pointRadius: 0,
         tension: 0,
         fill: false,
+        order: 0,
       });
     }
 
@@ -3059,10 +3134,28 @@ window.LocLoader = (() => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } } },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              usePointStyle: true, padding: 8, font: { size: 10 },
+              filter: (item) => !item.text.startsWith('Тренд '),
+              // фіксований колір свотча з borderColor датасету — щоб не "плавав"
+              // залежно від кольору конкретної точки (per-point override)
+              generateLabels: (chart) => chart.data.datasets
+                .map((ds, i) => ({ text: ds.label, datasetIndex: i, fillStyle: ds.borderColor, strokeStyle: ds.borderColor, pointStyle: 'circle', hidden: !chart.isDatasetVisible(i) }))
+                .filter(item => !item.text.startsWith('Тренд ')),
+            },
+          },
+        },
         scales: {
           x: { grid: { color: GRID }, ticks: { autoSkip: true, maxTicksLimit: 12, font: { size: 9 } } },
-          y: { grid: { color: GRID }, ticks: { callback: v => yFmt(v) }, beginAtZero: true },
+          y: {
+            grid: { color: GRID },
+            ticks: { callback: v => yFmt(v) },
+            beginAtZero: true,
+            ...(opts.yMax != null ? { max: opts.yMax } : {}),
+          },
         },
       },
     });
@@ -3070,14 +3163,14 @@ window.LocLoader = (() => {
 
   function renderCharts() {
     buildLineChart('loc-util-chart', 'util', v => v + '%');
-    buildLineChart('loc-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD });
+    buildLineChart('loc-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD, yMax: 25 });
     const el = document.getElementById('loc-trend-status');
     if (el) {
       const days = (_history && _history.days) || [];
       if (!days.length) {
         el.textContent = '⏳ Історія по днях ще порожня';
       } else {
-        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини · поріг браку ${DEFECT_THRESHOLD}% позначено пунктиром, точки вище — червоні`;
+        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини · поріг браку ${DEFECT_THRESHOLD}% — пунктир, дні вище — обведені · товстий пунктир — логарифмічний тренд · шкала браку обрізана на 25% (окремі викиди вище можуть не вміститись)`;
       }
     }
   }
