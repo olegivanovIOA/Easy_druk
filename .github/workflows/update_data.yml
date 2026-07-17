@@ -177,7 +177,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/capacity.json
+          git add data/capacity.json data/capacity_history.json
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: update capacity data [skip ci]"
           for i in 1 2 3 4 5; do
