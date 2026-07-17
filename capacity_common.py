@@ -14,14 +14,16 @@ def location_key(name):
 
 
 def compute_metrics(loc):
-    """util% і defect% з одного об'єкта locations[] відповіді API."""
+    """util%, defect%, total/free (машино-еквіваленти) з одного об'єкта locations[] відповіді API."""
     machines = loc.get("machines", {}) or {}
     batches = loc.get("batches", {}) or {}
     util = machines.get("utilizationPercent")
+    total = machines.get("total")
+    free = machines.get("free")
     parts = batches.get("parts") or 0
     defect_parts = batches.get("defectParts") or 0
     defect_pct = round(defect_parts / parts * 100, 2) if parts else None
-    return {"util": util, "defectPct": defect_pct}
+    return {"util": util, "defectPct": defect_pct, "total": total, "free": free}
 
 
 def upsert_day(history, date_str, locations_payload):

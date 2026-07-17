@@ -835,9 +835,9 @@ a{color:var(--gd);text-decoration:none}
 <div class="panel" id="panel-loc">
   <div id="w-loc-tbl">
     <div class="sec">📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></div>
-    <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody id="loc-tbl-body">
+    <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
       <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
-    </tbody></table></div><div class="tfoot" id="loc-tfoot">⚙️ Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · KPI-score: TBD</div></div>
+    </tbody></table></div><div class="tfoot" id="loc-tfoot">⚙️ Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · Невикор. ресурс — накопичено з початку історії, маш-год і % від можливого</div></div>
   </div>
   <div id="w-loc-cards">
     <div class="sec">📊 Деталізація по локаціях</div>
@@ -2910,17 +2910,22 @@ window.LocLoader = (() => {
       body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--tl)">Дані ще не синхронізовано</td></tr>`;
       return;
     }
+    const idles = idlePotential();
     body.innerHTML = locations.map(loc => {
       const num = locNum(loc.location);
       const meta = LOC_META[num] || { coef: '—', status: '—' };
       const { util, quality, completion } = metrics(loc);
+      const idle = idles[num] || { hours: 0, pct: null, days: 0 };
+      const idleCell = idle.days === 0
+        ? `<span class="cov ctt">TBD</span>`
+        : `<span class="pill ${idle.pct != null && idle.pct <= 20 ? 'pla' : 'plr'}">${fmtHours(idle.hours)}${idle.pct != null ? ' · ' + idle.pct.toFixed(1) + '%' : ''}</span>`;
       return `<tr>
         <td>${loc.location}</td>
         <td>${meta.coef}</td>
         <td>${pill(util, 40, '%')}</td>
         <td>${pill(quality, 85, '%')}</td>
         <td>${pill(completion, 60, '%')}</td>
-        <td><span class="cov ctt">TBD</span></td>
+        <td>${idleCell}</td>
       </tr>`;
     }).join('');
   }
@@ -2929,6 +2934,34 @@ window.LocLoader = (() => {
   function hasSignal(day) {
     const locs = (day && day.locations) || {};
     return Object.values(locs).some(l => (l.util || 0) > 0 || (l.defectPct || 0) > 0);
+  }
+
+  // ─── Накопичений невикористаний ресурс (потенціал росту завантаження) ──
+  // free (машино-еквівалент простою за добу) × 24 год = маш-год простою за день,
+  // підсумовано по всіх днях історії, де це поле вже накопичено.
+  function idlePotential() {
+    const days = (_history && _history.days) || [];
+    const startIdx = days.findIndex(hasSignal);
+    const relevant = startIdx > 0 ? days.slice(startIdx) : days;
+    const result = {};
+    Object.keys(LOC_META).forEach(num => {
+      let hours = 0, totalHours = 0, n = 0, since = null;
+      relevant.forEach(d => {
+        const loc = d.locations && d.locations[num];
+        if (!loc || loc.free == null) return;
+        hours += loc.free * 24;
+        if (loc.total != null) totalHours += loc.total * 24;
+        n++;
+        if (!since) since = d.date;
+      });
+      result[num] = { hours, totalHours, pct: totalHours ? (hours / totalHours * 100) : null, days: n, since };
+    });
+    return result;
+  }
+
+  function fmtHours(h) {
+    if (h >= 1000) return (h / 1000).toFixed(1) + ' тис. маш-год';
+    return h.toFixed(0) + ' маш-год';
   }
 
   function yearAverages() {
@@ -2977,7 +3010,7 @@ window.LocLoader = (() => {
       <div style="font-size:10px;line-height:1.7">
         <div style="font-weight:700;color:var(--tx);margin-bottom:1px">${title}</div>
         <div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${curColor};margin-right:4px"></span>Зараз: <b>${curTxt}</b></div>
-        <div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${avgOpacityColor};opacity:.4;margin-right:4px"></span>Сер. 2026: <b>${avgTxt}</b></div>
+        <div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${avgOpacityColor};opacity:.4;margin-right:4px"></span>Середнє за 2026: <b>${avgTxt}</b></div>
       </div>
     </div>`;
   }
@@ -2992,20 +3025,26 @@ window.LocLoader = (() => {
       return;
     }
     const avgs = yearAverages();
+    const idles = idlePotential();
     container.innerHTML = locations.map(loc => {
       const num = locNum(loc.location);
       const meta = LOC_META[num] || { status: '—', badge: 'pla' };
       const colors = LOC_COLORS[num] || { line: A, bg: AB };
       const { util, defectPct } = metrics(loc);
       const avg = avgs[num] || { avgUtil: null, avgDefect: null };
+      const idle = idles[num] || { hours: 0, days: 0, since: null };
       const defectCurColor = (defectPct != null && defectPct > DEFECT_THRESHOLD) ? '#C0392B' : colors.line;
       const warn = (util != null && util < 40)
         ? `<div style="font-size:9px;color:var(--red);margin-top:2px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
+      const growthLine = idle.days > 0
+        ? `<div style="font-size:10px;color:var(--tl);border-top:1px dashed var(--bd);padding-top:6px;margin-top:2px">📈 Потенціал росту: <b style="color:var(--tx)">${fmtHours(idle.hours)}</b> невикористаного ресурсу · з ${idle.since}</div>`
+        : `<div style="font-size:10px;color:var(--tl);border-top:1px dashed var(--bd);padding-top:6px;margin-top:2px">📈 Потенціал росту: накопичується (потрібен запуск backfill з оновленими полями)</div>`;
       return `<div class="lc">
         <div class="lch"><div class="lcn">🏭 ${loc.location}</div><span class="pill ${meta.badge}">${meta.status}</span></div>
         ${metricBlock('Завант.', util, avg.avgUtil, colors.line, colors.line, '%')}
         ${metricBlock('Брак', defectPct, avg.avgDefect, defectCurColor, colors.line, '%')}
         ${warn}
+        ${growthLine}
       </div>`;
     }).join('');
   }
