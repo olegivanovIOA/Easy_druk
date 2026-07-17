@@ -834,7 +834,7 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ ЛОКАЦІЇ ═════════════ -->
 <div class="panel" id="panel-loc">
   <div id="w-loc-tbl">
-    <div class="sec">📍 Зведена таблиця локацій</div>
+    <div class="sec">📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></div>
     <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody id="loc-tbl-body">
       <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
     </tbody></table></div><div class="tfoot" id="loc-tfoot">⚙️ Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · KPI-score: TBD</div></div>
@@ -846,6 +846,24 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
   <div id="loc-status" style="font-size:11px;color:var(--tl);margin-top:6px"></div>
+
+  <div id="w-loc-trends">
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>📈 Динаміка по локаціях — 2026</span>
+      <div id="loc-month-filters" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"></div>
+    </div>
+    <div class="g2">
+      <div class="card-flat">
+        <div class="ct" style="padding:10px 10px 0">Завантаженість, %</div>
+        <div class="cw ch210" style="padding:6px 10px 10px"><canvas id="loc-util-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="ct" style="padding:10px 10px 0">% Браку</div>
+        <div class="cw ch210" style="padding:6px 10px 10px"><canvas id="loc-defect-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="tfoot" id="loc-trend-status" style="margin-top:6px"></div>
+  </div>
 </div>
 
 <!-- ═════════════ РЕЄСТР ═════════════ -->
@@ -2791,6 +2809,11 @@ window.SalesLoader = (() => {
  */
 window.LocLoader = (() => {
   const DATA_URL = 'data/capacity.json';
+  const HISTORY_URL = 'data/capacity_history.json';
+
+  const G = '#2A9D8F', A = '#457B9D', R = '#C0392B', B = '#6aA5C2';
+  const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)', BB = 'rgba(106,165,194,.12)';
+  const GRID = '#f0f2ee';
 
   const LOC_META = {
     '1': { coef: '1.0×',  status: 'Активна',      badge: 'plg' },
@@ -2798,17 +2821,32 @@ window.LocLoader = (() => {
     '4': { coef: '1.4×',  status: 'Активна',      badge: 'pla' },
     '5': { coef: '2.0×',  status: 'Розгортання',  badge: 'pla' },
   };
+  // Один колір на локацію — узгоджено з палітрою дашборду (G/A/R/B)
+  const LOC_COLORS = {
+    '1': { line: G, bg: GB },
+    '2': { line: A, bg: AB },
+    '4': { line: R, bg: RB },
+    '5': { line: B, bg: BB },
+  };
+  const UA_MONTHS_FULL = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 
   let _data = null;
+  let _history = null;
+  let _chartMonth = 'all'; // 'all' | '0'..'11'
+  let _charts = {};
 
   async function load() {
     try {
-      const r = await fetch(DATA_URL + '?t=' + Date.now());
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      _data = await r.json();
+      const [snapR, histR] = await Promise.all([
+        fetch(DATA_URL + '?t=' + Date.now()),
+        fetch(HISTORY_URL + '?t=' + Date.now()).catch(() => null),
+      ]);
+      if (!snapR.ok) throw new Error('HTTP ' + snapR.status);
+      _data = await snapR.json();
+      _history = (histR && histR.ok) ? await histR.json() : null;
       render();
     } catch (e) {
-      console.warn('[Loc] Не вдалось завантажити capacity.json:', e);
+      console.warn('[Loc] Не вдалось завантажити дані локацій:', e);
       renderError();
     }
   }
@@ -2839,6 +2877,20 @@ window.LocLoader = (() => {
   function barClass(val, goodMin) {
     if (val == null || isNaN(val)) return 'fr';
     return val >= goodMin ? 'fa' : 'fr';
+  }
+
+  // ─── Живий індикатор ───────────────────────────────────────────────────
+  function updateLiveDot() {
+    const dot = document.getElementById('loc-live-dot');
+    const label = document.getElementById('loc-live-label');
+    if (!dot || !label) return;
+    if (_data && _data.fetched_at) {
+      dot.className = 'ld ok';
+      label.textContent = 'дані з API';
+    } else {
+      dot.className = 'ld';
+      label.textContent = '';
+    }
   }
 
   // ─── Таблиця ────────────────────────────────────────────────────────────
@@ -2905,16 +2957,104 @@ window.LocLoader = (() => {
     el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' }) + dateStr + ' · джерело: /api/capacity';
   }
 
+  // ─── Фільтр місяців для графіків ───────────────────────────────────────
+  function renderMonthFilters() {
+    const box = document.getElementById('loc-month-filters');
+    if (!box) return;
+    const btns = [`<button class="gsort-btn${_chartMonth==='all'?' active-sort':''}" data-m="all">Всі</button>`]
+      .concat(UA_MONTHS_FULL.map((name, i) =>
+        `<button class="gsort-btn${_chartMonth===String(i)?' active-sort':''}" data-m="${i}">${name.slice(0,3)}</button>`
+      ));
+    box.innerHTML = btns.join('');
+    box.querySelectorAll('button').forEach(b => {
+      b.onclick = () => { _chartMonth = b.dataset.m; renderMonthFilters(); renderCharts(); };
+    });
+  }
+
+  // ─── Графіки динаміки (2026) ───────────────────────────────────────────
+  function filteredDays() {
+    const days = (_history && _history.days) || [];
+    if (_chartMonth === 'all') return days;
+    const m = parseInt(_chartMonth, 10);
+    return days.filter(d => {
+      const dt = new Date(d.date);
+      return dt.getMonth() === m;
+    });
+  }
+
+  function buildLineChart(canvasId, field, yFmt) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const days = filteredDays();
+    if (!days.length) {
+      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Історія ще накопичується — запустіть backfill_capacity_history.py або зачекайте на щогодинне оновлення</p>';
+      return;
+    }
+    const labels = days.map(d => d.date.slice(5)); // MM-DD
+    const datasets = Object.keys(LOC_META).map(num => {
+      const colors = LOC_COLORS[num] || { line: A, bg: AB };
+      const data = days.map(d => {
+        const loc = d.locations && d.locations[num];
+        const v = loc ? loc[field] : null;
+        return v == null ? null : v;
+      });
+      return {
+        label: 'Локація ' + num,
+        data,
+        borderColor: colors.line,
+        backgroundColor: colors.bg,
+        borderWidth: 2,
+        tension: .35,
+        spanGaps: true,
+        pointRadius: days.length > 40 ? 0 : 2,
+        fill: false,
+      };
+    });
+    if (_charts[canvasId]) { _charts[canvasId].destroy(); }
+    _charts[canvasId] = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } } },
+        scales: {
+          x: { grid: { color: GRID }, ticks: { autoSkip: true, maxTicksLimit: 12, font: { size: 9 } } },
+          y: { grid: { color: GRID }, ticks: { callback: v => yFmt(v) }, beginAtZero: true },
+        },
+      },
+    });
+  }
+
+  function renderCharts() {
+    buildLineChart('loc-util-chart', 'util', v => v + '%');
+    buildLineChart('loc-defect-chart', 'defectPct', v => v + '%');
+    const el = document.getElementById('loc-trend-status');
+    if (el) {
+      const days = (_history && _history.days) || [];
+      if (!days.length) {
+        el.textContent = '⏳ Історія по днях ще порожня';
+      } else {
+        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини`;
+      }
+    }
+  }
+
   function render() {
     if (!_data) return;
     renderTable();
     renderCards();
     updateStatus();
+    updateLiveDot();
+    renderMonthFilters();
+    renderCharts();
   }
 
   function renderError() {
     const el = document.getElementById('loc-status');
     if (el) el.textContent = '✗ Дані локацій недоступні';
+    const dot = document.getElementById('loc-live-dot');
+    if (dot) dot.className = 'ld err';
   }
 
   return { load };
