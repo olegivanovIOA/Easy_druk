@@ -835,22 +835,17 @@ a{color:var(--gd);text-decoration:none}
 <div class="panel" id="panel-loc">
   <div id="w-loc-tbl">
     <div class="sec">📍 Зведена таблиця локацій</div>
-    <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody>
-      <tr><td>Локація 1</td><td>1.0×</td><td><span class="pill pla">~62%</span></td><td><span class="pill pla">~89%</span></td><td><span class="pill pla">78%</span></td><td><span class="cov ctt">TBD</span></td></tr>
-      <tr><td>Локація 2</td><td>1.15×</td><td><span class="pill pla">~55%</span></td><td><span class="pill pla">~87%</span></td><td><span class="pill pla">72%</span></td><td><span class="cov ctt">TBD</span></td></tr>
-      <tr><td>Локація 4</td><td>1.4×</td><td><span class="pill plr">~40%</span></td><td><span class="pill plr">~85%</span></td><td><span class="pill plr">65%</span></td><td><span class="cov ctt">TBD</span></td></tr>
-      <tr><td>Локація 5</td><td>2.0×</td><td><span class="pill plr">~28%</span></td><td><span class="pill pla">~82%</span></td><td><span class="pill plr">50%</span></td><td><span class="cov ctt">TBD</span></td></tr>
-    </tbody></table></div><div class="tfoot">⚠️ Числові дані — демо-заглушки · TBD: підключаються через ПО Стріляного</div></div>
+    <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody id="loc-tbl-body">
+      <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
+    </tbody></table></div><div class="tfoot" id="loc-tfoot">⚙️ Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · KPI-score: TBD</div></div>
   </div>
   <div id="w-loc-cards">
-    <div class="sec">📊 Деталізація по локаціях (демо)</div>
-    <div class="g4">
-      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 1</div><span class="pill plg">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fa" style="width:62%"></div></div><div class="lbv">62%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fa" style="width:11%"></div></div><div class="lbv">~11%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fa" style="width:78%"></div></div><div class="lbv">78%</div></div><span class="wm-txt">ДЕМО</span></div>
-      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 2</div><span class="pill plg">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fa" style="width:55%"></div></div><div class="lbv">55%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:13%"></div></div><div class="lbv">~13%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fa" style="width:72%"></div></div><div class="lbv">72%</div></div><span class="wm-txt">ДЕМО</span></div>
-      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 4</div><span class="pill pla">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fr" style="width:40%"></div></div><div class="lbv">40%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:15%"></div></div><div class="lbv">~15%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fr" style="width:65%"></div></div><div class="lbv">65%</div></div><span class="wm-txt">ДЕМО</span></div>
-      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 5</div><span class="pill pla">Розгортання</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fr" style="width:28%"></div></div><div class="lbv">28%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:18%"></div></div><div class="lbv">~18%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fr" style="width:50%"></div></div><div class="lbv">50%</div></div><div style="font-size:9px;color:var(--red);margin-top:5px;font-weight:600">Факт. завант. нижче проєктного</div><span class="wm-txt">ДЕМО</span></div>
+    <div class="sec">📊 Деталізація по локаціях</div>
+    <div class="g4" id="loc-cards-container">
+      <div class="lc"><div class="lcn">Завантаження…</div></div>
     </div>
   </div>
+  <div id="loc-status" style="font-size:11px;color:var(--tl);margin-top:6px"></div>
 </div>
 
 <!-- ═════════════ РЕЄСТР ═════════════ -->
@@ -922,6 +917,7 @@ function _reloadActiveTab(){
   if(id==='hr'&&window.HRLoader) window.HRLoader.load();
   if(id==='crm'&&window.AdsLoader){ window.AdsLoader.load(); if(window.MqlLoader) window.MqlLoader.load(); }
   if(id==='sales'&&window.SalesLoader) window.SalesLoader.load();
+  if(id==='loc'&&window.LocLoader) window.LocLoader.load();
   if(id==='str'&&window.E3D_STRATEGY){ E3D_STRATEGY.render(); try{buildForecast();}catch(e){} }
 }
 
@@ -1381,6 +1377,7 @@ function go(id,btn){
     if(window.MqlLoader) window.MqlLoader.load();
   }
   if(id==='sales'&&window.SalesLoader){ console.log('[go] SalesLoader.load()'); window.SalesLoader.load(); }
+  if(id==='loc'&&window.LocLoader){ console.log('[go] LocLoader.load()'); window.LocLoader.load(); }
 }
 function restoreTab(){
   try{
@@ -1400,8 +1397,9 @@ function restoreTab(){
         if(activeId==='hr'&&window.HRLoader) window.HRLoader.load();
         if(activeId==='crm'&&window.AdsLoader){ window.AdsLoader.load(); if(window.MqlLoader) window.MqlLoader.load(); }
         if(activeId==='sales'&&window.SalesLoader) window.SalesLoader.load();
+        if(activeId==='loc'&&window.LocLoader) window.LocLoader.load();
       }
-      const needed={'hr':'HRLoader','crm':'AdsLoader','sales':'SalesLoader'};
+      const needed={'hr':'HRLoader','crm':'AdsLoader','sales':'SalesLoader','loc':'LocLoader'};
       const loaderName=needed[activeId];
       if(!loaderName||window[loaderName]){tryLoadTab();}
       else{
@@ -2778,6 +2776,146 @@ window.SalesLoader = (() => {
   }
 
   // auto-trigger removed — керується з index.html через go() і restoreTab()
+
+  return { load };
+})();
+
+/**
+ * LocLoader — Easy 3D Print Dashboard v1.0
+ * Завантажує data/capacity.json (з /api/capacity, easy3dprint.pp.ua)
+ * і рендерить таб "Локації":
+ *   - Зведена таблиця локацій (завант. / якість / виконання)
+ *   - Картки деталізації по локаціях
+ * Коеф. і статус локації (Активна/Розгортання) — бізнес-параметри,
+ * яких немає в API, тому лишаються довідковими константами.
+ */
+window.LocLoader = (() => {
+  const DATA_URL = 'data/capacity.json';
+
+  const LOC_META = {
+    '1': { coef: '1.0×',  status: 'Активна',      badge: 'plg' },
+    '2': { coef: '1.15×', status: 'Активна',      badge: 'plg' },
+    '4': { coef: '1.4×',  status: 'Активна',      badge: 'pla' },
+    '5': { coef: '2.0×',  status: 'Розгортання',  badge: 'pla' },
+  };
+
+  let _data = null;
+
+  async function load() {
+    try {
+      const r = await fetch(DATA_URL + '?t=' + Date.now());
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      _data = await r.json();
+      render();
+    } catch (e) {
+      console.warn('[Loc] Не вдалось завантажити capacity.json:', e);
+      renderError();
+    }
+  }
+
+  function locNum(name) {
+    const m = String(name || '').match(/\d+/);
+    return m ? m[0] : null;
+  }
+
+  function metrics(loc) {
+    const m = loc.machines || {};
+    const plan = loc.plan || {};
+    const batches = loc.batches || {};
+    const printed = loc.printed || {};
+    const util = m.utilizationPercent != null ? Number(m.utilizationPercent) : null;
+    const defectPct = batches.parts ? (batches.defectParts || 0) / batches.parts * 100 : 0;
+    const quality = batches.parts ? Math.max(0, 100 - defectPct) : null;
+    const completion = plan.parts ? printed.parts / plan.parts * 100 : null;
+    return { util, quality, completion, defectPct };
+  }
+
+  function pill(val, goodMin, suffix) {
+    if (val == null || isNaN(val)) return `<span class="cov ctt">—</span>`;
+    const cls = val >= goodMin ? 'pla' : 'plr';
+    return `<span class="pill ${cls}">${val.toFixed(1)}${suffix}</span>`;
+  }
+
+  function barClass(val, goodMin) {
+    if (val == null || isNaN(val)) return 'fr';
+    return val >= goodMin ? 'fa' : 'fr';
+  }
+
+  // ─── Таблиця ────────────────────────────────────────────────────────────
+  function renderTable() {
+    const body = document.getElementById('loc-tbl-body');
+    if (!body) return;
+    const locations = _data.locations || [];
+    if (!locations.length) {
+      body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--tl)">Дані ще не синхронізовано</td></tr>`;
+      return;
+    }
+    body.innerHTML = locations.map(loc => {
+      const num = locNum(loc.location);
+      const meta = LOC_META[num] || { coef: '—', status: '—' };
+      const { util, quality, completion } = metrics(loc);
+      return `<tr>
+        <td>${loc.location}</td>
+        <td>${meta.coef}</td>
+        <td>${pill(util, 40, '%')}</td>
+        <td>${pill(quality, 85, '%')}</td>
+        <td>${pill(completion, 60, '%')}</td>
+        <td><span class="cov ctt">TBD</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ─── Картки ─────────────────────────────────────────────────────────────
+  function renderCards() {
+    const container = document.getElementById('loc-cards-container');
+    if (!container) return;
+    const locations = _data.locations || [];
+    if (!locations.length) {
+      container.innerHTML = `<div class="lc"><div class="lcn">Дані ще не синхронізовано</div></div>`;
+      return;
+    }
+    container.innerHTML = locations.map(loc => {
+      const num = locNum(loc.location);
+      const meta = LOC_META[num] || { status: '—', badge: 'pla' };
+      const { util, quality, completion, defectPct } = metrics(loc);
+      const utilW = util != null ? Math.min(100, util) : 0;
+      const defW  = defectPct != null ? Math.min(100, defectPct) : 0;
+      const compW = completion != null ? Math.min(100, completion) : 0;
+      const warn = (util != null && util < 40)
+        ? `<div style="font-size:9px;color:var(--red);margin-top:5px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
+      return `<div class="lc">
+        <div class="lch"><div class="lcn">🏭 ${loc.location}</div><span class="pill ${meta.badge}">${meta.status}</span></div>
+        <div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf ${barClass(util,40)}" style="width:${utilW}%"></div></div><div class="lbv">${util != null ? util.toFixed(0)+'%' : '—'}</div></div>
+        <div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf ${barClass(100-defectPct,85)}" style="width:${defW}%"></div></div><div class="lbv">~${defectPct.toFixed(1)}%</div></div>
+        <div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf ${barClass(completion,60)}" style="width:${compW}%"></div></div><div class="lbv">${completion != null ? completion.toFixed(0)+'%' : '—'}</div></div>
+        ${warn}
+      </div>`;
+    }).join('');
+  }
+
+  function updateStatus() {
+    const el = document.getElementById('loc-status');
+    if (!el) return;
+    if (!_data || !_data.fetched_at) {
+      el.textContent = '⏳ Дані ще не синхронізовано (перший запуск GitHub Actions)';
+      return;
+    }
+    const d = new Date(_data.fetched_at);
+    const dateStr = _data.date ? ' · зріз за ' + _data.date : '';
+    el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' }) + dateStr + ' · джерело: /api/capacity';
+  }
+
+  function render() {
+    if (!_data) return;
+    renderTable();
+    renderCards();
+    updateStatus();
+  }
+
+  function renderError() {
+    const el = document.getElementById('loc-status');
+    if (el) el.textContent = '✗ Дані локацій недоступні';
+  }
 
   return { load };
 })();
