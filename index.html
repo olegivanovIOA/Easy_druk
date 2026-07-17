@@ -834,35 +834,43 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ ЛОКАЦІЇ ═════════════ -->
 <div class="panel" id="panel-loc">
   <div id="w-loc-tbl">
-    <div class="sec">📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></div>
-    <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
+    <div class="sec" style="justify-content:space-between">
+      <span>📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></span>
+      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · Невикор. ресурс — накопичено з початку історії, маш-год і % від можливого">ⓘ /api/capacity</span>
+    </div>
+    <div class="card-flat" style="margin-bottom:10px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
       <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
-    </tbody></table></div><div class="tfoot" id="loc-tfoot">⚙️ Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · Невикор. ресурс — накопичено з початку історії, маш-год і % від можливого</div></div>
+    </tbody></table></div></div>
   </div>
   <div id="w-loc-cards">
-    <div class="sec">📊 Деталізація по локаціях</div>
-    <div class="g4" id="loc-cards-container">
+    <div class="sec" style="justify-content:space-between">
+      <span>📊 Деталізація по локаціях</span>
+      <span id="loc-status" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span>
+    </div>
+    <div class="g4" id="loc-cards-container" style="gap:8px">
       <div class="lc"><div class="lcn">Завантаження…</div></div>
     </div>
   </div>
-  <div id="loc-status" style="font-size:11px;color:var(--tl);margin-top:6px"></div>
 
-  <div id="w-loc-trends">
+  <div id="w-loc-trends" style="margin-top:10px">
     <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
       <span>📈 Динаміка по локаціях — 2026</span>
       <div id="loc-month-filters" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"></div>
     </div>
     <div class="g2">
       <div class="card-flat">
-        <div class="ct" style="padding:10px 10px 0">Завантаженість, %</div>
-        <div class="cw ch210" style="padding:6px 10px 10px"><canvas id="loc-util-chart"></canvas></div>
+        <div class="ct" style="padding:8px 10px 0">Завантаженість, %</div>
+        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="loc-util-chart"></canvas></div>
       </div>
       <div class="card-flat">
-        <div class="ct" style="padding:10px 10px 0">% Браку</div>
-        <div class="cw ch210" style="padding:6px 10px 10px"><canvas id="loc-defect-chart"></canvas></div>
+        <div class="ct" style="padding:8px 10px 0">% Браку</div>
+        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="loc-defect-chart"></canvas></div>
       </div>
     </div>
-    <div class="tfoot" id="loc-trend-status" style="margin-top:6px"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--tl)">
+      <span id="loc-trend-status"></span>
+      <span style="cursor:help" title="Поріг браку 7.5% — пунктир, дні вище порогу — обведені чорним · товстий пунктир — логарифмічний тренд (клік по локації в легенді ховає і лінію, і її тренд) · шкала браку обрізана на 25% — окремі викиди вище можуть не вміститись">ⓘ пояснення графіків</span>
+    </div>
   </div>
 </div>
 
@@ -2987,7 +2995,7 @@ window.LocLoader = (() => {
 
   // ─── Кільцева діаграма (зовнішнє кільце — середнє за рік, внутрішнє — зараз) ──
   function ringPair(curVal, avgVal, maxScale, color, curColorOverride) {
-    const size = 56, c = 28, rOut = 24, rIn = 16, sw = 6;
+    const size = 44, c = 22, rOut = 19, rIn = 12, sw = 5;
     const cOut = 2 * Math.PI * rOut, cIn = 2 * Math.PI * rIn;
     const curPct = curVal == null ? 0 : Math.max(0, Math.min(1, curVal / maxScale));
     const avgPct = avgVal == null ? 0 : Math.max(0, Math.min(1, avgVal / maxScale));
@@ -3005,12 +3013,12 @@ window.LocLoader = (() => {
   function metricBlock(title, curVal, avgVal, curColor, avgOpacityColor, suffix) {
     const curTxt = curVal != null ? curVal.toFixed(1) + suffix : '—';
     const avgTxt = avgVal != null ? avgVal.toFixed(1) + suffix : '—';
-    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+    return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
       ${ringPair(curVal, avgVal, suffix === '%' && title === 'Брак' ? 25 : 100, avgOpacityColor, curColor)}
-      <div style="font-size:10px;line-height:1.7">
-        <div style="font-weight:700;color:var(--tx);margin-bottom:1px">${title}</div>
-        <div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${curColor};margin-right:4px"></span>Зараз: <b>${curTxt}</b></div>
-        <div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${avgOpacityColor};opacity:.4;margin-right:4px"></span>Середнє за 2026: <b>${avgTxt}</b></div>
+      <div style="font-size:9px;line-height:1.45">
+        <div style="font-weight:700;color:var(--tx)">${title}</div>
+        <div><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${curColor};margin-right:3px"></span>Зараз: <b>${curTxt}</b></div>
+        <div><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${avgOpacityColor};opacity:.4;margin-right:3px"></span>Середнє за 2026: <b>${avgTxt}</b></div>
       </div>
     </div>`;
   }
@@ -3035,12 +3043,12 @@ window.LocLoader = (() => {
       const idle = idles[num] || { hours: 0, days: 0, since: null };
       const defectCurColor = (defectPct != null && defectPct > DEFECT_THRESHOLD) ? '#C0392B' : colors.line;
       const warn = (util != null && util < 40)
-        ? `<div style="font-size:9px;color:var(--red);margin-top:2px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
+        ? `<div style="font-size:8px;color:var(--red);margin-top:1px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
       const growthLine = idle.days > 0
-        ? `<div style="font-size:10px;color:var(--tl);border-top:1px dashed var(--bd);padding-top:6px;margin-top:2px">📈 Потенціал росту: <b style="color:var(--tx)">${fmtHours(idle.hours)}</b> невикористаного ресурсу · з ${idle.since}</div>`
-        : `<div style="font-size:10px;color:var(--tl);border-top:1px dashed var(--bd);padding-top:6px;margin-top:2px">📈 Потенціал росту: накопичується (потрібен запуск backfill з оновленими полями)</div>`;
-      return `<div class="lc">
-        <div class="lch"><div class="lcn">🏭 ${loc.location}</div><span class="pill ${meta.badge}">${meta.status}</span></div>
+        ? `<div style="font-size:9px;color:var(--tl);border-top:1px dashed var(--bd);padding-top:4px;margin-top:1px">📈 Потенціал росту: <b style="color:var(--tx)">${fmtHours(idle.hours)}</b> · з ${idle.since}</div>`
+        : `<div style="font-size:9px;color:var(--tl);border-top:1px dashed var(--bd);padding-top:4px;margin-top:1px">📈 Потенціал росту: накопичується</div>`;
+      return `<div class="lc" style="padding:8px">
+        <div class="lch" style="margin-bottom:4px"><div class="lcn">🏭 ${loc.location}</div><span class="pill ${meta.badge}">${meta.status}</span></div>
         ${metricBlock('Завант.', util, avg.avgUtil, colors.line, colors.line, '%')}
         ${metricBlock('Брак', defectPct, avg.avgDefect, defectCurColor, colors.line, '%')}
         ${warn}
@@ -3053,12 +3061,12 @@ window.LocLoader = (() => {
     const el = document.getElementById('loc-status');
     if (!el) return;
     if (!_data || !_data.fetched_at) {
-      el.textContent = '⏳ Дані ще не синхронізовано (перший запуск GitHub Actions)';
+      el.textContent = '⏳ не синхронізовано';
       return;
     }
     const d = new Date(_data.fetched_at);
-    const dateStr = _data.date ? ' · зріз за ' + _data.date : '';
-    el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' }) + dateStr + ' · джерело: /api/capacity';
+    const dateStr = _data.date ? ' · зріз ' + _data.date : '';
+    el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' }) + dateStr;
   }
 
   // ─── Фільтр місяців для графіків ───────────────────────────────────────
@@ -3254,7 +3262,7 @@ window.LocLoader = (() => {
       if (!days.length) {
         el.textContent = '⏳ Історія по днях ще порожня';
       } else {
-        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини · поріг браку ${DEFECT_THRESHOLD}% — пунктир, дні вище — обведені · товстий пунктир — логарифмічний тренд · шкала браку обрізана на 25% (окремі викиди вище можуть не вміститись)`;
+        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини`;
       }
     }
   }
