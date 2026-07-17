@@ -834,16 +834,16 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ ЛОКАЦІЇ ═════════════ -->
 <div class="panel" id="panel-loc">
   <div id="w-loc-tbl">
-    <div class="sec" style="justify-content:space-between">
+    <div class="sec" style="justify-content:space-between;margin-top:0">
       <span>📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></span>
       <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · Невикор. ресурс — накопичено з початку історії, маш-год і % від можливого">ⓘ /api/capacity</span>
     </div>
-    <div class="card-flat" style="margin-bottom:10px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
+    <div class="card-flat" style="margin-bottom:8px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
       <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
     </tbody></table></div></div>
   </div>
   <div id="w-loc-cards">
-    <div class="sec" style="justify-content:space-between">
+    <div class="sec" style="justify-content:space-between;margin:8px 0 6px">
       <span>📊 Деталізація по локаціях</span>
       <span id="loc-status" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span>
     </div>
@@ -852,8 +852,8 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
-  <div id="w-loc-trends" style="margin-top:10px">
-    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+  <div id="w-loc-trends">
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0 6px">
       <span>📈 Динаміка по локаціях — 2026</span>
       <div id="loc-month-filters" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"></div>
     </div>
@@ -3044,15 +3044,21 @@ window.LocLoader = (() => {
       const defectCurColor = (defectPct != null && defectPct > DEFECT_THRESHOLD) ? '#C0392B' : colors.line;
       const warn = (util != null && util < 40)
         ? `<div style="font-size:8px;color:var(--red);margin-top:1px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
-      const growthLine = idle.days > 0
-        ? `<div style="font-size:9px;color:var(--tl);border-top:1px dashed var(--bd);padding-top:4px;margin-top:1px">📈 Потенціал росту: <b style="color:var(--tx)">${fmtHours(idle.hours)}</b> · з ${idle.since}</div>`
-        : `<div style="font-size:9px;color:var(--tl);border-top:1px dashed var(--bd);padding-top:4px;margin-top:1px">📈 Потенціал росту: накопичується</div>`;
+      const growthBox = idle.days > 0
+        ? `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br><b style="color:var(--tx);font-size:12px">${fmtHours(idle.hours)}</b><br>невикор. ресурсу<br>з ${idle.since}</div>`
+        : `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br>накопичується</div>`;
       return `<div class="lc" style="padding:8px">
         <div class="lch" style="margin-bottom:4px"><div class="lcn">🏭 ${loc.location}</div><span class="pill ${meta.badge}">${meta.status}</span></div>
-        ${metricBlock('Завант.', util, avg.avgUtil, colors.line, colors.line, '%')}
-        ${metricBlock('Брак', defectPct, avg.avgDefect, defectCurColor, colors.line, '%')}
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;min-width:0">
+            ${metricBlock('Завант.', util, avg.avgUtil, colors.line, colors.line, '%')}
+            ${metricBlock('Брак', defectPct, avg.avgDefect, defectCurColor, colors.line, '%')}
+          </div>
+          <div style="flex:0 0 auto;width:88px;border-left:1px dashed var(--bd);padding-left:8px;display:flex;align-items:center">
+            ${growthBox}
+          </div>
+        </div>
         ${warn}
-        ${growthLine}
       </div>`;
     }).join('');
   }
