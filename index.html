@@ -120,6 +120,14 @@ a{color:var(--gd);text-decoration:none}
   .ti{display:none}.tb{padding:5px 7px;font-size:11px}
   .nav-acts .btn-sm:not(#wmBtn){display:none}
 }
+/* Стратегія: скорінг-таблиця має власний скрол, не розтягує всю сторінку */
+.str-two-col{display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:start}
+.str-two-col>*{min-width:0}
+.str-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:900px){
+  .str-two-col{grid-template-columns:1fr}
+  .str-table-wrap table{min-width:820px}
+}
 
 /* cards */
 .card{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
