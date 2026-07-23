@@ -2905,10 +2905,30 @@ window.LocLoader = (() => {
     return { util, quality, completion, defectPct };
   }
 
+  // Партій сьогодні ще може не бути (зміна тільки почалась) — % Якості за
+  // сьогодні тоді null. Замість голого "—" показуємо останнє відоме значення
+  // з історії (учора чи раніше), явно позначене як не сьогоднішнє.
+  function lastKnownQuality(num) {
+    const days = (_history && _history.days) || [];
+    for (let i = days.length - 1; i >= 0; i--) {
+      const loc = days[i].locations && days[i].locations[num];
+      if (loc && loc.defectPct != null) {
+        return { quality: Math.max(0, 100 - loc.defectPct), date: days[i].date };
+      }
+    }
+    return null;
+  }
+
   function pill(val, goodMin, suffix) {
     if (val == null || isNaN(val)) return `<span class="cov ctt">—</span>`;
     const cls = val >= goodMin ? 'pla' : 'plr';
     return `<span class="pill ${cls}">${val.toFixed(1)}${suffix}</span>`;
+  }
+
+  function pillStale(val, goodMin, suffix, dateLabel) {
+    if (val == null || isNaN(val)) return `<span class="cov ctt">—</span>`;
+    const cls = val >= goodMin ? 'pla' : 'plr';
+    return `<span class="pill ${cls}" style="opacity:.6;border-style:dashed" title="Партій сьогодні ще немає — останні дані за ${dateLabel}">${val.toFixed(1)}${suffix}*</span>`;
   }
 
   function barClass(val, goodMin) {
@@ -2944,6 +2964,10 @@ window.LocLoader = (() => {
       const num = locNum(loc.location);
       const meta = LOC_META[num] || { coef: '—', status: '—' };
       const { util, quality, completion } = metrics(loc);
+      const known = quality == null ? lastKnownQuality(num) : null;
+      const qualityCell = quality != null
+        ? pill(quality, 85, '%')
+        : (known ? pillStale(known.quality, 85, '%', known.date) : `<span class="cov ctt">—</span>`);
       const idle = idles[num] || { hours: 0, pct: null, days: 0 };
       const idleCell = idle.days === 0
         ? `<span class="cov ctt">TBD</span>`
@@ -2952,7 +2976,7 @@ window.LocLoader = (() => {
         <td>${loc.location}</td>
         <td>${meta.coef}</td>
         <td>${pill(util, 40, '%')}</td>
-        <td>${pill(quality, 85, '%')}</td>
+        <td>${qualityCell}</td>
         <td>${pill(completion, 60, '%')}</td>
         <td>${idleCell}</td>
       </tr>`;
