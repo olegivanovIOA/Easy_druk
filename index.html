@@ -1104,6 +1104,15 @@ async function buildGantt(){
 // ── STRATEGY render ───────────────────────────────────
 let SDC=null;
 let _activeSprint=null, _allSprintsData={}, _transferStats={};
+function _sprintContainsToday(datesStr){
+  if(!datesStr) return false;
+  const parts=datesStr.split(/[–-]/).map(s=>s.trim());
+  if(parts.length<2) return false;
+  const parseDM=s=>{const m=s.match(/(\d{1,2})\.(\d{1,2})/);return m?new Date(2026,parseInt(m[2])-1,parseInt(m[1])):null;};
+  const start=parseDM(parts[0]),end=parseDM(parts[1]);
+  if(!start||!end) return false;
+  return TODAY>=start&&TODAY<=end;
+}
 
 function renderStrategy(ov={}){
   buildGoals();
@@ -1233,7 +1242,8 @@ async function _loadAndRenderSprints(){
   // Будуємо кнопки
   const switcher=document.getElementById('sprint-switcher');
   if(switcher){
-    const curNum=_activeSprint||Math.max(...Object.keys(_allSprintsData).map(Number));
+    const byDate=Object.keys(_allSprintsData).find(num=>_sprintContainsToday(_allSprintsData[num].dates));
+    const curNum=_activeSprint||(byDate!==undefined?parseInt(byDate):Math.max(...Object.keys(_allSprintsData).map(Number)));
     if(!_activeSprint) _activeSprint=curNum;
     const allActive=_activeSprint==='all';
     let btns=`<button onclick="_switchSprint('all')" style="padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;font-size:11px;font-weight:600;background:${allActive?'var(--b)':'transparent'};color:${allActive?'#fff':'var(--tm)'};transition:all .15s">Всі</button>`;
@@ -1281,7 +1291,7 @@ function _renderActiveSprint(){
   set('s2t',total);set('s2d',done);set('s2w',inProg);set('s2moved',moved);set('s2p',dp+'%');set('s2movpct',mp+'%');set('s2b',dp+'% виконано');
   if(SDC){try{SDC.destroy();}catch(e){}}
   const DL=window.ChartDataLabels;
-  SDC=safeChart('spDon',{type:'doughnut',plugins:DL?[DL]:[],data:{labels:['Виконано','В роботі','Перенесено'],datasets:[{data:[done,inProg,moved],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,color:'#fff',textAlign:'center',font:{size:11,weight:'700'},formatter:(v,ctx)=>{const tot=ctx.dataset.data.reduce((a,b)=>a+b,0);return tot>0?[String(v),Math.round(v/tot*100)+'%']:'';}}}}}); 
+  SDC=safeChart('spDon',{type:'doughnut',plugins:DL?[DL]:[],data:{labels:['Виконано','В роботі','Перенесено'],datasets:[{data:[done,inProg,moved],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,color:'#1F2937',textAlign:'center',font:{size:11,weight:'700'},formatter:(v,ctx)=>{const tot=ctx.dataset.data.reduce((a,b)=>a+b,0);return tot>0?[String(v),Math.round(v/tot*100)+'%']:'';}}}}}); 
   const footer=document.getElementById('sprint-footer');
   if(footer) footer.textContent=`${num==='all'?'Всього':'Спринт '+num}: ${total} задач · ${done} виконано · ${moved} перенесено · ${dp}% завершення`;
 
