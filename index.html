@@ -1078,14 +1078,17 @@ async function buildGantt(){
       const {dayStart:mS,daysInMonth:dim,w:mW}=monthWidths[mi];
       const mE=mS+dim,isT=(mi===TODAY.getMonth());
       const bS=clamp(sDoy,mS,mE),bE=clamp(eDoy,mS,mE);
-      const bL=Math.round((bS-mS)/dim*mW),bW=Math.max(0,Math.round((bE-bS)/dim*mW));
+      // % відносно фактичної ширини самої клітинки — а не теоретичного мінімального
+      // місячного px (min-width:90px у CSS все одно розтягує клітинки, тож px-офсети
+      // від маленького mW завжди "з'їжджали" ліворуч; % від клітинки завжди коректний)
+      const bLpct=dim>0?(bS-mS)/dim*100:0, bWpct=dim>0?(bE-bS)/dim*100:0;
       let inner='';
-      if(bW>0){
+      if(bWpct>0){
         const barCls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
         const dashStyle=p.openEnd?';border-right:3px dashed rgba(255,255,255,.6);opacity:.65':'';
-        inner=`<div class="${barCls}" style="width:${bW}px;margin-left:${bL}px${dashStyle}" title="${p.name}: ${p.start}${p.openEnd?' → без дедлайну':'–'+p.end}"></div>`;
+        inner=`<div class="${barCls}" style="position:absolute;left:${bLpct.toFixed(2)}%;width:${bWpct.toFixed(2)}%;top:50%;transform:translateY(-50%)${dashStyle}" title="${p.name}: ${p.start}${p.openEnd?' → без дедлайну':'–'+p.end}"></div>`;
       }
-      if(isT){const tx=Math.round((TODAY.getDate()-1)/dim*mW);inner+=`<div style="position:absolute;left:${tx}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10"></div>`;}
+      if(isT){const txPct=(TODAY.getDate()-1)/dim*100;inner+=`<div style="position:absolute;left:${txPct.toFixed(2)}%;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10"></div>`;}
       cells+=`<td class="gcell ${isT?'today-col':''}">${inner}</td>`;
     }
     rows+=`<tr>${cells}</tr>`;
@@ -1278,7 +1281,7 @@ function _renderActiveSprint(){
   set('s2t',total);set('s2d',done);set('s2w',inProg);set('s2moved',moved);set('s2p',dp+'%');set('s2movpct',mp+'%');set('s2b',dp+'% виконано');
   if(SDC){try{SDC.destroy();}catch(e){}}
   const DL=window.ChartDataLabels;
-  SDC=safeChart('spDon',{type:'doughnut',plugins:DL?[DL]:[],data:{labels:['Виконано','В роботі','Перенесено'],datasets:[{data:[done,inProg,moved],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,color:'#fff',font:{size:11,weight:'700'},formatter:(v,ctx)=>{const tot=ctx.dataset.data.reduce((a,b)=>a+b,0);return tot>0?v+'\n'+Math.round(v/tot*100)+'%':'';}}}}}); 
+  SDC=safeChart('spDon',{type:'doughnut',plugins:DL?[DL]:[],data:{labels:['Виконано','В роботі','Перенесено'],datasets:[{data:[done,inProg,moved],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,color:'#fff',textAlign:'center',font:{size:11,weight:'700'},formatter:(v,ctx)=>{const tot=ctx.dataset.data.reduce((a,b)=>a+b,0);return tot>0?[String(v),Math.round(v/tot*100)+'%']:'';}}}}}); 
   const footer=document.getElementById('sprint-footer');
   if(footer) footer.textContent=`${num==='all'?'Всього':'Спринт '+num}: ${total} задач · ${done} виконано · ${moved} перенесено · ${dp}% завершення`;
 
