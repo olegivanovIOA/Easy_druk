@@ -93,7 +93,13 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
   ];
 
   // ── Математика ────────────────────────────────────────────────────────────
-  function sprintPct(sp) { return sp.total > 0 ? sp.done / sp.total : 0; }
+  function sprintPct(sp) {
+    // "Перенесено" і "Відмінено" не повинні знижувати %: вони не є ні виконаною
+    // роботою, ні простроченою — просто виключаємо їх зі знаменника.
+    const denom = sp.total - (sp.postponed||0) - (sp.cancelled||0);
+    if (denom <= 0) return sp.done > 0 ? 1 : 0;
+    return sp.done / denom;
+  }
   function projPct(p)    { const ps=p.sprints.map(sprintPct); return ps.length?ps.reduce((a,b)=>a+b,0)/ps.length:0; }
   function goalPct(g)    { const ps=g.projects.map(projPct);  return ps.length?ps.reduce((a,b)=>a+b,0)/ps.length:0; }
   function fmt(v)        { return (v*100).toFixed(1)+'%'; }
@@ -133,7 +139,8 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
         if (!pd) return;
         const live = sprints
           .filter(sp => pd['sprint'+sp.num] && pd['sprint'+sp.num].total > 0)
-          .map(sp => ({n:sp.num, dates:sp.dates||'', done:pd['sprint'+sp.num].done, total:pd['sprint'+sp.num].total}));
+          .map(sp => ({n:sp.num, dates:sp.dates||'', done:pd['sprint'+sp.num].done, total:pd['sprint'+sp.num].total,
+                       postponed:pd['sprint'+sp.num].postponed||0, cancelled:pd['sprint'+sp.num].cancelled||0}));
         if (live.length > 0) proj.sprints = live;
       });
     });
@@ -285,7 +292,7 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
     const scoringDesc = `
       <div style="background:var(--s2);border-radius:10px;padding:14px 16px;font-size:12px;color:var(--tm);line-height:1.8">
         <div style="font-weight:700;margin-bottom:8px;font-size:13px">📐 Як рахується скорінг</div>
-        <div>% Спринту = виконані задачі / всього задач</div>
+        <div>% Спринту = виконані / (всього − перенесені − відмінені)</div>
         <div>% Проекту = середнє спринтів</div>
         <div>% Цілі = середнє проектів</div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)">

@@ -99,8 +99,10 @@ const E3D_LOADER = (() => {
       sprints.forEach(sp => {
         const proj = (sp.projects || {})[pid];
         result[pid]['sprint' + sp.num] = proj
-          ? {done: proj.done || 0, total: proj.total || 0, tasks: proj.tasks || []}
-          : {done: 0, total: 0, tasks: []};
+          ? {done: proj.done || 0, total: proj.total || 0,
+             postponed: proj.postponed || 0, cancelled: proj.cancelled || 0,
+             tasks: proj.tasks || []}
+          : {done: 0, total: 0, postponed: 0, cancelled: 0, tasks: []};
       });
     });
 
@@ -131,6 +133,12 @@ const E3D_LOADER = (() => {
 
   return { on, summary, initAll, startAutoRefresh, sprintSummary, getAllSprints };
 })();
+
+// КРИТИЧНО: top-level const/let у звичайному <script> НЕ потрапляє у window.
+// Весь інший код (strategy_scoring.js, index.html) перевіряє саме window.E3D_LOADER,
+// тож без цього рядка живі дані з Google Sheets НІКОЛИ не завантажувались —
+// дашборд завжди показував лише статичні дані.
+window.E3D_LOADER = E3D_LOADER;
 
 // Зворотна сумісність
 if (!window.E3D_DATA) {
