@@ -399,25 +399,12 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
       </table>`;
 
     const twoCol = `
-      <div style="display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:start">
-        <div>${weightWarn}${summaryTable}</div>
+      <div class="str-two-col">
+        <div>${weightWarn}<div class="str-table-wrap">${summaryTable}</div></div>
         <div style="position:sticky;top:60px">${scoringDesc}</div>
       </div>`;
 
     container.innerHTML = topBar + twoCol;
-
-    // Рендер перемикача спринтів
-    if (window.E3D_LOADER) {
-      var d = E3D_LOADER.initAll ? null : null;
-      // Дані вже в кеші — беремо через getAllSprints
-      var sprints = E3D_LOADER.getAllSprints ? E3D_LOADER.getAllSprints() : [];
-      if (sprints.length) {
-        // Формуємо data-like об'єкт з кешованих спринтів
-        renderSprintSwitcher({ _sprints: sprints });
-      } else {
-        E3D_LOADER.initAll(false).then(function(d){ if(d) renderSprintSwitcher(d); });
-      }
-    }
 
     // ── Events ──
     container.querySelectorAll('.proj-row').forEach(row => {
@@ -485,65 +472,7 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
   }
 })();
 
-// ── Перемикач спринтів ────────────────────────────────────────────────────
-function renderSprintSwitcher(data) {
-  const switcher = document.getElementById('sprint-switcher');
-  const tbody    = document.getElementById('s1b');
-  const title    = document.getElementById('sprint-title');
-  const footer   = document.getElementById('sprint-footer');
-  if (!switcher || !tbody || !data) return;
+// Примітка: перемикач спринтів (#sprint-switcher, #s1b) повністю керується
+// кодом у index.html (з визначенням поточного спринту за датою) — щоб уникнути
+// перезапису одного й того ж DOM двома незалежними скриптами.
 
-  const sprints = (data._sprints || []).sort((a,b)=>a.num-b.num);
-  if (!sprints.length) return;
-
-  let active = sprints[sprints.length - 1].num; // останній спринт за замовчуванням
-
-  function renderSprint(num) {
-    active = num;
-    const sp = sprints.find(s=>s.num===num);
-    if (!sp) return;
-
-    // Оновити заголовок і футер
-    const isDone = num < sprints[sprints.length-1].num;
-    if (title)  title.textContent = `📅 Спринт ${num} (${sp.dates||''})${isDone?' — підсумок':' — поточний'}`;
-    if (footer) footer.textContent = isDone ? `Спринт ${num} завершено` : `Спринт ${num} в процесі`;
-
-    // Підсвітити активну кнопку
-    switcher.querySelectorAll('button').forEach(b=>{
-      b.style.background = parseInt(b.dataset.n)===num ? 'var(--g)' : 'transparent';
-      b.style.color      = parseInt(b.dataset.n)===num ? '#fff'     : 'var(--tm)';
-    });
-
-    // Заповнити таблицю
-    tbody.innerHTML = '';
-    const projects = sp.projects || {};
-    Object.entries(projects).forEach(([pid, proj])=>{
-      (proj.tasks||[]).forEach(task=>{
-        const done = task.done;
-        const tr = document.createElement('tr');
-        if (done) tr.style.opacity = '0.5';
-        tr.innerHTML = `
-          <td>${pid}</td>
-          <td>${done?'<s>':''}${(proj.name||pid).substring(0,25)}${done?'</s>':''}</td>
-          <td>${done?'<s>':''}${task.task.substring(0,60)}${done?'</s>':''}</td>
-          <td>${task.owner||''}</td>
-          <td>${task.deadline||''}</td>
-          <td><span class="bdg ${done?'bdg-g':'task.status==="В процесі"?"bdg-a":"bdg-b"'}">${done?'✓ Виконано':task.status||'—'}</span></td>`;
-        tbody.appendChild(tr);
-      });
-    });
-  }
-
-  // Побудувати кнопки
-  switcher.innerHTML = '';
-  sprints.forEach(sp=>{
-    const btn = document.createElement('button');
-    btn.textContent    = `С${sp.num}`;
-    btn.dataset.n      = sp.num;
-    btn.style.cssText  = 'padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;font-size:11px;font-weight:600;transition:all .15s';
-    btn.onclick        = ()=>renderSprint(sp.num);
-    switcher.appendChild(btn);
-  });
-
-  renderSprint(active);
-}
