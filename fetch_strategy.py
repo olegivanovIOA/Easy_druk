@@ -70,18 +70,27 @@ def normalize_date(raw):
         return f"{y}-{mo.zfill(2)}-{d.zfill(2)}"
     return ""  # формати типу "Тиждень 3" — не дата, ігноруємо
 
+STATUS_DONE      = "Виконано"
+STATUS_POSTPONED = "Перенесено"
+STATUS_CANCELLED = "Відмінено"
+
 def _add_task(proj, c, d, f, h):
-    done = h.strip() == "Виконано"
+    status = h.strip()
+    done = status == STATUS_DONE
     proj["tasks"].append({
         "task": c.strip()[:200],
         "owner": d.split(",")[0].strip(),
         "deadline": f.strip()[:20],
-        "status": h.strip(),
+        "status": status,
         "done": done,
     })
     proj["total"] += 1
     if done:
         proj["done"] += 1
+    elif status == STATUS_POSTPONED:
+        proj["postponed"] += 1
+    elif status == STATUS_CANCELLED:
+        proj["cancelled"] += 1
 
 def fetch_projects_meta(gid):
     """Читає лист Проекти: ID → {name, owner, team, priority, start, deadline}"""
@@ -128,7 +137,8 @@ def parse_sprint(rows):
         if is_proj_id:
             current = normalize_pid(a)
             if current not in projects:
-                projects[current] = {"name": b or a, "done": 0, "total": 0, "tasks": []}
+                projects[current] = {"name": b or a, "done": 0, "total": 0,
+                                      "postponed": 0, "cancelled": 0, "tasks": []}
             if c and len(c) > 2:
                 _add_task(projects[current], c, d, f, h)
         elif current and c and len(c) > 2:
@@ -181,6 +191,9 @@ def main():
             print(f"       Розпарсено проектів: {len(projects)}")
             for pid, p in sorted(projects.items()):
                 print(f"       {pid}: {p['done']}/{p['total']} задач — {p['name'][:40]}")
+                if projects_owner_map and pid not in projects_owner_map:
+                    print(f"       [WARN] ID {pid} відсутній у листі 'Проекти' — можлива "
+                          f"помилка ID у листі '{sp['name']}' (перевір назву: '{p['name'][:40]}')")
                 if pid not in projects_meta:
                     pm = projects_owner_map.get(pid, {})
                     projects_meta[pid] = {
