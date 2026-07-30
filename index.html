@@ -120,14 +120,6 @@ a{color:var(--gd);text-decoration:none}
   .ti{display:none}.tb{padding:5px 7px;font-size:11px}
   .nav-acts .btn-sm:not(#wmBtn){display:none}
 }
-/* Стратегія: скорінг-таблиця має власний скрол, не розтягує всю сторінку */
-.str-two-col{display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:start}
-.str-two-col>*{min-width:0}
-.str-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-@media(max-width:900px){
-  .str-two-col{grid-template-columns:1fr}
-  .str-table-wrap table{min-width:820px}
-}
 
 /* cards */
 .card{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
@@ -250,15 +242,11 @@ a{color:var(--gd);text-decoration:none}
 .goal-pct{font-size:12px;font-weight:800;color:var(--gd);min-width:36px;text-align:right}
 .goal-pct.tbd{color:var(--tl)}
 
-/* Gantt sort buttons */
-.gsort-btn{padding:2px 9px;border:1px solid var(--bd);border-radius:10px;background:transparent;color:var(--tm);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s}
-.gsort-btn:hover{border-color:var(--g);color:var(--gd)}
-.gsort-btn.active-sort{background:var(--g);color:#fff;border-color:var(--g)}
 /* Gantt */
 .gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .gantt-table{width:100%;border-collapse:collapse;min-width:700px;font-size:11px}
 .gantt-table th{background:var(--s2);border-bottom:1px solid var(--bd);padding:7px 10px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--tm);white-space:nowrap;text-align:left}
-.gantt-table th.gcol{text-align:center;min-width:90px;border-left:1px solid var(--bd)}
+.gantt-table th.gcol{text-align:center;min-width:46px;border-left:1px solid var(--bd)}
 .gantt-table td{padding:5px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
 .gantt-table tr:last-child td{border-bottom:none}
 .gantt-table tr:hover td{background:var(--s2)}
@@ -344,7 +332,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v3.3</div><div id="build-ts" style="font-size:9px;color:var(--tl);margin-top:1px"></div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v1.1</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO</button>
@@ -355,7 +343,7 @@ a{color:var(--gd);text-decoration:none}
       <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>CRM<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
       <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
       <button class="tb" data-tab="hr" onclick="go('hr',this)"><span class="ti">👥</span>HR<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-hr"></div></button>
-      <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації<span class="e3d-dot" id="loc-nav-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-loc"></div></button>
+      <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації</button>
       <button class="tb" data-tab="reg" onclick="go('reg',this)"><span class="ti">📋</span>Реєстр</button>
     </div>
     <div class="nav-acts">
@@ -479,15 +467,7 @@ a{color:var(--gd);text-decoration:none}
 
   <!-- GANTT timeline -->
   <div id="w-str-gantt">
-    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <span>📅 Часова шкала проектів 2026</span>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px">
-        <span style="color:var(--tm);font-weight:500">Сортувати:</span>
-        <button id="gsort-num"  onclick="ganttSort('num')"  class="gsort-btn active-sort">№</button>
-        <button id="gsort-prio" onclick="ganttSort('prio')" class="gsort-btn">A→B</button>
-        <button id="gsort-owner"onclick="ganttSort('owner')"class="gsort-btn">Відп.</button>
-      </div>
-    </div>
+    <div class="sec">📅 Часова шкала проектів 2026</div>
     <div class="card-flat">
       <div class="gantt-wrap" id="ganttWrap"></div>
     </div>
@@ -507,58 +487,48 @@ a{color:var(--gd);text-decoration:none}
         <div class="mr"><div class="mn">Спринтів залишилось</div><div class="mv" id="fc-remaining">—</div></div>
         <div class="mr"><div class="mn">Прогноз % на 31.12</div><div class="mv" id="fc-final">—</div></div>
         <div class="mr"><div class="mn">Тренд</div><div class="mv" id="fc-trend">—</div></div>
-        <div class="mr"><div class="mn">📅 Досягнемо 100% орієнтовно</div><div class="mv b" id="fc-when100">—</div></div>
         <div style="margin-top:8px;font-size:10px;color:var(--tl)" id="fc-note">Очікую дані...</div>
       </div>
+    </div>
   </div>
 
   <!-- PROJECTS NO FOCUS -->
   <div id="w-str-nofocus">
     <div class="sec">⚠️ Проекти не в фокусі / без відповідального</div>
-    <div id="no-focus-list" class="card-flat" style="padding:10px;display:none"></div>
+    <div id="no-focus-list" class="card-flat" style="padding:10px"><p style="font-size:12px;color:var(--tl);padding:8px">Завантаження…</p></div>
   </div>
 
-  <!-- PERSON SCORES — гістограма з підписами -->
+  <!-- PERSON SCORES -->
   <div id="w-str-pers">
     <div class="sec">👤 Скоринг по учасниках</div>
-    <div class="card" style="margin-bottom:12px">
-      <div class="cw ch200"><canvas id="persChart"></canvas></div>
-    </div>
     <div class="g5" id="perg"></div>
   </div>
 
-  <!-- ПОТОЧНИЙ СПРИНТ + ПЕРЕМИКАЧ -->
+  <!-- SPRINT 2 -->
   <div id="w-str-s2">
-    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <span id="sprint-title">⚡ Поточний спринт</span>
-      <div id="sprint-switcher" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-    </div>
-    <div class="g2" style="margin-bottom:14px">
-      <div class="card" id="s2c"><div class="chdr"><div><div class="ct">Прогрес спринту</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm" style="display:none"></span></div>
-      <div class="card">
-        <div class="ct" style="margin-bottom:9px">Статистика</div>
+    <div class="sec">⚡ Поточний спринт (Спринт 2: 11.05 – 29.05)</div>
+    <div class="g2">
+      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct">Прогрес Спринту 2</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm">ДЕМО · TBD</span></div>
+      <div class="card"><div class="ct" style="margin-bottom:9px">Статистика Спринту 2</div>
         <div class="mr"><div class="mn">Всього задач</div><div class="mv" id="s2t">—</div></div>
         <div class="mr"><div class="mn">Виконано</div><div class="mv g" id="s2d">—</div></div>
         <div class="mr"><div class="mn">В роботі</div><div class="mv a" id="s2w">—</div></div>
-        <div class="mr"><div class="mn">Перенесено</div><div class="mv r" id="s2moved">—</div></div>
+        <div class="mr"><div class="mn">Прострочено</div><div class="mv r" id="s2o">—</div></div>
         <div class="mr"><div class="mn">% виконання</div><div class="mv" id="s2p">—</div></div>
-        <div class="mr"><div class="mn">% переносів</div><div class="mv r" id="s2movpct">—</div></div>
-      </div>
-    </div>
-    <div id="w-str-s1">
-      <div class="card-flat">
-        <div class="tw"><table class="tbl"><thead><tr><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div>
-        <div class="tfoot" id="sprint-footer"></div>
-      </div>
-    </div>
-    <div id="w-str-transfers" style="margin-top:14px">
-      <div class="sec">🔄 Статистика переносів по учасниках</div>
-      <div class="g2">
-        <div class="card"><div style="font-size:12px;font-weight:700;margin-bottom:10px">Поточний спринт</div><div id="transfers-list"></div></div>
-        <div class="card"><div style="font-size:12px;font-weight:700;margin-bottom:10px">Накопичена статистика (всі спринти)</div><div class="cw ch160"><canvas id="transfersChart"></canvas></div></div>
       </div>
     </div>
   </div>
+
+  <!-- СПРИНТИ — перемикач -->
+  <div id="w-str-s1">
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between">
+      <span id="sprint-title">📅 Спринт 1 — підсумок (20.04 – 11.05)</span>
+      <div id="sprint-switcher" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+    <div class="card-flat">
+      <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div>
+      <div class="tfoot" id="sprint-footer">Спринт 1 завершено: 11.05.2026</div>
+    </div>
   </div>
 </div>
 
@@ -686,46 +656,88 @@ a{color:var(--gd);text-decoration:none}
 <div class="panel" id="panel-crm">
   <div id="w-crm-funnel">
 
-    <!-- Заголовок -->
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <div class="sec" style="margin-bottom:9px">📣 Google Ads — реальні дані</div>
-      <span id="ads-updated-at" style="font-size:11px;color:var(--tl)">Завантаження…</span>
+    <!-- Заголовок + фільтри -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <div class="sec" style="margin-bottom:0">📣 Google Ads — реальні дані</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <!-- Фільтр по кампанії -->
+        <select id="ads-filter-campaign" style="font-size:11px;padding:4px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--sur);color:var(--tx);cursor:pointer" onchange="window.AdsLoader&&AdsLoader.applyFilters()">
+          <option value="all">Всі кампанії</option>
+        </select>
+        <!-- Фільтр по статусу -->
+        <select id="ads-filter-status" style="font-size:11px;padding:4px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--sur);color:var(--tx);cursor:pointer" onchange="window.AdsLoader&&AdsLoader.applyFilters()">
+          <option value="all">Всі статуси</option>
+          <option value="GREEN">🟢 GREEN</option>
+          <option value="RED">🔴 RED</option>
+          <option value="YELLOW">🟡 YELLOW</option>
+        </select>
+        <!-- Фільтр по ROAS -->
+        <select id="ads-filter-roas" style="font-size:11px;padding:4px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--sur);color:var(--tx);cursor:pointer" onchange="window.AdsLoader&&AdsLoader.applyFilters()">
+          <option value="all">Будь-який ROAS</option>
+          <option value="profitable">ROAS ≥ 2x (прибуткові)</option>
+          <option value="loss">ROAS < 1x (збиткові)</option>
+        </select>
+        <span id="ads-updated-at" style="font-size:11px;color:var(--tl)"></span>
+      </div>
     </div>
 
-    <!-- 6 KPI карток -->
+    <!-- Алерт RED кампаній -->
+    <div id="ads-alert-red" style="display:none;margin-bottom:12px" class="al al-r">
+      <span class="ic">🔴</span><div id="ads-alert-red-text"></div>
+    </div>
+
+    <!-- 7 KPI карток -->
     <div class="g6" style="margin-bottom:14px">
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Витрати 30 днів</div><div class="krow-val" id="ads-cost-total">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Конверсії (ліди)</div><div class="krow-val g" id="ads-conv-total">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Ліди (конверсії)</div><div class="krow-val g" id="ads-conv-total">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Avg ROAS</div><div class="krow-val" id="ads-roas-avg">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Активних кампаній</div><div class="krow-val" id="ads-active-count">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">RED кампанії</div><div class="krow-val r" id="ads-red-count">—</div><div class="krow-tgt">потребують уваги</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Null-атрибуція</div><div class="krow-val r">34 кл.</div><div class="krow-tgt">10.2M грн</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Середній CTR</div><div class="krow-val" id="ads-ctr-avg">—</div><div class="real-dot"></div></div>
     </div>
 
-    <!-- Воронка + CTR/CVR -->
+    <!-- Топ-3 рекомендації -->
+    <div id="ads-recommendations" style="margin-bottom:14px"></div>
+
+    <!-- Воронка тижнево + CTR/CVR тренд -->
     <div class="g2" style="margin-bottom:14px">
       <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Воронка по днях — кліки та ліди</div>
-        <div class="cw ch180"><canvas id="ads-funnel-chart" role="img" aria-label="Воронка по днях"></canvas></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;color:var(--tx)">Воронка по тижнях</div>
+          <div style="display:flex;gap:4px">
+            <button id="ads-period-week" onclick="window.AdsLoader&&AdsLoader.setPeriod('week')" style="font-size:10px;padding:2px 8px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;background:var(--g);color:#fff">Тижні</button>
+            <button id="ads-period-day" onclick="window.AdsLoader&&AdsLoader.setPeriod('day')" style="font-size:10px;padding:2px 8px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;background:transparent;color:var(--tm)">Дні</button>
+          </div>
+        </div>
+        <div class="cw ch180"><canvas id="ads-funnel-chart"></canvas></div>
       </div>
       <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">CTR% та CVR% по днях</div>
-        <div class="cw ch180"><canvas id="ads-ctr-chart" role="img" aria-label="CTR та CVR по днях"></canvas></div>
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">CTR% та CVR% тренд</div>
+        <div class="cw ch180"><canvas id="ads-ctr-chart"></canvas></div>
       </div>
     </div>
 
-    <!-- Таблиця активних кампаній -->
+    <!-- Таблиця кампаній з фільтрацією -->
     <div id="w-crm-camp">
-      <div class="sec">📢 Активні кампанії — 30 днів</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="sec" style="margin-bottom:0">📢 Кампанії</div>
+        <div style="font-size:11px;color:var(--tl)" id="ads-camp-count"></div>
+      </div>
       <div class="card-flat" style="margin-bottom:14px">
         <div id="ads-campaigns-table"><p style="padding:12px;color:var(--tl);font-size:12px">Завантаження…</p></div>
       </div>
     </div>
 
-    <!-- Розподіл бюджету -->
-    <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Розподіл бюджету по кампаніях (топ-10)</div>
-      <div class="cw" style="height:260px"><canvas id="ads-budget-chart" role="img" aria-label="Розподіл бюджету"></canvas></div>
+    <!-- ROAS гістограма + Бюджет -->
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">ROAS по кампаніях (активні)</div>
+        <div class="cw ch200"><canvas id="ads-roas-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Розподіл витрат (топ-10)</div>
+        <div class="cw ch200"><canvas id="ads-budget-chart"></canvas></div>
+      </div>
     </div>
 
     <div id="ads-status" style="font-size:11px;color:var(--tl)"></div>
@@ -842,42 +854,21 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ ЛОКАЦІЇ ═════════════ -->
 <div class="panel" id="panel-loc">
   <div id="w-loc-tbl">
-    <div class="sec" style="justify-content:space-between;margin-top:0">
-      <span>📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></span>
-      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · Невикор. ресурс — накопичено з початку історії, маш-год і % від можливого">ⓘ /api/capacity</span>
-    </div>
-    <div class="card-flat" style="margin-bottom:8px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
-      <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
-    </tbody></table></div></div>
+    <div class="sec">📍 Зведена таблиця локацій</div>
+    <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody>
+      <tr><td>Локація 1</td><td>1.0×</td><td><span class="pill pla">~62%</span></td><td><span class="pill pla">~89%</span></td><td><span class="pill pla">78%</span></td><td><span class="cov ctt">TBD</span></td></tr>
+      <tr><td>Локація 2</td><td>1.15×</td><td><span class="pill pla">~55%</span></td><td><span class="pill pla">~87%</span></td><td><span class="pill pla">72%</span></td><td><span class="cov ctt">TBD</span></td></tr>
+      <tr><td>Локація 4</td><td>1.4×</td><td><span class="pill plr">~40%</span></td><td><span class="pill plr">~85%</span></td><td><span class="pill plr">65%</span></td><td><span class="cov ctt">TBD</span></td></tr>
+      <tr><td>Локація 5</td><td>2.0×</td><td><span class="pill plr">~28%</span></td><td><span class="pill pla">~82%</span></td><td><span class="pill plr">50%</span></td><td><span class="cov ctt">TBD</span></td></tr>
+    </tbody></table></div><div class="tfoot">⚠️ Числові дані — демо-заглушки · TBD: підключаються через ПО Стріляного</div></div>
   </div>
   <div id="w-loc-cards">
-    <div class="sec" style="justify-content:space-between;margin:8px 0 6px">
-      <span>📊 Деталізація по локаціях</span>
-      <span id="loc-status" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span>
-    </div>
-    <div class="g4" id="loc-cards-container" style="gap:8px">
-      <div class="lc"><div class="lcn">Завантаження…</div></div>
-    </div>
-  </div>
-
-  <div id="w-loc-trends">
-    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0 6px">
-      <span>📈 Динаміка по локаціях — 2026</span>
-      <div id="loc-month-filters" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"></div>
-    </div>
-    <div class="g2">
-      <div class="card-flat">
-        <div class="ct" style="padding:8px 10px 0">Завантаженість, %</div>
-        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="loc-util-chart"></canvas></div>
-      </div>
-      <div class="card-flat">
-        <div class="ct" style="padding:8px 10px 0">% Браку</div>
-        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="loc-defect-chart"></canvas></div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--tl)">
-      <span id="loc-trend-status"></span>
-      <span style="cursor:help" title="Поріг браку 7.5% — пунктир, дні вище порогу — обведені чорним · товстий пунктир — логарифмічний тренд (клік по локації в легенді ховає і лінію, і її тренд) · шкала браку обрізана на 25% — окремі викиди вище можуть не вміститись">ⓘ пояснення графіків</span>
+    <div class="sec">📊 Деталізація по локаціях (демо)</div>
+    <div class="g4">
+      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 1</div><span class="pill plg">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fa" style="width:62%"></div></div><div class="lbv">62%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fa" style="width:11%"></div></div><div class="lbv">~11%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fa" style="width:78%"></div></div><div class="lbv">78%</div></div><span class="wm-txt">ДЕМО</span></div>
+      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 2</div><span class="pill plg">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fa" style="width:55%"></div></div><div class="lbv">55%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:13%"></div></div><div class="lbv">~13%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fa" style="width:72%"></div></div><div class="lbv">72%</div></div><span class="wm-txt">ДЕМО</span></div>
+      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 4</div><span class="pill pla">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fr" style="width:40%"></div></div><div class="lbv">40%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:15%"></div></div><div class="lbv">~15%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fr" style="width:65%"></div></div><div class="lbv">65%</div></div><span class="wm-txt">ДЕМО</span></div>
+      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 5</div><span class="pill pla">Розгортання</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fr" style="width:28%"></div></div><div class="lbv">28%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:18%"></div></div><div class="lbv">~18%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fr" style="width:50%"></div></div><div class="lbv">50%</div></div><div style="font-size:9px;color:var(--red);margin-top:5px;font-weight:600">Факт. завант. нижче проєктного</div><span class="wm-txt">ДЕМО</span></div>
     </div>
   </div>
 </div>
@@ -917,19 +908,11 @@ const GRID='#f0f2ee';
 const RAW={opt:[5.1,5.8,6.2,7.4,8.1,9.3,10.2,11.8,13.4,15.2,14.8,14.6],retail:[.8,.9,1,1.1,1.2,1.4,1.5,1.6,1.8,2,1.9,1.7],defect:[15,14,13.5,13,12.5,12,11.5,12,12,11.5,12,12],lead:[24,23,22.5,23,22,21.5,22,22,21.5,22,22,22]};
 const F={year:'2026',month:'5'};
 
-// ── Автовизначення місяця: ставимо місяць-1 від поточного ────────────────
+// ── Автовизначення поточного місяця/року (синхронізує dropdown і F) ────────
 (function(){
   const now = new Date();
-  // Якщо поточний місяць почався менше 10 днів тому — беремо попередній
-  // (бо даних за новий місяць ще немає)
-  const dayOfMonth = now.getDate();
-  const useMonthOffset = dayOfMonth <= 15 ? 1 : 0; // перші 15 днів місяця → попередній
-  let targetMonth = now.getMonth() - useMonthOffset;
-  let targetYear = now.getFullYear();
-  if(targetMonth < 0){ targetMonth = 11; targetYear--; }
-
-  const curMonth = String(targetMonth);
-  const curYear  = String(targetYear);
+  const curMonth = String(now.getMonth()); // 0=Січень ... 5=Червень
+  const curYear  = String(now.getFullYear());
   const msel = document.getElementById('msel');
   const ysel = document.getElementById('ysel');
   if (msel && msel.querySelector(`option[value="${curMonth}"]`)) {
@@ -942,18 +925,8 @@ const F={year:'2026',month:'5'};
   }
 })();
 function fd(arr){if(F.month!=='all'){const m=parseInt(F.month);return{l:[ML[m]],d:[arr[m]]};}return{l:ML,d:arr};}
-function setY(v){F.year=v;refreshCharts();_reloadActiveTab();}
-function setM(v){F.month=v;refreshCharts();_reloadActiveTab();}
-function _reloadActiveTab(){
-  const panel=document.querySelector('.panel.active');
-  if(!panel)return;
-  const id=panel.id.replace('panel-','');
-  if(id==='hr'&&window.HRLoader) window.HRLoader.load();
-  if(id==='crm'&&window.AdsLoader){ window.AdsLoader.load(); if(window.MqlLoader) window.MqlLoader.load(); }
-  if(id==='sales'&&window.SalesLoader) window.SalesLoader.load();
-  if(id==='loc'&&window.LocLoader) window.LocLoader.load();
-  if(id==='str'&&window.E3D_STRATEGY){ E3D_STRATEGY.render(); try{buildForecast();}catch(e){} }
-}
+function setY(v){F.year=v;refreshCharts();}
+function setM(v){F.month=v;refreshCharts();}
 
 const CH={};
 function safeChart(id,cfg){
@@ -1002,18 +975,17 @@ function buildGoals(){
 // ── GANTT CHART (HTML table) ──────────────────────────
 // Projects with start/deadline from xlsx data
 const PROJECTS = [
-  {id:1, name:'Система планування (люди, ресурси, гроші)',owner:'Іванов Олег',prio:'A',start:'2026-04-22',end:'2026-07-03'},
-  {id:2, name:'Сформовано сильну команду (Адмінка)',owner:'Зубрицька Олександра',prio:'A',start:'2026-05-01',end:'2026-12-31'},
-  {id:3, name:'Діджиталізація поточних показників',owner:'Іванов Олег',prio:'A',start:'2026-04-22',end:'2026-08-01'},
-  {id:4, name:'Вироблено та продано 10 шт НРК',owner:'Пастух Максим',prio:'B',start:'2026-01-01',end:'2026-12-31'},
-  {id:5, name:'Вироблено і продано 90 котушок',owner:'Пастух Максим',prio:'B',start:'2026-04-06',end:'2026-12-31'},
-  {id:6, name:'Відвантажено замовлення в Європу від 1 т',owner:'Зубрицька Олександра',prio:'B',start:'2026-06-08',end:'2026-11-27'},
-  {id:7, name:'Система оцінки індустрій (B2B маркетинг)',owner:'Дубровін Вадим',prio:'A',start:'2026-04-20',end:'2026-12-31'},
-  {id:8, name:'Запущено 1 автоматизовану локацію',owner:'Стріляний Олександр',prio:'B',start:'2026-05-04',end:'2026-12-31'},
-  {id:9, name:'Якість — Відділ ОТК',owner:'Бруновський Михайло',prio:'A',start:'2026-04-20',end:'2026-12-31'},
-  {id:10,name:'Система планування виробництва',owner:'Бруновський Михайло',prio:'A',start:'2026-05-01',end:'2026-12-31'},
+  {id:1,name:'Система планування (люди, ресурси, гроші)',owner:'Іванов Олег',prio:'A',start:'2026-04-22',end:'2026-05-08'},
+  {id:2,name:'Сформовано сильну команду (Адмінка)',owner:'Зубрицька Олександра',prio:'A',start:'2026-05-01',end:'2026-12-31'},
+  {id:3,name:'Діджиталізація поточних показників',owner:'Іванов Олег',prio:'A',start:'2026-04-22',end:'2026-07-01'},
+  {id:4,name:'Вироблено та продано 10 шт НРК',owner:'Пастух Максим',prio:'B',start:'2026-01-01',end:'2026-12-31'},
+  {id:5,name:'Вироблено і продано 90 котушок',owner:'Пастух Максим',prio:'B',start:'2026-04-06',end:'2026-12-31'},
+  {id:6,name:'Відвантажено замовлення в Європу від 1 т',owner:'Зубрицька Олександра',prio:'B',start:'2026-06-08',end:'2026-11-27'},
+  {id:7,name:'Система оцінки індустрій',owner:'Дубровін Вадим',prio:'A',start:'2026-04-20',end:'2026-08-31'},
+  {id:8,name:'Запущено 1 автоматизовану локацію',owner:'Стріляний Олександр',prio:'B',start:'2026-05-04',end:'2026-12-31'},
+  {id:9,name:'Якість — Відділ Якості (ВТК)',owner:'Вакансія',prio:'A',start:'2026-04-20',end:'2026-05-29'},
+  {id:10,name:'Система планування виробництва',owner:'Вакансія',prio:'A',start:'2026-05-01',end:'2026-12-31'},
   {id:14,name:'Зменшення шуму відділу продажів',owner:'Приходько Владислав',prio:'A',start:'2026-05-01',end:'2026-12-31'},
-  {id:16,name:'Запуск нових локацій',owner:'Зубрицька Олександра',prio:'B',start:'2026-04-01',end:'2026-12-31'},
 ];
 
 const MONTHS_UA = ['Січ','Лют','Бер','Квіт','Трав','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
@@ -1024,84 +996,70 @@ const YEAR_DAYS = 365;
 function dayOfYear(d){return Math.round((d-YEAR_START)/86400000);}
 function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 
-let _ganttSortKey='num';
-function ganttSort(key){
-  _ganttSortKey=key;
-  document.querySelectorAll('.gsort-btn').forEach(b=>b.classList.remove('active-sort'));
-  const btn=document.getElementById('gsort-'+key);
-  if(btn) btn.classList.add('active-sort');
-  buildGantt();
-}
-async function buildGantt(){
+function buildGantt(){
   const wrap=document.getElementById('ganttWrap');if(!wrap)return;
-  let projectsData=PROJECTS;
-  try{
-    const r=await fetch('data/strategy.json?t='+Date.now());
-    const raw=await r.json();
-    const metaMap=raw.projects||{};
-    const dynamic=Object.entries(metaMap)
-      .filter(([,m])=>m.start)
-      .map(([pid,m])=>({
-        id:pid.replace('.0',''),
-        name:m.name,
-        owner:m.owner||'Вакансія',
-        prio:(m.priority||'B').replace(/А/g,'A').replace(/В/g,'B'),
-        start:m.start,
-        end:m.deadline||'2026-12-31',
-        openEnd:!m.deadline
-      }))
-      .sort((a,b)=>parseInt(a.id)-parseInt(b.id));
-    if(dynamic.length>=5) projectsData=dynamic;
-  }catch(e){}
-  // Сортування
-  const sortFns={
-    num:  (a,b)=>parseInt(a.id)-parseInt(b.id),
-    prio: (a,b)=>{const pa=a.prio==='A'?0:1,pb=b.prio==='A'?0:1;return pa-pb||parseInt(a.id)-parseInt(b.id);},
-    owner:(a,b)=>(a.owner||'').localeCompare(b.owner||'','uk')
-  };
-  projectsData=[...projectsData].sort(sortFns[_ganttSortKey]||sortFns.num);
-  let hdrs='<tr><th style="min-width:80px;max-width:160px;width:12%;text-align:left;position:sticky;left:0;background:var(--s2);z-index:2">Проект</th><th style="min-width:55px;width:7%;text-align:left">Відп.</th><th style="min-width:24px;width:3%">Пр.</th>';
-  let totalDays=0;const monthWidths=[];
+  const todayDoy = dayOfYear(TODAY); // ~130
+
+  // Build header: 12 months
+  let hdrs = '<tr><th style="min-width:160px;text-align:left">Проект</th><th style="min-width:90px;text-align:left">Відп.</th><th style="min-width:40px">Пр.</th>';
+  let totalW = 0;
+  const monthWidths = [];
   for(let m=0;m<12;m++){
-    const dim=new Date(2026,m+1,0).getDate();
-    const w=Math.round(dim/YEAR_DAYS*120);
-    monthWidths.push({m,w,dayStart:totalDays,daysInMonth:dim});
-    const isT=(m===TODAY.getMonth());
-    hdrs+=`<th class="gcol ${isT?'today-col':''}" style="min-width:${w}px;width:${w}px"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
-    totalDays+=dim;
+    const daysInMonth = new Date(2026,m+1,0).getDate();
+    const w = Math.round(daysInMonth/YEAR_DAYS*700);
+    monthWidths.push({m,w,start:totalW,daysInMonth});
+    const isTodayMonth = (m===TODAY.getMonth());
+    hdrs += `<th class="gcol ${isTodayMonth?'today-col':''}" style="width:${w}px"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
+    totalW+=w;
   }
   hdrs+='</tr>';
+
+  // Build rows
   let rows='';
-  projectsData.forEach(p=>{
-    if(!p.start)return;
-    const pS=new Date(p.start+'T00:00:00'),pE=new Date((p.end||'2026-12-31')+'T00:00:00');
-    const sDoy=clamp(dayOfYear(pS),0,YEAR_DAYS),eDoy=clamp(dayOfYear(pE),0,YEAR_DAYS);
-    const isDone=pE<TODAY,isVac=(p.owner||'').includes('Вакансія');
-    const pc=p.prio==='A'?'prio-A':'prio-B';
-    const nm=p.name.length>34?p.name.substring(0,32)+'…':p.name;
-    let cells=`<td style="position:sticky;left:0;background:var(--sur);z-index:1"><div class="gname" title="${p.name}">#${p.id} ${nm}</div></td>`;
-    cells+=`<td><div class="gowner" style="${isVac?'color:var(--red)':''}">${(p.owner||'').split(' ')[0]}</div></td>`;
-    cells+=`<td><span class="prio-badge ${pc}">${p.prio}</span></td>`;
+  PROJECTS.forEach(p=>{
+    const pStart = new Date(p.start+'T00:00:00');
+    const pEnd   = new Date(p.end+'T00:00:00');
+    const sDoy = clamp(dayOfYear(pStart),0,YEAR_DAYS);
+    const eDoy = clamp(dayOfYear(pEnd),0,YEAR_DAYS);
+    const isDone = pEnd < TODAY;
+    const isVac  = p.owner.includes('Вакансія');
+    const prioClass = p.prio==='A'?'prio-A':'prio-B';
+    const nm = p.name.length>40 ? p.name.substring(0,38)+'…' : p.name;
+
+    let cells = `<td><div class="gname" title="${p.name}">#${p.id} ${nm}</div></td>`;
+    cells += `<td><div class="gowner" style="${isVac?'color:var(--red)':''}">${p.owner}</div></td>`;
+    cells += `<td><span class="prio-badge ${prioClass}">${p.prio}</span></td>`;
+
     for(let mi=0;mi<12;mi++){
-      const {dayStart:mS,daysInMonth:dim,w:mW}=monthWidths[mi];
-      const mE=mS+dim,isT=(mi===TODAY.getMonth());
-      const bS=clamp(sDoy,mS,mE),bE=clamp(eDoy,mS,mE);
-      // % відносно фактичної ширини самої клітинки — а не теоретичного мінімального
-      // місячного px (min-width:90px у CSS все одно розтягує клітинки, тож px-офсети
-      // від маленького mW завжди "з'їжджали" ліворуч; % від клітинки завжди коректний)
-      const bLpct=dim>0?(bS-mS)/dim*100:0, bWpct=dim>0?(bE-bS)/dim*100:0;
+      const {start:mStart,daysInMonth,w:mW} = monthWidths[mi];
+      const mEnd = mStart+daysInMonth;
+      const isTodayMonth=(mi===TODAY.getMonth());
+
+      // does bar overlap this month?
+      const barStart = clamp(sDoy,mStart,mEnd);
+      const barEnd   = clamp(eDoy,mStart,mEnd);
+      const barLen   = barEnd-barStart;
+      const barLeft  = Math.round((barStart-mStart)/daysInMonth*mW);
+      const barWidth = Math.max(0,Math.round(barLen/daysInMonth*mW));
+
       let inner='';
-      if(bWpct>0){
-        const barCls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
-        const dashStyle=p.openEnd?';border-right:3px dashed rgba(255,255,255,.6);opacity:.65':'';
-        inner=`<div class="${barCls}" style="position:absolute;left:${bLpct.toFixed(2)}%;width:${bWpct.toFixed(2)}%;top:50%;transform:translateY(-50%)${dashStyle}" title="${p.name}: ${p.start}${p.openEnd?' → без дедлайну':'–'+p.end}"></div>`;
+      if(barWidth>0){
+        const cls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
+        inner=`<div class="${cls}" style="width:${barWidth}px;margin-left:${barLeft}px" title="${p.name}: ${p.start}–${p.end}"></div>`;
       }
-      if(isT){const txPct=(TODAY.getDate()-1)/dim*100;inner+=`<div style="position:absolute;left:${txPct.toFixed(2)}%;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10"></div>`;}
-      cells+=`<td class="gcell ${isT?'today-col':''}">${inner}</td>`;
+      // today line in current month col
+      if(isTodayMonth){
+        const todayX=Math.round((TODAY.getDate()-1)/daysInMonth*mW);
+        inner+=`<div style="position:absolute;left:${todayX}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10" title="Сьогодні (${TODAY.toLocaleDateString('uk-UA')})"></div>`;
+      }
+      cells+=`<td class="gcell ${isTodayMonth?'today-col':''}">${inner}</td>`;
     }
     rows+=`<tr>${cells}</tr>`;
   });
-  wrap.innerHTML=`<div style="overflow-x:auto"><table class="gantt-table"><thead>${hdrs}</thead><tbody>${rows}</tbody></table></div>`;
+
+  wrap.innerHTML=`<table class="gantt-table"><thead>${hdrs}</thead><tbody>${rows}</tbody></table>`;
+
+  // Legend
   wrap.innerHTML+=`<div style="display:flex;align-items:center;gap:16px;padding:8px 10px;font-size:10px;color:var(--tm);border-top:1px solid var(--bd)">
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--g),var(--gd))"></div>Пріоритет A</span>
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--b),var(--bd2));opacity:.75"></div>Пріоритет B</span>
@@ -1109,263 +1067,212 @@ async function buildGantt(){
   </div>`;
 }
 
+// ── FORECAST: прогноз виконання стратегії до кінця 2026 ──────────────────
+// Динамічно бере дані з усіх спринтів через E3D_LOADER.getAllSprints()
+const SPRINT_LENGTH_DAYS = 18; // ~ S1=21д, S2=23д, S3=14д → беремо середнє орієнтовне
+const YEAR_END = new Date('2026-12-31');
+
+function sprintCompletionPct(sprintObj){
+  // sprintObj.projects = {pid:{done,total,tasks}}
+  const projects = sprintObj.projects || {};
+  let totalDone=0, totalAll=0;
+  Object.values(projects).forEach(p=>{
+    totalDone += p.done||0;
+    totalAll  += p.total||0;
+  });
+  return totalAll>0 ? (totalDone/totalAll*100) : 0;
+}
+
+function parseSprintEndDate(sprint){
+  // dates: "20.04–11.05" → беремо другу дату, рік 2026
+  try{
+    const parts = (sprint.dates||'').split(/[–-]/);
+    const endPart = parts[parts.length-1].trim(); // "11.05"
+    const [d,m] = endPart.split('.');
+    return new Date(`2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+  }catch(e){ return new Date(); }
+}
+
+function buildForecast(){
+  const canvas = document.getElementById('forecastChart');
+  if(!canvas) return;
+  if(!window.E3D_LOADER || !E3D_LOADER.getAllSprints) return;
+
+  const sprints = E3D_LOADER.getAllSprints().slice().sort((a,b)=>a.num-b.num);
+  if(!sprints.length){
+    const note=document.getElementById('fc-note');
+    if(note) note.textContent='Дані спринтів ще не завантажено';
+    return;
+  }
+
+  const sprintHistory = sprints.map(sp=>({
+    label: 'Спринт '+sp.num,
+    pct: sprintCompletionPct(sp),
+    endDate: parseSprintEndDate(sp),
+  }));
+
+  if(sprintHistory.length < 2){
+    const note = document.getElementById('fc-note');
+    if(note) note.textContent = 'Розрахунок з\'явиться після 2+ спринтів (зараз: '+sprintHistory.length+')';
+    safeChart('forecastChart',{type:'line',data:{labels:sprintHistory.map(s=>s.label),datasets:[{label:'% виконання',data:sprintHistory.map(s=>s.pct),borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID}}}}});
+    return;
+  }
+
+  const deltas = [];
+  for(let i=1;i<sprintHistory.length;i++){
+    deltas.push(sprintHistory[i].pct - sprintHistory[i-1].pct);
+  }
+  const avgDelta = deltas.reduce((a,b)=>a+b,0)/deltas.length;
+  const lastPct = sprintHistory[sprintHistory.length-1].pct;
+  const lastDate = sprintHistory[sprintHistory.length-1].endDate;
+
+  const daysLeft = Math.max(0,(YEAR_END - lastDate)/86400000);
+  const sprintsLeft = Math.round(daysLeft/SPRINT_LENGTH_DAYS);
+
+  let forecastPct = lastPct + avgDelta*sprintsLeft;
+  forecastPct = Math.max(0,Math.min(100,forecastPct));
+
+  const forecastLabels=[...sprintHistory.map(s=>s.label)];
+  const forecastData=[...sprintHistory.map(s=>s.pct)];
+  const actualData=[...sprintHistory.map(s=>s.pct)];
+  for(let i=1;i<=Math.min(sprintsLeft,12);i++){
+    forecastLabels.push('Прогноз '+i);
+    const val = Math.max(0,Math.min(100,lastPct+avgDelta*i));
+    forecastData.push(val);
+    actualData.push(null);
+  }
+
+  const trend = avgDelta>0.5?'📈 Прогрес':avgDelta<-0.5?'📉 Регрес':'➡️ Стабільно';
+  const trendColor = avgDelta>0.5?G:avgDelta<-0.5?R:A;
+
+  const elRate=document.getElementById('fc-rate'); if(elRate) elRate.textContent=(avgDelta>=0?'+':'')+avgDelta.toFixed(1)+'%/спринт';
+  const elRem=document.getElementById('fc-remaining'); if(elRem) elRem.textContent=sprintsLeft;
+  const elFinal=document.getElementById('fc-final'); if(elFinal) elFinal.textContent=forecastPct.toFixed(0)+'%';
+  const trendEl=document.getElementById('fc-trend');
+  if(trendEl){ trendEl.textContent=trend; trendEl.style.color=trendColor; }
+  const noteEl=document.getElementById('fc-note');
+  if(noteEl) noteEl.textContent='Розрахунок на основі темпу '+sprintHistory.length+' спринтів (живі дані Google Sheets)';
+  const badge=document.getElementById('fc-badge');
+  if(badge){badge.textContent=forecastPct>=80?'НА ЦІЛІ':forecastPct>=50?'ПОТРЕБУЄ ПРИСКОРЕННЯ':'РИЗИК';badge.className='bdg '+(forecastPct>=80?'bdg-g':forecastPct>=50?'bdg-a':'bdg-r');}
+
+  safeChart('forecastChart',{
+    type:'line',
+    data:{labels:forecastLabels,datasets:[
+      {label:'Факт',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
+      {label:'Прогноз',data:forecastData,borderColor:trendColor,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:trendColor}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}
+  });
+}
+
+// ── Проекти не в фокусі: динамічно з листа "Проекти" (data._projects) ──────
+function buildNoFocusProjects(dashData){
+  const el=document.getElementById('no-focus-list');
+  if(!el) return;
+  if(!dashData){
+    el.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Дані ще не завантажено</p>';
+    return;
+  }
+
+  const sprints = dashData._sprints || [];
+  const metaMap = dashData._projects || {};
+
+  // Проекти що зустрічались хоча б в одному спринті з реальними задачами
+  const activePids = new Set();
+  sprints.forEach(sp=>Object.entries(sp.projects||{}).forEach(([pid,p])=>{
+    if((p.total||0) > 0) activePids.add(pid);
+  }));
+
+  const noFocus = [];
+  Object.entries(metaMap).forEach(([pid,meta])=>{
+    const owner = (meta.owner||'').trim();
+    const isVacant = !owner || owner==='Вакансія';
+    const inSprints = activePids.has(pid);
+    if(isVacant || !inSprints){
+      noFocus.push({
+        id: pid,
+        name: meta.name||pid,
+        owner: owner||'Вакансія',
+        reason: isVacant ? 'Немає відповідального' : 'Не зустрічається в активних спринтах'
+      });
+    }
+  });
+
+  if(!noFocus.length){
+    el.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Усі проекти в фокусі ✓</p>';
+    return;
+  }
+
+  el.innerHTML = noFocus.map(p=>{
+    const isVac = p.owner==='Вакансія';
+    return `<div class="krow tbd" style="margin-bottom:6px"><div class="krow-bar kb-r"></div><div class="krow-lbl" style="flex:2;white-space:normal">#${p.id} ${p.name}</div><div class="krow-val x" style="font-size:11px;color:${isVac?'var(--red)':'var(--amb)'}">${p.owner}</div><div class="krow-tgt" style="white-space:normal;max-width:220px;text-align:right">${p.reason}</div></div>`;
+  }).join('');
+}
+
 // ── STRATEGY render ───────────────────────────────────
 let SDC=null;
-let _activeSprint=null, _allSprintsData={}, _transferStats={};
-function _sprintContainsToday(datesStr){
-  if(!datesStr) return false;
-  const parts=datesStr.split(/[–-]/).map(s=>s.trim());
-  if(parts.length<2) return false;
-  const parseDM=s=>{const m=s.match(/(\d{1,2})\.(\d{1,2})/);return m?new Date(2026,parseInt(m[2])-1,parseInt(m[1])):null;};
-  const start=parseDM(parts[0]),end=parseDM(parts[1]);
-  if(!start||!end) return false;
-  return TODAY>=start&&TODAY<=end;
-}
-
 function renderStrategy(ov={}){
+  const proj=ov.projects||PROJECTS;
+  const s1=ov.sprint1||staticS1();
+  const s2=ov.sprint2||staticS2();
+
   buildGoals();
   buildGantt();
-  _renderPersonScores();
-  _loadAndRenderSprints();
-  buildForecast().catch(()=>{});
-  buildNoFocusProjects().catch(()=>{});
-}
 
-// ── Гістограма учасників з підписами (пункт 5) ────────────────────────────
-async function _renderPersonScores(){
-  let persData={};
+  // person scores — compute from static projects
+  const staticProjects = window.E3D_STATIC ? window.E3D_STATIC.projects : PROJECTS;
+  let pers={};
   try{
-    const r=await fetch('data/strategy.json?t='+Date.now());
-    const raw=await r.json();
-    const owners={};
-    (raw.sprints||[]).forEach(sp=>{
-      Object.values(sp.projects||{}).forEach(proj=>{
-        (proj.tasks||[]).forEach(t=>{
-          const o=(t.owner||'').trim();
-          if(!o||o==='Вакансія'||o==='КД') return;
-          if(!owners[o]) owners[o]={done:0,total:0,moved:0,inProgress:0};
-          owners[o].total++;
-          if(t.done) owners[o].done++;
-          else if(t.status==='Перенесено') owners[o].moved++;
-          else owners[o].inProgress++;
-        });
-      });
+    // Simple score: based on deadline proximity and sprint completion
+    const now = new Date();
+    const pscores = staticProjects.map(p=>{
+      const dl = p.deadline ? new Date(p.deadline) : now;
+      const st = p.start    ? new Date(p.start)    : now;
+      const total = Math.max(1,(dl-st)/86400000);
+      const elapsed = Math.max(0,(now-st)/86400000);
+      const score = Math.min(100,Math.round(elapsed/total*100));
+      return {project_id:p.id, score, health: dl<now?'overdue': elapsed/total>0.85?'at-risk':'on-track'};
     });
-    persData=owners;
-  }catch(e){return;}
-  const entries=Object.entries(persData).filter(([,p])=>p.total>0).sort((a,b)=>b[1].total-a[1].total);
-  if(!entries.length) return;
+    pers = E3D_SCORING.calcPersonScores(staticProjects,pscores);
 
-  // Гістограма (пункт 5: підписи + "в роботі" + без муару)
-  const canvas=document.getElementById('persChart');
-  if(canvas){
-    const labels=entries.map(([n])=>n.split(' ')[0]);
-    const donePct=entries.map(([,p])=>Math.round(p.done/p.total*100));
-    const inPct=entries.map(([,p])=>Math.round(p.inProgress/p.total*100));
-    const movPct=entries.map(([,p])=>Math.round(p.moved/p.total*100));
-    if(window._persChart){try{window._persChart.destroy();}catch(e){}}
-    window._persChart=new Chart(canvas,{
-      type:'bar',
-      data:{labels,datasets:[
-        {label:'Виконано %',data:donePct,backgroundColor:'#D4A843',borderRadius:3,borderSkipped:false},
-        {label:'В роботі %',data:inPct,backgroundColor:'#4A90C4',borderRadius:3,borderSkipped:false},
-        {label:'Перенесено %',data:movPct,backgroundColor:'#C97B5A',borderRadius:3,borderSkipped:false},
-      ]},
-      plugins:[{
-        afterDatasetsDraw(chart){
-          const ctx=chart.ctx;
-          const labelColors=['#8B6914','#1e4a72','#8B4220'];
-          [0,1,2].forEach(di=>{
-            const ds=chart.data.datasets[di];
-            const meta=chart.getDatasetMeta(di);
-            ctx.save();
-            ctx.font='bold 10px Inter,sans-serif';
-            ctx.fillStyle=labelColors[di];
-            ctx.textAlign='center';
-            meta.data.forEach((bar,i)=>{
-              const v=ds.data[i];
-              if(v>7) ctx.fillText(v+'%',bar.x,bar.y-4);
-            });
-            ctx.restore();
-          });
-        }
-      }],
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        animation:{duration:0}, // прибираємо муар (анімацію)
-        plugins:{
-          legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}},
-        },
-        scales:{
-          x:{stacked:false,grid:{display:false},ticks:{font:{size:10}}},
-          y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}}
-        }
-      }
-    });
-  }
+    // CEO avg
+    const avg=~~(pscores.reduce((s,p)=>s+p.score,0)/Math.max(pscores.length,1));
+    const el=document.getElementById('ceo-pp');if(el)el.textContent=avg+'%';
+  }catch(e){console.warn('[Score]',e.message);}
 
-  // Картки-міні
-  const g=document.getElementById('perg');if(!g)return;g.innerHTML='';
-  entries.forEach(([name,p])=>{
-    const dp=Math.round(p.done/p.total*100);
-    const ip=Math.round(p.inProgress/p.total*100);
-    const mp=Math.round(p.moved/p.total*100);
-    const cls=dp>=70?'pef-hi':dp>=40?'pef-md':'pef-lo';
-    g.innerHTML+=`<div class="pec"><div class="pen" title="${name}">${name}</div>
-      <div class="pebw"><div class="pef ${cls}" style="width:${Math.max(dp,8)}%"></div></div>
-      <div class="pept">✓${dp}% · ⟳${ip}% · ↪<span style="color:var(--red)">${mp}%</span></div></div>`;
-  });
-}
-
-// ── Перемикач спринтів (2: кнопка Всі + 6: групування задач) ─────────────
-async function _loadAndRenderSprints(){
-  let raw;
+  // Person grid
   try{
-    const r=await fetch('data/strategy.json?t='+Date.now());
-    raw=await r.json();
-  }catch(e){return;}
-  const sprints=(raw.sprints||[]).slice().sort((a,b)=>a.num-b.num);
-  if(!sprints.length) return;
-
-  _allSprintsData={};_transferStats={};
-  sprints.forEach(sp=>{
-    const tasks=[];
-    Object.entries(sp.projects||{}).forEach(([pid,proj])=>{
-      (proj.tasks||[]).forEach(t=>{
-        tasks.push({project_id:pid.replace('.0',''),project:proj.name||pid,task:t.task,owner:t.owner,deadline:t.deadline,status:t.status,done:t.done});
-      });
+    const g=document.getElementById('perg');if(!g)return;g.innerHTML='';
+    const sorted=Object.entries(pers).filter(([n])=>!['Вакансія','Аутсорс'].includes(n)).sort((a,b)=>b[1].total-a[1].total);
+    sorted.forEach(([name,p])=>{
+      // color: top 33% = teal, mid 33% = blue, bottom = light blue — no red
+      const cls = p.normalized>=66?'pef-hi':p.normalized>=33?'pef-md':'pef-lo';
+      g.innerHTML+=`<div class="pec"><div class="pen" title="${name}">${name}</div><div class="pebw"><div class="pef ${cls}" style="width:${Math.max(p.normalized,8)}%"></div></div><div class="pept">Бали: <b>${~~p.total}</b> · Відп.:${p.owned.length} · Уч.:${p.helped.length}</div></div>`;
     });
-    _allSprintsData[sp.num]={tasks,name:sp.name,dates:sp.dates};
-    Object.values(sp.projects||{}).forEach(proj=>{
-      (proj.tasks||[]).forEach(t=>{
-        if(t.status!=='Перенесено') return;
-        const o=(t.owner||'').trim();if(!o||o==='Вакансія') return;
-        if(!_transferStats[o]) _transferStats[o]={total:0,perSprint:{}};
-        _transferStats[o].total++;
-        _transferStats[o].perSprint[sp.num]=(_transferStats[o].perSprint[sp.num]||0)+1;
-      });
+  }catch(e){}
+
+  // Sprint 1 table
+  try{
+    const b=document.getElementById('s1b');if(!b)return;b.innerHTML='';
+    s1.forEach(t=>{
+      const done=E3D_SCORING._isDone(t.status||'');
+      b.innerHTML+=`<tr class="${done?'tdone':''}"><td>${t.project_id||'—'}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.project}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.task}">${t.task}</td><td>${(t.owner||'').split(',')[0].trim()}</td><td>${(t.deadline||'').substring(0,10)||'—'}</td><td>${done?'<span class="pill plg">✓ Виконано</span>':t.status?`<span class="pill pla">${t.status}</span>`:'<span class="cov ctt">В роботі</span>'}</td></tr>`;
     });
-  });
+  }catch(e){}
 
-  // Будуємо кнопки
-  const switcher=document.getElementById('sprint-switcher');
-  if(switcher){
-    const byDate=Object.keys(_allSprintsData).find(num=>_sprintContainsToday(_allSprintsData[num].dates));
-    const curNum=_activeSprint||(byDate!==undefined?parseInt(byDate):Math.max(...Object.keys(_allSprintsData).map(Number)));
-    if(!_activeSprint) _activeSprint=curNum;
-    const allActive=_activeSprint==='all';
-    let btns=`<button onclick="_switchSprint('all')" style="padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;font-size:11px;font-weight:600;background:${allActive?'var(--b)':'transparent'};color:${allActive?'#fff':'var(--tm)'};transition:all .15s">Всі</button>`;
-    btns+=Object.keys(_allSprintsData).sort((a,b)=>a-b).map(num=>{
-      const act=!allActive&&parseInt(num)===_activeSprint;
-      return `<button onclick="_switchSprint(${num})" style="padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;font-size:11px;font-weight:600;background:${act?'var(--g)':'transparent'};color:${act?'#fff':'var(--tm)'};transition:all .15s">Спринт ${num}</button>`;
-    }).join('');
-    switcher.innerHTML=btns;
-  }
-  _renderActiveSprint();
-  _renderTransfersChart(sprints);
-}
-
-function _switchSprint(num){
-  _activeSprint=num;
-  document.querySelectorAll('#sprint-switcher button').forEach(btn=>{
-    const t=btn.textContent.trim();
-    const isAll=t==='Всі';
-    const n=parseInt(t.replace('Спринт','').trim());
-    if(num==='all'){btn.style.background=isAll?'var(--b)':'transparent';btn.style.color=isAll?'#fff':'var(--tm)';}
-    else{btn.style.background=(!isAll&&n===num)?'var(--g)':'transparent';btn.style.color=(!isAll&&n===num)?'#fff':'var(--tm)';}
-  });
-  _renderActiveSprint();
-}
-
-function _renderActiveSprint(){
-  const num=_activeSprint;
-  let tasks,spLbl,spDt;
-  if(num==='all'){
-    tasks=[];Object.values(_allSprintsData).forEach(sp=>tasks.push(...sp.tasks));
-    spLbl='Всі спринти';spDt='загальна картина';
-  } else {
-    const sp=_allSprintsData[num];if(!sp)return;
-    tasks=sp.tasks;spLbl=sp.name;spDt=sp.dates;
-  }
-  const done=tasks.filter(t=>t.done).length;
-  const moved=tasks.filter(t=>t.status==='Перенесено').length;
-  const inProg=tasks.filter(t=>!t.done&&t.status!=='Перенесено').length;
-  const total=tasks.length;
-  const dp=total>0?Math.round(done/total*100):0;
-  const mp=total>0?Math.round(moved/total*100):0;
-  const title=document.getElementById('sprint-title');
-  if(title) title.textContent=`⚡ ${spLbl} (${spDt})`;
-  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  set('s2t',total);set('s2d',done);set('s2w',inProg);set('s2moved',moved);set('s2p',dp+'%');set('s2movpct',mp+'%');set('s2b',dp+'% виконано');
-  if(SDC){try{SDC.destroy();}catch(e){}}
-  const DL=window.ChartDataLabels;
-  SDC=safeChart('spDon',{type:'doughnut',plugins:DL?[DL]:[],data:{labels:['Виконано','В роботі','Перенесено'],datasets:[{data:[done,inProg,moved],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',layout:{padding:16},animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:6,color:'#fff',backgroundColor:ctx=>ctx.dataset.backgroundColor[ctx.dataIndex],borderRadius:10,padding:{top:3,bottom:3,left:6,right:6},textAlign:'center',font:{size:11,weight:'700'},formatter:(v,ctx)=>{const tot=ctx.dataset.data.reduce((a,b)=>a+b,0);return tot>0?[String(v),Math.round(v/tot*100)+'%']:'';}}}}}); 
-  const footer=document.getElementById('sprint-footer');
-  if(footer) footer.textContent=`${num==='all'?'Всього':'Спринт '+num}: ${total} задач · ${done} виконано · ${moved} перенесено · ${dp}% завершення`;
-
-  // ── Таблиця з ГРУПУВАННЯМ по проекту (пункт 6) ────────────────────────
-  const b=document.getElementById('s1b');if(!b)return;b.innerHTML='';
-  const groups={};
-  tasks.forEach(t=>{
-    const k=t.project_id||'0';
-    if(!groups[k]) groups[k]={name:t.project||k,tasks:[]};
-    groups[k].tasks.push(t);
-  });
-  let gIdx=0;
-  Object.values(groups).forEach(g=>{
-    const gD=g.tasks.filter(t=>t.done).length;
-    const gM=g.tasks.filter(t=>t.status==='Перенесено').length;
-    const gT=g.tasks.length;
-    const gP=gT>0?Math.round(gD/gT*100):0;
-    const gc=gP>=80?'var(--gd)':gP>=40?'var(--amb)':'var(--red)';
-    const grpId='grp-'+gIdx++;
-    b.innerHTML+=`<tr class="grp-hdr" style="background:var(--s2);cursor:pointer" onclick="toggleGroup('${grpId}',this)">
-      <td colspan="3" style="padding:6px 10px;font-weight:700;font-size:12px;color:var(--td)">
-        <span class="grp-arrow" style="display:inline-block;margin-right:5px;transition:transform .2s">▶</span>${g.name}
-      </td>
-      <td style="padding:6px 10px;text-align:right;font-size:11px;font-weight:700;color:${gc}">${gD}/${gT} (${gP}%)</td>
-    </tr>`;
-    g.tasks.forEach(t=>{
-      const isDone=t.done,isMoved=t.status==='Перенесено';
-      const sh=isDone?'<span class="pill plg">✓ Виконано</span>':isMoved?'<span class="pill" style="background:#fef0ee;color:#c0392b">↪ Перенесено</span>':t.status?`<span class="pill pla">${t.status}</span>`:'<span class="cov ctt">В роботі</span>';
-      b.innerHTML+=`<tr class="grp-row ${grpId} ${isDone?'tdone':isMoved?'tmoved':''}" style="display:none">
-        <td style="padding-left:18px;color:var(--tl);width:12px">↳</td>
-        <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.task}" colspan="1">${t.task}</td>
-        <td>${(t.owner||'').split(',')[0].trim()}</td>
-        <td>${sh}</td></tr>`;
+  // Sprint 2 donut
+  try{
+    const st=E3D_SCORING.sprintStats(s2);const isStatic=!ov.sprint2;
+    ['s2t','s2d','s2w','s2o','s2p'].forEach((id,i)=>{
+      const el=document.getElementById(id);if(el)el.textContent=[st.total,st.done,Math.max(0,st.total-st.done-st.overdue),st.overdue,st.completion+'%'][i];
     });
-  });
-
-  // Перенесені по учасниках
-  const tl=document.getElementById('transfers-list');
-  if(tl){
-    const mv=tasks.filter(t=>t.status==='Перенесено');
-    if(!mv.length){tl.innerHTML='<p style="font-size:12px;color:var(--tl)">Немає перенесених задач ✓</p>';}
-    else{
-      const byO={};mv.forEach(t=>{const o=(t.owner||'').trim();if(!o)return;if(!byO[o])byO[o]=0;byO[o]++;});
-      tl.innerHTML=Object.entries(byO).sort((a,b)=>b[1]-a[1]).map(([o,c])=>`<div class="mr"><div class="mn">${o}</div><div class="mv r">${c}</div></div>`).join('');
-    }
-  }
+    document.getElementById('s2b').textContent=st.completion+'% виконано';
+    const wm=document.getElementById('s2wm');if(wm)wm.style.display=isStatic?'block':'none';
+    if(SDC){try{SDC.destroy();}catch(e){}}
+    SDC=safeChart('spDon',{type:'doughnut',data:{labels:['Виконано','В роботі','Прострочено'],datasets:[{data:[st.done,Math.max(0,st.total-st.done-st.overdue),st.overdue],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}}}}});
+  }catch(e){}
 }
 
-function _renderTransfersChart(sprints){
-  const canvas=document.getElementById('transfersChart');if(!canvas)return;
-  const owners=Object.keys(_transferStats).sort((a,b)=>_transferStats[b].total-_transferStats[a].total).slice(0,8);
-  if(!owners.length){canvas.parentElement.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Перенесень немає ✓</p>';return;}
-  const colors=['#EF4444','#3B82F6','#10B981','#F59E0B','#8B5CF6','#EC4899'];
-  if(window._transChart){try{window._transChart.destroy();}catch(e){}}
-  window._transChart=new Chart(canvas,{type:'bar',
-    data:{labels:owners.map(o=>o.split(' ')[0]),
-      datasets:sprints.map((sp,i)=>({label:'С'+sp.num,data:owners.map(o=>(_transferStats[o]?.perSprint[sp.num]||0)),backgroundColor:colors[i%colors.length],borderRadius:3}))},
-    options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:6,font:{size:9}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:GRID},ticks:{stepSize:1}}}}});
-}
-function toggleGroup(grpId, hdrRow){
-  const rows=document.querySelectorAll('.grp-row.'+grpId);
-  const arrow=hdrRow.querySelector('.grp-arrow');
-  const isOpen=rows.length&&rows[0].style.display!=='none';
-  rows.forEach(r=>r.style.display=isOpen?'none':'');
-  if(arrow) arrow.style.transform=isOpen?'':'rotate(90deg)';
-}
 function staticS1(){return[{project_id:1,project:'Система планування',task:'Реєстр проектів SS-2026',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},{project_id:1,project:'Система планування',task:'Дзвінок CEO: структура фінансового блоку',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},{project_id:1,project:'Система планування',task:'Зібрати дані від постачальників',owner:'Іванов Олег',deadline:'2026-05-04',status:''},{project_id:1,project:'Система планування',task:'ADR по інструменту планування',owner:'Іванов Олег',deadline:'2026-05-06',status:''},{project_id:3,project:'Діджиталізація',task:'Аудит джерел даних. FTE учасників',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},{project_id:3,project:'Діджиталізація',task:'Сесія «Словник показників»',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},{project_id:3,project:'Діджиталізація',task:'ADR по технології дашборду',owner:'Іванов Олег',deadline:'2026-05-04',status:''},{project_id:3,project:'Діджиталізація',task:'Dashboard v0.1 — перші дані',owner:'Іванов Олег',deadline:'2026-05-08',status:''},{project_id:7,project:'Система оцінки індустрій',task:'Збір точок входу та ключових гравців',owner:'Дубровін Вадим',deadline:'2026-04-28',status:'Виконано'},{project_id:7,project:'Система оцінки індустрій',task:'Бренд-бук, описи, тези для сайту',owner:'Дубровін Вадим',deadline:'2026-05-02',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Отримання OTTOeject MK1 Rev 1.0',owner:'Жолудь Максим',deadline:'2026-04-21',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Визначення техніка — Болдижев Олексій',owner:'Стріляний Олександр',deadline:'2026-04-27',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Локальна версія ПЗ',owner:'Стріляний Олександр',deadline:'2026-05-08',status:''}];}
 function staticS2(){return[{project_id:1,project:'Система планування',task:'Фінансовий блок v1.1',owner:'Іванов Олег',deadline:'2026-05-20',status:''},{project_id:3,project:'Діджиталізація',task:'Dashboard v1 — публічна версія',owner:'Іванов Олег',deadline:'2026-05-25',status:''},{project_id:7,project:'Система оцінки індустрій',task:'Netpek наскрізна аналітика',owner:'Дубровін Вадим',deadline:'2026-05-22',status:''},{project_id:7,project:'Система оцінки індустрій',task:'LinkedIn — холодний контакт',owner:'Дубровін Вадим',deadline:'2026-05-29',status:''},{project_id:8,project:'Авт. локація',task:'3Д-друк всіх комплектуючих',owner:'Жолудь Максим',deadline:'2026-05-15',status:'Виконано'},{project_id:2,project:'Сильна команда',task:'Профілі ролей + KPI',owner:'Зубрицька Олександра',deadline:'2026-05-29',status:''},{project_id:9,project:'Відділ Якості',task:'Визначення системи ОТК',owner:'Вакансія',deadline:'2026-05-29',status:''}];}
 
@@ -1417,75 +1324,34 @@ function go(id,btn){
     E3D_STRATEGY.render();
     try{ buildForecast(); }catch(e){}
   }
-  if(id==='hr'&&window.HRLoader){ console.log('[go] HRLoader.load()'); window.HRLoader.load(); }
-  if(id==='crm'&&window.AdsLoader){
-    console.log('[go] AdsLoader.load()');
-    window.AdsLoader.load();
+  if(id==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
+    window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
+  }
+  if(id==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
+    window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
     if(window.MqlLoader) window.MqlLoader.load();
   }
-  if(id==='sales'&&window.SalesLoader){ console.log('[go] SalesLoader.load()'); window.SalesLoader.load(); }
-  if(id==='loc'&&window.LocLoader){ console.log('[go] LocLoader.load()'); window.LocLoader.load(); }
+  if(id==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
+    window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
+  }
 }
 function restoreTab(){
   try{
     const saved=localStorage.getItem('e3d_tab');
-    // Якщо немає збереженого — беремо активний таб з HTML
-    const activeId=saved||(document.querySelector('.panel.active')?.id||'').replace('panel-','')||null;
-    if(!activeId)return;
-    const btn=document.querySelector(`.tb[onclick*="'${activeId}'"]`);
-    const panel=document.getElementById('panel-'+activeId);
+    if(!saved)return;
+    const btn=document.querySelector(`.tb[onclick*="'${saved}'"]`);
+    const panel=document.getElementById('panel-'+saved);
     if(btn&&panel){
       document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
       panel.classList.add('active');
-      function tryLoadTab(){
-        console.log('[restoreTab] activeId='+activeId, 'HRLoader='+!!window.HRLoader, 'SalesLoader='+!!window.SalesLoader, 'AdsLoader='+!!window.AdsLoader);
-        if(activeId==='hr'&&window.HRLoader) window.HRLoader.load();
-        if(activeId==='crm'&&window.AdsLoader){ window.AdsLoader.load(); if(window.MqlLoader) window.MqlLoader.load(); }
-        if(activeId==='sales'&&window.SalesLoader) window.SalesLoader.load();
-        if(activeId==='loc'&&window.LocLoader) window.LocLoader.load();
-      }
-      const needed={'hr':'HRLoader','crm':'AdsLoader','sales':'SalesLoader','loc':'LocLoader'};
-      const loaderName=needed[activeId];
-      if(!loaderName||window[loaderName]){tryLoadTab();}
-      else{
-        let attempts=0;
-        const poll=setInterval(()=>{
-          attempts++;
-          if(window[loaderName]||attempts>20){clearInterval(poll);tryLoadTab();}
-        },100);
-      }
     }
   }catch(e){}
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
   applyPrefs();
-  // Синхронізуємо F.month/F.year з поточним станом select після браузерного відновлення форм
-  (function(){
-    const msel=document.getElementById('msel');
-    const ysel=document.getElementById('ysel');
-    if(msel && msel.value) F.month=msel.value;
-    if(ysel && ysel.value) F.year=ysel.value;
-  })();
-  // Дата/час збірки — з strategy.json (ts) + поточний час відкриття
-  (function(){
-    var el=document.getElementById('build-ts');
-    if(!el) return;
-    var loaded=new Date().toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-    el.textContent='Відкрито: '+loaded;
-    // Також спробуємо показати час останньої збірки даних
-    fetch('data/strategy.json?t='+Date.now())
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(d.ts){
-          var built=new Date(d.ts).toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-          el.textContent='Дані: '+built;
-          el.title='Відкрито: '+loaded;
-        }
-      }).catch(function(){});
-  })();
   buildStatic();
   refreshCharts();
   renderStrategy();
@@ -1498,49 +1364,45 @@ document.addEventListener('DOMContentLoaded',()=>{
     function fmtTs(iso){if(!iso)return'—';try{return new Date(iso).toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}}
     var ts=document.getElementById('tip-str');if(ts)ts.innerHTML=tipHTML('partial','Google Sheets','—',true);
     var tc=document.getElementById('tip-crm');if(tc)tc.innerHTML=tipHTML('partial','Google Ads','—',true);
-    // CRM: оновлюємо тултіп (без запуску лоадера — він стартує при кліку на таб)
-    fetch('data/ads.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-      var tc2=document.getElementById('tip-crm');
-      if(tc2&&d.fetched_at)tc2.innerHTML=tipHTML('live','Google Ads',fmtTs(d.fetched_at),false);
-      var btn=document.querySelector('[data-tab="crm"]');
-      if(btn){var dot=btn.querySelector('.e3d-dot');if(dot)dot.style.background='#16A34A';}
-    }).catch(function(){});
-    // Sales: тултіп
-    var ts2=document.getElementById('tip-sales');if(ts2)ts2.innerHTML=tipHTML('live','Google Sheets','—',false);
-    fetch('data/sales_planner.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-      var ts3=document.getElementById('tip-sales');
-      if(ts3&&d.fetched_at)ts3.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
-    }).catch(function(){});
-    // HR: тултіп + CEO картка (без запуску лоадера)
+    // CRM: статус 'live' після завантаження ads.json
+    if(window.AdsLoader){
+      Promise.resolve(window.AdsLoader.load()).then(function(){
+        fetch('data/ads.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+          var tc2=document.getElementById('tip-crm');
+          if(tc2&&d.fetched_at)tc2.innerHTML=tipHTML('live','Google Ads',fmtTs(d.fetched_at),false);
+          // Оновлюємо точку статусу на жовту → зелену
+          var btn=document.querySelector('[data-tab="crm"]');
+          if(btn){var dot=btn.querySelector('.e3d-dot');if(dot)dot.style.background='#16A34A';}
+        }).catch(function(){});
+      }).catch(function(){});
+      document.getElementById('panel-crm').dataset.loaded='1';
+    }
+    if(window.MqlLoader) window.MqlLoader.load();
+    if(window.SalesLoader){
+      var ts=document.getElementById('tip-sales');if(ts)ts.innerHTML=tipHTML('live','Google Sheets','—',false);
+      Promise.resolve(window.SalesLoader.load()).then(function(){
+        fetch('data/sales_planner.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+          var ts2=document.getElementById('tip-sales');
+          if(ts2&&d.fetched_at)ts2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
+        }).catch(function(){});
+      }).catch(function(){});
+      document.getElementById('panel-sales').dataset.loaded='1';
+    }
     var th=document.getElementById('tip-hr');if(th)th.innerHTML=tipHTML('live','Google Sheets','—',false);
-    fetch('data/hr.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-      var th2=document.getElementById('tip-hr');
-      if(th2&&d.fetched_at)th2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
-      var cs=document.getElementById('ceo-staff');
-      if(cs&&d.employees_count)cs.textContent=d.employees_count+' осіб';
-    }).catch(function(){});
-    // Локації: тултіп + дот (без запуску лоадера)
-    var tl=document.getElementById('tip-loc');if(tl)tl.innerHTML=tipHTML('partial','/api/capacity','—',false);
-    fetch('data/capacity.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-      var tl2=document.getElementById('tip-loc');
-      if(tl2&&d.fetched_at)tl2.innerHTML=tipHTML('live','/api/capacity',fmtTs(d.fetched_at),false);
-      var btn=document.querySelector('[data-tab="loc"]');
-      if(btn&&d.fetched_at){var dot=btn.querySelector('.e3d-dot');if(dot){dot.style.background='#16A34A';dot.style.animation='pulse 2.5s infinite';}}
-    }).catch(function(){});
+    // HR: завантажити одразу і оновити тултіп
+    if(window.HRLoader){
+      Promise.resolve(window.HRLoader.load()).then(function(){
+        fetch('data/hr.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+          var th2=document.getElementById('tip-hr');
+          if(th2&&d.fetched_at)th2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
+          var cs=document.getElementById('ceo-staff');
+          if(cs&&d.employees_count)cs.textContent=d.employees_count+' осіб';
+        }).catch(function(){});
+      }).catch(function(){});
+      document.getElementById('hr-employees-count').dataset.loaded='1';
+    }
   })();
-  // restoreTab: запускаємо і через load, і через pageshow (bfcache)
-  // і одразу якщо документ вже завантажений
-  function _doRestoreTab(){ try{restoreTab();}catch(e){} }
-  // setTimeout 500ms — запускаємо після всіх DOMContentLoaded у лоадерах
-  // (hr_loader, ads_loader, mql_loader, sales_loader теж слухають DOMContentLoaded)
-  if(document.readyState==='complete'){
-    setTimeout(_doRestoreTab, 500);
-  } else {
-    window.addEventListener('load', function(){ setTimeout(_doRestoreTab, 300); });
-  }
-  window.addEventListener('pageshow', function(e){
-    if(e.persisted) setTimeout(_doRestoreTab, 300);
-  });
+  restoreTab();
 
   // Завантаження даних + ініціалізація скорінгу
   if(window.E3D_LOADER){
@@ -1553,7 +1415,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       // Перерендерити скорінг після отримання даних
       if(window.E3D_STRATEGY){ E3D_STRATEGY.render(); }
       try{ buildForecast(); }catch(e){console.warn('[Forecast]',e.message);}
-      try{ buildNoFocusProjects(); }catch(e){console.warn('[NoFocus]',e.message);}
+      try{ buildNoFocusProjects(data); }catch(e){console.warn('[NoFocus]',e.message);}
       updDot(E3D_LOADER.summary());
     });
     // Ініціалізуємо скорінг — він одразу рендерить статичні дані
@@ -1580,1764 +1442,10 @@ function flattenSprint(projMap){
   });
   return rows;
 }
-
-async function buildForecast(){
-  const canvas=document.getElementById('forecastChart');if(!canvas)return;
-  let raw;
-  try{const r=await fetch('data/strategy.json?t='+Date.now());raw=await r.json();}
-  catch(e){const n=document.getElementById('fc-note');if(n)n.textContent='Не вдалось завантажити дані';return;}
-  const sprints=(raw.sprints||[]).slice().sort((a,b)=>a.num-b.num);
-  if(!sprints.length)return;
-
-  // Кумулятивний % — наростаючий підсумок по закритих спринтах
-  let cumDone=0,cumTotal=0;
-  const fullHistory=sprints.map(sp=>{
-    const projects=sp.projects||{};let spDone=0,spTotal=0;
-    Object.values(projects).forEach(p=>{spDone+=p.done||0;spTotal+=p.total||0;});
-    cumDone+=spDone; cumTotal+=spTotal;
-    const pct=cumTotal>0?(cumDone/cumTotal*100):null;
-    try{
-      const pts=(sp.dates||'').split(/[–\-—]/);
-      const ep=pts[pts.length-1].trim();
-      const dm=ep.match(/(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?/);
-      let endDate;
-      if(dm){
-        const dd=parseInt(dm[1]),mm=parseInt(dm[2])-1,yy=dm[3]?parseInt(dm[3]):2026;
-        endDate=new Date(yy,mm,dd);
-      } else {
-        endDate=new Date(2099,0,1); // невідома дата — вважаємо майбутнім (активний)
-      }
-      return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,endDate};
-    }catch(e){return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,endDate:new Date()};}
-  });
-
-  // Для тренду — лише завершені спринти (endDate <= сьогодні)
-  const completedHistory=fullHistory.filter(h=>h.spTotal>0&&h.endDate<=TODAY);
-  // Поточний спринт (в процесі)
-  const activeHistory=fullHistory.filter(h=>h.spTotal>0&&h.endDate>TODAY);
-  // Для відображення факту використовуємо завершені + поточний
-  const validHistory=completedHistory.length>=1?completedHistory:(fullHistory.filter(h=>h.spTotal>0));
-
-  if(validHistory.length<1){
-    const n=document.getElementById('fc-note');
-    if(n)n.textContent='Очікую дані спринтів...';return;
-  }
-
-  // ── ВИПРАВЛЕНИЙ ПРОГНОЗ ──────────────────────────────────────────────────
-  // Рахуємо середню кількість задач що ВИКОНУЮТЬСЯ за спринт
-  // (не дельту кумулятивного %, бо він може падати при додаванні нових задач)
-  const donePerSprint = completedHistory.map(h=>h.spDone);
-  const avgDonePerSprint = donePerSprint.length
-    ? donePerSprint.reduce((a,b)=>a+b,0)/donePerSprint.length : 0;
-
-  // Середня кількість задач за спринт (для оцінки нових задач)
-  const avgTotalPerSprint = completedHistory.length
-    ? completedHistory.reduce((a,h)=>a+h.spTotal,0)/completedHistory.length : 0;
-
-  const lastCompleted=completedHistory[completedHistory.length-1]||validHistory[validHistory.length-1];
-  const lastPct=lastCompleted.pct;
-  const lastDate=lastCompleted.endDate;
-  const lastCumDone=lastCompleted.cumDone;
-  const lastCumTotal=lastCompleted.cumTotal;
-
-  const YEAR_END=new Date('2026-12-31');
-  const daysLeft=Math.max(0,(YEAR_END-lastDate)/86400000);
-  const sprintsLeft=Math.round(daysLeft/18);
-
-  // Прогноз: поточні виконані + avg_done_per_sprint * залишок спринтів
-  const projectedDone = lastCumDone + avgDonePerSprint * sprintsLeft;
-  const projectedTotal = lastCumTotal + avgTotalPerSprint * sprintsLeft;
-  const forecastPct = projectedTotal > 0
-    ? Math.min(100, projectedDone / projectedTotal * 100) : lastPct;
-
-  // Дельта для відображення темпу (% виконання за спринт)
-  const avgDelta = avgTotalPerSprint > 0
-    ? (avgDonePerSprint / avgTotalPerSprint * 100 - 100/sprints.length) : 0;
-  // Простіша метрика темпу: скільки % кумулятивного приросту за спринт
-  const cumDeltas=[];
-  for(let i=1;i<completedHistory.length;i++){
-    // Приріст виконання за спринт (задач) відносно поточного total
-    const d=completedHistory[i];
-    const prev=completedHistory[i-1];
-    if(d.cumTotal>0) cumDeltas.push(d.spDone/d.cumTotal*100);
-  }
-  const displayDelta = cumDeltas.length ? cumDeltas.reduce((a,b)=>a+b,0)/cumDeltas.length : 0;
-
-  // Формуємо дані для графіку
-  const forecastLabels=fullHistory.map(s=>s.label);
-  const actualData=fullHistory.map(s=>s.spTotal>0?s.pct:null);
-  const forecastData=fullHistory.map(s=>s.endDate<=TODAY&&s.spTotal>0?s.pct:null);
-  // Точка з'єднання прогнозу з фактом
-  const lvi=fullHistory.findIndex(h=>h.label===lastCompleted.label);
-  if(lvi>=0) forecastData[lvi]=lastPct;
-  // Прогнозні точки: кумулятивно наростаючий % (не падає!)
-  for(let i=1;i<=Math.min(sprintsLeft,12);i++){
-    forecastLabels.push('С+'+i);
-    const projD = lastCumDone + avgDonePerSprint*i;
-    const projT = lastCumTotal + avgTotalPerSprint*i;
-    const projPct = projT>0 ? Math.min(100, projD/projT*100) : lastPct;
-    forecastData.push(Math.round(projPct*10)/10);
-    actualData.push(null);
-  }
-
-  const trend=forecastPct>=lastPct+5?'📈 Прогрес':forecastPct<=lastPct-5?'📉 Регрес':'➡️ Стабільно';
-  const trendColor=forecastPct>=lastPct+5?G:forecastPct<=lastPct-5?R:A;
-  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  // Темп: скільки задач виконується за спринт
-  set('fc-rate','+'+Math.round(avgDonePerSprint)+' задач/спринт');
-  set('fc-remaining',sprintsLeft);
-  set('fc-final',forecastPct.toFixed(0)+'%');
-  const te=document.getElementById('fc-trend');if(te){te.textContent=trend;te.style.color=trendColor;}
-  const w100=document.getElementById('fc-when100');
-  if(w100){
-    if(avgDonePerSprint<=0){w100.textContent='Не досягнемо при поточному темпі';w100.style.color=R;}
-    else{
-      // Скільки ще задач треба: якщо total теж росте, рахуємо через итерацію
-      let d=lastCumDone,t=lastCumTotal,sp=0;
-      while(d/Math.max(t,1)<1&&sp<50){d+=avgDonePerSprint;t+=avgTotalPerSprint;sp++;}
-      const dt100=new Date(lastDate.getTime()+sp*18*86400000);
-      if(sp>=50){w100.textContent='Поза горизонтом 2026 при +'+Math.round(avgTotalPerSprint)+' нових/спринт';w100.style.color=A;}
-      else{w100.textContent=dt100.toLocaleDateString('uk-UA',{month:'long',year:'numeric'});w100.style.color=dt100<=YEAR_END?G:A;}
-    }
-  }
-  const note=document.getElementById('fc-note');
-  if(note)note.textContent='Кумулятивний % · тренд з '+completedHistory.length+' закритих спринтів'+(activeHistory.length?' · '+activeHistory.length+' в процесі':'')+' · живі дані';
-  const badge=document.getElementById('fc-badge');
-  if(badge){badge.textContent=forecastPct>=80?'НА ЦІЛІ':forecastPct>=50?'ПОТРЕБУЄ ПРИСКОРЕННЯ':'РИЗИК';badge.className='bdg '+(forecastPct>=80?'bdg-g':forecastPct>=50?'bdg-a':'bdg-r');}
-
-  // Лінія 3: "якщо темп погіршується" — лінійна регресія дельт між спринтами
-  // Будуємо спадний тренд на основі того що кожен наступний спринт дає менше
-  const sprintPcts=completedHistory.map(h=>h.spTotal>0?h.spDone/h.spTotal*100:0);
-  const avgSprintPct=sprintPcts.length?sprintPcts.reduce((a,b)=>a+b,0)/sprintPcts.length:0;
-  // Тренд спадання: якщо С4 гірше С1, екстраполюємо погіршення
-  const worstDelta=sprintPcts.length>1?(sprintPcts[sprintPcts.length-1]-sprintPcts[0])/(sprintPcts.length-1):0;
-  const pessimisticData=forecastLabels.map((_,i)=>{
-    const pastLen=fullHistory.filter(h=>h.spTotal>0).length;
-    if(i<pastLen) return null; // не показуємо на ділянці факту
-    const spIdx=i-pastLen+1;
-    const projSprintPct=Math.max(0,avgSprintPct+worstDelta*spIdx);
-    // Кумулятивний песимістичний
-    const projD=lastCumDone+avgDonePerSprint*(1+worstDelta/avgSprintPct*(spIdx-1)/2)*spIdx;
-    const projT=lastCumTotal+avgTotalPerSprint*spIdx;
-    return projT>0?Math.max(0,Math.min(100,projD/projT*100)):null;
-  });
-
-  // Лінія 2: "плато" — якщо більше нічого не виконується (поточний рівень)
-  const flatData=forecastLabels.map((_,i)=>{
-    const pastLen=fullHistory.filter(h=>h.spTotal>0).length;
-    if(i<pastLen-1) return null;
-    return lastPct; // стала горизонтальна лінія
-  });
-
-  safeChart('forecastChart',{type:'line',data:{labels:forecastLabels,datasets:[
-    {label:'Факт (кум.%)',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2.5,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
-    {label:'Прогноз (поточний темп)',data:forecastData,borderColor:A,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:A,spanGaps:true},
-    {label:'Плато (без нових задач)',data:flatData,borderColor:'#888',borderWidth:1.5,borderDash:[3,3],tension:0,fill:false,pointRadius:0,spanGaps:true},
-    {label:'Песимістичний тренд',data:pessimisticData,borderColor:R,borderWidth:1.5,borderDash:[4,2],tension:.2,fill:false,pointRadius:2,pointBackgroundColor:R,spanGaps:true},
-  ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
-}
-
-async function buildNoFocusProjects(){
-  const wrap=document.getElementById('w-str-nofocus');
-  const el=document.getElementById('no-focus-list');
-  if(!el)return;
-  let raw;
-  try{const r=await fetch('data/strategy.json?t='+Date.now());raw=await r.json();}
-  catch(e){return;}
-  const sprints=raw.sprints||{};
-  const metaMap=raw.projects||{};
-  const activePids=new Set();
-  (raw.sprints||[]).forEach(sp=>Object.entries(sp.projects||{}).forEach(([pid,p])=>{if((p.total||0)>0) activePids.add(pid);}));
-  const noFocus=[];
-  Object.entries(metaMap).forEach(([pid,meta])=>{
-    const owner=(meta.owner||'').trim();
-    const isVac=!owner||owner==='Вакансія';
-    const inSprints=activePids.has(pid);
-    if(isVac||!inSprints) noFocus.push({id:pid,name:meta.name||pid,owner:owner||'Вакансія',reason:isVac?'Немає відповідального':'Не в активних спринтах'});
-  });
-  // Якщо немає нерозподілених — ховаємо весь блок (пункт 4)
-  if(!noFocus.length){
-    if(wrap) wrap.style.display='none';
-    return;
-  }
-  if(wrap) wrap.style.display='';
-  el.style.display='';
-  el.innerHTML=noFocus.map(p=>{
-    const isVac=p.owner==='Вакансія';
-    return `<div class="krow tbd" style="margin-bottom:6px"><div class="krow-bar kb-r"></div><div class="krow-lbl" style="flex:2;white-space:normal">#${p.id} ${p.name}</div><div class="krow-val x" style="font-size:11px;color:${isVac?'var(--red)':'var(--amb)'}">${p.owner}</div><div class="krow-tgt" style="white-space:normal;max-width:220px;text-align:right">${p.reason}</div></div>`;
-  }).join('');
-}
-
-// CSS для рядка "Перенесено"
-(function(){
-  if(document.getElementById('e3d-extra-css')) return;
-  const style=document.createElement('style');
-  style.id='e3d-extra-css';
-  style.textContent='.tmoved td{color:var(--red)!important;opacity:.85;font-style:italic}';
-  document.head.appendChild(style);
-})();
 </script>
-
-<script>/* hr_loader inline */
-/**
- * hr_loader.js — Easy 3D Print Dashboard v1.1
- * Завантажує data/hr.json і рендерить HR таб:
- *   - Загальна кількість співробітників
- *   - Графік стажерів по місяцях (Chart.js)
- *   - Поточні відкриті вакансії (таблиця)
- *   - Графік вакансій по місяцях (з history)
- *   - Довідник норм закриття вакансій
- *   - Графік плинності кадрів
- */
-
-window.HRLoader = (() => {
-  const DATA_URL = 'data/hr.json';
-
-  let _data = null;
-  let _charts = {};
-
-  const UA_MONTH_ORDER = [
-    'Січень','Лютий','Березень','Квітень','Травень','Червень',
-    'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'
-  ];
-
-  // ─── Завантаження ──────────────────────────────────────────────────────────
-  async function load() {
-    try {
-      const r = await fetch(DATA_URL + '?t=' + Date.now());
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      _data = await r.json();
-      render();
-    } catch (e) {
-      console.warn('[HR] Не вдалось завантажити hr.json:', e);
-      renderError();
-    }
-  }
-
-  // ─── Головний рендер ───────────────────────────────────────────────────────
-  function render() {
-    if (!_data) return;
-    renderEmployeeCount();
-    renderInternsChart();
-    renderVacanciesCurrent();
-    renderVacanciesHistory();
-    renderClosingNorms();
-    renderTurnoverChart();
-    updateTimestamp();
-  }
-
-  // ─── 1. Загальна кількість співробітників + зведені картки ────────────────
-  function renderEmployeeCount() {
-    const el = document.getElementById('hr-employees-count');
-    if (el) el.textContent = _data.employees_count || 0;
-
-    const vacCount = (_data.vacancies_current?.vacancies || []).length;
-    const vacEl = document.getElementById('hr-open-vacancies-count');
-    if (vacEl) vacEl.textContent = vacCount || '—';
-
-    const staff = _data.turnover?.staff || [];
-    if (staff.length) {
-      const last = staff[staff.length - 1];
-      const turnEl = document.getElementById('hr-turnover-latest');
-      if (turnEl) {
-        turnEl.textContent = last.turnover_pct + '%';
-        const val = parseFloat(last.turnover_pct);
-        turnEl.style.color = val > 5 ? '#dc3545' : '#0A3D20';
-      }
-    }
-
-    const interns = _data.interns_by_month || [];
-    if (interns.length) {
-      const last = interns[interns.length - 1];
-      const intEl = document.getElementById('hr-interns-latest');
-      if (intEl) intEl.textContent = last.count;
-    }
-  }
-
-  // ─── 2. Графік стажерів по місяцях ────────────────────────────────────────
-  function renderInternsChart() {
-    const canvas = document.getElementById('hr-interns-chart');
-    if (!canvas) return;
-
-    const data = _data.interns_by_month || [];
-    if (!data.length) {
-      canvas.parentElement.innerHTML = '<p style="color:var(--color-text-secondary);font-size:13px;padding:1rem">Даних по стажерах немає</p>';
-      return;
-    }
-
-    // Сортуємо по порядку місяців
-    const sorted = [...data].sort((a, b) =>
-      UA_MONTH_ORDER.indexOf(a.month) - UA_MONTH_ORDER.indexOf(b.month)
-    );
-
-    if (_charts['interns']) _charts['interns'].destroy();
-    _charts['interns'] = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: sorted.map(d => d.month),
-        datasets: [{
-          label: 'Стажерів',
-          data: sorted.map(d => d.count),
-          backgroundColor: '#16A34A',
-          borderRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          datalabels: {
-            anchor: 'end', align: 'top',
-            font: { size: 12, weight: '500' },
-            color: '#0A3D20',
-            formatter: v => v
-          }
-        },
-        scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 1 } },
-          x: { ticks: { autoSkip: false } }
-        }
-      },
-      plugins: window.ChartDataLabels ? [window.ChartDataLabels] : []
-    });
-  }
-
-  // ─── 3. Поточні відкриті вакансії ─────────────────────────────────────────
-  function renderVacanciesCurrent() {
-    const container = document.getElementById('hr-vacancies-current');
-    if (!container) return;
-
-    const current = _data.vacancies_current || {};
-    const list = current.vacancies || [];
-    const month = current.month || '—';
-
-    if (!list.length) {
-      container.innerHTML = `<p style="color:var(--color-text-secondary);font-size:13px">Вакансій немає</p>`;
-      return;
-    }
-
-    const STATUS_COLORS = {
-      'Закрита':   { bg: '#d4edda', color: '#0A3D20' },
-      'Погоджена': { bg: '#fff3cd', color: '#856404' },
-      'Відкрита':  { bg: '#f8d7da', color: '#721c24' },
-    };
-
-    const REASON_COLORS = {
-      'Заміна співробітника': { bg: '#f8d7da', color: '#721c24' },
-      'Підсилення команди':   { bg: '#fff3cd', color: '#856404' },
-      'Розширення штату':     { bg: '#d4edda', color: '#0A3D20' },
-    };
-
-    const rows = list.map(v => {
-      const sc = STATUS_COLORS[v.status] || { bg: '#e9ecef', color: '#495057' };
-      const rc = REASON_COLORS[v.reason] || { bg: '#e9ecef', color: '#495057' };
-      return `<tr>
-        <td style="font-weight:500">${v.vacancy}</td>
-        <td style="text-align:center">${v.location || '—'}</td>
-        <td style="text-align:center">${v.qty || '1'}</td>
-        <td><span style="background:${rc.bg};color:${rc.color};padding:2px 8px;border-radius:4px;font-size:12px">${v.reason || '—'}</span></td>
-        <td><span style="background:${sc.bg};color:${sc.color};padding:2px 10px;border-radius:4px;font-size:12px;font-weight:500">${v.status || '—'}</span></td>
-      </tr>`;
-    }).join('');
-
-    container.innerHTML = `
-      <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px">Місяць: <strong>${month}</strong> · Вакансій: <strong>${list.length}</strong></p>
-      <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead>
-          <tr style="background:var(--color-background-secondary)">
-            <th style="padding:8px 10px;text-align:left;font-weight:500">Вакансія</th>
-            <th style="padding:8px 10px;font-weight:500">Локація</th>
-            <th style="padding:8px 10px;font-weight:500">К-сть</th>
-            <th style="padding:8px 10px;text-align:left;font-weight:500">Причина</th>
-            <th style="padding:8px 10px;text-align:left;font-weight:500">Статус</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      </div>`;
-  }
-
-  // ─── 4. Графік вакансій по місяцях (history) ──────────────────────────────
-  function renderVacanciesHistory() {
-    const canvas = document.getElementById('hr-vacancies-history-chart');
-    if (!canvas) return;
-
-    const history = _data.vacancies_history || [];
-    if (history.length < 2) {
-      canvas.parentElement.innerHTML = `<p style="color:var(--color-text-secondary);font-size:13px;padding:1rem">Накопичується з кожним місяцем…</p>`;
-      return;
-    }
-
-    const sorted = [...history].sort((a, b) =>
-      UA_MONTH_ORDER.indexOf(a.month) - UA_MONTH_ORDER.indexOf(b.month)
-    );
-
-    if (_charts['vac_hist']) _charts['vac_hist'].destroy();
-    _charts['vac_hist'] = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: sorted.map(d => d.month),
-        datasets: [{
-          label: 'Відкриті вакансії',
-          data: sorted.map(d => d.total),
-          borderColor: '#0A3D20',
-          backgroundColor: 'rgba(10,61,32,0.1)',
-          pointBackgroundColor: '#16A34A',
-          pointRadius: 5,
-          tension: 0.3,
-          fill: true,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 1 } },
-          x: { ticks: { autoSkip: false } }
-        }
-      }
-    });
-  }
-
-  // ─── 5. Довідник норм закриття вакансій ────────────────────────────────────
-  function renderClosingNorms() {
-    const container = document.getElementById('hr-closing-norms');
-    if (!container) return;
-
-    const norms = _data.closing_norms || [];
-    if (!norms.length) {
-      container.innerHTML = '<p style="color:var(--color-text-secondary);font-size:13px">Довідник не завантажено</p>';
-      return;
-    }
-
-    const rows = norms.map(n => {
-      const color = n.days <= 14 ? '#0A3D20' : '#1A2B3C';
-      const bg    = n.days <= 14 ? '#d4edda' : '#e6f1fb';
-      return `<tr>
-        <td style="padding:5px 10px;font-size:13px">${n.position}</td>
-        <td style="padding:5px 10px;text-align:center">
-          <span style="background:${bg};color:${color};padding:2px 10px;border-radius:4px;font-size:12px;font-weight:500">${n.days} дн.</span>
-        </td>
-      </tr>`;
-    }).join('');
-
-    container.innerHTML = `
-      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">* Відлік від погодження заявки та повного опису вакансії</p>
-      <div style="overflow-x:auto;max-height:340px;overflow-y:auto">
-      <table style="width:100%;border-collapse:collapse">
-        <thead>
-          <tr style="background:var(--color-background-secondary);position:sticky;top:0">
-            <th style="padding:8px 10px;text-align:left;font-weight:500;font-size:13px">Посада</th>
-            <th style="padding:8px 10px;font-weight:500;font-size:13px">Норма</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      </div>`;
-  }
-
-  // ─── 6. Графік плинності кадрів ────────────────────────────────────────────
-  function renderTurnoverChart() {
-    const canvas = document.getElementById('hr-turnover-chart');
-    if (!canvas) return;
-
-    const turnover = _data.turnover || {};
-    const staff = turnover.staff || [];
-    const target = turnover.target_staff || null;
-
-    if (!staff.length) {
-      canvas.parentElement.innerHTML = '<p style="color:var(--color-text-secondary);font-size:13px;padding:1rem">Даних по плинності немає</p>';
-      return;
-    }
-
-    const sorted = [...staff].sort((a, b) =>
-      UA_MONTH_ORDER.indexOf(a.month) - UA_MONTH_ORDER.indexOf(b.month)
-    );
-    const labels = sorted.map(d => d.month);
-    const vals   = sorted.map(d => parseFloat(d.turnover_pct) || 0);
-
-    const datasets = [{
-      label: 'Плинність %',
-      data: vals,
-      borderColor: '#1A2B3C',
-      backgroundColor: 'rgba(26,43,60,0.1)',
-      pointBackgroundColor: vals.map(v => v > 5 ? '#dc3545' : '#16A34A'),
-      pointRadius: 5,
-      tension: 0.3,
-      fill: true,
-    }];
-
-    // Таргет лінія
-    if (target) {
-      const targetVal = parseFloat(target.replace('%','').replace(',','.')) || 5;
-      datasets.push({
-        label: 'Таргет ' + target,
-        data: labels.map(() => targetVal),
-        borderColor: '#dc3545',
-        borderDash: [6, 3],
-        borderWidth: 1.5,
-        pointRadius: 0,
-        fill: false,
-      });
-    }
-
-    if (_charts['turnover']) _charts['turnover'].destroy();
-    _charts['turnover'] = new Chart(canvas, {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: !!target, position: 'top', labels: { boxWidth: 12, font: { size: 12 } } }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { callback: v => v + '%' }
-          },
-          x: { ticks: { autoSkip: false } }
-        }
-      }
-    });
-  }
-
-  // ─── Таймстамп ─────────────────────────────────────────────────────────────
-  function updateTimestamp() {
-    const el = document.getElementById('hr-updated-at');
-    if (!el || !_data?.fetched_at) return;
-    const d = new Date(_data.fetched_at);
-    el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' });
-  }
-
-  function renderError() {
-    const el = document.getElementById('hr-status');
-    if (el) el.textContent = '✗ HR дані недоступні';
-  }
-
-  return { load };
-})();
-
-// auto-trigger removed — керується з index.html через go() і restoreTab()
-
-</script>
-<script>/* ads_loader inline */
-/**
- * ads_loader.js — Easy 3D Print Dashboard v1.1
- * Завантажує data/ads.json (генерується fetch_ads.py з Google Ads)
- * Рендерить CRM таб: зведення, воронка, кампанії, розподіл бюджету
- */
-
-window.AdsLoader = (() => {
-  const DATA_URL = 'data/ads.json';
-  let _data = null;
-  let _charts = {};
-
-  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B';
-  const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)';
-  const GRID = '#f0f2ee';
-
-  // ── Завантаження ────────────────────────────────────────────────────────────
-  async function load() {
-    try {
-      const r = await fetch(DATA_URL + '?t=' + Date.now());
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      _data = await r.json();
-      render();
-    } catch (e) {
-      console.warn('[ADS] Не вдалось завантажити ads.json:', e);
-      _renderError();
-    }
-  }
-
-  // ── Головний рендер ──────────────────────────────────────────────────────────
-  function render() {
-    if (!_data) return;
-    _renderSummary();
-    _renderFunnelChart();
-    _renderCampaignsTable();
-    _renderBudgetChart();
-    _updateTimestamp();
-  }
-
-  // ── 1. Зведення KPI ─────────────────────────────────────────────────────────
-  function _renderSummary() {
-    const s = _data.analytics?.summary || {};
-
-    _set('ads-cost-total',    s.total_cost_uah   ? _fmt(s.total_cost_uah) + ' грн' : '—');
-    _set('ads-conv-total',    s.total_conversions != null ? s.total_conversions : '—');
-    _set('ads-roas-avg',      s.avg_roas          ? s.avg_roas + 'x'              : '—');
-    _set('ads-active-count',  s.active_count      != null ? s.active_count        : '—');
-
-    // Кольори для ROAS
-    const roasEl = document.getElementById('ads-roas-avg');
-    if (roasEl && s.avg_roas) {
-      roasEl.style.color = s.avg_roas >= 3 ? GD : s.avg_roas >= 1 ? A : R;
-    }
-
-    // RED кампанії — попередження
-    const redEl = document.getElementById('ads-red-count');
-    if (redEl) {
-      redEl.textContent = s.red_count || 0;
-      redEl.style.color = s.red_count > 0 ? R : GD;
-    }
-
-    // Воронка — останній день
-    const funnel = _data.funnel || [];
-    if (funnel.length) {
-      const last = funnel[funnel.length - 1];
-      _set('ads-leads-last',   last.leads);
-      _set('ads-ctr-last',     last.ctr_pct + '%');
-      _set('ads-cvr-last',     last.cvr_pct + '%');
-    }
-  }
-
-  // ── 2. Графік воронки по днях ────────────────────────────────────────────────
-  function _renderFunnelChart() {
-    const canvas = document.getElementById('ads-funnel-chart');
-    if (!canvas) return;
-
-    const funnel = _data.funnel || [];
-    if (!funnel.length) {
-      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних воронки немає</p>';
-      return;
-    }
-
-    // Показуємо останні 30 днів
-    const data = funnel.slice(-30);
-    const labels = data.map(d => {
-      const dt = new Date(d.date);
-      return (dt.getMonth()+1) + '/' + dt.getDate();
-    });
-
-    if (_charts.funnel) { try { _charts.funnel.destroy(); } catch(e){} }
-    _charts.funnel = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Ліди',
-            data: data.map(d => d.leads),
-            borderColor: GD, backgroundColor: GB,
-            borderWidth: 2, tension: 0.4, fill: true,
-            pointRadius: 3, pointBackgroundColor: GD, yAxisID: 'y',
-          },
-          {
-            label: 'Кліки',
-            data: data.map(d => d.clicks),
-            borderColor: A, backgroundColor: AB,
-            borderWidth: 1.5, tension: 0.4, fill: false,
-            pointRadius: 2, pointBackgroundColor: A, yAxisID: 'y1',
-          },
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { position: 'top', labels: { usePointStyle: true, padding: 10, font: { size: 10 } } }
-        },
-        scales: {
-          x: { grid: { color: GRID }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
-          y: {
-            type: 'linear', position: 'left',
-            grid: { color: GRID },
-            title: { display: true, text: 'Ліди', font: { size: 9 }, color: GD },
-            beginAtZero: true,
-          },
-          y1: {
-            type: 'linear', position: 'right',
-            grid: { drawOnChartArea: false },
-            title: { display: true, text: 'Кліки', font: { size: 9 }, color: A },
-            beginAtZero: true,
-          },
-        }
-      }
-    });
-
-    // CTR/CVR лінійний міні-графік
-    const canvas2 = document.getElementById('ads-ctr-chart');
-    if (canvas2) {
-      if (_charts.ctr) { try { _charts.ctr.destroy(); } catch(e){} }
-      _charts.ctr = new Chart(canvas2, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            { label: 'CTR%', data: data.map(d => d.ctr_pct), borderColor: A, borderWidth: 1.5, tension: 0.4, fill: false, pointRadius: 2 },
-            { label: 'CVR%', data: data.map(d => d.cvr_pct), borderColor: GD, borderWidth: 1.5, tension: 0.4, fill: false, pointRadius: 2 },
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } } },
-          scales: {
-            x: { grid: { color: GRID }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
-            y: { grid: { color: GRID }, ticks: { callback: v => v + '%' }, beginAtZero: true }
-          }
-        }
-      });
-    }
-  }
-
-  // ── 3. Таблиця кампаній ──────────────────────────────────────────────────────
-  function _renderCampaignsTable() {
-    const container = document.getElementById('ads-campaigns-table');
-    if (!container) return;
-
-    const active = _data.analytics?.active || [];
-    if (!active.length) {
-      container.innerHTML = '<p style="color:var(--tl);font-size:12px">Активних кампаній немає</p>';
-      return;
-    }
-
-    // Сортуємо: спочатку RED, потім GREEN за витратами
-    const sorted = [...active].sort((a, b) => {
-      if (a.traffic_light === 'RED' && b.traffic_light !== 'RED') return -1;
-      if (b.traffic_light === 'RED' && a.traffic_light !== 'RED') return 1;
-      return b.cost_uah - a.cost_uah;
-    });
-
-    const LIGHT = {
-      GREEN: { bg: '#d4edda', color: '#0A3D20', label: '✓' },
-      RED:   { bg: '#f8d7da', color: '#721c24', label: '✗' },
-      YELLOW:{ bg: '#fff3cd', color: '#856404', label: '~' },
-    };
-
-    const rows = sorted.map(c => {
-      const lc = LIGHT[c.traffic_light] || LIGHT.YELLOW;
-      const roasVal = c.roas !== 'N/A' ? parseFloat(c.roas) : null;
-      const roasColor = roasVal ? (roasVal >= 3 ? GD : roasVal >= 1 ? A : R) : 'var(--tl)';
-      const roasText = roasVal ? roasVal + 'x' : 'N/A';
-      const cplText = c.cpl !== 'N/A' ? c.cpl + ' грн' : 'N/A';
-
-      return `<tr>
-        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.campaign}">${c.campaign}</td>
-        <td style="text-align:right;font-weight:600">${_fmt(c.cost_uah)} грн</td>
-        <td style="text-align:center">${c.conversions || 0}</td>
-        <td style="text-align:right;font-weight:700;color:${roasColor}">${roasText}</td>
-        <td style="text-align:right">${c.clicks.toLocaleString('uk-UA')}</td>
-        <td style="text-align:center">${c.ctr_pct}%</td>
-        <td style="text-align:center">
-          <span style="background:${lc.bg};color:${lc.color};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">${c.traffic_light}</span>
-        </td>
-      </tr>`;
-    }).join('');
-
-    const total = _data.analytics?.summary || {};
-    container.innerHTML = `
-      <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead>
-          <tr style="background:var(--s2)">
-            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Кампанія</th>
-            <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Витрати</th>
-            <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Конв.</th>
-            <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">ROAS</th>
-            <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Кліки</th>
-            <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">CTR</th>
-            <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Статус</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      </div>
-      <div style="padding:7px 12px;font-size:10px;color:var(--tm);background:var(--s2);border-top:1px solid var(--bd);border-radius:0 0 var(--r) var(--r)">
-        Активних: ${total.active_count} · Бюджет 30 днів: ${_fmt(total.total_cost_uah)} грн · Ліди: ${total.total_conversions} · Avg ROAS: ${total.avg_roas}x
-      </div>`;
-  }
-
-  // ── 4. Розподіл бюджету (bar chart) ─────────────────────────────────────────
-  function _renderBudgetChart() {
-    const canvas = document.getElementById('ads-budget-chart');
-    if (!canvas) return;
-
-    const active = (_data.analytics?.active || []).filter(c => c.cost_uah > 0);
-    if (!active.length) {
-      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Немає даних по витратах</p>';
-      return;
-    }
-
-    const sorted = [...active].sort((a, b) => b.cost_uah - a.cost_uah).slice(0, 10);
-    const colors = sorted.map(c =>
-      c.traffic_light === 'RED' ? 'rgba(192,57,43,.7)' :
-      c.traffic_light === 'GREEN' ? 'rgba(42,157,143,.75)' : 'rgba(69,123,157,.6)'
-    );
-
-    if (_charts.budget) { try { _charts.budget.destroy(); } catch(e){} }
-    _charts.budget = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: sorted.map(c => c.campaign.length > 22 ? c.campaign.substring(0,20)+'…' : c.campaign),
-        datasets: [{
-          label: 'Витрати, грн',
-          data: sorted.map(c => c.cost_uah),
-          backgroundColor: colors,
-          borderRadius: 4, borderWidth: 0,
-        }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: ctx => _fmt(ctx.parsed.x) + ' грн' } }
-        },
-        scales: {
-          x: {
-            grid: { color: GRID },
-            title: { display: true, text: 'Витрати, грн (за 30 днів)', font: { size: 10 }, color: '#6b836a' },
-            ticks: { callback: v => _fmt(v) + ' грн' }
-          },
-          y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-        }
-      }
-    });
-  }
-
-  // ── Утиліти ──────────────────────────────────────────────────────────────────
-  function _set(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  }
-
-  function _fmt(n) {
-    if (!n && n !== 0) return '—';
-    return Number(n).toLocaleString('uk-UA', { maximumFractionDigits: 0 });
-  }
-
-  function _updateTimestamp() {
-    const el = document.getElementById('ads-updated-at');
-    if (!el || !_data?.fetched_at) return;
-    try {
-      const d = new Date(_data.fetched_at);
-      el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', {
-        timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit',
-        hour: '2-digit', minute: '2-digit'
-      });
-    } catch(e) {}
-  }
-
-  function _renderError() {
-    const el = document.getElementById('ads-status');
-    if (el) el.textContent = '✗ Дані реклами недоступні';
-  }
-
-  // auto-trigger removed — керується з index.html через go() і restoreTab()
-
-  return { load };
-})();
-
-</script>
-<script>/* mql_loader inline */
-/**
- * mql_loader.js — Easy 3D Print Dashboard
- * Завантажує data/mql_sql.json (генерується fetch_mql.py, динамічно по місяцях)
- * Рендерить блок на CRM таб: перемикач місяців, KPI, воронку, канали, кампанії, менеджерів
- */
-
-window.MqlLoader = (() => {
-  const DATA_URL = 'data/mql_sql.json';
-  let _data = null;
-  let _activeMonth = null;
-  let _chart = null;
-
-  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B';
-  const GB = 'rgba(42,157,143,.15)';
-  const GRID = '#f0f2ee';
-
-  async function load() {
-    try {
-      const r = await fetch(DATA_URL + '?t=' + Date.now());
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      _data = await r.json();
-      const months = _data.months || [];
-      _activeMonth = months.length ? months[months.length - 1].period : null;
-      render();
-    } catch (e) {
-      console.warn('[MQL] Не вдалось завантажити mql_sql.json:', e);
-    }
-  }
-
-  function getCurrentMonthData() {
-    if (!_data) return null;
-    const months = _data.months || [];
-    return months.find(m => m.period === _activeMonth) || _data.latest || null;
-  }
-
-  function render() {
-    if (!_data) return;
-    renderMonthSwitcher();
-    const m = getCurrentMonthData();
-    if (!m) return;
-    _renderKPI(m);
-    _renderFunnelChart(m);
-    _renderChannels(m);
-    _renderCampaigns(m);
-    _renderManagers(m);
-    _updateTimestamp();
-  }
-
-  function renderMonthSwitcher() {
-    const el = document.getElementById('mql-month-switcher');
-    if (!el) return;
-    const months = _data.months || [];
-    if (months.length <= 1) { el.innerHTML = ''; return; }
-
-    el.innerHTML = months.map(m => {
-      const active = m.period === _activeMonth;
-      return `<button data-month="${m.period}" style="padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;font-size:11px;font-weight:600;transition:all .15s;background:${active ? 'var(--g)' : 'transparent'};color:${active ? '#fff' : 'var(--tm)'}">${m.period}</button>`;
-    }).join('');
-
-    el.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        _activeMonth = btn.dataset.month;
-        render();
-      });
-    });
-  }
-
-  function _fmt(n) {
-    if (n == null) return '—';
-    if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-    if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(0) + 'K';
-    return String(Math.round(n));
-  }
-
-  function _set(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  }
-
-  function _renderKPI(m) {
-    const k = m.kpi || {}, mq = m.mql || {};
-    _set('mql-total-leads', (k.total_leads || 0).toLocaleString('uk-UA'));
-    _set('mql-deals', k.deals_closed ?? '—');
-    _set('mql-conv', (k.conversion_pct ?? '—') + '%');
-    _set('mql-revenue', _fmt(k.revenue_uah) + ' грн');
-    _set('mql-no-mql', (mq.deals_without_mql ?? '—') + ' (' + (mq.deals_without_mql_pct ?? 0) + '%)');
-    _set('mql-false', (mq.false_mql1 ?? '—') + ' (' + (mq.false_mql1_pct ?? 0) + '%)');
-
-    const insightEl = document.getElementById('mql-critical-insight');
-    if (insightEl) {
-      insightEl.innerHTML = m.critical_insight
-        ? '<b>Критично:</b> ' + m.critical_insight
-        : 'Немає критичних інсайтів за цей період';
-    }
-  }
-
-  function _renderFunnelChart(m) {
-    const canvas = document.getElementById('mql-funnel-chart');
-    if (!canvas) return;
-    const funnel = m.funnel || [];
-    if (!funnel.length) {
-      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних воронки немає</p>';
-      return;
-    }
-
-    if (_chart) { try { _chart.destroy(); } catch(e){} }
-    _chart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: funnel.map(f => f.segment),
-        datasets: [
-          { label: 'Всього', data: funnel.map(f => f.total), backgroundColor: 'rgba(150,168,144,.25)', borderRadius: 4 },
-          { label: 'Угод', data: funnel.map(f => f.deals), backgroundColor: GB, borderColor: G, borderWidth: 1.5, borderRadius: 4 },
-        ]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 10 } } },
-        scales: {
-          x: { grid: { color: GRID } },
-          y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-        }
-      }
-    });
-  }
-
-  function _renderChannels(m) {
-    const tbody = document.getElementById('mql-channels-body');
-    if (!tbody) return;
-    const channels = m.channels || [];
-    if (!channels.length) { tbody.innerHTML = '<tr><td colspan="7" style="padding:10px;color:var(--tl)">Даних немає</td></tr>'; return; }
-
-    tbody.innerHTML = channels.map(c => {
-      const convColor = c.conv_pct >= 12 ? GD : c.conv_pct >= 8 ? A : R;
-      return `<tr>
-        <td>${c.channel}</td>
-        <td style="text-align:right">${c.leads}</td>
-        <td style="text-align:right">${c.deals}</td>
-        <td style="text-align:right;font-weight:700;color:${convColor}">${c.conv_pct}%</td>
-        <td style="text-align:right">${_fmt(c.revenue_uah)} грн</td>
-        <td style="text-align:right">${c.noise_pct}%</td>
-        <td>${c.label || ''}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  function _renderCampaigns(m) {
-    const container = document.getElementById('mql-campaigns-table');
-    if (!container) return;
-    const campaigns = (m.campaigns || []).slice(0, 8);
-    if (!campaigns.length) { container.innerHTML = '<p style="color:var(--tl);font-size:12px">Даних немає</p>'; return; }
-
-    container.innerHTML = campaigns.map(c => {
-      const isStop = (c.label || '').includes('ЗУПИНИТИ');
-      const color = isStop ? R : c.conv_pct >= 20 ? GD : A;
-      return `<div class="mr"><div class="mn">${c.campaign}</div><div class="mv" style="color:${color}">${c.conv_pct}%</div></div>`;
-    }).join('');
-  }
-
-  function _renderManagers(m) {
-    const container = document.getElementById('mql-managers-table');
-    if (!container) return;
-    const sm = m.sources_managers || [[], []];
-    const managers = sm[1] || [];
-    if (!managers.length) { container.innerHTML = '<p style="color:var(--tl);font-size:12px">Даних немає</p>'; return; }
-
-    container.innerHTML = managers.map(mgr => {
-      return `<div class="mr"><div class="mn">${mgr.manager}</div><div class="mv g">${_fmt(mgr.revenue_uah)} грн</div></div>
-      <div style="font-size:9px;color:var(--tl);margin:-2px 0 6px">${mgr.leads} лідів · ${mgr.deals} угод · ${mgr.conv_pct}%</div>`;
-    }).join('');
-  }
-
-  function _updateTimestamp() {
-    const el = document.getElementById('mql-updated-at');
-    if (el && _data?.fetched_at) {
-      try {
-        const d = new Date(_data.fetched_at);
-        el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-      } catch(e) {}
-    }
-  }
-
-  // auto-trigger removed — керується з index.html через go() і restoreTab()
-
-  return { load };
-})();
-
-</script>
-<script>/* sales_loader inline */
-/**
- * sales_loader.js — Easy 3D Print Dashboard
- * Завантажує data/sales_planner.json (генерується fetch_sales.py з Планувальника)
- * Рендерить таб Продажі: зведення + Роздріб (план/факт) + Опт (план/факт)
- */
-
-window.SalesLoader = (() => {
-  const DATA_URL = 'data/sales_planner.json';
-  let _data = null;
-  let _charts = {};
-
-  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B';
-  const GB = 'rgba(42,157,143,.15)', AB = 'rgba(69,123,157,.15)';
-  const GRID = '#f0f2ee';
-
-  async function load() {
-    try {
-      const r = await fetch(DATA_URL + '?t=' + Date.now());
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      _data = await r.json();
-      render();
-    } catch (e) {
-      console.warn('[SALES] Не вдалось завантажити sales_planner.json:', e);
-    }
-  }
-
-  function render() {
-    if (!_data) return;
-    _renderSummary();
-    _renderCombinedChart();
-    _renderRetail();
-    _renderWholesale();
-    _updateTimestamp();
-  }
-
-  function _fmt(n) {
-    if (n == null) return '—';
-    if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(1) + 'M';
-    if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(0) + 'K';
-    return String(Math.round(n));
-  }
-
-  function _set(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  }
-
-  function _renderSummary() {
-    const wh = _data.wholesale || {}, rt = _data.retail || {};
-    _set('sales-wh-fact', _fmt(wh.ytd_fact) + ' грн');
-    _set('sales-wh-pct', (wh.ytd_pct ?? '—') + '%');
-    _set('sales-rt-fact', _fmt(rt.ytd_fact) + ' грн');
-    _set('sales-rt-pct', (rt.ytd_pct ?? '—') + '%');
-
-    const leadsM = _data.leads_conversion?.monthly || [];
-    const leadsLast = leadsM.length ? leadsM[leadsM.length - 1] : null;
-    if (leadsLast) {
-      _set('sales-leads', leadsLast.leads != null ? Math.round(leadsLast.leads) : '—');
-      const convEl = document.getElementById('sales-conv');
-      if (convEl) {
-        if (leadsLast.conv_pct != null) {
-          convEl.textContent = leadsLast.conv_pct + '%';
-          convEl.style.color = leadsLast.conv_pct >= 15 ? GD : R;
-        } else {
-          convEl.textContent = '—';
-        }
-      }
-    }
-
-    const checkM = _data.avg_check?.monthly || [];
-    const checkLast = checkM.length ? checkM[checkM.length - 1] : null;
-    if (checkLast) _set('sales-rt-check', _fmt(checkLast.fact) + ' грн');
-  }
-
-  function _renderCombinedChart() {
-    const canvas = document.getElementById('sales-combined-chart');
-    if (!canvas) return;
-
-    const whM = _data.wholesale?.monthly || [];
-    const rtM = _data.retail?.monthly || [];
-    if (!whM.length && !rtM.length) {
-      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних немає</p>';
-      return;
-    }
-    const labels = (whM.length ? whM : rtM).map(m => m.month);
-
-    if (_charts.combined) { try { _charts.combined.destroy(); } catch(e){} }
-    _charts.combined = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          { label: 'ОПТ факт', data: whM.map(m => m.fact), backgroundColor: GB, borderColor: G, borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
-          { label: 'Роздріб факт', data: rtM.map(m => m.fact), backgroundColor: AB, borderColor: A, borderWidth: 1.5, borderRadius: 4, yAxisID: 'y1' },
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 10 } } },
-        scales: {
-          x: { grid: { color: GRID } },
-          y: { type: 'linear', position: 'left', grid: { color: GRID }, ticks: { callback: v => _fmt(v) }, title: { display: true, text: 'ОПТ, грн', font: { size: 9 }, color: G } },
-          y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => _fmt(v) }, title: { display: true, text: 'Роздріб, грн', font: { size: 9 }, color: A } },
-        }
-      }
-    });
-  }
-
-  function _renderRetail() {
-    const canvas = document.getElementById('sales-retail-chart');
-    const data = _data.retail?.monthly || [];
-    if (canvas) {
-      if (!data.length) {
-        canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних немає</p>';
-      } else {
-        if (_charts.retail) { try { _charts.retail.destroy(); } catch(e){} }
-        _charts.retail = new Chart(canvas, {
-          type: 'bar',
-          data: {
-            labels: data.map(m => m.month),
-            datasets: [
-              { label: 'План', data: data.map(m => m.plan), backgroundColor: 'rgba(150,168,144,.25)', borderRadius: 4 },
-              { label: 'Факт', data: data.map(m => m.fact), backgroundColor: AB, borderColor: A, borderWidth: 1.5, borderRadius: 4 },
-            ]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } } },
-            scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID }, ticks: { callback: v => _fmt(v) } } }
-          }
-        });
-      }
-    }
-
-    const tbody = document.getElementById('sales-retail-table');
-    if (tbody) {
-      if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="4" style="padding:10px;color:var(--tl)">Даних немає</td></tr>';
-      } else {
-        tbody.innerHTML = data.map(m => {
-          const pctColor = m.pct == null ? 'var(--tl)' : m.pct >= 90 ? GD : m.pct >= 60 ? A : R;
-          return `<tr>
-            <td>${m.month}</td>
-            <td style="text-align:right">${_fmt(m.plan)}</td>
-            <td style="text-align:right">${m.fact != null ? _fmt(m.fact) : '—'}</td>
-            <td style="text-align:right;font-weight:700;color:${pctColor}">${m.pct != null ? m.pct + '%' : '—'}</td>
-          </tr>`;
-        }).join('');
-      }
-    }
-  }
-
-  function _renderWholesale() {
-    const canvas = document.getElementById('sales-wholesale-chart');
-    const data = _data.wholesale?.monthly || [];
-    if (canvas) {
-      if (!data.length) {
-        canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Даних немає</p>';
-      } else {
-        if (_charts.wholesale) { try { _charts.wholesale.destroy(); } catch(e){} }
-        _charts.wholesale = new Chart(canvas, {
-          type: 'bar',
-          data: {
-            labels: data.map(m => m.month),
-            datasets: [
-              { label: 'План', data: data.map(m => m.plan), backgroundColor: 'rgba(150,168,144,.25)', borderRadius: 4 },
-              { label: 'Факт', data: data.map(m => m.fact), backgroundColor: GB, borderColor: G, borderWidth: 1.5, borderRadius: 4 },
-            ]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } } },
-            scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID }, ticks: { callback: v => _fmt(v) } } }
-          }
-        });
-      }
-    }
-
-    const tbody = document.getElementById('sales-wholesale-table');
-    if (tbody) {
-      if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="4" style="padding:10px;color:var(--tl)">Даних немає</td></tr>';
-      } else {
-        tbody.innerHTML = data.map(m => {
-          const pctColor = m.pct == null ? 'var(--tl)' : m.pct >= 100 ? GD : m.pct >= 70 ? A : R;
-          return `<tr>
-            <td>${m.month}</td>
-            <td style="text-align:right">${m.plan != null ? _fmt(m.plan) : '—'}</td>
-            <td style="text-align:right">${m.fact != null ? _fmt(m.fact) : '—'}</td>
-            <td style="text-align:right;font-weight:700;color:${pctColor}">${m.pct != null ? m.pct + '%' : '—'}</td>
-          </tr>`;
-        }).join('');
-      }
-    }
-  }
-
-  function _updateTimestamp() {
-    const el = document.getElementById('sales-updated-at');
-    if (el && _data?.fetched_at) {
-      try {
-        const d = new Date(_data.fetched_at);
-        el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-      } catch(e) {}
-    }
-  }
-
-  // auto-trigger removed — керується з index.html через go() і restoreTab()
-
-  return { load };
-})();
-
-/**
- * LocLoader — Easy 3D Print Dashboard v1.0
- * Завантажує data/capacity.json (з /api/capacity, easy3dprint.pp.ua)
- * і рендерить таб "Локації":
- *   - Зведена таблиця локацій (завант. / якість / виконання)
- *   - Картки деталізації по локаціях
- * Коеф. і статус локації (Активна/Розгортання) — бізнес-параметри,
- * яких немає в API, тому лишаються довідковими константами.
- */
-window.LocLoader = (() => {
-  const DATA_URL = 'data/capacity.json';
-  const HISTORY_URL = 'data/capacity_history.json';
-
-  const G = '#2A9D8F', A = '#457B9D', R = '#C0392B', B = '#6aA5C2';
-  const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)', BB = 'rgba(106,165,194,.12)';
-  const GRID = '#f0f2ee';
-
-  const LOC_META = {
-    '1': { coef: '1.0×',  status: 'Активна',      badge: 'plg' },
-    '2': { coef: '1.15×', status: 'Активна',      badge: 'plg' },
-    '4': { coef: '1.4×',  status: 'Активна',      badge: 'pla' },
-    '5': { coef: '2.0×',  status: 'Розгортання',  badge: 'pla' },
-  };
-  // Один колір на локацію — узгоджено з палітрою дашборду (G/A/R/B)
-  const LOC_COLORS = {
-    '1': { line: G, bg: GB },
-    '2': { line: A, bg: AB },
-    '4': { line: R, bg: RB },
-    '5': { line: B, bg: BB },
-  };
-  const UA_MONTHS_FULL = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
-
-  let _data = null;
-  let _history = null;
-  let _chartMonth = 'all'; // 'all' | '0'..'11'
-  let _charts = {};
-
-  async function load() {
-    try {
-      const [snapR, histR] = await Promise.all([
-        fetch(DATA_URL + '?t=' + Date.now()),
-        fetch(HISTORY_URL + '?t=' + Date.now()).catch(() => null),
-      ]);
-      if (!snapR.ok) throw new Error('HTTP ' + snapR.status);
-      _data = await snapR.json();
-      _history = (histR && histR.ok) ? await histR.json() : null;
-      render();
-    } catch (e) {
-      console.warn('[Loc] Не вдалось завантажити дані локацій:', e);
-      renderError();
-    }
-  }
-
-  function locNum(name) {
-    const m = String(name || '').match(/\d+/);
-    return m ? m[0] : null;
-  }
-
-  function metrics(loc) {
-    const m = loc.machines || {};
-    const plan = loc.plan || {};
-    const batches = loc.batches || {};
-    const printed = loc.printed || {};
-    const util = m.utilizationPercent != null ? Number(m.utilizationPercent) : null;
-    const defectPct = batches.parts ? (batches.defectParts || 0) / batches.parts * 100 : 0;
-    const quality = batches.parts ? Math.max(0, 100 - defectPct) : null;
-    const completion = plan.parts ? printed.parts / plan.parts * 100 : null;
-    return { util, quality, completion, defectPct };
-  }
-
-  // Партій сьогодні ще може не бути (зміна тільки почалась) — % Якості за
-  // сьогодні тоді null. Замість голого "—" показуємо останнє відоме значення
-  // з історії (учора чи раніше), явно позначене як не сьогоднішнє.
-  function lastKnownQuality(num) {
-    const days = (_history && _history.days) || [];
-    for (let i = days.length - 1; i >= 0; i--) {
-      const loc = days[i].locations && days[i].locations[num];
-      if (loc && loc.defectPct != null) {
-        return { quality: Math.max(0, 100 - loc.defectPct), date: days[i].date };
-      }
-    }
-    return null;
-  }
-
-  function pill(val, goodMin, suffix) {
-    if (val == null || isNaN(val)) return `<span class="cov ctt">—</span>`;
-    const cls = val >= goodMin ? 'pla' : 'plr';
-    return `<span class="pill ${cls}">${val.toFixed(1)}${suffix}</span>`;
-  }
-
-  function pillStale(val, goodMin, suffix, dateLabel) {
-    if (val == null || isNaN(val)) return `<span class="cov ctt">—</span>`;
-    const cls = val >= goodMin ? 'pla' : 'plr';
-    return `<span class="pill ${cls}" style="opacity:.6;border-style:dashed" title="Партій сьогодні ще немає — останні дані за ${dateLabel}">${val.toFixed(1)}${suffix}*</span>`;
-  }
-
-  function barClass(val, goodMin) {
-    if (val == null || isNaN(val)) return 'fr';
-    return val >= goodMin ? 'fa' : 'fr';
-  }
-
-  // ─── Живий індикатор ───────────────────────────────────────────────────
-  function updateLiveDot() {
-    const dot = document.getElementById('loc-live-dot');
-    const label = document.getElementById('loc-live-label');
-    if (!dot || !label) return;
-    if (_data && _data.fetched_at) {
-      dot.className = 'ld ok';
-      label.textContent = 'дані з API';
-    } else {
-      dot.className = 'ld';
-      label.textContent = '';
-    }
-  }
-
-  // ─── Таблиця ────────────────────────────────────────────────────────────
-  function renderTable() {
-    const body = document.getElementById('loc-tbl-body');
-    if (!body) return;
-    const locations = _data.locations || [];
-    if (!locations.length) {
-      body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--tl)">Дані ще не синхронізовано</td></tr>`;
-      return;
-    }
-    const idles = idlePotential();
-    body.innerHTML = locations.map(loc => {
-      const num = locNum(loc.location);
-      const meta = LOC_META[num] || { coef: '—', status: '—' };
-      const { util, quality, completion } = metrics(loc);
-      const known = quality == null ? lastKnownQuality(num) : null;
-      const qualityCell = quality != null
-        ? pill(quality, 85, '%')
-        : (known ? pillStale(known.quality, 85, '%', known.date) : `<span class="cov ctt">—</span>`);
-      const idle = idles[num] || { hours: 0, pct: null, days: 0 };
-      const idleCell = idle.days === 0
-        ? `<span class="cov ctt">TBD</span>`
-        : `<span class="pill ${idle.pct != null && idle.pct <= 20 ? 'pla' : 'plr'}">${fmtHours(idle.hours)}${idle.pct != null ? ' · ' + idle.pct.toFixed(1) + '%' : ''}</span>`;
-      return `<tr>
-        <td>${loc.location}</td>
-        <td>${meta.coef}</td>
-        <td>${pill(util, 40, '%')}</td>
-        <td>${qualityCell}</td>
-        <td>${pill(completion, 60, '%')}</td>
-        <td>${idleCell}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  // ─── Середні показники за поточний рік (з історії) ─────────────────────
-  function hasSignal(day) {
-    const locs = (day && day.locations) || {};
-    return Object.values(locs).some(l => (l.util || 0) > 0 || (l.defectPct || 0) > 0);
-  }
-
-  // ─── Накопичений невикористаний ресурс (потенціал росту завантаження) ──
-  // free (машино-еквівалент простою за добу) × 24 год = маш-год простою за день,
-  // підсумовано по всіх днях історії, де це поле вже накопичено.
-  function idlePotential() {
-    const days = (_history && _history.days) || [];
-    const startIdx = days.findIndex(hasSignal);
-    const relevant = startIdx > 0 ? days.slice(startIdx) : days;
-    const result = {};
-    Object.keys(LOC_META).forEach(num => {
-      let hours = 0, totalHours = 0, n = 0, since = null;
-      relevant.forEach(d => {
-        const loc = d.locations && d.locations[num];
-        if (!loc || loc.free == null) return;
-        hours += loc.free * 24;
-        if (loc.total != null) totalHours += loc.total * 24;
-        n++;
-        if (!since) since = d.date;
-      });
-      result[num] = { hours, totalHours, pct: totalHours ? (hours / totalHours * 100) : null, days: n, since };
-    });
-    return result;
-  }
-
-  function fmtHours(h) {
-    if (h >= 1000) return (h / 1000).toFixed(1) + ' тис. маш-год';
-    return h.toFixed(0) + ' маш-год';
-  }
-
-  function yearAverages() {
-    const days = (_history && _history.days) || [];
-    const startIdx = days.findIndex(hasSignal);
-    const relevant = startIdx > 0 ? days.slice(startIdx) : days;
-    const result = {};
-    Object.keys(LOC_META).forEach(num => {
-      let utilSum = 0, utilN = 0, defSum = 0, defN = 0;
-      relevant.forEach(d => {
-        const loc = d.locations && d.locations[num];
-        if (!loc) return;
-        if (loc.util != null) { utilSum += loc.util; utilN++; }
-        if (loc.defectPct != null) { defSum += loc.defectPct; defN++; }
-      });
-      result[num] = {
-        avgUtil: utilN ? utilSum / utilN : null,
-        avgDefect: defN ? defSum / defN : null,
-      };
-    });
-    return result;
-  }
-
-  // ─── Кільцева діаграма (зовнішнє кільце — середнє за рік, внутрішнє — зараз) ──
-  function ringPair(curVal, avgVal, maxScale, color, curColorOverride) {
-    const size = 44, c = 22, rOut = 19, rIn = 12, sw = 5;
-    const cOut = 2 * Math.PI * rOut, cIn = 2 * Math.PI * rIn;
-    const curPct = curVal == null ? 0 : Math.max(0, Math.min(1, curVal / maxScale));
-    const avgPct = avgVal == null ? 0 : Math.max(0, Math.min(1, avgVal / maxScale));
-    const curColor = curColorOverride || color;
-    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">
-      <circle cx="${c}" cy="${c}" r="${rOut}" fill="none" stroke="var(--s2)" stroke-width="${sw}"/>
-      <circle cx="${c}" cy="${c}" r="${rOut}" fill="none" stroke="${color}" stroke-opacity="0.4" stroke-width="${sw}" stroke-linecap="round"
-        stroke-dasharray="${(avgPct*cOut).toFixed(1)} ${cOut.toFixed(1)}" transform="rotate(-90 ${c} ${c})"/>
-      <circle cx="${c}" cy="${c}" r="${rIn}" fill="none" stroke="var(--s2)" stroke-width="${sw}"/>
-      <circle cx="${c}" cy="${c}" r="${rIn}" fill="none" stroke="${curColor}" stroke-width="${sw}" stroke-linecap="round"
-        stroke-dasharray="${(curPct*cIn).toFixed(1)} ${cIn.toFixed(1)}" transform="rotate(-90 ${c} ${c})"/>
-    </svg>`;
-  }
-
-  function metricBlock(title, curVal, avgVal, curColor, avgOpacityColor, suffix) {
-    const curTxt = curVal != null ? curVal.toFixed(1) + suffix : '—';
-    const avgTxt = avgVal != null ? avgVal.toFixed(1) + suffix : '—';
-    return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
-      ${ringPair(curVal, avgVal, suffix === '%' && title === 'Брак' ? 25 : 100, avgOpacityColor, curColor)}
-      <div style="font-size:9px;line-height:1.45">
-        <div style="font-weight:700;color:var(--tx)">${title}</div>
-        <div><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${curColor};margin-right:3px"></span>Зараз: <b>${curTxt}</b></div>
-        <div><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${avgOpacityColor};opacity:.4;margin-right:3px"></span>Середнє за 2026: <b>${avgTxt}</b></div>
-      </div>
-    </div>`;
-  }
-
-  // ─── Картки ─────────────────────────────────────────────────────────────
-  function renderCards() {
-    const container = document.getElementById('loc-cards-container');
-    if (!container) return;
-    const locations = _data.locations || [];
-    if (!locations.length) {
-      container.innerHTML = `<div class="lc"><div class="lcn">Дані ще не синхронізовано</div></div>`;
-      return;
-    }
-    const avgs = yearAverages();
-    const idles = idlePotential();
-    container.innerHTML = locations.map(loc => {
-      const num = locNum(loc.location);
-      const meta = LOC_META[num] || { status: '—', badge: 'pla' };
-      const colors = LOC_COLORS[num] || { line: A, bg: AB };
-      const { util, defectPct } = metrics(loc);
-      const avg = avgs[num] || { avgUtil: null, avgDefect: null };
-      const idle = idles[num] || { hours: 0, days: 0, since: null };
-      const defectCurColor = (defectPct != null && defectPct > DEFECT_THRESHOLD) ? '#C0392B' : colors.line;
-      const warn = (util != null && util < 40)
-        ? `<div style="font-size:8px;color:var(--red);margin-top:1px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
-      const growthBox = idle.days > 0
-        ? `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br><b style="color:var(--tx);font-size:12px">${fmtHours(idle.hours)}</b><br>невикор. ресурсу<br>з ${idle.since}</div>`
-        : `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br>накопичується</div>`;
-      return `<div class="lc" style="padding:8px">
-        <div class="lch" style="margin-bottom:4px"><div class="lcn">🏭 ${loc.location}</div><span class="pill ${meta.badge}">${meta.status}</span></div>
-        <div style="display:flex;gap:8px">
-          <div style="flex:1;min-width:0">
-            ${metricBlock('Завант.', util, avg.avgUtil, colors.line, colors.line, '%')}
-            ${metricBlock('Брак', defectPct, avg.avgDefect, defectCurColor, colors.line, '%')}
-          </div>
-          <div style="flex:0 0 auto;width:88px;border-left:1px dashed var(--bd);padding-left:8px;display:flex;align-items:center">
-            ${growthBox}
-          </div>
-        </div>
-        ${warn}
-      </div>`;
-    }).join('');
-  }
-
-  function updateStatus() {
-    const el = document.getElementById('loc-status');
-    if (!el) return;
-    if (!_data || !_data.fetched_at) {
-      el.textContent = '⏳ не синхронізовано';
-      return;
-    }
-    const d = new Date(_data.fetched_at);
-    const dateStr = _data.date ? ' · зріз ' + _data.date : '';
-    el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' }) + dateStr;
-  }
-
-  // ─── Фільтр місяців для графіків ───────────────────────────────────────
-  const DEFECT_THRESHOLD = 7.5;
-
-  function maxSelectableMonth() {
-    const now = new Date();
-    const curYear = now.getFullYear();
-    if (curYear > 2026) return 11;
-    if (curYear < 2026) return -1; // ще не почався рік — доступне лише "Всі"
-    return now.getMonth(); // 0-based, поточний місяць включно
-  }
-
-  function renderMonthFilters() {
-    const box = document.getElementById('loc-month-filters');
-    if (!box) return;
-    const maxMonth = maxSelectableMonth();
-    const btns = [`<button class="gsort-btn${_chartMonth==='all'?' active-sort':''}" data-m="all">Всі</button>`];
-    UA_MONTHS_FULL.forEach((name, i) => {
-      const disabled = i > maxMonth;
-      btns.push(`<button class="gsort-btn${_chartMonth===String(i)?' active-sort':''}" data-m="${i}"${disabled?' disabled':''} style="${disabled?'opacity:.35;cursor:not-allowed':''}">${name.slice(0,3)}</button>`);
-    });
-    box.innerHTML = btns.join('');
-    box.querySelectorAll('button:not([disabled])').forEach(b => {
-      b.onclick = () => { _chartMonth = b.dataset.m; renderMonthFilters(); renderCharts(); };
-    });
-  }
-
-  // ─── Графіки динаміки (2026) ───────────────────────────────────────────
-  function filteredDays() {
-    const days = (_history && _history.days) || [];
-    if (_chartMonth === 'all') {
-      // не малюємо порожній хвіст до старту реальних даних
-      const startIdx = days.findIndex(hasSignal);
-      return startIdx > 0 ? days.slice(startIdx) : days;
-    }
-    const m = parseInt(_chartMonth, 10);
-    return days.filter(d => new Date(d.date).getMonth() === m);
-  }
-
-  // ─── Логарифмічний тренд ────────────────────────────────────────────────
-  function logTrend(data) {
-    // data: масив значень (можливо з null), x = 1..N (позиція в масиві)
-    const pts = [];
-    data.forEach((v, i) => { if (v != null) pts.push([i + 1, v]); });
-    if (pts.length < 3) return null;
-    let sumLnX = 0, sumY = 0, sumLnX2 = 0, sumLnXY = 0;
-    pts.forEach(([x, y]) => {
-      const lx = Math.log(x);
-      sumLnX += lx; sumY += y; sumLnX2 += lx * lx; sumLnXY += lx * y;
-    });
-    const n = pts.length;
-    const meanLnX = sumLnX / n, meanY = sumY / n;
-    const varLnX = sumLnX2 / n - meanLnX * meanLnX;
-    if (!varLnX) return null;
-    const b = (sumLnXY / n - meanLnX * meanY) / varLnX;
-    const a = meanY - b * meanLnX;
-    return (x) => a + b * Math.log(x);
-  }
-
-  function buildLineChart(canvasId, field, yFmt, opts) {
-    opts = opts || {};
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    const days = filteredDays();
-    if (!days.length) {
-      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Історія ще накопичується — запустіть backfill_capacity_history.py або зачекайте на щогодинне оновлення</p>';
-      return;
-    }
-    const labels = days.map(d => d.date.slice(5)); // MM-DD
-    const datasets = [];
-
-    Object.keys(LOC_META).forEach(num => {
-      const colors = LOC_COLORS[num] || { line: A, bg: AB };
-      const data = days.map(d => {
-        const loc = d.locations && d.locations[num];
-        const v = loc ? loc[field] : null;
-        return v == null ? null : v;
-      });
-
-      // тренд-лінія (логарифмічна регресія) — малюємо ПІД основною лінією
-      const trendFn = logTrend(data);
-      if (trendFn) {
-        datasets.push({
-          label: 'Тренд ' + 'Локація ' + num,
-          data: data.map((v, i) => v == null ? null : trendFn(i + 1)),
-          borderColor: colors.line,
-          borderWidth: 3,
-          borderDash: [9, 5],
-          pointRadius: 0,
-          tension: 0,
-          fill: false,
-          order: 1,
-          _locNum: num,
-          _role: 'trend',
-        });
-      }
-
-      const ds = {
-        label: 'Локація ' + num,
-        data,
-        borderColor: colors.line,
-        backgroundColor: colors.bg,
-        borderWidth: 2,
-        tension: .35,
-        spanGaps: true,
-        fill: false,
-        order: 2,
-        _locNum: num,
-        _role: 'main',
-      };
-      if (opts.threshold != null) {
-        // точки, що перевищують поріг — виділяємо збільшеним маркером у кольорі локації
-        ds.pointRadius = data.map(v => (v != null && v > opts.threshold) ? 5 : (days.length > 40 ? 0 : 2));
-        ds.pointBackgroundColor = colors.line;
-        ds.pointBorderColor = data.map(v => (v != null && v > opts.threshold) ? '#000' : colors.line);
-        ds.pointBorderWidth = data.map(v => (v != null && v > opts.threshold) ? 2 : 1);
-      } else {
-        ds.pointRadius = days.length > 40 ? 0 : 2;
-      }
-      datasets.push(ds);
-    });
-
-    if (opts.threshold != null) {
-      datasets.push({
-        label: `Поріг ${opts.threshold}%`,
-        data: labels.map(() => opts.threshold),
-        borderColor: '#1A2B3C',
-        borderWidth: 2,
-        borderDash: [7, 4],
-        pointRadius: 0,
-        tension: 0,
-        fill: false,
-        order: 0,
-      });
-    }
-
-    if (_charts[canvasId]) { _charts[canvasId].destroy(); }
-    _charts[canvasId] = new Chart(canvas, {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-            onClick: (e, legendItem, legend) => {
-              const chart = legend.chart;
-              const idx = legendItem.datasetIndex;
-              const clicked = chart.data.datasets[idx];
-              const newVisible = !chart.isDatasetVisible(idx);
-              if (clicked._locNum != null) {
-                // ховаємо/показуємо основну лінію і її тренд разом
-                chart.data.datasets.forEach((d, i) => {
-                  if (d._locNum === clicked._locNum) chart.setDatasetVisibility(i, newVisible);
-                });
-              } else {
-                chart.setDatasetVisibility(idx, newVisible);
-              }
-              chart.update();
-            },
-            labels: {
-              usePointStyle: true, padding: 8, font: { size: 10 },
-              filter: (item) => !item.text.startsWith('Тренд '),
-              // фіксований колір свотча з borderColor датасету — щоб не "плавав"
-              // залежно від кольору конкретної точки (per-point override)
-              generateLabels: (chart) => chart.data.datasets
-                .map((ds, i) => ({ text: ds.label, datasetIndex: i, fillStyle: ds.borderColor, strokeStyle: ds.borderColor, pointStyle: 'circle', hidden: !chart.isDatasetVisible(i) }))
-                .filter(item => !item.text.startsWith('Тренд ')),
-            },
-          },
-        },
-        scales: {
-          x: { grid: { color: GRID }, ticks: { autoSkip: true, maxTicksLimit: 12, font: { size: 9 } } },
-          y: {
-            grid: { color: GRID },
-            ticks: { callback: v => yFmt(v) },
-            beginAtZero: true,
-            ...(opts.yMax != null ? { max: opts.yMax } : {}),
-          },
-        },
-      },
-    });
-  }
-
-  function renderCharts() {
-    buildLineChart('loc-util-chart', 'util', v => v + '%');
-    buildLineChart('loc-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD, yMax: 25 });
-    const el = document.getElementById('loc-trend-status');
-    if (el) {
-      const days = (_history && _history.days) || [];
-      if (!days.length) {
-        el.textContent = '⏳ Історія по днях ще порожня';
-      } else {
-        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини`;
-      }
-    }
-  }
-
-  function render() {
-    if (!_data) return;
-    renderTable();
-    renderCards();
-    updateStatus();
-    updateLiveDot();
-    renderMonthFilters();
-    renderCharts();
-  }
-
-  function renderError() {
-    const el = document.getElementById('loc-status');
-    if (el) el.textContent = '✗ Дані локацій недоступні';
-    const dot = document.getElementById('loc-live-dot');
-    if (dot) dot.className = 'ld err';
-  }
-
-  return { load };
-})();
-
-</script>
+<script src="js/hr_loader.js"></script>
+<script src="js/ads_loader.js"></script>
+<script src="js/mql_loader.js"></script>
+<script src="js/sales_loader.js"></script>
 </body>
 </html>
