@@ -650,94 +650,93 @@ a{color:var(--gd);text-decoration:none}
     </div>
 
   </div>
+
+  <!-- ═══ ПАЙПЛАЙН ОПТОВИХ УГОД ═══ -->
+  <div style="margin-top:20px">
+    <div class="sec">🔀 Пайплайн оптових угод — реальний стан</div>
+    <div class="g3" style="margin-bottom:14px">
+      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Загальний пайплайн</div><div class="krow-val" id="sales-pipe-total">—</div></div>
+      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Угоди в роботі</div><div class="krow-val g" id="sales-pipe-active">—</div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Win rate</div><div class="krow-val" id="sales-pipe-wr">—</div></div>
+    </div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Воронка угод по стадіях</div>
+        <div class="cw ch200"><canvas id="sales-pipeline-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Топ активних угод</div>
+        <div id="sales-pipeline-list" style="font-size:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ЯКІСТЬ ЛІДІВ ═══ -->
+  <div style="margin-top:20px">
+    <div class="sec">🎯 Якість лідів по місяцях (Bitrix24)</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура лідів: цільові / спам / не завершили контакт</div>
+      <div class="cw ch200"><canvas id="sales-leads-quality-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ═══ ЕФЕКТИВНІСТЬ МЕНЕДЖЕРІВ ═══ -->
+  <div style="margin-top:20px">
+    <div class="sec">👤 Ефективність менеджерів продажів</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:6px">Частка в пайплайні та угоди/тиждень</div>
+      <div style="font-size:10px;color:var(--tl);margin-bottom:12px">Відносні показники — без абсолютних даних ЗП</div>
+      <div class="cw ch180"><canvas id="sales-mgr-chart"></canvas></div>
+    </div>
+    <div class="g5" id="sales-mgr-cards"></div>
+  </div>
+
 </div>
 
 <!-- ═════════════ CRM ═════════════ -->
 <div class="panel" id="panel-crm">
   <div id="w-crm-funnel">
 
-    <!-- Заголовок + фільтри -->
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
-      <div class="sec" style="margin-bottom:0">📣 Google Ads — реальні дані</div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <!-- Фільтр по кампанії -->
-        <select id="ads-filter-campaign" style="font-size:11px;padding:4px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--sur);color:var(--tx);cursor:pointer" onchange="window.AdsLoader&&AdsLoader.applyFilters()">
-          <option value="all">Всі кампанії</option>
-        </select>
-        <!-- Фільтр по статусу -->
-        <select id="ads-filter-status" style="font-size:11px;padding:4px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--sur);color:var(--tx);cursor:pointer" onchange="window.AdsLoader&&AdsLoader.applyFilters()">
-          <option value="all">Всі статуси</option>
-          <option value="GREEN">🟢 GREEN</option>
-          <option value="RED">🔴 RED</option>
-          <option value="YELLOW">🟡 YELLOW</option>
-        </select>
-        <!-- Фільтр по ROAS -->
-        <select id="ads-filter-roas" style="font-size:11px;padding:4px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--sur);color:var(--tx);cursor:pointer" onchange="window.AdsLoader&&AdsLoader.applyFilters()">
-          <option value="all">Будь-який ROAS</option>
-          <option value="profitable">ROAS ≥ 2x (прибуткові)</option>
-          <option value="loss">ROAS < 1x (збиткові)</option>
-        </select>
-        <span id="ads-updated-at" style="font-size:11px;color:var(--tl)"></span>
-      </div>
+    <!-- Заголовок -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div class="sec" style="margin-bottom:9px">📣 Google Ads — реальні дані</div>
+      <span id="ads-updated-at" style="font-size:11px;color:var(--tl)">Завантаження…</span>
     </div>
 
-    <!-- Алерт RED кампаній -->
-    <div id="ads-alert-red" style="display:none;margin-bottom:12px" class="al al-r">
-      <span class="ic">🔴</span><div id="ads-alert-red-text"></div>
-    </div>
-
-    <!-- 7 KPI карток -->
+    <!-- 6 KPI карток -->
     <div class="g6" style="margin-bottom:14px">
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Витрати 30 днів</div><div class="krow-val" id="ads-cost-total">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Ліди (конверсії)</div><div class="krow-val g" id="ads-conv-total">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Конверсії (ліди)</div><div class="krow-val g" id="ads-conv-total">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Avg ROAS</div><div class="krow-val" id="ads-roas-avg">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Активних кампаній</div><div class="krow-val" id="ads-active-count">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">RED кампанії</div><div class="krow-val r" id="ads-red-count">—</div><div class="krow-tgt">потребують уваги</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Середній CTR</div><div class="krow-val" id="ads-ctr-avg">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Null-атрибуція</div><div class="krow-val r">34 кл.</div><div class="krow-tgt">10.2M грн</div><div class="real-dot"></div></div>
     </div>
 
-    <!-- Топ-3 рекомендації -->
-    <div id="ads-recommendations" style="margin-bottom:14px"></div>
-
-    <!-- Воронка тижнево + CTR/CVR тренд -->
+    <!-- Воронка + CTR/CVR -->
     <div class="g2" style="margin-bottom:14px">
       <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div style="font-size:12px;font-weight:700;color:var(--tx)">Воронка по тижнях</div>
-          <div style="display:flex;gap:4px">
-            <button id="ads-period-week" onclick="window.AdsLoader&&AdsLoader.setPeriod('week')" style="font-size:10px;padding:2px 8px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;background:var(--g);color:#fff">Тижні</button>
-            <button id="ads-period-day" onclick="window.AdsLoader&&AdsLoader.setPeriod('day')" style="font-size:10px;padding:2px 8px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;background:transparent;color:var(--tm)">Дні</button>
-          </div>
-        </div>
-        <div class="cw ch180"><canvas id="ads-funnel-chart"></canvas></div>
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Воронка по днях — кліки та ліди</div>
+        <div class="cw ch180"><canvas id="ads-funnel-chart" role="img" aria-label="Воронка по днях"></canvas></div>
       </div>
       <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">CTR% та CVR% тренд</div>
-        <div class="cw ch180"><canvas id="ads-ctr-chart"></canvas></div>
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">CTR% та CVR% по днях</div>
+        <div class="cw ch180"><canvas id="ads-ctr-chart" role="img" aria-label="CTR та CVR по днях"></canvas></div>
       </div>
     </div>
 
-    <!-- Таблиця кампаній з фільтрацією -->
+    <!-- Таблиця активних кампаній -->
     <div id="w-crm-camp">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div class="sec" style="margin-bottom:0">📢 Кампанії</div>
-        <div style="font-size:11px;color:var(--tl)" id="ads-camp-count"></div>
-      </div>
+      <div class="sec">📢 Активні кампанії — 30 днів</div>
       <div class="card-flat" style="margin-bottom:14px">
         <div id="ads-campaigns-table"><p style="padding:12px;color:var(--tl);font-size:12px">Завантаження…</p></div>
       </div>
     </div>
 
-    <!-- ROAS гістограма + Бюджет -->
-    <div class="g2" style="margin-bottom:14px">
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">ROAS по кампаніях (активні)</div>
-        <div class="cw ch200"><canvas id="ads-roas-chart"></canvas></div>
-      </div>
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Розподіл витрат (топ-10)</div>
-        <div class="cw ch200"><canvas id="ads-budget-chart"></canvas></div>
-      </div>
+    <!-- Розподіл бюджету -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Розподіл бюджету по кампаніях (топ-10)</div>
+      <div class="cw" style="height:260px"><canvas id="ads-budget-chart" role="img" aria-label="Розподіл бюджету"></canvas></div>
     </div>
 
     <div id="ads-status" style="font-size:11px;color:var(--tl)"></div>
