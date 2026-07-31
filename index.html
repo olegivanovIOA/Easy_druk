@@ -377,15 +377,15 @@ a{color:var(--gd);text-decoration:none}
   <div id="w-ceo-kpi">
     <div class="sec">📊 Пульс компанії — 12 ключових метрик</div>
     <div class="g6">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка ОПТ 2025</div><div class="krow-val g">121.9M</div><div class="real-dot" title="Реальні дані"></div></div>
-      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка Роздріб 2025</div><div class="krow-val a">16.9M</div><div class="real-dot"></div></div>
+      <div class="krow" id="krow-opt"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка ОПТ YTD 2026</div><div class="krow-val g" id="ceo-opt-val">121.9M</div><div class="real-dot" title="Реальні дані"></div></div>
+      <div class="krow" id="krow-retail"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка Роздріб YTD 2026</div><div class="krow-val a" id="ceo-retail-val">16.9M</div><div class="real-dot"></div></div>
       <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">OEE / Ефективність</div><div class="krow-val r">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
       <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">% Браку</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="demo-lbl">ДЕМО</div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Частка ТОП-2 клієнтів</div><div class="krow-val r">94.7%</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
       <div class="krow demo"><div class="krow-bar kb-a"></div><div class="krow-lbl">Lead time замовлень</div><div class="krow-val a">~22 дні</div><div class="krow-tgt">Ціль: <b>&lt;5</b></div><div class="demo-lbl">ДЕМО</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маш. час / добу</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Активних B2B-клієнтів</div><div class="krow-val g">20</div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Нові B2B / місяць</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow" id="krow-leads"><div class="krow-bar kb-g"></div><div class="krow-lbl">Лідів / місяць</div><div class="krow-val g" id="ceo-leads-val">—</div><div class="real-dot"></div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржинальність</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Плинність персоналу</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-g"></div><div class="krow-lbl">Прогрес проектів SS</div><div class="krow-val x" id="ceo-pp">—%</div><div class="tbd-lbl">АВТО</div></div>
@@ -934,23 +934,33 @@ function safeChart(id,cfg){
   catch(e){console.warn('[Chart:'+id+']',e.message);try{const w=document.getElementById(id)?.closest('.cw');if(w){w.classList.add('wm','wme');const l=w.querySelector('.wm-cr')||Object.assign(document.createElement('span'),{className:'wm-cr'});l.textContent='ДАНІ НЕДОСТУПНІ';w.appendChild(l);}}catch(e2){}return null;}
 }
 
-function buildRev(){const optSrc=SALES_REAL?SALES_REAL.opt:RAW.opt;const retSrc=SALES_REAL?SALES_REAL.retail:RAW.retail;const{l,d:o}=fd(optSrc);const{d:r}=fd(retSrc);safeChart('revTrend',{type:'bar',data:{labels:l,datasets:[{label:'ОПТ, млн грн',data:o,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4},{label:'Роздріб, млн грн',data:r,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{padding:10,usePointStyle:true}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'M'}}}}});}
+function buildRev(){const optSrc=(SALES_REAL&&SALES_REAL.opt)?SALES_REAL.opt:RAW.opt;const retSrc=(SALES_REAL&&SALES_REAL.retail)?SALES_REAL.retail:RAW.retail;const{l,d:o}=fd(optSrc);const{d:r}=fd(retSrc);safeChart('revTrend',{type:'bar',data:{labels:l,datasets:[{label:'ОПТ, млн грн',data:o,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4,yAxisID:'y'},{label:'Роздріб, млн грн',data:r,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{padding:10,usePointStyle:true}}},scales:{x:{grid:{color:GRID}},y:{type:'linear',position:'left',grid:{color:GRID},ticks:{callback:v=>v+'M'},title:{display:true,text:'ОПТ',font:{size:9},color:G}},y1:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>v+'M'},title:{display:true,text:'Роздріб',font:{size:9},color:A}}}}});}
 
-// Підключає реальні дані з data/sales_planner.json (той самий фід, що й вкладка «Продажі») до графіка ОПТ+Роздріб на CEO
+function _fmtM(n){return n==null?'—':(n/1e6).toFixed(1)+'M';}
+
+// Підключає реальні дані з data/sales_planner.json (той самий фід, що й вкладка «Продажі») до графіка ОПТ+Роздріб та KPI-плиток на CEO
 function applySalesRealToCeo(data){
   try{
-    const wm=(data.wholesale&&data.wholesale.monthly)||[];
-    const rm=(data.retail&&data.retail.monthly)||[];
-    if(!wm.length&&!rm.length) return;
-    SALES_REAL={
-      opt:   wm.map(m=>m.fact!=null?m.fact/1e6:null),
-      retail:rm.map(m=>m.fact!=null?m.fact/1e6:null)
-    };
-    buildRev();
-    document.getElementById('revTrendCard')?.classList.remove('wm','wmc');
-    const cap=document.getElementById('revTrendCap'); if(cap) cap.textContent='Реальні дані (Google Sheets) · фільтрується';
-    const bdg=document.getElementById('revTrendBdg'); if(bdg){bdg.textContent='LIVE';bdg.classList.remove('bdg-tbd');bdg.classList.add('bdg-g');}
-    document.getElementById('revTrendWm')?.remove();
+    const wh=data.wholesale||{}, rt=data.retail||{};
+    const wm=wh.monthly||[], rm=rt.monthly||[];
+    if(!SALES_REAL) SALES_REAL={};
+    if(wm.length) SALES_REAL.opt   =wm.map(m=>m.fact!=null?m.fact/1e6:null);
+    if(rm.length) SALES_REAL.retail=rm.map(m=>m.fact!=null?m.fact/1e6:null);
+    if(wm.length||rm.length){
+      buildRev();
+      document.getElementById('revTrendCard')?.classList.remove('wm','wmc');
+      const cap=document.getElementById('revTrendCap'); if(cap) cap.textContent='Реальні дані (Google Sheets) · фільтрується';
+      const bdg=document.getElementById('revTrendBdg'); if(bdg){bdg.textContent='LIVE';bdg.classList.remove('bdg-tbd');bdg.classList.add('bdg-g');}
+      document.getElementById('revTrendWm')?.remove();
+    }
+
+    const ov=document.getElementById('ceo-opt-val');    if(ov&&wh.ytd_fact!=null) ov.textContent=_fmtM(wh.ytd_fact)+(wh.ytd_pct!=null?' ('+wh.ytd_pct+'%)':'');
+    const rv=document.getElementById('ceo-retail-val'); if(rv&&rt.ytd_fact!=null) rv.textContent=_fmtM(rt.ytd_fact)+(rt.ytd_pct!=null?' ('+rt.ytd_pct+'%)':'');
+
+    const lc=(data.leads_conversion&&data.leads_conversion.monthly)||[];
+    const lm=lc.filter(m=>m.leads).slice(-1)[0];
+    const lv=document.getElementById('ceo-leads-val');
+    if(lm&&lv) lv.textContent=Math.round(lm.leads)+(lm.conv_pct!=null?' (конв. '+lm.conv_pct+'%)':'');
   }catch(e){console.warn('[CEO rev]',e);}
 }
 function buildDef(){const{l,d}=fd(RAW.defect);safeChart('defCh',{type:'line',data:{labels:l,datasets:[{label:'% браку',data:d,borderColor:R,borderWidth:2,tension:.4,fill:true,backgroundColor:RB,pointRadius:3,pointBackgroundColor:R},{label:'Ціль 9%',data:d.map(()=>9),borderColor:G,borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'},min:6,max:17}}}});}
