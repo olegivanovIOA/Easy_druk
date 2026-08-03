@@ -340,15 +340,15 @@ a{color:var(--gd);text-decoration:none}
       <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.1</div></div>
     </div>
     <div class="tabs-s">
-      <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO</button>
+      <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="str" onclick="go('str',this)"><span class="ti">🎯</span>Стратегія<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-str"></div></button>
-      <button class="tb" data-tab="prod" onclick="go('prod',this)"><span class="ti">🏭</span>Виробництво</button>
-      <button class="tb" data-tab="qual" onclick="go('qual',this)"><span class="ti">✅</span>Якість</button>
+      <button class="tb" data-tab="prod" onclick="go('prod',this)"><span class="ti">🏭</span>Виробництво<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
+      <button class="tb" data-tab="qual" onclick="go('qual',this)"><span class="ti">✅</span>Якість<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="sales" onclick="go('sales',this)"><span class="ti">💼</span>Продажі<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-sales"></div></button>
       <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>CRM<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
       <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
       <button class="tb" data-tab="hr" onclick="go('hr',this)"><span class="ti">👥</span>HR<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-hr"></div></button>
-      <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації</button>
+      <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="reg" onclick="go('reg',this)"><span class="ti">📋</span>Реєстр</button>
     </div>
     <div class="nav-acts">
@@ -604,10 +604,10 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ ЯКІСТЬ ═════════════ -->
 <div class="panel" id="panel-qual">
   <div id="w-qual-kpi">
-    <div class="sec">🎯 Якість та брак — 13 метрик</div>
+    <div class="sec">🎯 Якість та брак — 13 метрик <span id="qual-live-dot" class="ld" style="margin-left:2px"></span></div>
     <div class="g6">
-      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">% браку (компанія)</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="demo-lbl">ДЕМО</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% браку по локації</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">% браку (компанія, сьогодні)</div><div class="krow-val r" id="qual-defect-pct">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
+      <div class="krow" id="qual-worst-loc-row"><div class="krow-bar kb-a"></div><div class="krow-lbl">Найгірша локація</div><div class="krow-val a" id="qual-worst-loc">—</div><div class="real-dot"></div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% браку по оператору</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вартість браку / міс</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ТОП-5 причин (Парето)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
@@ -615,8 +615,15 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
   <div id="w-qual-trend">
-    <div class="sec">📈 Динаміка браку</div>
-    <div class="card wm wmc"><div class="chdr"><div><div class="ct">% браку по місяцях</div><div class="cs">демо · ціль &lt;9%</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="defCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>📈 Динаміка браку по локаціях</span>
+      <div id="qual-month-filters" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"></div>
+    </div>
+    <div class="card-flat">
+      <div class="ct" style="padding:8px 10px 0">% браку — клік по локації в легенді ховає/показує лінію</div>
+      <div class="cw" style="height:220px;padding:6px 10px 10px"><canvas id="qual-defect-chart"></canvas></div>
+    </div>
+    <div style="font-size:9px;color:var(--tl);margin-top:4px" id="qual-trend-note"></div>
   </div>
 </div>
 
@@ -894,7 +901,7 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ РЕЄСТР ═════════════ -->
 <div class="panel" id="panel-reg">
   <div id="w-reg-ch">
-    <div class="sec">📋 Покриття метрик · 174 · 12 розділів</div>
+    <div class="sec" id="reg-header-title">📋 Покриття метрик · 174 · 12 розділів</div>
     <div class="g3" style="margin-bottom:12px">
       <div class="card"><div class="chdr"><div><div class="ct">Статус покриття</div></div></div><div class="cw ch160"><canvas id="covDon"></canvas></div></div>
       <div class="card s2"><div class="chdr"><div><div class="ct">Покриття по розділах</div></div></div><div class="cw ch160"><canvas id="covBar"></canvas></div></div>
@@ -984,6 +991,7 @@ function buildStatic(){
     setT('cc-n',no+' немає');
     const bar=document.getElementById('cv-bar');if(bar)bar.style.width=pct.toFixed(1)+'%';
     const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · реєстр v1.0`;
+    const regTitle=document.getElementById('reg-header-title');if(regTitle)regTitle.textContent=`📋 Покриття метрик · ${total} · ${reg.length} розділів`;
   }catch(e){}
   // CEO — підтягуємо реальні дані з JSON файлів
   _buildCeoCharts();
@@ -1032,25 +1040,24 @@ async function _buildCeoCharts(){
     const hd=await fetch('data/hr.json?t='+Date.now()).then(r=>r.json());
     const staff=hd.employees_count||0;
     set('ceo-staff', staff+' осіб');
-    // Плинність — останнє значення
-    const turn=hd.turnover||{};
-    const months=Object.keys(turn).sort();
-    const lastM=months[months.length-1];
-    if(lastM){
-      const tp=turn[lastM]?.turnover_pct;
-      if(tp!=null){
-        set('ceo-turnover', tp.toFixed(1)+'%');
-        const tb=document.getElementById('ceo-turn-bar');
-        if(tb){tb.style.width=Math.min(tp/10*100,100)+'%';tb.style.background=tp>5?R:G;}
-        set('ceo-turn-val', tp.toFixed(1)+'%');
-      }
+    // Плинність — реальна структура: hd.turnover = {staff:[{month,turnover_pct}], target_staff}
+    const UA_MONTH_ORDER_CEO=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const turnArr=(hd.turnover&&hd.turnover.staff)||[];
+    const turnSorted=[...turnArr].sort((a,b)=>UA_MONTH_ORDER_CEO.indexOf(a.month)-UA_MONTH_ORDER_CEO.indexOf(b.month));
+    const lastEntry=turnSorted[turnSorted.length-1];
+    if(lastEntry&&lastEntry.turnover_pct!=null){
+      const tp=parseFloat(lastEntry.turnover_pct);
+      set('ceo-turnover', tp.toFixed(1)+'%');
+      const tb=document.getElementById('ceo-turn-bar');
+      if(tb){tb.style.width=Math.min(tp/10*100,100)+'%';tb.style.background=tp>5?R:G;}
+      set('ceo-turn-val', tp.toFixed(1)+'%');
     }
     // Вакансії
-    const vacTotal=(hd.vacancies_current?.vacancies||[]).reduce((s,v)=>s+(v.count||1),0);
+    const vacTotal=(hd.vacancies_current?.vacancies||[]).reduce((s,v)=>s+(parseInt(v.qty,10)||1),0);
     set('ceo-vacancies', vacTotal+' позицій');
     // Стажери
     const lastI=(hd.interns_by_month||[]).slice(-1)[0];
-    if(lastI) set('ceo-interns', lastI.count+' осіб');
+    if(lastI) set('ceo-interns', (lastI.count??lastI.interns??'—')+' осіб');
     // Виручка / staff
     const revEl=document.getElementById('ceo-total-fact');
     if(revEl&&staff>0){
@@ -1061,15 +1068,15 @@ async function _buildCeoCharts(){
     const sb=document.getElementById('ceo-staff-bar');
     if(sb&&staff){sb.style.width=Math.min(staff/200*100,100)+'%';}
     set('ceo-staff-val', staff+' осіб');
-    // Графік HR
-    if(months.length>=2){
-      const staffData=months.map(m=>turn[m]?.staff_end||null);
-      const turnData=months.map(m=>turn[m]?.turnover_pct||null);
-      const mLbls=months.map(m=>{const[y,mo]=m.split('-');const n=['','Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];return (n[parseInt(mo)]||mo)+' '+y.substring(2);});
-      safeChart('ceo-hr-chart',{type:'bar',data:{labels:mLbls,datasets:[
-        {label:'Штат',data:staffData,backgroundColor:'rgba(42,157,143,.7)',borderRadius:4,yAxisID:'y'},
-        {label:'Плинність %',data:turnData,type:'line',borderColor:R,borderWidth:2,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:R,yAxisID:'y1'},
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{type:'linear',position:'left',beginAtZero:false,grid:{color:GRID},title:{display:true,text:'Штат',font:{size:9},color:GD}},y1:{type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false},ticks:{callback:v=>v+'%'},title:{display:true,text:'Плинність',font:{size:9},color:R}}}}});
+    // Графік плинності (реальні дані з turnover.staff)
+    if(turnSorted.length>=2){
+      const turnData=turnSorted.map(e=>parseFloat(e.turnover_pct)||0);
+      const mLbls=turnSorted.map(e=>e.month.slice(0,3));
+      const targetPct=parseFloat((hd.turnover.target_staff||'').replace(/[^\d.]/g,''))||5;
+      safeChart('ceo-hr-chart',{type:'line',data:{labels:mLbls,datasets:[
+        {label:'Плинність %',data:turnData,borderColor:R,backgroundColor:RB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:turnData.map(v=>v>targetPct?R:G)},
+        {label:`Ціль ${targetPct}%`,data:mLbls.map(()=>targetPct),borderColor:'#9CA3AF',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
     }
   }catch(e){console.warn('[CEO hr]',e.message);}
 }
@@ -1164,6 +1171,41 @@ async function loadPlanWeek(){
     const genDate=pw.generated_at?new Date(pw.generated_at).toLocaleDateString('uk-UA'):'';
     set('planweek-status', genDate?`Дані станом на ${genDate} · ручний імпорт`:'');
   }catch(e){console.warn('[PlanWeek]',e.message);}
+}
+
+// ── ЯКІСТЬ — реальні дані з того самого фіду capacity.json/capacity_history.json ──
+async function loadQualityData(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  try{
+    if(!window.LocLoader) throw new Error('LocLoader недоступний');
+    await LocLoader.ensureLoaded();
+    const snap=LocLoader.getSnapshot();
+    const locs=(snap&&snap.locations)||[];
+    if(!locs.length) throw new Error('no locations');
+
+    const dot=document.getElementById('qual-live-dot'); if(dot) dot.className='ld ok';
+
+    const totalBatchParts=locs.reduce((s,l)=>s+(l.batches?.parts||0),0);
+    const totalDefectParts=locs.reduce((s,l)=>s+(l.batches?.defectParts||0),0);
+    const defectPct=totalBatchParts?(totalDefectParts/totalBatchParts*100):null;
+    set('qual-defect-pct', defectPct!=null?defectPct.toFixed(1)+'%':'—');
+    const dpEl=document.getElementById('qual-defect-pct');
+    if(dpEl&&defectPct!=null) dpEl.className='krow-val '+(defectPct>9?'r':'g');
+
+    let worst=null;
+    locs.forEach(l=>{
+      const bp=l.batches?.parts||0, dp=l.batches?.defectParts||0;
+      if(!bp) return;
+      const pct=dp/bp*100;
+      if(!worst||pct>worst.pct) worst={name:l.location,pct};
+    });
+    set('qual-worst-loc', worst?`${worst.name} · ${worst.pct.toFixed(1)}%`:'—');
+
+    // Графіки (місячні фільтри + defect-chart) — той самий рушій, що й на Локаціях
+    LocLoader.refreshCharts();
+    const note=document.getElementById('qual-trend-note');
+    if(note) note.textContent='Дані станом на '+(snap.fetched_at?new Date(snap.fetched_at).toLocaleString('uk-UA'):'—')+' · поріг браку 7.5% позначено пунктиром';
+  }catch(e){console.warn('[Quality]',e.message);}
 }
 
 // ── GOALS with progress indicators ───────────────────
@@ -1797,6 +1839,9 @@ function go(id,btn){
   if(id==='prod'&&!document.getElementById('panel-prod').dataset.loaded){
     loadProdData();document.getElementById('panel-prod').dataset.loaded='1';
   }
+  if(id==='qual'&&!document.getElementById('panel-qual').dataset.loaded){
+    loadQualityData();document.getElementById('panel-qual').dataset.loaded='1';
+  }
 }
 function restoreTab(){
   try{
@@ -1814,6 +1859,9 @@ function restoreTab(){
       }
       if(saved==='prod'&&!panel.dataset.loaded){
         loadProdData();panel.dataset.loaded='1';
+      }
+      if(saved==='qual'&&!panel.dataset.loaded){
+        loadQualityData();panel.dataset.loaded='1';
       }
     }
   }catch(e){}
@@ -2202,17 +2250,20 @@ window.LocLoader = (() => {
   }
 
   function renderMonthFilters() {
-    const box = document.getElementById('loc-month-filters');
-    if (!box) return;
     const maxMonth = maxSelectableMonth();
     const btns = [`<button class="gsort-btn${_chartMonth==='all'?' active-sort':''}" data-m="all">Всі</button>`];
     UA_MONTHS_FULL.forEach((name, i) => {
       const disabled = i > maxMonth;
       btns.push(`<button class="gsort-btn${_chartMonth===String(i)?' active-sort':''}" data-m="${i}"${disabled?' disabled':''} style="${disabled?'opacity:.35;cursor:not-allowed':''}">${name.slice(0,3)}</button>`);
     });
-    box.innerHTML = btns.join('');
-    box.querySelectorAll('button:not([disabled])').forEach(b => {
-      b.onclick = () => { _chartMonth = b.dataset.m; renderMonthFilters(); renderCharts(); };
+    const html = btns.join('');
+    ['loc-month-filters', 'qual-month-filters'].forEach(boxId => {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+      box.innerHTML = html;
+      box.querySelectorAll('button:not([disabled])').forEach(b => {
+        b.onclick = () => { _chartMonth = b.dataset.m; renderMonthFilters(); renderCharts(); };
+      });
     });
   }
 
@@ -2377,6 +2428,7 @@ window.LocLoader = (() => {
   function renderCharts() {
     buildLineChart('loc-util-chart', 'util', v => v + '%');
     buildLineChart('loc-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD, yMax: 25 });
+    buildLineChart('qual-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD, yMax: 25 });
     const el = document.getElementById('loc-trend-status');
     if (el) {
       const days = (_history && _history.days) || [];
@@ -2405,7 +2457,11 @@ window.LocLoader = (() => {
     if (dot) dot.className = 'ld err';
   }
 
-  return { load };
+  function getSnapshot() { return _data; }
+  async function ensureLoaded() { if (!_data) await load(); }
+  function refreshCharts() { renderMonthFilters(); renderCharts(); }
+
+  return { load, getSnapshot, ensureLoaded, refreshCharts };
 })();
 
 </script>
