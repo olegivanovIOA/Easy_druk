@@ -332,7 +332,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v1.1</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.1</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO</button>
@@ -454,21 +454,21 @@ a{color:var(--gd);text-decoration:none}
         <div class="pr"><div class="pn">Плинність → &lt;5%</div><div class="pbw"><div class="pb" style="width:36%;background:var(--red)" id="ceo-turn-bar"></div></div><div class="pv r" id="ceo-turn-val">—</div></div>
       </div>
       <div class="card">
-        <div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Проект #3 — покриття метрик дашборду</div>
+        <div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Проект #3 — покриття метрик дашборду (Так + Частково)</div>
         <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:5px">
-          <div style="font-size:28px;font-weight:800;color:var(--gd)" id="cv-yes">23</div>
-          <div style="font-size:15px;color:var(--tm);margin-bottom:3px">/ 174</div>
-          <div style="font-size:18px;font-weight:800;color:var(--td)" id="cv-pct">13.2%</div>
+          <div style="font-size:28px;font-weight:800;color:var(--gd)" id="cv-yes">—</div>
+          <div style="font-size:15px;color:var(--tm);margin-bottom:3px">/ <span id="cv-total">—</span></div>
+          <div style="font-size:18px;font-weight:800;color:var(--td)" id="cv-pct">—</div>
         </div>
-        <div class="ckpi"><div class="ckpi-f" id="cv-bar" style="width:13.2%"></div></div>
+        <div class="ckpi"><div class="ckpi-f" id="cv-bar" style="width:0%"></div></div>
         <div style="display:flex;align-items:center;gap:5px;margin-top:8px;flex-wrap:wrap">
-          <span class="cov cy" id="cc-y">23 є</span>
-          <span class="cov cp" id="cc-p">60 частково</span>
-          <span class="cov cc" id="cc-c">39 можна</span>
-          <span class="cov cn" id="cc-n">52 немає</span>
+          <span class="cov cy" id="cc-y">— є</span>
+          <span class="cov cp" id="cc-p">— частково</span>
+          <span class="cov cc" id="cc-c">— можна</span>
+          <span class="cov cn" id="cc-n">— немає</span>
         </div>
         <div class="real-dot"></div>
-        <div style="margin-top:10px;font-size:10px;color:var(--tl)">↑ з 12 до 23+ метрик — оновлюється щоразу при перевірці реєстру</div>
+        <div style="margin-top:10px;font-size:10px;color:var(--tl)" id="cv-note">Оновлюється з реєстру метрик</div>
       </div>
     </div>
   </div>
@@ -557,14 +557,14 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ ВИРОБНИЦТВО ═════════════ -->
 <div class="panel" id="panel-prod">
   <div id="w-prod-cap">
-    <div class="sec">⚙️ Потужність та завантаженість (19 метрик)</div>
+    <div class="sec">⚙️ Потужність та завантаженість <span id="prod-live-dot" class="ld" style="margin-left:2px"></span></div>
     <div class="g6">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (активних)</div><div class="krow-val g">2 060</div><div class="real-dot"></div></div>
-      <div class="krow demo"><div class="krow-bar kb-a"></div><div class="krow-lbl">OEE</div><div class="krow-val a">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маш. час (год/добу)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% завантаженості</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (весь парк)</div><div class="krow-val g" id="prod-fleet-total">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Завантаженість (зважено)</div><div class="krow-val a" id="prod-fleet-util">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вільно зараз</div><div class="krow-val" id="prod-fleet-free">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% Браку (сьогодні)</div><div class="krow-val g" id="prod-fleet-defect">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">OEE (Availability×Perf×Quality)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD — потрібні дані простоїв</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF / MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
   <div id="w-prod-batch">
@@ -576,10 +576,20 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
   <div id="w-prod-trend">
-    <div class="sec">📉 Lead Time та виробіток</div>
+    <div class="sec">📉 Виконання плану та завантаженість парку</div>
     <div class="g2">
       <div class="card wm wmc"><div class="chdr"><div><div class="ct">Lead time (дні)</div><div class="cs">демо · ціль &lt;5</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="leadCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
-      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Виробіток по локаціях</div><div class="cs">демо · кг/міс</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="outCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
+      <div class="card"><div class="chdr"><div><div class="ct">Виконання плану по локаціях</div><div class="cs">надруковано / план, шт · сьогодні</div></div><span class="bdg bdg-g" id="outCh-bdg">LIVE</span></div><div class="cw ch160"><canvas id="outCh"></canvas></div></div>
+    </div>
+    <div class="g2" style="margin-top:14px">
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">Завантаженість парку — 2026 (зважено по всіх локаціях)</div>
+        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="fleet-util-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">Кількість принтерів по локаціях (сьогодні)</div>
+        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="fleet-count-chart"></canvas></div>
+      </div>
     </div>
   </div>
 </div>
@@ -951,6 +961,23 @@ function buildStatic(){
   const tots=reg.reduce((a,r)=>{a[0]+=r.yes;a[1]+=r.part;a[2]+=r.calc;a[3]+=r.no;return a;},[0,0,0,0]);
   const COV_C=['#2A9D8F','#457B9D','#A8C5DA','#CBD5E0'];
   safeChart('covDon',{type:'doughnut',data:{labels:['Так','Частково','Можна розрахувати','Не збирається'],datasets:[{data:tots,backgroundColor:COV_C,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'60%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
+  // CEO — плитка покриття метрик (Так+Частково), рахуємо з тих самих даних що й донат вище
+  try{
+    const [yes,part,calc,no]=tots;
+    const total=yes+part+calc+no;
+    const covered=yes+part;
+    const pct=total?(covered/total*100):0;
+    const setT=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    setT('cv-yes',covered);
+    setT('cv-total',total);
+    setT('cv-pct',pct.toFixed(1)+'%');
+    setT('cc-y',yes+' є');
+    setT('cc-p',part+' частково');
+    setT('cc-c',calc+' можна');
+    setT('cc-n',no+' немає');
+    const bar=document.getElementById('cv-bar');if(bar)bar.style.width=pct.toFixed(1)+'%';
+    const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · реєстр v1.0`;
+  }catch(e){}
   // CEO — підтягуємо реальні дані з JSON файлів
   _buildCeoCharts();
 }
@@ -1040,6 +1067,62 @@ async function _buildCeoCharts(){
   }catch(e){console.warn('[CEO hr]',e.message);}
 }
 
+// ── ВИРОБНИЦТВО — реальні дані з capacity.json/capacity_history.json (той самий фід що й Локації) ──
+async function loadProdData(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  try{
+    const [snapR,histR]=await Promise.all([
+      fetch('data/capacity.json?t='+Date.now()),
+      fetch('data/capacity_history.json?t='+Date.now()).catch(()=>null),
+    ]);
+    const snap=await snapR.json();
+    const hist=(histR&&histR.ok)?await histR.json():null;
+    const locs=snap.locations||[];
+    if(!locs.length) throw new Error('no locations');
+
+    const dot=document.getElementById('prod-live-dot'); if(dot) dot.className='ld ok';
+
+    // ── Зведені показники парку ──
+    const totalMachines=locs.reduce((s,l)=>s+(l.machines?.total||0),0);
+    const totalFree=locs.reduce((s,l)=>s+(l.machines?.free||0),0);
+    const weightedUtil=totalMachines?locs.reduce((s,l)=>s+(l.machines?.total||0)*(l.machines?.utilizationPercent||0),0)/totalMachines:null;
+    const totalBatchParts=locs.reduce((s,l)=>s+(l.batches?.parts||0),0);
+    const totalDefectParts=locs.reduce((s,l)=>s+(l.batches?.defectParts||0),0);
+    const defectPct=totalBatchParts?(totalDefectParts/totalBatchParts*100):null;
+
+    set('prod-fleet-total', totalMachines.toLocaleString('uk-UA'));
+    set('prod-fleet-util', weightedUtil!=null?weightedUtil.toFixed(1)+'%':'—');
+    set('prod-fleet-free', totalFree.toLocaleString('uk-UA'));
+    set('prod-fleet-defect', defectPct!=null?defectPct.toFixed(1)+'%':'—');
+
+    // ── Виконання плану по локаціях (сьогодні) ──
+    const planLabels=locs.map(l=>l.location.replace('Локація ','Лок.'));
+    const planData=locs.map(l=>l.plan?.parts||0);
+    const printedData=locs.map(l=>l.printed?.parts||0);
+    safeChart('outCh',{type:'bar',data:{labels:planLabels,datasets:[
+      {label:'План',data:planData,backgroundColor:'rgba(69,123,157,.15)',borderColor:A,borderWidth:1.5,borderRadius:4},
+      {label:'Надруковано',data:printedData,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID}}}}});
+
+    // ── Кількість принтерів по локаціях ──
+    const countColors=locs.map((l,i)=>[G,A,R,B,'#BA7517'][i%5]);
+    safeChart('fleet-count-chart',{type:'bar',data:{labels:planLabels,datasets:[{data:locs.map(l=>l.machines?.total||0),backgroundColor:countColors,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID}}}}});
+
+    // ── Тренд завантаженості парку (зважено, з історії) ──
+    if(hist&&hist.days&&hist.days.length){
+      const days=hist.days.filter(d=>Object.values(d.locations||{}).some(l=>(l.util||0)>0));
+      const labels=days.map(d=>d.date.slice(5));
+      const data=days.map(d=>{
+        const ls=Object.values(d.locations||{});
+        const tot=ls.reduce((s,l)=>s+(l.total||0),0);
+        if(!tot) return null;
+        return ls.reduce((s,l)=>s+(l.total||0)*(l.util||0),0)/tot;
+      });
+      safeChart('fleet-util-chart',{type:'line',data:{labels,datasets:[{label:'Завантаженість парку, %',data,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:days.length>40?0:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID},ticks:{autoSkip:true,maxTicksLimit:12,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}});
+    }
+  }catch(e){console.warn('[Prod]',e.message);}
+}
+
 // ── GOALS with progress indicators ───────────────────
 const GOALS_DATA = [
   {id:'G1',text:'5 000 принтерів, що друкують ≥1 кг/добу, брак ≤8%, 8 локацій, 300 співробітників в-ва',pct:22,note:'~2 060 з 5 000 принтерів'},
@@ -1089,6 +1172,7 @@ async function buildGantt(){
 
   // Спробуємо взяти реальні дати з strategy.json
   let projectsData=PROJECTS;
+  let progressMap={};
   try{
     const r=await fetch('data/strategy.json?t='+Date.now());
     const raw=await r.json();
@@ -1098,6 +1182,20 @@ async function buildGantt(){
       .map(([pid,m])=>({id:parseInt(pid),name:m.name,owner:m.owner||'Вакансія',prio:m.priority||'B',start:m.start,end:m.deadline}))
       .sort((a,b)=>a.id-b.id);
     if(dynamic.length>=5) projectsData=dynamic;
+
+    // Реальний % виконання = сума done/total задач по проекту з усіх спринтів
+    const sprints=raw.sprints||[];
+    const agg={};
+    sprints.forEach(sp=>{
+      Object.entries(sp.projects||{}).forEach(([pid,p])=>{
+        if(!agg[pid])agg[pid]={done:0,total:0};
+        agg[pid].done+=p.done||0;
+        agg[pid].total+=p.total||0;
+      });
+    });
+    Object.entries(agg).forEach(([pid,a])=>{
+      progressMap[pid]=a.total>0?Math.round(a.done/a.total*100):null;
+    });
   }catch(e){}
 
   // 12 місяців зі скролом — кожна колонка 55px → 660px всього
@@ -1123,12 +1221,14 @@ async function buildGantt(){
     const pS=new Date(p.start+'T00:00:00'),pE=new Date(p.end+'T00:00:00');
     const sDoy=clamp(dayOfYear(pS),0,YEAR_DAYS);
     const eDoy=clamp(dayOfYear(pE),0,YEAR_DAYS);
-    const isDone=pE<TODAY;
+    const pct=progressMap[String(p.id)+'.0']??progressMap[String(p.id)]??null;
+    const isDone=pct!=null?pct>=100:pE<TODAY;
     const isVac=(p.owner||'').includes('Вакансія');
     const pc=p.prio==='A'?'prio-A':'prio-B';
     const nm=p.name.length>36?p.name.substring(0,34)+'…':p.name;
+    const pctBadge=pct!=null?`<span style="font-size:9px;font-weight:700;padding:0 5px;border-radius:8px;margin-left:5px;background:${pct>=100?'var(--gl)':pct>=60?'var(--bl)':'#FEE2E2'};color:${pct>=100?'var(--gd)':pct>=60?'var(--bd2)':'#991B1B'}">${pct}%</span>`:'';
 
-    let cells=`<td style="position:sticky;left:0;background:var(--sur);z-index:2;padding:5px 10px"><div class="gname" title="${p.name}">#${p.id} ${nm}</div></td>`;
+    let cells=`<td style="position:sticky;left:0;background:var(--sur);z-index:2;padding:5px 10px"><div class="gname" title="${p.name}">#${p.id} ${nm}${pctBadge}</div></td>`;
     cells+=`<td style="padding:5px 6px;font-size:11px"><div class="gowner" style="${isVac?'color:var(--red)':''}">${(p.owner||'').split(' ').slice(-1)[0]}</div></td>`;
     cells+=`<td style="text-align:center;padding:5px 4px"><span class="prio-badge ${pc}">${p.prio}</span></td>`;
 
@@ -1143,7 +1243,9 @@ async function buildGantt(){
       let inner='';
       if(bW>0){
         const cls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
-        inner=`<div class="${cls}" style="width:${bW}px;margin-left:${bL}px" title="${p.name}\n${p.start} – ${p.end}${isDone?' ✓ Завершено':''}"></div>`;
+        const pctTitle=pct!=null?` · ${pct}% виконано`:'';
+        const fillW=pct!=null?Math.round(bW*Math.min(pct,100)/100):null;
+        inner=`<div class="${cls}" style="width:${bW}px;margin-left:${bL}px" title="${p.name}\n${p.start} – ${p.end}${isDone?' ✓ Завершено':pctTitle}">${fillW!=null&&!isDone?`<div style="position:absolute;left:0;top:0;bottom:0;width:${fillW}px;background:rgba(255,255,255,.35);border-radius:4px 0 0 4px"></div>`:''}</div>`;
       }
       if(isT){
         const tx=Math.round((TODAY.getDate()-1)/dim*mW);
@@ -1163,7 +1265,8 @@ async function buildGantt(){
   wrap.innerHTML+=`<div style="display:flex;align-items:center;gap:16px;padding:8px 10px;font-size:10px;color:var(--tl);border-top:1px solid var(--bd);flex-wrap:wrap">
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--g),var(--gd))"></div>Пріоритет A</span>
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--b),var(--bd2));opacity:.75"></div>Пріоритет B</span>
-    <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:var(--s3);border:1px solid var(--bd)"></div>Завершено</span>
+    <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:var(--s3);border:1px solid var(--bd)"></div>Завершено (100%)</span>
+    <span style="cursor:help" title="% біля назви проекту — реальний прогрес (виконано/всього задач з усіх спринтів), а не факт проходження дедлайну">ⓘ % = реальний прогрес задач</span>
     <span style="display:flex;align-items:center;gap:5px"><div style="width:2px;height:12px;border-radius:1px;background:rgba(192,57,43,.55)"></div>Сьогодні (${TODAY.toLocaleDateString('uk-UA')})</span>
     <span style="color:var(--tl);font-style:italic">${projectsData===PROJECTS?'Статичні дати · оновіть fetch_strategy.py':'Реальні дати з Google Sheets'}</span>
   </div>`;
@@ -1171,7 +1274,7 @@ async function buildGantt(){
 
 // ── STRATEGY render ───────────────────────────────────
 let SDC=null;
-function renderStrategy(ov={}){
+async function renderStrategy(ov={}){
   const proj=ov.projects||PROJECTS;
   const s1=ov.sprint1||staticS1();
   const s2=ov.sprint2||staticS2();
@@ -1179,23 +1282,43 @@ function renderStrategy(ov={}){
   buildGoals();
   buildGantt();
 
-  // person scores — compute from static projects
+  // person scores — реальний % виконання задач (done/total з усіх спринтів), а не час що минув
   const staticProjects = window.E3D_STATIC ? window.E3D_STATIC.projects : PROJECTS;
   let pers={};
   try{
-    // Simple score: based on deadline proximity and sprint completion
+    let realProgress={};
+    try{
+      const r=await fetch('data/strategy.json?t='+Date.now());
+      const raw=await r.json();
+      const sprints=raw.sprints||[];
+      const agg={};
+      sprints.forEach(sp=>{
+        Object.entries(sp.projects||{}).forEach(([pid,p])=>{
+          if(!agg[pid])agg[pid]={done:0,total:0};
+          agg[pid].done+=p.done||0;
+          agg[pid].total+=p.total||0;
+        });
+      });
+      Object.entries(agg).forEach(([pid,a])=>{
+        realProgress[pid]=a.total>0?Math.round(a.done/a.total*100):null;
+      });
+    }catch(e){}
+
     const now = new Date();
     const pscores = staticProjects.map(p=>{
+      const key=String(p.id)+'.0';
+      const real=realProgress[key]??realProgress[String(p.id)];
       const dl = p.deadline ? new Date(p.deadline) : now;
       const st = p.start    ? new Date(p.start)    : now;
       const total = Math.max(1,(dl-st)/86400000);
       const elapsed = Math.max(0,(now-st)/86400000);
-      const score = Math.min(100,Math.round(elapsed/total*100));
-      return {project_id:p.id, score, health: dl<now?'overdue': elapsed/total>0.85?'at-risk':'on-track'};
+      const timeScore = Math.min(100,Math.round(elapsed/total*100));
+      const score = real!=null?real:timeScore; // реальний прогрес задач якщо є, інакше — фолбек по часу
+      return {project_id:p.id, score, health: dl<now&&(real==null||real<100)?'overdue': elapsed/total>0.85?'at-risk':'on-track'};
     });
     pers = E3D_SCORING.calcPersonScores(staticProjects,pscores);
 
-    // CEO avg
+    // CEO avg — реальний середній % виконання стратегії
     const avg=~~(pscores.reduce((s,p)=>s+p.score,0)/Math.max(pscores.length,1));
     const el=document.getElementById('ceo-pp');if(el)el.textContent=avg+'%';
   }catch(e){console.warn('[Score]',e.message);}
@@ -1297,6 +1420,9 @@ function go(id,btn){
   if(id==='loc'&&window.LocLoader&&!document.getElementById('panel-loc').dataset.loaded){
     window.LocLoader.load();document.getElementById('panel-loc').dataset.loaded='1';
   }
+  if(id==='prod'&&!document.getElementById('panel-prod').dataset.loaded){
+    loadProdData();document.getElementById('panel-prod').dataset.loaded='1';
+  }
 }
 function restoreTab(){
   try{
@@ -1311,6 +1437,9 @@ function restoreTab(){
       panel.classList.add('active');
       if(saved==='loc'&&window.LocLoader&&!panel.dataset.loaded){
         window.LocLoader.load();panel.dataset.loaded='1';
+      }
+      if(saved==='prod'&&!panel.dataset.loaded){
+        loadProdData();panel.dataset.loaded='1';
       }
     }
   }catch(e){}
@@ -1413,8 +1542,8 @@ window.LocLoader = (() => {
   const DATA_URL = 'data/capacity.json';
   const HISTORY_URL = 'data/capacity_history.json';
 
-  const G = '#2A9D8F', A = '#457B9D', R = '#C0392B', B = '#6aA5C2';
-  const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)', BB = 'rgba(106,165,194,.12)';
+  const G = '#2A9D8F', A = '#457B9D', R = '#C0392B', B = '#6aA5C2', O = '#BA7517';
+  const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)', BB = 'rgba(106,165,194,.12)', OB = 'rgba(186,117,23,.13)';
   const GRID = '#f0f2ee';
 
   const LOC_META = {
@@ -1422,13 +1551,15 @@ window.LocLoader = (() => {
     '2': { coef: '1.15×', status: 'Активна',      badge: 'plg' },
     '4': { coef: '1.4×',  status: 'Активна',      badge: 'pla' },
     '5': { coef: '2.0×',  status: 'Розгортання',  badge: 'pla' },
+    '6': { coef: '—',     status: 'Розгортання',  badge: 'pla' },
   };
-  // Один колір на локацію — узгоджено з палітрою дашборду (G/A/R/B)
+  // Один колір на локацію — узгоджено з палітрою дашборду (G/A/R/B/O)
   const LOC_COLORS = {
     '1': { line: G, bg: GB },
     '2': { line: A, bg: AB },
     '4': { line: R, bg: RB },
     '5': { line: B, bg: BB },
+    '6': { line: O, bg: OB },
   };
   const UA_MONTHS_FULL = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 
