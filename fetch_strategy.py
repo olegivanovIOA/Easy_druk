@@ -118,8 +118,22 @@ def _add_task(proj, task_text, owner, deadline, status):
         proj["moved"] = proj.get("moved", 0) + 1
 
 
-def parse_sprint(rows):
+def build_name_to_pid(projects_meta):
+    """Мапа 'точна назва проекту' → pid, з листа 'Проекти'. Потрібна як fallback,
+    коли в листі спринту колонка A (№ проекту) лишена порожньою для всіх рядків
+    блоку — трапляється для деяких проектів (напр. 9.0/10.0/11.0/12.0), де
+    хтось забув проставити номер при створенні рядків задач."""
+    m = {}
+    for pid, meta in projects_meta.items():
+        name = (meta.get("name") or "").strip()
+        if name:
+            m[name] = pid
+    return m
+
+
+def parse_sprint(rows, name_to_pid=None):
     """Парсить один лист спринту → {pid: {name, done, total, moved, tasks}}"""
+    name_to_pid = name_to_pid or {}
     projects, current = {}, None
     for row in rows:
         row = [c.strip() for c in row]
@@ -144,6 +158,19 @@ def parse_sprint(rows):
                     "moved": 0, "tasks": []
                 }
             if c and len(c) > 2:
+                _add_task(projects[current], c, d, f, h)
+        elif not a and b:
+            # № порожній, але назва проекту в колонці B відома з листа "Проекти" —
+            # перемикаємо current за назвою, а не втрачаємо ці задачі.
+            matched = name_to_pid.get(b.strip())
+            if matched:
+                current = matched
+            if current and current not in projects:
+                projects[current] = {
+                    "name": b or current, "done": 0, "total": 0,
+                    "moved": 0, "tasks": []
+                }
+            if current and c and len(c) > 2:
                 _add_task(projects[current], c, d, f, h)
         elif current and c and len(c) > 2:
             _add_task(projects[current], c, d, f, h)
@@ -192,12 +219,13 @@ def main():
     # Парсимо всі спринти
     result_sprints = []
     all_pids_seen = {}  # pid → {sprintNums: []}
+    name_to_pid = build_name_to_pid(projects_meta)
 
     for sp in sprint_sheets:
         print(f"[STRATEGY] Спринт {sp['num']}: gid={sp['gid']}")
         try:
             rows = fetch_csv(sp["gid"])
-            projects = parse_sprint(rows)
+            projects = parse_sprint(rows, name_to_pid)
             print(f"           Проектів: {len(projects)}, "
                   f"задач: {sum(p['total'] for p in projects.values())}, "
                   f"виконано: {sum(p['done'] for p in projects.values())}")

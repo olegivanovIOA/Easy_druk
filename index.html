@@ -314,6 +314,11 @@ a{color:var(--gd);text-decoration:none}
 .e3d-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0;vertical-align:middle;position:relative;top:-1px;margin-left:3px}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--ga);border-radius:3px}
+
+/* ── СКОРІНГ ЦІЛЕЙ: таблиця зліва, легенда справа ── */
+.str-two-col{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+.str-table-wrap{overflow-x:auto}
+@media (max-width:900px){.str-two-col{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -548,7 +553,7 @@ a{color:var(--gd);text-decoration:none}
       <div id="sprint-switcher" style="display:flex;gap:6px;flex-wrap:wrap"></div>
     </div>
     <div class="card-flat">
-      <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div>
       <div class="tfoot" id="sprint-footer">Спринт 1 завершено: 11.05.2026</div>
     </div>
   </div>
@@ -1242,14 +1247,14 @@ async function buildGantt(){
     +'<th style="min-width:200px;text-align:left;position:sticky;left:0;background:var(--s2);z-index:3;padding:6px 10px">Проект</th>'
     +'<th style="min-width:80px;text-align:left;padding:6px 6px">Відп.</th>'
     +'<th style="min-width:30px;text-align:center;padding:6px 4px">Пр.</th>';
-  let totalW=0;
+  let dayCursor=0; // накопичувальний зсув у ДНЯХ (для day-of-year математики) — не плутати з пікселями
   const monthWidths=[];
   for(let m=0;m<12;m++){
     const dim=new Date(2026,m+1,0).getDate();
-    monthWidths.push({m,w:COL_W,start:totalW,daysInMonth:dim});
+    monthWidths.push({m,w:COL_W,start:dayCursor,daysInMonth:dim});
     const isT=(m===TODAY.getMonth());
     hdrs+=`<th class="gcol ${isT?'today-col':''}" style="width:${COL_W}px;min-width:${COL_W}px;padding:4px 2px;text-align:center"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
-    totalW+=COL_W;
+    dayCursor+=dim;
   }
   hdrs+='</tr>';
 
@@ -1312,11 +1317,18 @@ async function buildGantt(){
 
 // ── STRATEGY render ───────────────────────────────────
 let SDC=null;
-async function renderStrategy(ov={}){
-  const proj=ov.projects||PROJECTS;
-  const s1=ov.sprint1||staticS1();
-  const s2=ov.sprint2||staticS2();
+let _activeSprint=null, _allSprintsData={}, _transferStats={};
+function _sprintContainsToday(datesStr){
+  if(!datesStr) return false;
+  const parts=datesStr.split(/[–-]/).map(s=>s.trim());
+  if(parts.length<2) return false;
+  const parseDM=s=>{const m=s.match(/(\d{1,2})\.(\d{1,2})/);return m?new Date(2026,parseInt(m[2])-1,parseInt(m[1])):null;};
+  const start=parseDM(parts[0]),end=parseDM(parts[1]);
+  if(!start||!end) return false;
+  return TODAY>=start&&TODAY<=end;
+}
 
+async function renderStrategy(ov={}){
   buildGoals();
   buildGantt();
 
@@ -1372,26 +1384,325 @@ async function renderStrategy(ov={}){
     });
   }catch(e){}
 
-  // Sprint 1 table
-  try{
-    const b=document.getElementById('s1b');if(!b)return;b.innerHTML='';
-    s1.forEach(t=>{
-      const done=E3D_SCORING._isDone(t.status||'');
-      b.innerHTML+=`<tr class="${done?'tdone':''}"><td>${t.project_id||'—'}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.project}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.task}">${t.task}</td><td>${(t.owner||'').split(',')[0].trim()}</td><td>${(t.deadline||'').substring(0,10)||'—'}</td><td>${done?'<span class="pill plg">✓ Виконано</span>':t.status?`<span class="pill pla">${t.status}</span>`:'<span class="cov ctt">В роботі</span>'}</td></tr>`;
-    });
-  }catch(e){}
+  // Живий перемикач спринтів + прогноз + проекти без фокусу
+  await _loadAndRenderSprints();
+  await buildForecast().catch(e=>console.warn('[Forecast]',e.message));
+  await buildNoFocusProjects().catch(e=>console.warn('[NoFocus]',e.message));
+}
 
-  // Sprint 2 donut
+// ── Спринти: авто-визначення поточного за датою + перемикач ──────────────
+async function _loadAndRenderSprints(){
+  let raw;
   try{
-    const st=E3D_SCORING.sprintStats(s2);const isStatic=!ov.sprint2;
-    ['s2t','s2d','s2w','s2o','s2p'].forEach((id,i)=>{
-      const el=document.getElementById(id);if(el)el.textContent=[st.total,st.done,Math.max(0,st.total-st.done-st.overdue),st.overdue,st.completion+'%'][i];
+    const r=await fetch('data/strategy.json?t='+Date.now());
+    raw=await r.json();
+  }catch(e){return;}
+  const sprints=(raw.sprints||[]).slice().sort((a,b)=>a.num-b.num);
+  if(!sprints.length)return;
+
+  _allSprintsData={};_transferStats={};
+  sprints.forEach(sp=>{
+    const tasks=[];
+    Object.entries(sp.projects||{}).forEach(([pid,proj])=>{
+      (proj.tasks||[]).forEach(t=>{
+        tasks.push({project_id:pid.replace('.0',''),project:proj.name||pid,task:t.task,owner:t.owner,deadline:t.deadline,status:t.status,done:t.done});
+      });
     });
-    document.getElementById('s2b').textContent=st.completion+'% виконано';
-    const wm=document.getElementById('s2wm');if(wm)wm.style.display=isStatic?'block':'none';
-    if(SDC){try{SDC.destroy();}catch(e){}}
-    SDC=safeChart('spDon',{type:'doughnut',data:{labels:['Виконано','В роботі','Прострочено'],datasets:[{data:[st.done,Math.max(0,st.total-st.done-st.overdue),st.overdue],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}}}}});
-  }catch(e){}
+    _allSprintsData[sp.num]={tasks,name:sp.name,dates:sp.dates};
+    Object.values(sp.projects||{}).forEach(proj=>{
+      (proj.tasks||[]).forEach(t=>{
+        if(t.status!=='Перенесено') return;
+        const o=(t.owner||'').trim();if(!o||o==='Вакансія') return;
+        if(!_transferStats[o]) _transferStats[o]={total:0,perSprint:{}};
+        _transferStats[o].total++;
+        _transferStats[o].perSprint[sp.num]=(_transferStats[o].perSprint[sp.num]||0)+1;
+      });
+    });
+  });
+
+  // Будуємо кнопки
+  const switcher=document.getElementById('sprint-switcher');
+  if(switcher){
+    const byDate=Object.keys(_allSprintsData).find(num=>_sprintContainsToday(_allSprintsData[num].dates));
+    const curNum=_activeSprint||(byDate!==undefined?parseInt(byDate):Math.max(...Object.keys(_allSprintsData).map(Number)));
+    if(!_activeSprint) _activeSprint=curNum;
+    const allActive=_activeSprint==='all';
+    let btns=`<button onclick="_switchSprint('all')" style="padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;font-size:11px;font-weight:600;background:${allActive?'var(--b)':'transparent'};color:${allActive?'#fff':'var(--tm)'};transition:all .15s">Всі</button>`;
+    btns+=Object.keys(_allSprintsData).sort((a,b)=>a-b).map(num=>{
+      const act=!allActive&&parseInt(num)===_activeSprint;
+      return `<button onclick="_switchSprint(${num})" style="padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;font-size:11px;font-weight:600;background:${act?'var(--g)':'transparent'};color:${act?'#fff':'var(--tm)'};transition:all .15s">Спринт ${num}</button>`;
+    }).join('');
+    switcher.innerHTML=btns;
+  }
+  _renderActiveSprint();
+  _renderTransfersChart(sprints);
+}
+
+function _switchSprint(num){
+  _activeSprint=num;
+  document.querySelectorAll('#sprint-switcher button').forEach(btn=>{
+    const t=btn.textContent.trim();
+    const isAll=t==='Всі';
+    const n=parseInt(t.replace('Спринт','').trim());
+    if(num==='all'){btn.style.background=isAll?'var(--b)':'transparent';btn.style.color=isAll?'#fff':'var(--tm)';}
+    else{btn.style.background=(!isAll&&n===num)?'var(--g)':'transparent';btn.style.color=(!isAll&&n===num)?'#fff':'var(--tm)';}
+  });
+  _renderActiveSprint();
+}
+
+function _renderActiveSprint(){
+  const num=_activeSprint;
+  let tasks,spLbl,spDt;
+  if(num==='all'){
+    tasks=[];Object.values(_allSprintsData).forEach(sp=>tasks.push(...sp.tasks));
+    spLbl='Всі спринти';spDt='загальна картина';
+  } else {
+    const sp=_allSprintsData[num];if(!sp)return;
+    tasks=sp.tasks;spLbl=sp.name;spDt=sp.dates;
+  }
+  const done=tasks.filter(t=>t.done).length;
+  const moved=tasks.filter(t=>t.status==='Перенесено').length;
+  const inProg=tasks.filter(t=>!t.done&&t.status!=='Перенесено').length;
+  const total=tasks.length;
+  const dp=total>0?Math.round(done/total*100):0;
+  const mp=total>0?Math.round(moved/total*100):0;
+  const title=document.getElementById('sprint-title');
+  if(title) title.textContent=`⚡ ${spLbl} (${spDt})`;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('s2t',total);set('s2d',done);set('s2w',inProg);set('s2moved',moved);set('s2p',dp+'%');set('s2movpct',mp+'%');set('s2b',dp+'% виконано');
+  if(SDC){try{SDC.destroy();}catch(e){}}
+  const DL=window.ChartDataLabels;
+  SDC=safeChart('spDon',{type:'doughnut',plugins:DL?[DL]:[],data:{labels:['Виконано','В роботі','Перенесено'],datasets:[{data:[done,inProg,moved],backgroundColor:[G,A,R],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',layout:{padding:16},animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6,usePointStyle:true}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:6,color:'#fff',backgroundColor:ctx=>ctx.dataset.backgroundColor[ctx.dataIndex],borderRadius:10,padding:{top:3,bottom:3,left:6,right:6},textAlign:'center',font:{size:11,weight:'700'},formatter:(v,ctx)=>{const tot=ctx.dataset.data.reduce((a,b)=>a+b,0);return tot>0?[String(v),Math.round(v/tot*100)+'%']:'';}}}}});
+  const footer=document.getElementById('sprint-footer');
+  if(footer) footer.textContent=`${num==='all'?'Всього':'Спринт '+num}: ${total} задач · ${done} виконано · ${moved} перенесено · ${dp}% завершення`;
+
+  // ── Таблиця з ГРУПУВАННЯМ по проекту ──────────────────────────────────
+  const b=document.getElementById('s1b');if(!b)return;b.innerHTML='';
+  const groups={};
+  tasks.forEach(t=>{
+    const k=t.project_id||'0';
+    if(!groups[k]) groups[k]={name:t.project||k,tasks:[]};
+    groups[k].tasks.push(t);
+  });
+  let gIdx=0;
+  Object.values(groups).forEach(g=>{
+    const gD=g.tasks.filter(t=>t.done).length;
+    const gM=g.tasks.filter(t=>t.status==='Перенесено').length;
+    const gT=g.tasks.length;
+    const gP=gT>0?Math.round(gD/gT*100):0;
+    const gc=gP>=80?'var(--gd)':gP>=40?'var(--amb)':'var(--red)';
+    const grpId='grp-'+gIdx++;
+    b.innerHTML+=`<tr class="grp-hdr" style="background:var(--s2);cursor:pointer" onclick="toggleGroup('${grpId}',this)">
+      <td colspan="3" style="padding:6px 10px;font-weight:700;font-size:12px;color:var(--td)">
+        <span class="grp-arrow" style="display:inline-block;margin-right:5px;transition:transform .2s">▶</span>${g.name}
+      </td>
+      <td style="padding:6px 10px;text-align:right;font-size:11px;font-weight:700;color:${gc}">${gD}/${gT} (${gP}%)</td>
+    </tr>`;
+    g.tasks.forEach(t=>{
+      const isDone=t.done,isMoved=t.status==='Перенесено';
+      const sh=isDone?'<span class="pill plg">✓ Виконано</span>':isMoved?'<span class="pill" style="background:#fef0ee;color:#c0392b">↪ Перенесено</span>':t.status?`<span class="pill pla">${t.status}</span>`:'<span class="cov ctt">В роботі</span>';
+      b.innerHTML+=`<tr class="grp-row ${grpId} ${isDone?'tdone':isMoved?'tmoved':''}" style="display:none">
+        <td style="padding-left:18px;color:var(--tl);width:12px">↳</td>
+        <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.task}" colspan="1">${t.task}</td>
+        <td>${(t.owner||'').split(',')[0].trim()}</td>
+        <td>${sh}</td></tr>`;
+    });
+  });
+
+  // Перенесені по учасниках
+  const tl=document.getElementById('transfers-list');
+  if(tl){
+    const mv=tasks.filter(t=>t.status==='Перенесено');
+    if(!mv.length){tl.innerHTML='<p style="font-size:12px;color:var(--tl)">Немає перенесених задач ✓</p>';}
+    else{
+      const byO={};mv.forEach(t=>{const o=(t.owner||'').trim();if(!o)return;if(!byO[o])byO[o]=0;byO[o]++;});
+      tl.innerHTML=Object.entries(byO).sort((a,b)=>b[1]-a[1]).map(([o,c])=>`<div class="mr"><div class="mn">${o}</div><div class="mv r">${c}</div></div>`).join('');
+    }
+  }
+}
+
+function _renderTransfersChart(sprints){
+  const canvas=document.getElementById('transfersChart');if(!canvas)return;
+  const owners=Object.keys(_transferStats).sort((a,b)=>_transferStats[b].total-_transferStats[a].total).slice(0,8);
+  if(!owners.length){canvas.parentElement.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Перенесень немає ✓</p>';return;}
+  const colors=['#EF4444','#3B82F6','#10B981','#F59E0B','#8B5CF6','#EC4899'];
+  if(window._transChart){try{window._transChart.destroy();}catch(e){}}
+  window._transChart=new Chart(canvas,{type:'bar',
+    data:{labels:owners.map(o=>o.split(' ')[0]),
+      datasets:sprints.map((sp,i)=>({label:'С'+sp.num,data:owners.map(o=>(_transferStats[o]?.perSprint[sp.num]||0)),backgroundColor:colors[i%colors.length],borderRadius:3}))},
+    options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:6,font:{size:9}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:GRID},ticks:{stepSize:1}}}}});
+}
+
+function toggleGroup(grpId,headerEl){
+  const rows=document.querySelectorAll('.'+grpId);
+  const arrow=headerEl.querySelector('.grp-arrow');
+  const isOpen=rows.length&&rows[0].style.display!=='none';
+  rows.forEach(r=>r.style.display=isOpen?'none':'table-row');
+  if(arrow) arrow.style.transform=isOpen?'':'rotate(90deg)';
+}
+
+// ── Прогноз виконання до кінця 2026 ────────────────────────────────────
+async function buildForecast(){
+  const canvas=document.getElementById('forecastChart');if(!canvas)return;
+  let raw;
+  try{const r=await fetch('data/strategy.json?t='+Date.now());raw=await r.json();}
+  catch(e){const n=document.getElementById('fc-note');if(n)n.textContent='Не вдалось завантажити дані';return;}
+  const sprints=(raw.sprints||[]).slice().sort((a,b)=>a.num-b.num);
+  if(!sprints.length)return;
+
+  // Кумулятивний % — наростаючий підсумок по закритих спринтах
+  let cumDone=0,cumTotal=0;
+  const fullHistory=sprints.map(sp=>{
+    const projects=sp.projects||{};let spDone=0,spTotal=0;
+    Object.values(projects).forEach(p=>{spDone+=p.done||0;spTotal+=p.total||0;});
+    cumDone+=spDone; cumTotal+=spTotal;
+    const pct=cumTotal>0?(cumDone/cumTotal*100):null;
+    try{
+      const pts=(sp.dates||'').split(/[–\-—]/);
+      const ep=pts[pts.length-1].trim();
+      const dm=ep.match(/(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?/);
+      let endDate;
+      if(dm){
+        const dd=parseInt(dm[1]),mm=parseInt(dm[2])-1,yy=dm[3]?parseInt(dm[3]):2026;
+        endDate=new Date(yy,mm,dd);
+      } else {
+        endDate=new Date(2099,0,1); // невідома дата — вважаємо майбутнім (активний)
+      }
+      return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,endDate};
+    }catch(e){return{label:'Спринт '+sp.num,pct,spDone,spTotal,cumDone,cumTotal,endDate:new Date()};}
+  });
+
+  // Для тренду — лише завершені спринти (endDate <= сьогодні)
+  const completedHistory=fullHistory.filter(h=>h.spTotal>0&&h.endDate<=TODAY);
+  // Поточний спринт (в процесі)
+  const activeHistory=fullHistory.filter(h=>h.spTotal>0&&h.endDate>TODAY);
+  // Для відображення факту використовуємо завершені + поточний
+  const validHistory=completedHistory.length>=1?completedHistory:(fullHistory.filter(h=>h.spTotal>0));
+
+  if(validHistory.length<1){
+    const n=document.getElementById('fc-note');
+    if(n)n.textContent='Очікую дані спринтів...';return;
+  }
+
+  // Рахуємо середню кількість задач що ВИКОНУЮТЬСЯ за спринт
+  const donePerSprint = completedHistory.map(h=>h.spDone);
+  const avgDonePerSprint = donePerSprint.length
+    ? donePerSprint.reduce((a,b)=>a+b,0)/donePerSprint.length : 0;
+
+  const avgTotalPerSprint = completedHistory.length
+    ? completedHistory.reduce((a,h)=>a+h.spTotal,0)/completedHistory.length : 0;
+
+  const lastCompleted=completedHistory[completedHistory.length-1]||validHistory[validHistory.length-1];
+  const lastPct=lastCompleted.pct;
+  const lastDate=lastCompleted.endDate;
+  const lastCumDone=lastCompleted.cumDone;
+  const lastCumTotal=lastCompleted.cumTotal;
+
+  const YEAR_END=new Date('2026-12-31');
+  const daysLeft=Math.max(0,(YEAR_END-lastDate)/86400000);
+  const sprintsLeft=Math.round(daysLeft/18);
+
+  const projectedDone = lastCumDone + avgDonePerSprint * sprintsLeft;
+  const projectedTotal = lastCumTotal + avgTotalPerSprint * sprintsLeft;
+  const forecastPct = projectedTotal > 0
+    ? Math.min(100, projectedDone / projectedTotal * 100) : lastPct;
+
+  const cumDeltas=[];
+  for(let i=1;i<completedHistory.length;i++){
+    const d=completedHistory[i];
+    if(d.cumTotal>0) cumDeltas.push(d.spDone/d.cumTotal*100);
+  }
+
+  const forecastLabels=fullHistory.map(s=>s.label);
+  const actualData=fullHistory.map(s=>s.spTotal>0?s.pct:null);
+  const forecastData=fullHistory.map(s=>s.endDate<=TODAY&&s.spTotal>0?s.pct:null);
+  const lvi=fullHistory.findIndex(h=>h.label===lastCompleted.label);
+  if(lvi>=0) forecastData[lvi]=lastPct;
+  for(let i=1;i<=Math.min(sprintsLeft,12);i++){
+    forecastLabels.push('С+'+i);
+    const projD = lastCumDone + avgDonePerSprint*i;
+    const projT = lastCumTotal + avgTotalPerSprint*i;
+    const projPct = projT>0 ? Math.min(100, projD/projT*100) : lastPct;
+    forecastData.push(Math.round(projPct*10)/10);
+    actualData.push(null);
+  }
+
+  const trend=forecastPct>=lastPct+5?'📈 Прогрес':forecastPct<=lastPct-5?'📉 Регрес':'➡️ Стабільно';
+  const trendColor=forecastPct>=lastPct+5?G:forecastPct<=lastPct-5?R:A;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('fc-rate','+'+Math.round(avgDonePerSprint)+' задач/спринт');
+  set('fc-remaining',sprintsLeft);
+  set('fc-final',forecastPct.toFixed(0)+'%');
+  const te=document.getElementById('fc-trend');if(te){te.textContent=trend;te.style.color=trendColor;}
+  const w100=document.getElementById('fc-when100');
+  if(w100){
+    if(avgDonePerSprint<=0){w100.textContent='Не досягнемо при поточному темпі';w100.style.color=R;}
+    else{
+      let d=lastCumDone,t=lastCumTotal,sp=0;
+      while(d/Math.max(t,1)<1&&sp<50){d+=avgDonePerSprint;t+=avgTotalPerSprint;sp++;}
+      const dt100=new Date(lastDate.getTime()+sp*18*86400000);
+      if(sp>=50){w100.textContent='Поза горизонтом 2026 при +'+Math.round(avgTotalPerSprint)+' нових/спринт';w100.style.color=A;}
+      else{w100.textContent=dt100.toLocaleDateString('uk-UA',{month:'long',year:'numeric'});w100.style.color=dt100<=YEAR_END?G:A;}
+    }
+  }
+  const note=document.getElementById('fc-note');
+  if(note)note.textContent='Кумулятивний % · тренд з '+completedHistory.length+' закритих спринтів'+(activeHistory.length?' · '+activeHistory.length+' в процесі':'')+' · живі дані';
+  const badge=document.getElementById('fc-badge');
+  if(badge){badge.textContent=forecastPct>=80?'НА ЦІЛІ':forecastPct>=50?'ПОТРЕБУЄ ПРИСКОРЕННЯ':'РИЗИК';badge.className='bdg '+(forecastPct>=80?'bdg-g':forecastPct>=50?'bdg-a':'bdg-r');}
+
+  const sprintPcts=completedHistory.map(h=>h.spTotal>0?h.spDone/h.spTotal*100:0);
+  const avgSprintPct=sprintPcts.length?sprintPcts.reduce((a,b)=>a+b,0)/sprintPcts.length:0;
+  const worstDelta=sprintPcts.length>1?(sprintPcts[sprintPcts.length-1]-sprintPcts[0])/(sprintPcts.length-1):0;
+  const pastLen=fullHistory.filter(h=>h.spTotal>0).length;
+  const pessimisticData=forecastLabels.map((_,i)=>{
+    if(i<pastLen) return null;
+    const spIdx=i-pastLen+1;
+    const projD=lastCumDone+avgDonePerSprint*(1+worstDelta/Math.max(avgSprintPct,0.01)*(spIdx-1)/2)*spIdx;
+    const projT=lastCumTotal+avgTotalPerSprint*spIdx;
+    return projT>0?Math.max(0,Math.min(100,projD/projT*100)):null;
+  });
+
+  const flatData=forecastLabels.map((_,i)=>{
+    if(i<pastLen-1) return null;
+    return lastPct;
+  });
+
+  safeChart('forecastChart',{type:'line',data:{labels:forecastLabels,datasets:[
+    {label:'Факт (кум.%)',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2.5,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
+    {label:'Прогноз (поточний темп)',data:forecastData,borderColor:A,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:A,spanGaps:true},
+    {label:'Плато (без нових задач)',data:flatData,borderColor:'#888',borderWidth:1.5,borderDash:[3,3],tension:0,fill:false,pointRadius:0,spanGaps:true},
+    {label:'Песимістичний тренд',data:pessimisticData,borderColor:R,borderWidth:1.5,borderDash:[4,2],tension:.2,fill:false,pointRadius:2,pointBackgroundColor:R,spanGaps:true},
+  ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+}
+
+// ── Проекти без фокусу / без відповідального ───────────────────────────
+async function buildNoFocusProjects(){
+  const wrap=document.getElementById('w-str-nofocus');
+  const el=document.getElementById('no-focus-list');
+  if(!el)return;
+  let raw;
+  try{const r=await fetch('data/strategy.json?t='+Date.now());raw=await r.json();}
+  catch(e){return;}
+  const metaMap=raw.projects||{};
+  const activePids=new Set();
+  (raw.sprints||[]).forEach(sp=>Object.entries(sp.projects||{}).forEach(([pid,p])=>{if((p.total||0)>0) activePids.add(pid);}));
+  const noFocus=[];
+  Object.entries(metaMap).forEach(([pid,meta])=>{
+    const owner=(meta.owner||'').trim();
+    const isVac=!owner||owner==='Вакансія';
+    const inSprints=activePids.has(pid);
+    if(isVac||!inSprints) noFocus.push({id:pid,name:meta.name||pid,owner:owner||'Вакансія',reason:isVac?'Немає відповідального':'Не в активних спринтах'});
+  });
+  if(!noFocus.length){
+    if(wrap) wrap.style.display='none';
+    return;
+  }
+  if(wrap) wrap.style.display='';
+  el.style.display='';
+  el.innerHTML=noFocus.map(p=>{
+    const isVac=p.owner==='Вакансія';
+    return `<div class="krow tbd" style="margin-bottom:6px"><div class="krow-bar kb-r"></div><div class="krow-lbl" style="flex:2;white-space:normal">#${p.id} ${p.name}</div><div class="krow-val x" style="font-size:11px;color:${isVac?'var(--red)':'var(--amb)'}">${p.owner}</div><div class="krow-tgt" style="white-space:normal;max-width:220px;text-align:right">${p.reason}</div></div>`;
+  }).join('');
 }
 
 function staticS1(){return[{project_id:1,project:'Система планування',task:'Реєстр проектів SS-2026',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},{project_id:1,project:'Система планування',task:'Дзвінок CEO: структура фінансового блоку',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},{project_id:1,project:'Система планування',task:'Зібрати дані від постачальників',owner:'Іванов Олег',deadline:'2026-05-04',status:''},{project_id:1,project:'Система планування',task:'ADR по інструменту планування',owner:'Іванов Олег',deadline:'2026-05-06',status:''},{project_id:3,project:'Діджиталізація',task:'Аудит джерел даних. FTE учасників',owner:'Іванов Олег',deadline:'2026-04-28',status:'Виконано'},{project_id:3,project:'Діджиталізація',task:'Сесія «Словник показників»',owner:'Іванов Олег',deadline:'2026-04-30',status:'Виконано'},{project_id:3,project:'Діджиталізація',task:'ADR по технології дашборду',owner:'Іванов Олег',deadline:'2026-05-04',status:''},{project_id:3,project:'Діджиталізація',task:'Dashboard v0.1 — перші дані',owner:'Іванов Олег',deadline:'2026-05-08',status:''},{project_id:7,project:'Система оцінки індустрій',task:'Збір точок входу та ключових гравців',owner:'Дубровін Вадим',deadline:'2026-04-28',status:'Виконано'},{project_id:7,project:'Система оцінки індустрій',task:'Бренд-бук, описи, тези для сайту',owner:'Дубровін Вадим',deadline:'2026-05-02',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Отримання OTTOeject MK1 Rev 1.0',owner:'Жолудь Максим',deadline:'2026-04-21',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Визначення техніка — Болдижев Олексій',owner:'Стріляний Олександр',deadline:'2026-04-27',status:'Виконано'},{project_id:8,project:'Авт. локація',task:'Локальна версія ПЗ',owner:'Стріляний Олександр',deadline:'2026-05-08',status:''}];}
