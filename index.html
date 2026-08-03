@@ -374,160 +374,102 @@ a{color:var(--gd);text-decoration:none}
 
 <!-- ═════════════ CEO ═════════════ -->
 <div class="panel active" id="panel-ceo">
-  <div id="w-ceo-kpi">
-    <div class="sec">📊 Пульс компанії — 12 ключових метрик</div>
-    <div class="g6">
-      <div class="krow" id="krow-opt"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка ОПТ YTD 2026</div><div class="krow-val g" id="ceo-opt-val">121.9M</div><div class="real-dot" title="Реальні дані"></div></div>
-      <div class="krow" id="krow-retail"><div class="krow-bar kb-a"></div><div class="krow-lbl">Виручка Роздріб YTD 2026</div><div class="krow-val a" id="ceo-retail-val">16.9M</div><div class="real-dot"></div></div>
-      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">OEE / Ефективність</div><div class="krow-val r">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
-      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">% Браку</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="demo-lbl">ДЕМО</div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Частка ТОП-2 клієнтів</div><div class="krow-val r">94.7%</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
-      <div class="krow demo"><div class="krow-bar kb-a"></div><div class="krow-lbl">Lead time замовлень</div><div class="krow-val a">~22 дні</div><div class="krow-tgt">Ціль: <b>&lt;5</b></div><div class="demo-lbl">ДЕМО</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маш. час / добу</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
+
+  <!-- БЛОК 1: ФІНАНСИ YTD -->
+  <div id="w-ceo-fin">
+    <div class="sec">💰 Фінанси — YTD 2026</div>
+    <div class="g6" style="margin-bottom:14px">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ факт YTD</div><div class="krow-val g" id="ceo-wh-fact">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ % плану</div><div class="krow-val g" id="ceo-wh-pct">—</div><div class="krow-tgt">vs план</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Роздріб факт YTD</div><div class="krow-val a" id="ceo-rt-fact">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Роздріб % плану</div><div class="krow-val r" id="ceo-rt-pct">—</div><div class="krow-tgt">Ціль: <b>90%+</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Загальна виручка YTD</div><div class="krow-val g" id="ceo-total-fact">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Пайплайн активний</div><div class="krow-val" id="ceo-pipeline">—</div><div class="real-dot"></div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Виручка ОПТ + Роздріб по місяцях 2026</div>
+      <div class="cw ch180"><canvas id="ceo-rev-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: ПРОДАЖІ -->
+  <div id="w-ceo-sales">
+    <div class="sec">📦 Продажі — ключові сигнали</div>
+    <div class="g6" style="margin-bottom:14px">
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Активних B2B-клієнтів</div><div class="krow-val g">20</div><div class="real-dot"></div></div>
-      <div class="krow" id="krow-leads"><div class="krow-bar kb-g"></div><div class="krow-lbl">Лідів / місяць</div><div class="krow-val g" id="ceo-leads-val">—</div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржинальність</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Плинність персоналу</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-g"></div><div class="krow-lbl">Прогрес проектів SS</div><div class="krow-val x" id="ceo-pp">—%</div><div class="tbd-lbl">АВТО</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">ТОП-2 клієнти / виручка</div><div class="krow-val r">94.7%</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Угод у пайплайні</div><div class="krow-val g" id="ceo-pipeline-sum">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Ліди / міс (останній)</div><div class="krow-val" id="ceo-leads">—</div><div class="real-dot"></div></div>
+      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">Lead time замовлень</div><div class="krow-val r">~22 дні</div><div class="krow-tgt">Ціль: <b>&lt;5</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Повторні замовлення</div><div class="krow-val x">TBD %</div><div class="krow-tgt">Ціль: <b>50%+</b></div><div class="tbd-lbl">TBD</div></div>
     </div>
-  </div>
-
-  <div id="w-ceo-cov">
-    <div class="sec">🎯 КПІ Проекту #3 — скільки метрик уже відстежуємо (повністю + частково)</div>
-    <div class="g4">
-      <div class="card s2"><div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Зібрані метрики (повністю + частково) / всього</div>
-        <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:5px">
-          <div style="font-size:28px;font-weight:800;color:var(--gd)" id="cv-yes">72</div>
-          <div style="font-size:15px;color:var(--tm);margin-bottom:3px">/ 174</div>
-          <div style="font-size:18px;font-weight:800;color:var(--td)" id="cv-pct">41.4%</div>
-        </div>
-        <div class="ckpi"><div class="ckpi-f" id="cv-bar" style="width:41.4%"></div></div>
-        <div style="display:flex;align-items:center;gap:5px;margin-top:8px;flex-wrap:wrap">
-          <span class="cov cy" id="cc-y">12 є</span><span class="cov cp" id="cc-p">60 частково</span>
-          <span class="cov cc" id="cc-c">39 можна</span><span class="cov cn" id="cc-n">63 немає</span>
-        </div><div class="real-dot"></div>
-      </div>
-      <div class="card"><div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">З них — повністю (Так)</div>
-        <div style="font-size:24px;font-weight:800;color:var(--gd)">6.9%</div>
-        <div style="font-size:11px;color:var(--tm)">12 із 174 метрик</div>
-        <div class="ckpi" style="margin-top:7px"><div class="ckpi-f" style="width:6.9%;background:linear-gradient(90deg,var(--g),var(--amb))"></div></div>
-      </div>
-      <div class="card"><div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Потенціал (+ Можна)</div>
-        <div style="font-size:24px;font-weight:800;color:var(--b)">63.8%</div>
-        <div style="font-size:11px;color:var(--tm)">111 із 174 метрик</div>
-        <div class="ckpi" style="margin-top:7px"><div class="ckpi-f" style="width:63.8%;background:linear-gradient(90deg,var(--g),var(--b))"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="w-ceo-charts">
-    <div class="sec">📈 Динаміка та концентрація</div>
-    <div class="g3">
-      <div class="card s2 wm wmc" id="revTrendCard"><div class="chdr"><div><div class="ct">Виручка ОПТ + Роздріб, млн грн</div><div class="cs" id="revTrendCap">Демо-дані · фільтрується</div></div><span class="bdg bdg-tbd" id="revTrendBdg">ДЕМО</span></div><div class="cw ch210"><canvas id="revTrend"></canvas></div><span class="wm-cr" id="revTrendWm">ДЕМО · TBD</span></div>
-      <div class="card"><div class="chdr"><div><div class="ct">Концентрація клієнтів</div><div class="cs">ТОП-2 = 94.7%</div></div><span class="bdg bdg-r">РИЗИК</span></div><div class="cw ch210"><canvas id="clientConc"></canvas></div><div class="real-dot"></div></div>
-    </div>
-  </div>
-
-  <div id="w-ceo-goals">
-    <div class="sec">🎯 Стратегічні цілі 2026</div>
-    <div class="g2">
-      <div class="card"><div class="ct" style="margin-bottom:10px">Ціль → Поточний стан</div>
-        <div class="pr"><div class="pn">OEE 80%+</div><div class="pbw"><div class="pb" style="width:30%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">~30%</div></div>
-        <div class="pr"><div class="pn">Брак &lt;9%</div><div class="pbw"><div class="pb" style="width:22%;background:var(--red)"></div></div><div class="pv" style="color:var(--red)">~12%</div></div>
-        <div class="pr"><div class="pn">Lead time &lt;5 днів</div><div class="pbw"><div class="pb" style="width:10%;background:var(--red)"></div></div><div class="pv" style="color:var(--red)">22 дн.</div></div>
-        <div class="pr"><div class="pn">ТОП-клієнт ≤35%</div><div class="pbw"><div class="pb" style="width:8%;background:var(--red)"></div></div><div class="pv" style="color:var(--red)">TBD</div></div>
-        <div class="pr"><div class="pn">15% не мілітарі</div><div class="pbw"><div class="pb" style="width:10%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">TBD</div></div>
-        <div class="pr"><div class="pn">Виручка 650M грн</div><div class="pbw"><div class="pb" style="width:21%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">TBD</div></div>
-      </div>
-      <div class="card"><div class="ct" style="margin-bottom:9px">Парк та команда</div>
-        <div class="mr"><div class="mn">Парк принтерів (факт)</div><div class="mv g">2 060</div></div>
-        <div class="mr"><div class="mn">Ціль принтерів</div><div class="mv" style="color:var(--tm)">10 000</div></div>
-        <div class="mr"><div class="mn">Штат поточний</div><div class="mv" id="ceo-staff">130 осіб</div></div>
-        <div class="mr"><div class="mn">Ріст штату за рік</div><div class="mv g">+383%</div></div>
-        <div class="mr"><div class="mn">Активних локацій</div><div class="mv">5</div></div>
-        <div class="mr"><div class="mn">Виручка / принтер / міс</div><div class="mtbd">TBD</div></div>
-        <div class="real-dot"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════ СТРАТЕГІЯ ═════════════ -->
-<div class="panel" id="panel-str">
-  <!-- SCORING MODEL — dynamic goals progress -->
-  <div id="w-str-scoring">
-    <div class="sec">🎯 Скорінг цілей 2026 — прогрес виконання стратегії</div>
-    <div id="str-scoring-root">
-      <div class="al al-b"><span class="ic">⟳</span> Ініціалізація…</div>
-    </div>
-  </div>
-
-  <!-- Цілі SMART інтегровані у скорінг вище -->
-  <div id="w-str-goals" style="display:none"><div id="goals-list"></div></div>
-
-  <!-- GANTT timeline -->
-  <div id="w-str-gantt">
-    <div class="sec">📅 Часова шкала проектів 2026</div>
-    <div class="card-flat">
-      <div class="gantt-wrap" id="ganttWrap"></div>
-    </div>
-  </div>
-
-  <!-- FORECAST -->
-  <div id="w-str-forecast">
-    <div class="sec">📈 Динаміка виконання та прогноз до кінця 2026</div>
-    <div class="g3">
-      <div class="card s2">
-        <div class="chdr"><div><div class="ct">% виконання по спринтах + прогноз</div><div class="cs">Динамічно з усіх спринтів Google Sheets</div></div><span class="bdg bdg-b" id="fc-badge">—</span></div>
-        <div class="cw ch210"><canvas id="forecastChart"></canvas></div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="chdr"><div><div class="ct">Концентрація ОПТ-клієнтів</div><div class="cs">ТОП-2 = 94.7% — критичний ризик</div></div><span class="bdg bdg-r">РИЗИК</span></div>
+        <div class="cw ch160"><canvas id="clientConc"></canvas></div>
       </div>
       <div class="card">
-        <div class="ct" style="margin-bottom:9px">Прогноз на кінець 2026</div>
-        <div class="mr"><div class="mn">Поточний темп / спринт</div><div class="mv" id="fc-rate">—</div></div>
-        <div class="mr"><div class="mn">Спринтів залишилось</div><div class="mv" id="fc-remaining">—</div></div>
-        <div class="mr"><div class="mn">Прогноз % на 31.12</div><div class="mv" id="fc-final">—</div></div>
-        <div class="mr"><div class="mn">Тренд</div><div class="mv" id="fc-trend">—</div></div>
-        <div style="margin-top:8px;font-size:10px;color:var(--tl)" id="fc-note">Очікую дані...</div>
+        <div class="ct" style="margin-bottom:9px">Пайплайн по стадіях</div>
+        <div id="ceo-pipeline-summary"><p style="font-size:12px;color:var(--tl)">Завантаження…</p></div>
       </div>
     </div>
   </div>
 
-  <!-- PROJECTS NO FOCUS -->
-  <div id="w-str-nofocus">
-    <div class="sec">⚠️ Проекти не в фокусі / без відповідального</div>
-    <div id="no-focus-list" class="card-flat" style="padding:10px"><p style="font-size:12px;color:var(--tl);padding:8px">Завантаження…</p></div>
+  <!-- БЛОК 3: ПЕРСОНАЛ -->
+  <div id="w-ceo-hr">
+    <div class="sec">👥 Персонал — реальні дані</div>
+    <div class="g6" style="margin-bottom:14px">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Штат (поточний факт)</div><div class="krow-val g" id="ceo-staff">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Плинність (останній міс.)</div><div class="krow-val r" id="ceo-turnover">—</div><div class="krow-tgt">Ціль: <b>&lt;5%</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Відкрито вакансій</div><div class="krow-val a" id="ceo-vacancies">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Стажерів активних</div><div class="krow-val" id="ceo-interns">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка / співробітник YTD</div><div class="krow-val g" id="ceo-rev-per-staff">—</div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">eNPS</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Динаміка штату та плинності</div>
+      <div class="cw ch160"><canvas id="ceo-hr-chart"></canvas></div>
+    </div>
   </div>
 
-  <!-- PERSON SCORES -->
-  <div id="w-str-pers">
-    <div class="sec">👤 Скоринг по учасниках</div>
-    <div class="g5" id="perg"></div>
-  </div>
-
-  <!-- SPRINT 2 -->
-  <div id="w-str-s2">
-    <div class="sec">⚡ Поточний спринт (Спринт 2: 11.05 – 29.05)</div>
+  <!-- БЛОК 4: СТРАТЕГІЯ -->
+  <div id="w-ceo-strategy">
+    <div class="sec">🎯 Стратегія 2026 — прогрес</div>
+    <div class="g6" style="margin-bottom:14px">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% виконання стратегії</div><div class="krow-val g" id="ceo-pp">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (парк)</div><div class="krow-val g">2 060</div><div class="krow-tgt">Ціль: <b>10 000</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Активних локацій</div><div class="krow-val">5</div><div class="real-dot"></div></div>
+      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">OEE / Ефективність</div><div class="krow-val r">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">% Браку</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржинальність</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+    </div>
     <div class="g2">
-      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct">Прогрес Спринту 2</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm">ДЕМО · TBD</span></div>
-      <div class="card"><div class="ct" style="margin-bottom:9px">Статистика Спринту 2</div>
-        <div class="mr"><div class="mn">Всього задач</div><div class="mv" id="s2t">—</div></div>
-        <div class="mr"><div class="mn">Виконано</div><div class="mv g" id="s2d">—</div></div>
-        <div class="mr"><div class="mn">В роботі</div><div class="mv a" id="s2w">—</div></div>
-        <div class="mr"><div class="mn">Прострочено</div><div class="mv r" id="s2o">—</div></div>
-        <div class="mr"><div class="mn">% виконання</div><div class="mv" id="s2p">—</div></div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:10px">Прогрес стратегічних цілей 2026</div>
+        <div class="pr"><div class="pn">Виручка 2026 (ціль 650M)</div><div class="pbw"><div class="pb" style="width:18%;background:var(--g)" id="ceo-rev-bar"></div></div><div class="pv g" id="ceo-rev-val">—</div></div>
+        <div class="pr"><div class="pn">Диверсифікація ТОП-2 ≤70%</div><div class="pbw"><div class="pb" style="width:8%;background:var(--red)"></div></div><div class="pv r">94.7%</div></div>
+        <div class="pr"><div class="pn">Штат → 200 осіб</div><div class="pbw"><div class="pb" style="width:67%;background:var(--amb)" id="ceo-staff-bar"></div></div><div class="pv" id="ceo-staff-val">—</div></div>
+        <div class="pr"><div class="pn">Парк принтерів → 10K</div><div class="pbw"><div class="pb" style="width:20.6%;background:var(--b)"></div></div><div class="pv b">2 060</div></div>
+        <div class="pr"><div class="pn">OEE → 80%+</div><div class="pbw"><div class="pb" style="width:30%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">~30%</div></div>
+        <div class="pr"><div class="pn">Плинність → &lt;5%</div><div class="pbw"><div class="pb" style="width:36%;background:var(--red)" id="ceo-turn-bar"></div></div><div class="pv r" id="ceo-turn-val">—</div></div>
       </div>
-    </div>
-  </div>
-
-  <!-- СПРИНТИ — перемикач -->
-  <div id="w-str-s1">
-    <div class="sec" style="display:flex;align-items:center;justify-content:space-between">
-      <span id="sprint-title">📅 Спринт 1 — підсумок (20.04 – 11.05)</span>
-      <div id="sprint-switcher" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-    </div>
-    <div class="card-flat">
-      <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div>
-      <div class="tfoot" id="sprint-footer">Спринт 1 завершено: 11.05.2026</div>
+      <div class="card">
+        <div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Проект #3 — покриття метрик дашборду</div>
+        <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:5px">
+          <div style="font-size:28px;font-weight:800;color:var(--gd)" id="cv-yes">23</div>
+          <div style="font-size:15px;color:var(--tm);margin-bottom:3px">/ 174</div>
+          <div style="font-size:18px;font-weight:800;color:var(--td)" id="cv-pct">13.2%</div>
+        </div>
+        <div class="ckpi"><div class="ckpi-f" id="cv-bar" style="width:13.2%"></div></div>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:8px;flex-wrap:wrap">
+          <span class="cov cy" id="cc-y">23 є</span>
+          <span class="cov cp" id="cc-p">60 частково</span>
+          <span class="cov cc" id="cc-c">39 можна</span>
+          <span class="cov cn" id="cc-n">52 немає</span>
+        </div>
+        <div class="real-dot"></div>
+        <div style="margin-top:10px;font-size:10px;color:var(--tl)">↑ з 12 до 23+ метрик — оновлюється щоразу при перевірці реєстру</div>
+      </div>
     </div>
   </div>
 </div>
@@ -650,47 +592,6 @@ a{color:var(--gd);text-decoration:none}
     </div>
 
   </div>
-
-  <!-- ═══ ПАЙПЛАЙН ОПТОВИХ УГОД ═══ -->
-  <div style="margin-top:20px">
-    <div class="sec">🔀 Пайплайн оптових угод — реальний стан</div>
-    <div class="g3" style="margin-bottom:14px">
-      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Загальний пайплайн</div><div class="krow-val" id="sales-pipe-total">—</div></div>
-      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Угоди в роботі</div><div class="krow-val g" id="sales-pipe-active">—</div></div>
-      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Win rate</div><div class="krow-val" id="sales-pipe-wr">—</div></div>
-    </div>
-    <div class="g2" style="margin-bottom:14px">
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Воронка угод по стадіях</div>
-        <div class="cw ch200"><canvas id="sales-pipeline-chart"></canvas></div>
-      </div>
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Топ активних угод</div>
-        <div id="sales-pipeline-list" style="font-size:12px"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ ЯКІСТЬ ЛІДІВ ═══ -->
-  <div style="margin-top:20px">
-    <div class="sec">🎯 Якість лідів по місяцях (Bitrix24)</div>
-    <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура лідів: цільові / спам / не завершили контакт</div>
-      <div class="cw ch200"><canvas id="sales-leads-quality-chart"></canvas></div>
-    </div>
-  </div>
-
-  <!-- ═══ ЕФЕКТИВНІСТЬ МЕНЕДЖЕРІВ ═══ -->
-  <div style="margin-top:20px">
-    <div class="sec">👤 Ефективність менеджерів продажів</div>
-    <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:6px">Частка в пайплайні та угоди/тиждень</div>
-      <div style="font-size:10px;color:var(--tl);margin-bottom:12px">Відносні показники — без абсолютних даних ЗП</div>
-      <div class="cw ch180"><canvas id="sales-mgr-chart"></canvas></div>
-    </div>
-    <div class="g5" id="sales-mgr-cards"></div>
-  </div>
-
 </div>
 
 <!-- ═════════════ CRM ═════════════ -->
@@ -905,7 +806,6 @@ Chart.defaults.color='#6b836a'; Chart.defaults.borderColor='#e6e9e3';
 const GRID='#f0f2ee';
 
 const RAW={opt:[5.1,5.8,6.2,7.4,8.1,9.3,10.2,11.8,13.4,15.2,14.8,14.6],retail:[.8,.9,1,1.1,1.2,1.4,1.5,1.6,1.8,2,1.9,1.7],defect:[15,14,13.5,13,12.5,12,11.5,12,12,11.5,12,12],lead:[24,23,22.5,23,22,21.5,22,22,21.5,22,22,22]};
-let SALES_REAL=null; // {opt:[12 значень, млн грн, факт по місяцях], retail:[...]} — підмінює RAW.opt/retail, коли sales_planner.json завантажено
 const F={year:'2026',month:'5'};
 
 // ── Автовизначення поточного місяця/року (синхронізує dropdown і F) ────────
@@ -934,35 +834,7 @@ function safeChart(id,cfg){
   catch(e){console.warn('[Chart:'+id+']',e.message);try{const w=document.getElementById(id)?.closest('.cw');if(w){w.classList.add('wm','wme');const l=w.querySelector('.wm-cr')||Object.assign(document.createElement('span'),{className:'wm-cr'});l.textContent='ДАНІ НЕДОСТУПНІ';w.appendChild(l);}}catch(e2){}return null;}
 }
 
-function buildRev(){const optSrc=(SALES_REAL&&SALES_REAL.opt)?SALES_REAL.opt:RAW.opt;const retSrc=(SALES_REAL&&SALES_REAL.retail)?SALES_REAL.retail:RAW.retail;const{l,d:o}=fd(optSrc);const{d:r}=fd(retSrc);safeChart('revTrend',{type:'bar',data:{labels:l,datasets:[{label:'ОПТ, млн грн',data:o,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4,yAxisID:'y'},{label:'Роздріб, млн грн',data:r,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{padding:10,usePointStyle:true}}},scales:{x:{grid:{color:GRID}},y:{type:'linear',position:'left',grid:{color:GRID},ticks:{callback:v=>v+'M'},title:{display:true,text:'ОПТ',font:{size:9},color:G}},y1:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>v+'M'},title:{display:true,text:'Роздріб',font:{size:9},color:A}}}}});}
-
-function _fmtM(n){return n==null?'—':(n/1e6).toFixed(1)+'M';}
-
-// Підключає реальні дані з data/sales_planner.json (той самий фід, що й вкладка «Продажі») до графіка ОПТ+Роздріб та KPI-плиток на CEO
-function applySalesRealToCeo(data){
-  try{
-    const wh=data.wholesale||{}, rt=data.retail||{};
-    const wm=wh.monthly||[], rm=rt.monthly||[];
-    if(!SALES_REAL) SALES_REAL={};
-    if(wm.length) SALES_REAL.opt   =wm.map(m=>m.fact!=null?m.fact/1e6:null);
-    if(rm.length) SALES_REAL.retail=rm.map(m=>m.fact!=null?m.fact/1e6:null);
-    if(wm.length||rm.length){
-      buildRev();
-      document.getElementById('revTrendCard')?.classList.remove('wm','wmc');
-      const cap=document.getElementById('revTrendCap'); if(cap) cap.textContent='Реальні дані (Google Sheets) · фільтрується';
-      const bdg=document.getElementById('revTrendBdg'); if(bdg){bdg.textContent='LIVE';bdg.classList.remove('bdg-tbd');bdg.classList.add('bdg-g');}
-      document.getElementById('revTrendWm')?.remove();
-    }
-
-    const ov=document.getElementById('ceo-opt-val');    if(ov&&wh.ytd_fact!=null) ov.textContent=_fmtM(wh.ytd_fact)+(wh.ytd_pct!=null?' ('+wh.ytd_pct+'%)':'');
-    const rv=document.getElementById('ceo-retail-val'); if(rv&&rt.ytd_fact!=null) rv.textContent=_fmtM(rt.ytd_fact)+(rt.ytd_pct!=null?' ('+rt.ytd_pct+'%)':'');
-
-    const lc=(data.leads_conversion&&data.leads_conversion.monthly)||[];
-    const lm=lc.filter(m=>m.leads).slice(-1)[0];
-    const lv=document.getElementById('ceo-leads-val');
-    if(lm&&lv) lv.textContent=Math.round(lm.leads)+(lm.conv_pct!=null?' (конв. '+lm.conv_pct+'%)':'');
-  }catch(e){console.warn('[CEO rev]',e);}
-}
+function buildRev(){const{l,d:o}=fd(RAW.opt);const{d:r}=fd(RAW.retail);safeChart('revTrend',{type:'bar',data:{labels:l,datasets:[{label:'ОПТ, млн грн',data:o,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4},{label:'Роздріб, млн грн',data:r,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{padding:10,usePointStyle:true}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'M'}}}}});}
 function buildDef(){const{l,d}=fd(RAW.defect);safeChart('defCh',{type:'line',data:{labels:l,datasets:[{label:'% браку',data:d,borderColor:R,borderWidth:2,tension:.4,fill:true,backgroundColor:RB,pointRadius:3,pointBackgroundColor:R},{label:'Ціль 9%',data:d.map(()=>9),borderColor:G,borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'},min:6,max:17}}}});}
 function buildLead(){const{l,d}=fd(RAW.lead);safeChart('leadCh',{type:'bar',data:{labels:l,datasets:[{label:'Lead time, днів',data:d,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4},{label:'Ціль 5 днів',data:d.map(()=>5),borderColor:G,borderWidth:1.5,borderDash:[5,4],type:'line',pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},min:0}}}});}
 function fmtMoney(v){return new Intl.NumberFormat('uk-UA',{style:'currency',currency:'UAH',minimumFractionDigits:2,maximumFractionDigits:2}).format(v*1e6);}
@@ -971,16 +843,100 @@ function refreshCharts(){buildRev();buildDef();buildLead();buildSales();}
 
 function buildStatic(){
   safeChart('clientConc',{type:'doughnut',data:{labels:['ТОП-1 ~62%','ТОП-2 ~33%','Решта 18 кл.'],datasets:[{data:[62,32.7,5.3],backgroundColor:[R,A,G],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
-  const DL = window.ChartDataLabels;
+  const DL=window.ChartDataLabels;
   safeChart('cRisk',{type:'bar',plugins:DL?[DL]:[],data:{labels:['Кл.1','Кл.2','Кл.3','Кл.4','Кл.5','Інші'],datasets:[{data:[62,32.7,1.8,.9,.7,1.9],backgroundColor:[R,A,G,G,G,G],borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',formatter:v=>v+'%',font:{size:9,weight:'600'},color:'#445243'}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
   safeChart('outCh',{type:'bar',data:{labels:['Лок.1','Лок.2','Лок.4','Лок.5'],datasets:[{data:[850,720,410,280],backgroundColor:[GB,GB,AB,RB],borderColor:[G,G,A,R],borderWidth:1.5,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID}}}}});
-  const reg=window.E3D_STATIC.metrics_coverage;
+  const reg=(window.E3D_STATIC||{}).metrics_coverage||[];
   const tots=reg.reduce((a,r)=>{a[0]+=r.yes;a[1]+=r.part;a[2]+=r.calc;a[3]+=r.no;return a;},[0,0,0,0]);
   const COV_C=['#2A9D8F','#457B9D','#A8C5DA','#CBD5E0'];
   safeChart('covDon',{type:'doughnut',data:{labels:['Так','Частково','Можна розрахувати','Не збирається'],datasets:[{data:tots,backgroundColor:COV_C,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'60%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
-  safeChart('covBar',{type:'bar',data:{labels:reg.map(r=>r.section.replace('Виробництво — ','В.').replace(/ \(.+\)/g,'').replace(' та P&L','').replace(' та Персонал','').replace(' та Маркетинг','').replace(' та брак','')),datasets:[{label:'Так',data:reg.map(r=>r.yes),backgroundColor:'#2A9D8F',borderRadius:2,stack:'s'},{label:'Частково',data:reg.map(r=>r.part),backgroundColor:'#457B9D',borderRadius:2,stack:'s'},{label:'Можна розрахувати',data:reg.map(r=>r.calc),backgroundColor:'#A8C5DA',borderRadius:2,stack:'s'},{label:'Не збирається',data:reg.map(r=>r.no),backgroundColor:'#CBD5E0',borderRadius:2,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:GRID},stacked:true}}}});
-  const rb=document.getElementById('regB');
-  if(rb){rb.innerHTML='';let T={total:0,yes:0,part:0,calc:0,no:0};reg.forEach(r=>{T.total+=r.total;T.yes+=r.yes;T.part+=r.part;T.calc+=r.calc;T.no+=r.no;const bg=~~(r.yes/r.total*100),ba=~~(r.part/r.total*100),bb=~~(r.calc/r.total*100),br=~~(r.no/r.total*100);rb.innerHTML+=`<tr><td>${r.section}</td><td style="font-weight:700">${r.total}</td><td><span class="cov cy">${r.yes}</span></td><td><span class="cov cp">${r.part}</span></td><td><span class="cov cc">${r.calc}</span></td><td><span class="cov cn">${r.no}</span></td><td><div class="covbar" style="width:100px"><div class="cbs" style="width:${bg}%;background:#2A9D8F"></div><div class="cbs" style="width:${ba}%;background:#457B9D"></div><div class="cbs" style="width:${bb}%;background:#A8C5DA"></div><div class="cbs" style="width:${br}%;background:#CBD5E0"></div></div></td></tr>`;});rb.innerHTML+=`<tr style="background:var(--s2);font-weight:700"><td>ВСЬОГО</td><td>${T.total}</td><td><span class="cov cy">${T.yes}</span></td><td><span class="cov cp">${T.part}</span></td><td><span class="cov cc">${T.calc}</span></td><td><span class="cov cn">${T.no}</span></td><td></td></tr>`;}
+  // CEO — підтягуємо реальні дані з JSON файлів
+  _buildCeoCharts();
+}
+
+async function _buildCeoCharts(){
+  const fmt=n=>n==null?'—':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(0)+'K':String(Math.round(n));
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+
+  // Дані продажів
+  try{
+    const sd=await fetch('data/sales_planner.json?t='+Date.now()).then(r=>r.json());
+    const wf=sd.wholesale?.ytd_fact||0, rf=sd.retail?.ytd_fact||0;
+    set('ceo-wh-fact', fmt(wf)+' грн');
+    set('ceo-wh-pct',  (sd.wholesale?.ytd_pct||0)+'%');
+    set('ceo-rt-fact', fmt(rf)+' грн');
+    set('ceo-rt-pct',  (sd.retail?.ytd_pct||0)+'%');
+    set('ceo-total-fact', fmt(wf+rf)+' грн');
+    const pipe=sd.pipeline||{};
+    set('ceo-pipeline',     fmt(pipe.total_active_sum)+' грн');
+    set('ceo-pipeline-sum', fmt(pipe.total_active_sum)+' грн');
+    const lastLead=(sd.leads_conversion?.monthly||[]).filter(m=>m.leads).slice(-1)[0];
+    if(lastLead) set('ceo-leads', Math.round(lastLead.leads));
+    // Прогрес-бар виручки (ціль 650M)
+    const revBar=document.getElementById('ceo-rev-bar');
+    if(revBar){const pct=Math.min(Math.round((wf+rf)/650e6*100),100);revBar.style.width=pct+'%';}
+    set('ceo-rev-val', fmt(wf+rf)+' грн');
+    // Пайплайн по стадіях
+    const pEl=document.getElementById('ceo-pipeline-summary');
+    if(pEl&&pipe.stages){
+      const C={won:G,active:G,test:'#b58b2a',calculation:A,waiting:A,slow:'#c08c39',lost:'#aaa'};
+      pEl.innerHTML=(pipe.stages||[]).filter(s=>s.sum>0).map(s=>`<div class="mr"><div class="mn">${s.label}</div><div style="display:flex;gap:8px"><div class="mv" style="color:${C[s.stage]||A};font-size:11px">${fmt(s.sum)} грн</div><div style="font-size:10px;color:var(--tl)">${s.count} угод</div></div></div>`).join('');
+    }
+    // Графік виручки
+    const wm=sd.wholesale?.monthly||[], rm=sd.retail?.monthly||[];
+    const lbls=(wm.length?wm:rm).filter(m=>m.plan).map(m=>m.month.substring(0,3));
+    safeChart('ceo-rev-chart',{type:'bar',data:{labels:lbls,datasets:[
+      {label:'ОПТ план',data:wm.filter(m=>m.plan).map(m=>(m.plan||0)/1e6),backgroundColor:'rgba(42,157,143,.12)',borderRadius:4,borderWidth:1,borderColor:G},
+      {label:'ОПТ факт',data:wm.filter(m=>m.plan).map(m=>(m.fact||0)/1e6),backgroundColor:'rgba(42,157,143,.7)',borderRadius:4},
+      {label:'Роздріб факт',data:rm.filter(m=>m.plan).map(m=>(m.fact||0)/1e6),backgroundColor:'rgba(69,123,157,.7)',borderRadius:4},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v.toFixed(1)+'M'}}}}});
+  }catch(e){console.warn('[CEO sales]',e.message);}
+
+  // Дані HR
+  try{
+    const hd=await fetch('data/hr.json?t='+Date.now()).then(r=>r.json());
+    const staff=hd.employees_count||0;
+    set('ceo-staff', staff+' осіб');
+    // Плинність — останнє значення
+    const turn=hd.turnover||{};
+    const months=Object.keys(turn).sort();
+    const lastM=months[months.length-1];
+    if(lastM){
+      const tp=turn[lastM]?.turnover_pct;
+      if(tp!=null){
+        set('ceo-turnover', tp.toFixed(1)+'%');
+        const tb=document.getElementById('ceo-turn-bar');
+        if(tb){tb.style.width=Math.min(tp/10*100,100)+'%';tb.style.background=tp>5?R:G;}
+        set('ceo-turn-val', tp.toFixed(1)+'%');
+      }
+    }
+    // Вакансії
+    const vacTotal=(hd.vacancies_current?.vacancies||[]).reduce((s,v)=>s+(v.count||1),0);
+    set('ceo-vacancies', vacTotal+' позицій');
+    // Стажери
+    const lastI=(hd.interns_by_month||[]).slice(-1)[0];
+    if(lastI) set('ceo-interns', lastI.count+' осіб');
+    // Виручка / staff
+    const revEl=document.getElementById('ceo-total-fact');
+    if(revEl&&staff>0){
+      const rev=parseFloat((revEl.textContent||'0').replace('M',''))*1e6;
+      if(rev>0) set('ceo-rev-per-staff', fmt(rev/staff)+' грн');
+    }
+    // Прогрес-бар штату
+    const sb=document.getElementById('ceo-staff-bar');
+    if(sb&&staff){sb.style.width=Math.min(staff/200*100,100)+'%';}
+    set('ceo-staff-val', staff+' осіб');
+    // Графік HR
+    if(months.length>=2){
+      const staffData=months.map(m=>turn[m]?.staff_end||null);
+      const turnData=months.map(m=>turn[m]?.turnover_pct||null);
+      const mLbls=months.map(m=>{const[y,mo]=m.split('-');const n=['','Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];return (n[parseInt(mo)]||mo)+' '+y.substring(2);});
+      safeChart('ceo-hr-chart',{type:'bar',data:{labels:mLbls,datasets:[
+        {label:'Штат',data:staffData,backgroundColor:'rgba(42,157,143,.7)',borderRadius:4,yAxisID:'y'},
+        {label:'Плинність %',data:turnData,type:'line',borderColor:R,borderWidth:2,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:R,yAxisID:'y1'},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{type:'linear',position:'left',beginAtZero:false,grid:{color:GRID},title:{display:true,text:'Штат',font:{size:9},color:GD}},y1:{type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false},ticks:{callback:v=>v+'%'},title:{display:true,text:'Плинність',font:{size:9},color:R}}}}});
+    }
+  }catch(e){console.warn('[CEO hr]',e.message);}
 }
 
 // ── GOALS with progress indicators ───────────────────
@@ -1002,18 +958,21 @@ function buildGoals(){
 
 // ── GANTT CHART (HTML table) ──────────────────────────
 // Projects with start/deadline from xlsx data
+// PROJECTS — дедлайни з листа "Проекти" Google Sheets (оновлено серпень 2026)
+// Після деплою fetch_strategy.py ці дати читатимуться динамічно з strategy.json
 const PROJECTS = [
-  {id:1,name:'Система планування (люди, ресурси, гроші)',owner:'Іванов Олег',prio:'A',start:'2026-04-22',end:'2026-05-08'},
-  {id:2,name:'Сформовано сильну команду (Адмінка)',owner:'Зубрицька Олександра',prio:'A',start:'2026-05-01',end:'2026-12-31'},
-  {id:3,name:'Діджиталізація поточних показників',owner:'Іванов Олег',prio:'A',start:'2026-04-22',end:'2026-07-01'},
-  {id:4,name:'Вироблено та продано 10 шт НРК',owner:'Пастух Максим',prio:'B',start:'2026-01-01',end:'2026-12-31'},
-  {id:5,name:'Вироблено і продано 90 котушок',owner:'Пастух Максим',prio:'B',start:'2026-04-06',end:'2026-12-31'},
-  {id:6,name:'Відвантажено замовлення в Європу від 1 т',owner:'Зубрицька Олександра',prio:'B',start:'2026-06-08',end:'2026-11-27'},
-  {id:7,name:'Система оцінки індустрій',owner:'Дубровін Вадим',prio:'A',start:'2026-04-20',end:'2026-08-31'},
-  {id:8,name:'Запущено 1 автоматизовану локацію',owner:'Стріляний Олександр',prio:'B',start:'2026-05-04',end:'2026-12-31'},
-  {id:9,name:'Якість — Відділ Якості (ВТК)',owner:'Вакансія',prio:'A',start:'2026-04-20',end:'2026-05-29'},
-  {id:10,name:'Система планування виробництва',owner:'Вакансія',prio:'A',start:'2026-05-01',end:'2026-12-31'},
-  {id:14,name:'Зменшення шуму відділу продажів',owner:'Приходько Владислав',prio:'A',start:'2026-05-01',end:'2026-12-31'},
+  {id:1, name:'Система планування (люди, ресурси, гроші)',  owner:'Іванов Олег',          prio:'A',start:'2026-04-22',end:'2026-07-03'},
+  {id:2, name:'Сформовано сильну команду (Адмінка)',         owner:'Зубрицька Олександра', prio:'A',start:'2026-05-01',end:'2026-12-31'},
+  {id:3, name:'Діджиталізація поточних показників',          owner:'Іванов Олег',          prio:'A',start:'2026-04-22',end:'2026-08-01'},
+  {id:4, name:'Вироблено та продано 10 шт НРК',             owner:'Пастух Максим',        prio:'B',start:'2026-01-01',end:'2026-12-31'},
+  {id:5, name:'Вироблено і продано 90 котушок',             owner:'Пастух Максим',        prio:'B',start:'2026-04-06',end:'2026-12-31'},
+  {id:6, name:'Відвантажено замовлення в Європу від 1 т',   owner:'Зубрицька Олександра', prio:'B',start:'2026-06-08',end:'2026-11-27'},
+  {id:7, name:'Система оцінки індустрій (B2B маркетинг)',   owner:'Дубровін Вадим',       prio:'A',start:'2026-04-20',end:'2026-12-31'},
+  {id:8, name:'Запущено 1 автоматизовану локацію',          owner:'Стріляний Олександр',  prio:'B',start:'2026-05-04',end:'2026-12-31'},
+  {id:9, name:'Якість — Відділ ОТК',                        owner:'Бруновський Михайло',  prio:'A',start:'2026-04-20',end:'2026-12-31'},
+  {id:10,name:'Система планування виробництва',             owner:'Бруновський Михайло',  prio:'A',start:'2026-05-01',end:'2026-12-31'},
+  {id:14,name:'Зменшення шуму відділу продажів',           owner:'Приходько Владислав',  prio:'A',start:'2026-05-01',end:'2026-12-31'},
+  {id:16,name:'Запуск нових локацій',                       owner:'Жолудь Максим',        prio:'B',start:'2026-04-01',end:'2026-12-31'},
 ];
 
 const MONTHS_UA = ['Січ','Лют','Бер','Квіт','Трав','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
@@ -1024,217 +983,89 @@ const YEAR_DAYS = 365;
 function dayOfYear(d){return Math.round((d-YEAR_START)/86400000);}
 function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 
-function buildGantt(){
+async function buildGantt(){
   const wrap=document.getElementById('ganttWrap');if(!wrap)return;
-  const todayDoy = dayOfYear(TODAY); // ~130
 
-  // Build header: 12 months
-  let hdrs = '<tr><th style="min-width:160px;text-align:left">Проект</th><th style="min-width:90px;text-align:left">Відп.</th><th style="min-width:40px">Пр.</th>';
-  let totalW = 0;
-  const monthWidths = [];
+  // Спробуємо взяти реальні дати з strategy.json
+  let projectsData=PROJECTS;
+  try{
+    const r=await fetch('data/strategy.json?t='+Date.now());
+    const raw=await r.json();
+    const meta=raw.projects||{};
+    const dynamic=Object.entries(meta)
+      .filter(([,m])=>m.start&&m.deadline)
+      .map(([pid,m])=>({id:parseInt(pid),name:m.name,owner:m.owner||'Вакансія',prio:m.priority||'B',start:m.start,end:m.deadline}))
+      .sort((a,b)=>a.id-b.id);
+    if(dynamic.length>=5) projectsData=dynamic;
+  }catch(e){}
+
+  // 12 місяців зі скролом — кожна колонка 55px → 660px всього
+  const COL_W=55;
+  let hdrs='<tr>'
+    +'<th style="min-width:200px;text-align:left;position:sticky;left:0;background:var(--s2);z-index:3;padding:6px 10px">Проект</th>'
+    +'<th style="min-width:80px;text-align:left;padding:6px 6px">Відп.</th>'
+    +'<th style="min-width:30px;text-align:center;padding:6px 4px">Пр.</th>';
+  let totalW=0;
+  const monthWidths=[];
   for(let m=0;m<12;m++){
-    const daysInMonth = new Date(2026,m+1,0).getDate();
-    const w = Math.round(daysInMonth/YEAR_DAYS*700);
-    monthWidths.push({m,w,start:totalW,daysInMonth});
-    const isTodayMonth = (m===TODAY.getMonth());
-    hdrs += `<th class="gcol ${isTodayMonth?'today-col':''}" style="width:${w}px"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
-    totalW+=w;
+    const dim=new Date(2026,m+1,0).getDate();
+    monthWidths.push({m,w:COL_W,start:totalW,daysInMonth:dim});
+    const isT=(m===TODAY.getMonth());
+    hdrs+=`<th class="gcol ${isT?'today-col':''}" style="width:${COL_W}px;min-width:${COL_W}px;padding:4px 2px;text-align:center"><span class="month-hdr">${MONTHS_UA[m]}</span></th>`;
+    totalW+=COL_W;
   }
   hdrs+='</tr>';
 
-  // Build rows
   let rows='';
-  PROJECTS.forEach(p=>{
-    const pStart = new Date(p.start+'T00:00:00');
-    const pEnd   = new Date(p.end+'T00:00:00');
-    const sDoy = clamp(dayOfYear(pStart),0,YEAR_DAYS);
-    const eDoy = clamp(dayOfYear(pEnd),0,YEAR_DAYS);
-    const isDone = pEnd < TODAY;
-    const isVac  = p.owner.includes('Вакансія');
-    const prioClass = p.prio==='A'?'prio-A':'prio-B';
-    const nm = p.name.length>40 ? p.name.substring(0,38)+'…' : p.name;
+  projectsData.forEach(p=>{
+    if(!p.start||!p.end)return;
+    const pS=new Date(p.start+'T00:00:00'),pE=new Date(p.end+'T00:00:00');
+    const sDoy=clamp(dayOfYear(pS),0,YEAR_DAYS);
+    const eDoy=clamp(dayOfYear(pE),0,YEAR_DAYS);
+    const isDone=pE<TODAY;
+    const isVac=(p.owner||'').includes('Вакансія');
+    const pc=p.prio==='A'?'prio-A':'prio-B';
+    const nm=p.name.length>36?p.name.substring(0,34)+'…':p.name;
 
-    let cells = `<td><div class="gname" title="${p.name}">#${p.id} ${nm}</div></td>`;
-    cells += `<td><div class="gowner" style="${isVac?'color:var(--red)':''}">${p.owner}</div></td>`;
-    cells += `<td><span class="prio-badge ${prioClass}">${p.prio}</span></td>`;
+    let cells=`<td style="position:sticky;left:0;background:var(--sur);z-index:2;padding:5px 10px"><div class="gname" title="${p.name}">#${p.id} ${nm}</div></td>`;
+    cells+=`<td style="padding:5px 6px;font-size:11px"><div class="gowner" style="${isVac?'color:var(--red)':''}">${(p.owner||'').split(' ').slice(-1)[0]}</div></td>`;
+    cells+=`<td style="text-align:center;padding:5px 4px"><span class="prio-badge ${pc}">${p.prio}</span></td>`;
 
     for(let mi=0;mi<12;mi++){
-      const {start:mStart,daysInMonth,w:mW} = monthWidths[mi];
-      const mEnd = mStart+daysInMonth;
-      const isTodayMonth=(mi===TODAY.getMonth());
-
-      // does bar overlap this month?
-      const barStart = clamp(sDoy,mStart,mEnd);
-      const barEnd   = clamp(eDoy,mStart,mEnd);
-      const barLen   = barEnd-barStart;
-      const barLeft  = Math.round((barStart-mStart)/daysInMonth*mW);
-      const barWidth = Math.max(0,Math.round(barLen/daysInMonth*mW));
-
+      const {start:mSt,daysInMonth:dim,w:mW}=monthWidths[mi];
+      const mEn=mSt+dim;
+      const isT=(mi===TODAY.getMonth());
+      const bS=clamp(sDoy,mSt,mEn);
+      const bE=clamp(eDoy,mSt,mEn);
+      const bL=Math.round((bS-mSt)/dim*mW);
+      const bW=Math.max(0,Math.round((bE-bS)/dim*mW));
       let inner='';
-      if(barWidth>0){
+      if(bW>0){
         const cls='gbar'+(p.prio==='B'?' prio-b':'')+(isDone?' done':'');
-        inner=`<div class="${cls}" style="width:${barWidth}px;margin-left:${barLeft}px" title="${p.name}: ${p.start}–${p.end}"></div>`;
+        inner=`<div class="${cls}" style="width:${bW}px;margin-left:${bL}px" title="${p.name}\n${p.start} – ${p.end}${isDone?' ✓ Завершено':''}"></div>`;
       }
-      // today line in current month col
-      if(isTodayMonth){
-        const todayX=Math.round((TODAY.getDate()-1)/daysInMonth*mW);
-        inner+=`<div style="position:absolute;left:${todayX}px;top:2px;bottom:2px;width:2px;background:rgba(192,57,43,.6);border-radius:1px;z-index:10" title="Сьогодні (${TODAY.toLocaleDateString('uk-UA')})"></div>`;
+      if(isT){
+        const tx=Math.round((TODAY.getDate()-1)/dim*mW);
+        inner+=`<div style="position:absolute;left:${tx}px;top:1px;bottom:1px;width:2px;background:rgba(192,57,43,.55);border-radius:1px;z-index:5" title="Сьогодні"></div>`;
       }
-      cells+=`<td class="gcell ${isTodayMonth?'today-col':''}">${inner}</td>`;
+      cells+=`<td class="gcell ${isT?'today-col':''}" style="width:${mW}px;min-width:${mW}px">${inner}</td>`;
     }
     rows+=`<tr>${cells}</tr>`;
   });
 
-  wrap.innerHTML=`<table class="gantt-table"><thead>${hdrs}</thead><tbody>${rows}</tbody></table>`;
+  wrap.innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+    <table class="gantt-table" style="min-width:${310+12*COL_W}px">
+      <thead>${hdrs}</thead><tbody>${rows}</tbody>
+    </table>
+  </div>`;
 
-  // Legend
-  wrap.innerHTML+=`<div style="display:flex;align-items:center;gap:16px;padding:8px 10px;font-size:10px;color:var(--tm);border-top:1px solid var(--bd)">
+  wrap.innerHTML+=`<div style="display:flex;align-items:center;gap:16px;padding:8px 10px;font-size:10px;color:var(--tl);border-top:1px solid var(--bd);flex-wrap:wrap">
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--g),var(--gd))"></div>Пріоритет A</span>
     <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--b),var(--bd2));opacity:.75"></div>Пріоритет B</span>
-    <span style="display:flex;align-items:center;gap:5px"><div style="width:2px;height:12px;border-radius:1px;background:rgba(192,57,43,.6)"></div>Сьогодні (${TODAY.toLocaleDateString('uk-UA')})</span>
+    <span style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:7px;border-radius:2px;background:var(--s3);border:1px solid var(--bd)"></div>Завершено</span>
+    <span style="display:flex;align-items:center;gap:5px"><div style="width:2px;height:12px;border-radius:1px;background:rgba(192,57,43,.55)"></div>Сьогодні (${TODAY.toLocaleDateString('uk-UA')})</span>
+    <span style="color:var(--tl);font-style:italic">${projectsData===PROJECTS?'Статичні дати · оновіть fetch_strategy.py':'Реальні дати з Google Sheets'}</span>
   </div>`;
-}
-
-// ── FORECAST: прогноз виконання стратегії до кінця 2026 ──────────────────
-// Динамічно бере дані з усіх спринтів через E3D_LOADER.getAllSprints()
-const SPRINT_LENGTH_DAYS = 18; // ~ S1=21д, S2=23д, S3=14д → беремо середнє орієнтовне
-const YEAR_END = new Date('2026-12-31');
-
-function sprintCompletionPct(sprintObj){
-  // sprintObj.projects = {pid:{done,total,tasks}}
-  const projects = sprintObj.projects || {};
-  let totalDone=0, totalAll=0;
-  Object.values(projects).forEach(p=>{
-    totalDone += p.done||0;
-    totalAll  += p.total||0;
-  });
-  return totalAll>0 ? (totalDone/totalAll*100) : 0;
-}
-
-function parseSprintEndDate(sprint){
-  // dates: "20.04–11.05" → беремо другу дату, рік 2026
-  try{
-    const parts = (sprint.dates||'').split(/[–-]/);
-    const endPart = parts[parts.length-1].trim(); // "11.05"
-    const [d,m] = endPart.split('.');
-    return new Date(`2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
-  }catch(e){ return new Date(); }
-}
-
-function buildForecast(){
-  const canvas = document.getElementById('forecastChart');
-  if(!canvas) return;
-  if(!window.E3D_LOADER || !E3D_LOADER.getAllSprints) return;
-
-  const sprints = E3D_LOADER.getAllSprints().slice().sort((a,b)=>a.num-b.num);
-  if(!sprints.length){
-    const note=document.getElementById('fc-note');
-    if(note) note.textContent='Дані спринтів ще не завантажено';
-    return;
-  }
-
-  const sprintHistory = sprints.map(sp=>({
-    label: 'Спринт '+sp.num,
-    pct: sprintCompletionPct(sp),
-    endDate: parseSprintEndDate(sp),
-  }));
-
-  if(sprintHistory.length < 2){
-    const note = document.getElementById('fc-note');
-    if(note) note.textContent = 'Розрахунок з\'явиться після 2+ спринтів (зараз: '+sprintHistory.length+')';
-    safeChart('forecastChart',{type:'line',data:{labels:sprintHistory.map(s=>s.label),datasets:[{label:'% виконання',data:sprintHistory.map(s=>s.pct),borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID}}}}});
-    return;
-  }
-
-  const deltas = [];
-  for(let i=1;i<sprintHistory.length;i++){
-    deltas.push(sprintHistory[i].pct - sprintHistory[i-1].pct);
-  }
-  const avgDelta = deltas.reduce((a,b)=>a+b,0)/deltas.length;
-  const lastPct = sprintHistory[sprintHistory.length-1].pct;
-  const lastDate = sprintHistory[sprintHistory.length-1].endDate;
-
-  const daysLeft = Math.max(0,(YEAR_END - lastDate)/86400000);
-  const sprintsLeft = Math.round(daysLeft/SPRINT_LENGTH_DAYS);
-
-  let forecastPct = lastPct + avgDelta*sprintsLeft;
-  forecastPct = Math.max(0,Math.min(100,forecastPct));
-
-  const forecastLabels=[...sprintHistory.map(s=>s.label)];
-  const forecastData=[...sprintHistory.map(s=>s.pct)];
-  const actualData=[...sprintHistory.map(s=>s.pct)];
-  for(let i=1;i<=Math.min(sprintsLeft,12);i++){
-    forecastLabels.push('Прогноз '+i);
-    const val = Math.max(0,Math.min(100,lastPct+avgDelta*i));
-    forecastData.push(val);
-    actualData.push(null);
-  }
-
-  const trend = avgDelta>0.5?'📈 Прогрес':avgDelta<-0.5?'📉 Регрес':'➡️ Стабільно';
-  const trendColor = avgDelta>0.5?G:avgDelta<-0.5?R:A;
-
-  const elRate=document.getElementById('fc-rate'); if(elRate) elRate.textContent=(avgDelta>=0?'+':'')+avgDelta.toFixed(1)+'%/спринт';
-  const elRem=document.getElementById('fc-remaining'); if(elRem) elRem.textContent=sprintsLeft;
-  const elFinal=document.getElementById('fc-final'); if(elFinal) elFinal.textContent=forecastPct.toFixed(0)+'%';
-  const trendEl=document.getElementById('fc-trend');
-  if(trendEl){ trendEl.textContent=trend; trendEl.style.color=trendColor; }
-  const noteEl=document.getElementById('fc-note');
-  if(noteEl) noteEl.textContent='Розрахунок на основі темпу '+sprintHistory.length+' спринтів (живі дані Google Sheets)';
-  const badge=document.getElementById('fc-badge');
-  if(badge){badge.textContent=forecastPct>=80?'НА ЦІЛІ':forecastPct>=50?'ПОТРЕБУЄ ПРИСКОРЕННЯ':'РИЗИК';badge.className='bdg '+(forecastPct>=80?'bdg-g':forecastPct>=50?'bdg-a':'bdg-r');}
-
-  safeChart('forecastChart',{
-    type:'line',
-    data:{labels:forecastLabels,datasets:[
-      {label:'Факт',data:actualData,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:G,spanGaps:false},
-      {label:'Прогноз',data:forecastData,borderColor:trendColor,borderWidth:2,borderDash:[6,4],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:trendColor}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}
-  });
-}
-
-// ── Проекти не в фокусі: динамічно з листа "Проекти" (data._projects) ──────
-function buildNoFocusProjects(dashData){
-  const el=document.getElementById('no-focus-list');
-  if(!el) return;
-  if(!dashData){
-    el.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Дані ще не завантажено</p>';
-    return;
-  }
-
-  const sprints = dashData._sprints || [];
-  const metaMap = dashData._projects || {};
-
-  // Проекти що зустрічались хоча б в одному спринті з реальними задачами
-  const activePids = new Set();
-  sprints.forEach(sp=>Object.entries(sp.projects||{}).forEach(([pid,p])=>{
-    if((p.total||0) > 0) activePids.add(pid);
-  }));
-
-  const noFocus = [];
-  Object.entries(metaMap).forEach(([pid,meta])=>{
-    const owner = (meta.owner||'').trim();
-    const isVacant = !owner || owner==='Вакансія';
-    const inSprints = activePids.has(pid);
-    if(isVacant || !inSprints){
-      noFocus.push({
-        id: pid,
-        name: meta.name||pid,
-        owner: owner||'Вакансія',
-        reason: isVacant ? 'Немає відповідального' : 'Не зустрічається в активних спринтах'
-      });
-    }
-  });
-
-  if(!noFocus.length){
-    el.innerHTML='<p style="font-size:12px;color:var(--tl);padding:8px">Усі проекти в фокусі ✓</p>';
-    return;
-  }
-
-  el.innerHTML = noFocus.map(p=>{
-    const isVac = p.owner==='Вакансія';
-    return `<div class="krow tbd" style="margin-bottom:6px"><div class="krow-bar kb-r"></div><div class="krow-lbl" style="flex:2;white-space:normal">#${p.id} ${p.name}</div><div class="krow-val x" style="font-size:11px;color:${isVac?'var(--red)':'var(--amb)'}">${p.owner}</div><div class="krow-tgt" style="white-space:normal;max-width:220px;text-align:right">${p.reason}</div></div>`;
-  }).join('');
 }
 
 // ── STRATEGY render ───────────────────────────────────
@@ -1412,7 +1243,6 @@ document.addEventListener('DOMContentLoaded',()=>{
         fetch('data/sales_planner.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
           var ts2=document.getElementById('tip-sales');
           if(ts2&&d.fetched_at)ts2.innerHTML=tipHTML('live','Google Sheets',fmtTs(d.fetched_at),false);
-          applySalesRealToCeo(d);
         }).catch(function(){});
       }).catch(function(){});
       document.getElementById('panel-sales').dataset.loaded='1';
