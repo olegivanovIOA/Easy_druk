@@ -474,6 +474,86 @@ a{color:var(--gd);text-decoration:none}
   </div>
 </div>
 
+<!-- ═════════════ СТРАТЕГІЯ ═════════════ -->
+<div class="panel" id="panel-str">
+  <!-- SCORING MODEL — dynamic goals progress -->
+  <div id="w-str-scoring">
+    <div class="sec">🎯 Скорінг цілей 2026 — прогрес виконання стратегії</div>
+    <div id="str-scoring-root">
+      <div class="al al-b"><span class="ic">⟳</span> Ініціалізація…</div>
+    </div>
+  </div>
+
+  <!-- Цілі SMART інтегровані у скорінг вище -->
+  <div id="w-str-goals" style="display:none"><div id="goals-list"></div></div>
+
+  <!-- GANTT timeline -->
+  <div id="w-str-gantt">
+    <div class="sec">📅 Часова шкала проектів 2026</div>
+    <div class="card-flat">
+      <div class="gantt-wrap" id="ganttWrap"></div>
+    </div>
+  </div>
+
+  <!-- FORECAST -->
+  <div id="w-str-forecast">
+    <div class="sec">📈 Динаміка виконання та прогноз до кінця 2026</div>
+    <div class="g3">
+      <div class="card s2">
+        <div class="chdr"><div><div class="ct">% виконання по спринтах + прогноз</div><div class="cs">Динамічно з усіх спринтів Google Sheets</div></div><span class="bdg bdg-b" id="fc-badge">—</span></div>
+        <div class="cw ch210"><canvas id="forecastChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:9px">Прогноз на кінець 2026</div>
+        <div class="mr"><div class="mn">Поточний темп / спринт</div><div class="mv" id="fc-rate">—</div></div>
+        <div class="mr"><div class="mn">Спринтів залишилось</div><div class="mv" id="fc-remaining">—</div></div>
+        <div class="mr"><div class="mn">Прогноз % на 31.12</div><div class="mv" id="fc-final">—</div></div>
+        <div class="mr"><div class="mn">Тренд</div><div class="mv" id="fc-trend">—</div></div>
+        <div style="margin-top:8px;font-size:10px;color:var(--tl)" id="fc-note">Очікую дані...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS NO FOCUS -->
+  <div id="w-str-nofocus">
+    <div class="sec">⚠️ Проекти не в фокусі / без відповідального</div>
+    <div id="no-focus-list" class="card-flat" style="padding:10px"><p style="font-size:12px;color:var(--tl);padding:8px">Завантаження…</p></div>
+  </div>
+
+  <!-- PERSON SCORES -->
+  <div id="w-str-pers">
+    <div class="sec">👤 Скоринг по учасниках</div>
+    <div class="g5" id="perg"></div>
+  </div>
+
+  <!-- SPRINT 2 -->
+  <div id="w-str-s2">
+    <div class="sec">⚡ Поточний спринт (Спринт 2: 11.05 – 29.05)</div>
+    <div class="g2">
+      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct">Прогрес Спринту 2</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm">ДЕМО · TBD</span></div>
+      <div class="card"><div class="ct" style="margin-bottom:9px">Статистика Спринту 2</div>
+        <div class="mr"><div class="mn">Всього задач</div><div class="mv" id="s2t">—</div></div>
+        <div class="mr"><div class="mn">Виконано</div><div class="mv g" id="s2d">—</div></div>
+        <div class="mr"><div class="mn">В роботі</div><div class="mv a" id="s2w">—</div></div>
+        <div class="mr"><div class="mn">Прострочено</div><div class="mv r" id="s2o">—</div></div>
+        <div class="mr"><div class="mn">% виконання</div><div class="mv" id="s2p">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СПРИНТИ — перемикач -->
+  <div id="w-str-s1">
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between">
+      <span id="sprint-title">📅 Спринт 1 — підсумок (20.04 – 11.05)</span>
+      <div id="sprint-switcher" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+    <div class="card-flat">
+      <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Проект</th><th>Задача</th><th>Відп.</th><th>Дедлайн</th><th>Статус</th></tr></thead><tbody id="s1b"></tbody></table></div>
+      <div class="tfoot" id="sprint-footer">Спринт 1 завершено: 11.05.2026</div>
+    </div>
+  </div>
+</div>
+
 <!-- ═════════════ ВИРОБНИЦТВО ═════════════ -->
 <div class="panel" id="panel-prod">
   <div id="w-prod-cap">
@@ -754,21 +834,42 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ ЛОКАЦІЇ ═════════════ -->
 <div class="panel" id="panel-loc">
   <div id="w-loc-tbl">
-    <div class="sec">📍 Зведена таблиця локацій</div>
-    <div class="card-flat" style="margin-bottom:12px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>KPI-score</th></tr></thead><tbody>
-      <tr><td>Локація 1</td><td>1.0×</td><td><span class="pill pla">~62%</span></td><td><span class="pill pla">~89%</span></td><td><span class="pill pla">78%</span></td><td><span class="cov ctt">TBD</span></td></tr>
-      <tr><td>Локація 2</td><td>1.15×</td><td><span class="pill pla">~55%</span></td><td><span class="pill pla">~87%</span></td><td><span class="pill pla">72%</span></td><td><span class="cov ctt">TBD</span></td></tr>
-      <tr><td>Локація 4</td><td>1.4×</td><td><span class="pill plr">~40%</span></td><td><span class="pill plr">~85%</span></td><td><span class="pill plr">65%</span></td><td><span class="cov ctt">TBD</span></td></tr>
-      <tr><td>Локація 5</td><td>2.0×</td><td><span class="pill plr">~28%</span></td><td><span class="pill pla">~82%</span></td><td><span class="pill plr">50%</span></td><td><span class="cov ctt">TBD</span></td></tr>
-    </tbody></table></div><div class="tfoot">⚠️ Числові дані — демо-заглушки · TBD: підключаються через ПО Стріляного</div></div>
+    <div class="sec" style="justify-content:space-between;margin-top:0">
+      <span>📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></span>
+      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · Невикор. ресурс — накопичено з початку історії, маш-год і % від можливого">ⓘ /api/capacity</span>
+    </div>
+    <div class="card-flat" style="margin-bottom:8px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
+      <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
+    </tbody></table></div></div>
   </div>
   <div id="w-loc-cards">
-    <div class="sec">📊 Деталізація по локаціях (демо)</div>
-    <div class="g4">
-      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 1</div><span class="pill plg">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fa" style="width:62%"></div></div><div class="lbv">62%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fa" style="width:11%"></div></div><div class="lbv">~11%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fa" style="width:78%"></div></div><div class="lbv">78%</div></div><span class="wm-txt">ДЕМО</span></div>
-      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 2</div><span class="pill plg">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fa" style="width:55%"></div></div><div class="lbv">55%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:13%"></div></div><div class="lbv">~13%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fa" style="width:72%"></div></div><div class="lbv">72%</div></div><span class="wm-txt">ДЕМО</span></div>
-      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 4</div><span class="pill pla">Активна</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fr" style="width:40%"></div></div><div class="lbv">40%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:15%"></div></div><div class="lbv">~15%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fr" style="width:65%"></div></div><div class="lbv">65%</div></div><span class="wm-txt">ДЕМО</span></div>
-      <div class="lc wm"><div class="lch"><div class="lcn">🏭 Локація 5</div><span class="pill pla">Розгортання</span></div><div class="lrw"><div class="ll">Завантаж.</div><div class="lbw"><div class="lbf fr" style="width:28%"></div></div><div class="lbv">28%</div></div><div class="lrw"><div class="ll">% Браку</div><div class="lbw"><div class="lbf fr" style="width:18%"></div></div><div class="lbv">~18%</div></div><div class="lrw"><div class="ll">Виконання</div><div class="lbw"><div class="lbf fr" style="width:50%"></div></div><div class="lbv">50%</div></div><div style="font-size:9px;color:var(--red);margin-top:5px;font-weight:600">Факт. завант. нижче проєктного</div><span class="wm-txt">ДЕМО</span></div>
+    <div class="sec" style="justify-content:space-between;margin:8px 0 6px">
+      <span>📊 Деталізація по локаціях</span>
+      <span id="loc-status" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span>
+    </div>
+    <div class="g4" id="loc-cards-container" style="gap:8px">
+      <div class="lc"><div class="lcn">Завантаження…</div></div>
+    </div>
+  </div>
+
+  <div id="w-loc-trends">
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0 6px">
+      <span>📈 Динаміка по локаціях — 2026</span>
+      <div id="loc-month-filters" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"></div>
+    </div>
+    <div class="g2">
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">Завантаженість, %</div>
+        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="loc-util-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">% Браку</div>
+        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="loc-defect-chart"></canvas></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--tl)">
+      <span id="loc-trend-status"></span>
+      <span style="cursor:help" title="Поріг браку 7.5% — пунктир, дні вище порогу — обведені чорним · товстий пунктир — логарифмічний тренд (клік по локації в легенді ховає і лінію, і її тренд) · шкала браку обрізана на 25% — окремі викиди вище можуть не вміститись">ⓘ пояснення графіків</span>
     </div>
   </div>
 </div>
@@ -1146,7 +1247,7 @@ const WCAT=[
   {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
   {id:'hr-kpi',tab:'hr',label:'HR показники'},
-  {id:'loc-tbl',tab:'loc',label:'Зведена таблиця локацій'},{id:'loc-cards',tab:'loc',label:'Картки локацій'},
+  {id:'loc-tbl',tab:'loc',label:'Зведена таблиця локацій'},{id:'loc-cards',tab:'loc',label:'Картки локацій'},{id:'loc-trends',tab:'loc',label:'Динаміка по локаціях'},
   {id:'reg-ch',tab:'reg',label:'Графіки покриття'},{id:'reg-tbl',tab:'reg',label:'Таблиця реєстру'},
 ];
 const TNMS={ceo:'🏢 CEO',str:'🎯 Стратегія',prod:'🏭 Виробництво',qual:'✅ Якість',sales:'💼 Продажі',crm:'📣 CRM',fin:'💰 Фінанси',hr:'👥 HR',loc:'📍 Локації',reg:'📋 Реєстр'};
@@ -1193,6 +1294,9 @@ function go(id,btn){
   if(id==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
     window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
   }
+  if(id==='loc'&&window.LocLoader&&!document.getElementById('panel-loc').dataset.loaded){
+    window.LocLoader.load();document.getElementById('panel-loc').dataset.loaded='1';
+  }
 }
 function restoreTab(){
   try{
@@ -1205,6 +1309,9 @@ function restoreTab(){
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
       panel.classList.add('active');
+      if(saved==='loc'&&window.LocLoader&&!panel.dataset.loaded){
+        window.LocLoader.load();panel.dataset.loaded='1';
+      }
     }
   }catch(e){}
 }
@@ -1301,6 +1408,501 @@ function flattenSprint(projMap){
   });
   return rows;
 }
+
+window.LocLoader = (() => {
+  const DATA_URL = 'data/capacity.json';
+  const HISTORY_URL = 'data/capacity_history.json';
+
+  const G = '#2A9D8F', A = '#457B9D', R = '#C0392B', B = '#6aA5C2';
+  const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)', BB = 'rgba(106,165,194,.12)';
+  const GRID = '#f0f2ee';
+
+  const LOC_META = {
+    '1': { coef: '1.0×',  status: 'Активна',      badge: 'plg' },
+    '2': { coef: '1.15×', status: 'Активна',      badge: 'plg' },
+    '4': { coef: '1.4×',  status: 'Активна',      badge: 'pla' },
+    '5': { coef: '2.0×',  status: 'Розгортання',  badge: 'pla' },
+  };
+  // Один колір на локацію — узгоджено з палітрою дашборду (G/A/R/B)
+  const LOC_COLORS = {
+    '1': { line: G, bg: GB },
+    '2': { line: A, bg: AB },
+    '4': { line: R, bg: RB },
+    '5': { line: B, bg: BB },
+  };
+  const UA_MONTHS_FULL = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+
+  let _data = null;
+  let _history = null;
+  let _chartMonth = 'all'; // 'all' | '0'..'11'
+  let _charts = {};
+
+  async function load() {
+    try {
+      const [snapR, histR] = await Promise.all([
+        fetch(DATA_URL + '?t=' + Date.now()),
+        fetch(HISTORY_URL + '?t=' + Date.now()).catch(() => null),
+      ]);
+      if (!snapR.ok) throw new Error('HTTP ' + snapR.status);
+      _data = await snapR.json();
+      _history = (histR && histR.ok) ? await histR.json() : null;
+      render();
+    } catch (e) {
+      console.warn('[Loc] Не вдалось завантажити дані локацій:', e);
+      renderError();
+    }
+  }
+
+  function locNum(name) {
+    const m = String(name || '').match(/\d+/);
+    return m ? m[0] : null;
+  }
+
+  function metrics(loc) {
+    const m = loc.machines || {};
+    const plan = loc.plan || {};
+    const batches = loc.batches || {};
+    const printed = loc.printed || {};
+    const util = m.utilizationPercent != null ? Number(m.utilizationPercent) : null;
+    const defectPct = batches.parts ? (batches.defectParts || 0) / batches.parts * 100 : 0;
+    const quality = batches.parts ? Math.max(0, 100 - defectPct) : null;
+    const completion = plan.parts ? printed.parts / plan.parts * 100 : null;
+    return { util, quality, completion, defectPct };
+  }
+
+  // Партій сьогодні ще може не бути (зміна тільки почалась) — % Якості за
+  // сьогодні тоді null. Замість голого "—" показуємо останнє відоме значення
+  // з історії (учора чи раніше), явно позначене як не сьогоднішнє.
+  function lastKnownQuality(num) {
+    const days = (_history && _history.days) || [];
+    for (let i = days.length - 1; i >= 0; i--) {
+      const loc = days[i].locations && days[i].locations[num];
+      if (loc && loc.defectPct != null) {
+        return { quality: Math.max(0, 100 - loc.defectPct), date: days[i].date };
+      }
+    }
+    return null;
+  }
+
+  function pill(val, goodMin, suffix) {
+    if (val == null || isNaN(val)) return `<span class="cov ctt">—</span>`;
+    const cls = val >= goodMin ? 'pla' : 'plr';
+    return `<span class="pill ${cls}">${val.toFixed(1)}${suffix}</span>`;
+  }
+
+  function pillStale(val, goodMin, suffix, dateLabel) {
+    if (val == null || isNaN(val)) return `<span class="cov ctt">—</span>`;
+    const cls = val >= goodMin ? 'pla' : 'plr';
+    return `<span class="pill ${cls}" style="opacity:.6;border-style:dashed" title="Партій сьогодні ще немає — останні дані за ${dateLabel}">${val.toFixed(1)}${suffix}*</span>`;
+  }
+
+  function barClass(val, goodMin) {
+    if (val == null || isNaN(val)) return 'fr';
+    return val >= goodMin ? 'fa' : 'fr';
+  }
+
+  // ─── Живий індикатор ───────────────────────────────────────────────────
+  function updateLiveDot() {
+    const dot = document.getElementById('loc-live-dot');
+    const label = document.getElementById('loc-live-label');
+    if (!dot || !label) return;
+    if (_data && _data.fetched_at) {
+      dot.className = 'ld ok';
+      label.textContent = 'дані з API';
+    } else {
+      dot.className = 'ld';
+      label.textContent = '';
+    }
+  }
+
+  // ─── Таблиця ────────────────────────────────────────────────────────────
+  function renderTable() {
+    const body = document.getElementById('loc-tbl-body');
+    if (!body) return;
+    const locations = _data.locations || [];
+    if (!locations.length) {
+      body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--tl)">Дані ще не синхронізовано</td></tr>`;
+      return;
+    }
+    const idles = idlePotential();
+    body.innerHTML = locations.map(loc => {
+      const num = locNum(loc.location);
+      const meta = LOC_META[num] || { coef: '—', status: '—' };
+      const { util, quality, completion } = metrics(loc);
+      const known = quality == null ? lastKnownQuality(num) : null;
+      const qualityCell = quality != null
+        ? pill(quality, 85, '%')
+        : (known ? pillStale(known.quality, 85, '%', known.date) : `<span class="cov ctt">—</span>`);
+      const idle = idles[num] || { hours: 0, pct: null, days: 0 };
+      const idleCell = idle.days === 0
+        ? `<span class="cov ctt">TBD</span>`
+        : `<span class="pill ${idle.pct != null && idle.pct <= 20 ? 'pla' : 'plr'}">${fmtHours(idle.hours)}${idle.pct != null ? ' · ' + idle.pct.toFixed(1) + '%' : ''}</span>`;
+      return `<tr>
+        <td>${loc.location}</td>
+        <td>${meta.coef}</td>
+        <td>${pill(util, 40, '%')}</td>
+        <td>${qualityCell}</td>
+        <td>${pill(completion, 60, '%')}</td>
+        <td>${idleCell}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ─── Середні показники за поточний рік (з історії) ─────────────────────
+  function hasSignal(day) {
+    const locs = (day && day.locations) || {};
+    return Object.values(locs).some(l => (l.util || 0) > 0 || (l.defectPct || 0) > 0);
+  }
+
+  // ─── Накопичений невикористаний ресурс (потенціал росту завантаження) ──
+  // free (машино-еквівалент простою за добу) × 24 год = маш-год простою за день,
+  // підсумовано по всіх днях історії, де це поле вже накопичено.
+  function idlePotential() {
+    const days = (_history && _history.days) || [];
+    const startIdx = days.findIndex(hasSignal);
+    const relevant = startIdx > 0 ? days.slice(startIdx) : days;
+    const result = {};
+    Object.keys(LOC_META).forEach(num => {
+      let hours = 0, totalHours = 0, n = 0, since = null;
+      relevant.forEach(d => {
+        const loc = d.locations && d.locations[num];
+        if (!loc || loc.free == null) return;
+        hours += loc.free * 24;
+        if (loc.total != null) totalHours += loc.total * 24;
+        n++;
+        if (!since) since = d.date;
+      });
+      result[num] = { hours, totalHours, pct: totalHours ? (hours / totalHours * 100) : null, days: n, since };
+    });
+    return result;
+  }
+
+  function fmtHours(h) {
+    if (h >= 1000) return (h / 1000).toFixed(1) + ' тис. маш-год';
+    return h.toFixed(0) + ' маш-год';
+  }
+
+  function yearAverages() {
+    const days = (_history && _history.days) || [];
+    const startIdx = days.findIndex(hasSignal);
+    const relevant = startIdx > 0 ? days.slice(startIdx) : days;
+    const result = {};
+    Object.keys(LOC_META).forEach(num => {
+      let utilSum = 0, utilN = 0, defSum = 0, defN = 0;
+      relevant.forEach(d => {
+        const loc = d.locations && d.locations[num];
+        if (!loc) return;
+        if (loc.util != null) { utilSum += loc.util; utilN++; }
+        if (loc.defectPct != null) { defSum += loc.defectPct; defN++; }
+      });
+      result[num] = {
+        avgUtil: utilN ? utilSum / utilN : null,
+        avgDefect: defN ? defSum / defN : null,
+      };
+    });
+    return result;
+  }
+
+  // ─── Кільцева діаграма (зовнішнє кільце — середнє за рік, внутрішнє — зараз) ──
+  function ringPair(curVal, avgVal, maxScale, color, curColorOverride) {
+    const size = 44, c = 22, rOut = 19, rIn = 12, sw = 5;
+    const cOut = 2 * Math.PI * rOut, cIn = 2 * Math.PI * rIn;
+    const curPct = curVal == null ? 0 : Math.max(0, Math.min(1, curVal / maxScale));
+    const avgPct = avgVal == null ? 0 : Math.max(0, Math.min(1, avgVal / maxScale));
+    const curColor = curColorOverride || color;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">
+      <circle cx="${c}" cy="${c}" r="${rOut}" fill="none" stroke="var(--s2)" stroke-width="${sw}"/>
+      <circle cx="${c}" cy="${c}" r="${rOut}" fill="none" stroke="${color}" stroke-opacity="0.4" stroke-width="${sw}" stroke-linecap="round"
+        stroke-dasharray="${(avgPct*cOut).toFixed(1)} ${cOut.toFixed(1)}" transform="rotate(-90 ${c} ${c})"/>
+      <circle cx="${c}" cy="${c}" r="${rIn}" fill="none" stroke="var(--s2)" stroke-width="${sw}"/>
+      <circle cx="${c}" cy="${c}" r="${rIn}" fill="none" stroke="${curColor}" stroke-width="${sw}" stroke-linecap="round"
+        stroke-dasharray="${(curPct*cIn).toFixed(1)} ${cIn.toFixed(1)}" transform="rotate(-90 ${c} ${c})"/>
+    </svg>`;
+  }
+
+  function metricBlock(title, curVal, avgVal, curColor, avgOpacityColor, suffix) {
+    const curTxt = curVal != null ? curVal.toFixed(1) + suffix : '—';
+    const avgTxt = avgVal != null ? avgVal.toFixed(1) + suffix : '—';
+    return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
+      ${ringPair(curVal, avgVal, suffix === '%' && title === 'Брак' ? 25 : 100, avgOpacityColor, curColor)}
+      <div style="font-size:9px;line-height:1.45">
+        <div style="font-weight:700;color:var(--tx)">${title}</div>
+        <div><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${curColor};margin-right:3px"></span>Зараз: <b>${curTxt}</b></div>
+        <div><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${avgOpacityColor};opacity:.4;margin-right:3px"></span>Середнє за 2026: <b>${avgTxt}</b></div>
+      </div>
+    </div>`;
+  }
+
+  // ─── Картки ─────────────────────────────────────────────────────────────
+  function renderCards() {
+    const container = document.getElementById('loc-cards-container');
+    if (!container) return;
+    const locations = _data.locations || [];
+    if (!locations.length) {
+      container.innerHTML = `<div class="lc"><div class="lcn">Дані ще не синхронізовано</div></div>`;
+      return;
+    }
+    const avgs = yearAverages();
+    const idles = idlePotential();
+    container.innerHTML = locations.map(loc => {
+      const num = locNum(loc.location);
+      const meta = LOC_META[num] || { status: '—', badge: 'pla' };
+      const colors = LOC_COLORS[num] || { line: A, bg: AB };
+      const { util, defectPct } = metrics(loc);
+      const avg = avgs[num] || { avgUtil: null, avgDefect: null };
+      const idle = idles[num] || { hours: 0, days: 0, since: null };
+      const defectCurColor = (defectPct != null && defectPct > DEFECT_THRESHOLD) ? '#C0392B' : colors.line;
+      const warn = (util != null && util < 40)
+        ? `<div style="font-size:8px;color:var(--red);margin-top:1px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
+      const growthBox = idle.days > 0
+        ? `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br><b style="color:var(--tx);font-size:12px">${fmtHours(idle.hours)}</b><br>невикор. ресурсу<br>з ${idle.since}</div>`
+        : `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br>накопичується</div>`;
+      return `<div class="lc" style="padding:8px">
+        <div class="lch" style="margin-bottom:4px"><div class="lcn">🏭 ${loc.location}</div><span class="pill ${meta.badge}">${meta.status}</span></div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;min-width:0">
+            ${metricBlock('Завант.', util, avg.avgUtil, colors.line, colors.line, '%')}
+            ${metricBlock('Брак', defectPct, avg.avgDefect, defectCurColor, colors.line, '%')}
+          </div>
+          <div style="flex:0 0 auto;width:88px;border-left:1px dashed var(--bd);padding-left:8px;display:flex;align-items:center">
+            ${growthBox}
+          </div>
+        </div>
+        ${warn}
+      </div>`;
+    }).join('');
+  }
+
+  function updateStatus() {
+    const el = document.getElementById('loc-status');
+    if (!el) return;
+    if (!_data || !_data.fetched_at) {
+      el.textContent = '⏳ не синхронізовано';
+      return;
+    }
+    const d = new Date(_data.fetched_at);
+    const dateStr = _data.date ? ' · зріз ' + _data.date : '';
+    el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' }) + dateStr;
+  }
+
+  // ─── Фільтр місяців для графіків ───────────────────────────────────────
+  const DEFECT_THRESHOLD = 7.5;
+
+  function maxSelectableMonth() {
+    const now = new Date();
+    const curYear = now.getFullYear();
+    if (curYear > 2026) return 11;
+    if (curYear < 2026) return -1; // ще не почався рік — доступне лише "Всі"
+    return now.getMonth(); // 0-based, поточний місяць включно
+  }
+
+  function renderMonthFilters() {
+    const box = document.getElementById('loc-month-filters');
+    if (!box) return;
+    const maxMonth = maxSelectableMonth();
+    const btns = [`<button class="gsort-btn${_chartMonth==='all'?' active-sort':''}" data-m="all">Всі</button>`];
+    UA_MONTHS_FULL.forEach((name, i) => {
+      const disabled = i > maxMonth;
+      btns.push(`<button class="gsort-btn${_chartMonth===String(i)?' active-sort':''}" data-m="${i}"${disabled?' disabled':''} style="${disabled?'opacity:.35;cursor:not-allowed':''}">${name.slice(0,3)}</button>`);
+    });
+    box.innerHTML = btns.join('');
+    box.querySelectorAll('button:not([disabled])').forEach(b => {
+      b.onclick = () => { _chartMonth = b.dataset.m; renderMonthFilters(); renderCharts(); };
+    });
+  }
+
+  // ─── Графіки динаміки (2026) ───────────────────────────────────────────
+  function filteredDays() {
+    const days = (_history && _history.days) || [];
+    if (_chartMonth === 'all') {
+      // не малюємо порожній хвіст до старту реальних даних
+      const startIdx = days.findIndex(hasSignal);
+      return startIdx > 0 ? days.slice(startIdx) : days;
+    }
+    const m = parseInt(_chartMonth, 10);
+    return days.filter(d => new Date(d.date).getMonth() === m);
+  }
+
+  // ─── Логарифмічний тренд ────────────────────────────────────────────────
+  function logTrend(data) {
+    // data: масив значень (можливо з null), x = 1..N (позиція в масиві)
+    const pts = [];
+    data.forEach((v, i) => { if (v != null) pts.push([i + 1, v]); });
+    if (pts.length < 3) return null;
+    let sumLnX = 0, sumY = 0, sumLnX2 = 0, sumLnXY = 0;
+    pts.forEach(([x, y]) => {
+      const lx = Math.log(x);
+      sumLnX += lx; sumY += y; sumLnX2 += lx * lx; sumLnXY += lx * y;
+    });
+    const n = pts.length;
+    const meanLnX = sumLnX / n, meanY = sumY / n;
+    const varLnX = sumLnX2 / n - meanLnX * meanLnX;
+    if (!varLnX) return null;
+    const b = (sumLnXY / n - meanLnX * meanY) / varLnX;
+    const a = meanY - b * meanLnX;
+    return (x) => a + b * Math.log(x);
+  }
+
+  function buildLineChart(canvasId, field, yFmt, opts) {
+    opts = opts || {};
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const days = filteredDays();
+    if (!days.length) {
+      canvas.parentElement.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:1rem">Історія ще накопичується — запустіть backfill_capacity_history.py або зачекайте на щогодинне оновлення</p>';
+      return;
+    }
+    const labels = days.map(d => d.date.slice(5)); // MM-DD
+    const datasets = [];
+
+    Object.keys(LOC_META).forEach(num => {
+      const colors = LOC_COLORS[num] || { line: A, bg: AB };
+      const data = days.map(d => {
+        const loc = d.locations && d.locations[num];
+        const v = loc ? loc[field] : null;
+        return v == null ? null : v;
+      });
+
+      // тренд-лінія (логарифмічна регресія) — малюємо ПІД основною лінією
+      const trendFn = logTrend(data);
+      if (trendFn) {
+        datasets.push({
+          label: 'Тренд ' + 'Локація ' + num,
+          data: data.map((v, i) => v == null ? null : trendFn(i + 1)),
+          borderColor: colors.line,
+          borderWidth: 3,
+          borderDash: [9, 5],
+          pointRadius: 0,
+          tension: 0,
+          fill: false,
+          order: 1,
+          _locNum: num,
+          _role: 'trend',
+        });
+      }
+
+      const ds = {
+        label: 'Локація ' + num,
+        data,
+        borderColor: colors.line,
+        backgroundColor: colors.bg,
+        borderWidth: 2,
+        tension: .35,
+        spanGaps: true,
+        fill: false,
+        order: 2,
+        _locNum: num,
+        _role: 'main',
+      };
+      if (opts.threshold != null) {
+        // точки, що перевищують поріг — виділяємо збільшеним маркером у кольорі локації
+        ds.pointRadius = data.map(v => (v != null && v > opts.threshold) ? 5 : (days.length > 40 ? 0 : 2));
+        ds.pointBackgroundColor = colors.line;
+        ds.pointBorderColor = data.map(v => (v != null && v > opts.threshold) ? '#000' : colors.line);
+        ds.pointBorderWidth = data.map(v => (v != null && v > opts.threshold) ? 2 : 1);
+      } else {
+        ds.pointRadius = days.length > 40 ? 0 : 2;
+      }
+      datasets.push(ds);
+    });
+
+    if (opts.threshold != null) {
+      datasets.push({
+        label: `Поріг ${opts.threshold}%`,
+        data: labels.map(() => opts.threshold),
+        borderColor: '#1A2B3C',
+        borderWidth: 2,
+        borderDash: [7, 4],
+        pointRadius: 0,
+        tension: 0,
+        fill: false,
+        order: 0,
+      });
+    }
+
+    if (_charts[canvasId]) { _charts[canvasId].destroy(); }
+    _charts[canvasId] = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            onClick: (e, legendItem, legend) => {
+              const chart = legend.chart;
+              const idx = legendItem.datasetIndex;
+              const clicked = chart.data.datasets[idx];
+              const newVisible = !chart.isDatasetVisible(idx);
+              if (clicked._locNum != null) {
+                // ховаємо/показуємо основну лінію і її тренд разом
+                chart.data.datasets.forEach((d, i) => {
+                  if (d._locNum === clicked._locNum) chart.setDatasetVisibility(i, newVisible);
+                });
+              } else {
+                chart.setDatasetVisibility(idx, newVisible);
+              }
+              chart.update();
+            },
+            labels: {
+              usePointStyle: true, padding: 8, font: { size: 10 },
+              filter: (item) => !item.text.startsWith('Тренд '),
+              // фіксований колір свотча з borderColor датасету — щоб не "плавав"
+              // залежно від кольору конкретної точки (per-point override)
+              generateLabels: (chart) => chart.data.datasets
+                .map((ds, i) => ({ text: ds.label, datasetIndex: i, fillStyle: ds.borderColor, strokeStyle: ds.borderColor, pointStyle: 'circle', hidden: !chart.isDatasetVisible(i) }))
+                .filter(item => !item.text.startsWith('Тренд ')),
+            },
+          },
+        },
+        scales: {
+          x: { grid: { color: GRID }, ticks: { autoSkip: true, maxTicksLimit: 12, font: { size: 9 } } },
+          y: {
+            grid: { color: GRID },
+            ticks: { callback: v => yFmt(v) },
+            beginAtZero: true,
+            ...(opts.yMax != null ? { max: opts.yMax } : {}),
+          },
+        },
+      },
+    });
+  }
+
+  function renderCharts() {
+    buildLineChart('loc-util-chart', 'util', v => v + '%');
+    buildLineChart('loc-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD, yMax: 25 });
+    const el = document.getElementById('loc-trend-status');
+    if (el) {
+      const days = (_history && _history.days) || [];
+      if (!days.length) {
+        el.textContent = '⏳ Історія по днях ще порожня';
+      } else {
+        el.textContent = `Днів у історії: ${days.length} (${days[0].date} → ${days[days.length-1].date}) · накопичується щогодини`;
+      }
+    }
+  }
+
+  function render() {
+    if (!_data) return;
+    renderTable();
+    renderCards();
+    updateStatus();
+    updateLiveDot();
+    renderMonthFilters();
+    renderCharts();
+  }
+
+  function renderError() {
+    const el = document.getElementById('loc-status');
+    if (el) el.textContent = '✗ Дані локацій недоступні';
+    const dot = document.getElementById('loc-live-dot');
+    if (dot) dot.className = 'ld err';
+  }
+
+  return { load };
+})();
+
 </script>
 <script src="js/hr_loader.js"></script>
 <script src="js/ads_loader.js"></script>
