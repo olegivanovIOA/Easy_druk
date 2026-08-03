@@ -325,7 +325,7 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
             <th style="padding:6px 8px;text-align:center;width:70px">Вага</th>
             <th style="padding:6px 8px;text-align:left;width:160px">Ціль / Проект</th>
             <th style="padding:6px 8px;text-align:left;width:120px">Відповідальний</th>
-            <th style="padding:6px 8px;text-align:left;width:200px">Учасники</th>
+            <th style="padding:6px 8px;text-align:left;width:100px">Учасники</th>
             <th style="padding:6px 8px;text-align:center;width:70px">Спринти</th>
             <th style="padding:6px 8px;text-align:right;width:130px">% виконання</th>
             <th style="padding:6px 8px;text-align:center;width:95px">Статус</th>
