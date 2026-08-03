@@ -556,6 +556,22 @@ a{color:var(--gd);text-decoration:none}
 
 <!-- ═════════════ ВИРОБНИЦТВО ═════════════ -->
 <div class="panel" id="panel-prod">
+  <div id="w-prod-trend">
+    <div class="sec">📉 Завантаженість парку та виконання плану</div>
+    <div class="g2">
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">Завантаженість парку — 2026 (зважено по всіх локаціях)</div>
+        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="fleet-util-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">Кількість принтерів по локаціях (сьогодні)</div>
+        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="fleet-count-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="g2" style="margin-top:14px">
+      <div class="card"><div class="chdr"><div><div class="ct">Виконання плану по локаціях</div><div class="cs">надруковано / план, шт · сьогодні</div></div><span class="bdg bdg-g" id="outCh-bdg">LIVE</span></div><div class="cw ch160"><canvas id="outCh"></canvas></div></div>
+    </div>
+  </div>
   <div id="w-prod-cap">
     <div class="sec">⚙️ Потужність та завантаженість <span id="prod-live-dot" class="ld" style="margin-left:2px"></span></div>
     <div class="g6">
@@ -567,32 +583,18 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF / MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
     </div>
   </div>
-  <div id="w-prod-batch">
-    <div class="sec">📦 Партії — ключові метрики</div>
-    <div class="g3">
-      <div class="card wm"><div class="ct" style="margin-bottom:9px">Часові параметри</div><div class="mr"><div class="mn">Lead time (повний цикл)</div><div class="mv a">~22 дні</div></div><div class="mr"><div class="mn">Дата прийому замовлення</div><div class="mv"><span class="cov cy">Є</span></div></div><div class="mr"><div class="mn">Нормативний час</div><div class="mv"><span class="cov cn">Немає</span></div></div><div class="mr"><div class="mn">Відхилення від нормативу</div><div class="mtbd">TBD</div></div><span class="wm-txt">ДЕМО</span></div>
-      <div class="card"><div class="ct" style="margin-bottom:9px">Сировина та матеріали</div><div class="mr"><div class="mn">Вид сировини (філамент)</div><div class="mv"><span class="cov cp">Частково</span></div></div><div class="mr"><div class="mn">Нормативна витрата</div><div class="mv"><span class="cov cn">Немає</span></div></div><div class="mr"><div class="mn">Фактична витрата</div><div class="mv"><span class="cov cp">Частково</span></div></div><div class="mr"><div class="mn">Вартість сировини</div><div class="mv"><span class="cov cp">Частково</span></div></div></div>
-      <div class="card"><div class="ct" style="margin-bottom:9px">Економіка партій</div><div class="mr"><div class="mn">Виручка з партії</div><div class="mv"><span class="cov cy">Є</span></div></div><div class="mr"><div class="mn">Прямі витрати</div><div class="mtbd">TBD</div></div><div class="mr"><div class="mn">Маржинальність</div><div class="mtbd">TBD</div></div><div class="mr"><div class="mn">Собівартість 1 одиниці</div><div class="mtbd">TBD</div></div></div>
+  <div id="w-prod-planweek">
+    <div class="sec" style="justify-content:space-between">
+      <span>📅 План друку по локаціях — горизонт планування<span class="ld" id="planweek-live-dot" style="margin-left:2px"></span></span>
+      <span id="planweek-status" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span>
     </div>
-  </div>
-  <div id="w-prod-trend">
-    <div class="sec">📉 Виконання плану та завантаженість парку</div>
-    <div class="g2">
-      <div class="card wm wmc"><div class="chdr"><div><div class="ct">Lead time (дні)</div><div class="cs">демо · ціль &lt;5</div></div><span class="bdg bdg-tbd">ДЕМО</span></div><div class="cw ch160"><canvas id="leadCh"></canvas></div><span class="wm-cr">ДЕМО · TBD</span></div>
-      <div class="card"><div class="chdr"><div><div class="ct">Виконання плану по локаціях</div><div class="cs">надруковано / план, шт · сьогодні</div></div><span class="bdg bdg-g" id="outCh-bdg">LIVE</span></div><div class="cw ch160"><canvas id="outCh"></canvas></div></div>
-    </div>
-    <div class="g2" style="margin-top:14px">
-      <div class="card-flat">
-        <div class="ct" style="padding:8px 10px 0">Завантаженість парку — 2026 (зважено по всіх локаціях)</div>
-        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="fleet-util-chart"></canvas></div>
-      </div>
-      <div class="card-flat">
-        <div class="ct" style="padding:8px 10px 0">Кількість принтерів по локаціях (сьогодні)</div>
-        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="fleet-count-chart"></canvas></div>
-      </div>
+    <div class="card-flat">
+      <div style="font-size:10px;color:var(--tl);padding:8px 10px 0">Заплановано деталей до друку, шт/добу · глибина різна по локаціях (залежить від заповненого плану)</div>
+      <div class="cw" style="height:220px;padding:6px 10px 10px"><canvas id="planweek-chart"></canvas></div>
     </div>
   </div>
 </div>
+
 
 <!-- ═════════════ ЯКІСТЬ ═════════════ -->
 <div class="panel" id="panel-qual">
@@ -1121,6 +1123,42 @@ async function loadProdData(){
       safeChart('fleet-util-chart',{type:'line',data:{labels,datasets:[{label:'Завантаженість парку, %',data,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:days.length>40?0:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID},ticks:{autoSkip:true,maxTicksLimit:12,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}});
     }
   }catch(e){console.warn('[Prod]',e.message);}
+  await loadPlanWeek();
+}
+
+// ── План друку по локаціях на горизонт планування (з ручного експорту Планування по локаціям) ──
+async function loadPlanWeek(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  try{
+    const r=await fetch('data/plan_week.json?t='+Date.now());
+    if(!r.ok) throw new Error('no plan_week.json');
+    const pw=await r.json();
+    const dot=document.getElementById('planweek-live-dot'); if(dot) dot.className='ld ok';
+
+    const O='#BA7517';
+    const locColors={'1':G,'2':A,'4':R,'5':B,'6':O};
+    const locNames={'1':'Локація 1','2':'Локація 2','4':'Локація 4','5':'Локація 5','6':'Локація 6'};
+
+    const labels=pw.dates.map(d=>d.slice(5));
+    const datasets=Object.keys(pw.locations).sort((a,b)=>+a-+b).map(loc=>({
+      label:locNames[loc]||('Локація '+loc),
+      data:pw.locations[loc],
+      borderColor:locColors[loc]||'#999',
+      backgroundColor:(locColors[loc]||'#999')+'22',
+      borderWidth:2,tension:.25,
+      spanGaps:false,
+      pointRadius:pw.dates.length>25?0:2,
+    }));
+
+    safeChart('planweek-chart',{type:'line',data:{labels,datasets},options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},
+      scales:{x:{grid:{display:false},ticks:{autoSkip:true,maxTicksLimit:15,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true}}
+    }});
+
+    const genDate=pw.generated_at?new Date(pw.generated_at).toLocaleDateString('uk-UA'):'';
+    set('planweek-status', genDate?`Дані станом на ${genDate} · ручний імпорт`:'');
+  }catch(e){console.warn('[PlanWeek]',e.message);}
 }
 
 // ── GOALS with progress indicators ───────────────────
@@ -1364,7 +1402,7 @@ const WKEY='e3d_widget_prefs_v1';
 const WCAT=[
   {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
   {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
-  {id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batch',tab:'prod',label:'Партії (Batch)'},{id:'prod-trend',tab:'prod',label:'Lead Time та виробіток'},
+  {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
   {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},
