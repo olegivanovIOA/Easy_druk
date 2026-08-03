@@ -533,10 +533,10 @@ a{color:var(--gd);text-decoration:none}
 
   <!-- SPRINT 2 -->
   <div id="w-str-s2">
-    <div class="sec">⚡ Поточний спринт (Спринт 2: 11.05 – 29.05)</div>
+    <div class="sec" id="s2-header-title">⚡ Поточний спринт (Спринт 2: 11.05 – 29.05)</div>
     <div class="g2">
-      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct">Прогрес Спринту 2</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm">ДЕМО · TBD</span></div>
-      <div class="card"><div class="ct" style="margin-bottom:9px">Статистика Спринту 2</div>
+      <div class="card wm" id="s2c"><div class="chdr"><div><div class="ct" id="s2-progress-title">Прогрес Спринту 2</div></div><span class="bdg bdg-b" id="s2b">—</span></div><div class="cw ch140"><canvas id="spDon"></canvas></div><span class="wm-txt" id="s2wm">ДЕМО · TBD</span></div>
+      <div class="card"><div class="ct" style="margin-bottom:9px" id="s2-stats-title">Статистика Спринту 2</div>
         <div class="mr"><div class="mn">Всього задач</div><div class="mv" id="s2t">—</div></div>
         <div class="mr"><div class="mn">Виконано</div><div class="mv g" id="s2d">—</div></div>
         <div class="mr"><div class="mn">В роботі</div><div class="mv a" id="s2w">—</div></div>
@@ -1213,6 +1213,10 @@ function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 async function buildGantt(){
   const wrap=document.getElementById('ganttWrap');if(!wrap)return;
 
+  // Резервні дати (start/deadline), якщо в живому листі "Проекти" вони порожні
+  const staticById={};
+  (window.E3D_STATIC?window.E3D_STATIC.projects:PROJECTS).forEach(p=>{staticById[p.id]=p;});
+
   // Спробуємо взяти реальні дати з strategy.json
   let projectsData=PROJECTS;
   let progressMap={};
@@ -1221,8 +1225,14 @@ async function buildGantt(){
     const raw=await r.json();
     const meta=raw.projects||{};
     const dynamic=Object.entries(meta)
-      .filter(([,m])=>m.start&&m.deadline)
-      .map(([pid,m])=>({id:parseInt(pid),name:m.name,owner:m.owner||'Вакансія',prio:m.priority||'B',start:m.start,end:m.deadline}))
+      .map(([pid,m])=>{
+        const idNum=parseInt(pid);
+        const fb=staticById[idNum];
+        const start=m.start||(fb?fb.start:'');
+        const end=m.deadline||(fb?fb.deadline||fb.end:'');
+        return {id:idNum,name:m.name,owner:(m.owner&&m.owner!=='Вакансія')?m.owner:(fb?fb.owner:(m.owner||'Вакансія')),prio:m.priority||'B',start,end};
+      })
+      .filter(m=>m.start&&m.end)
       .sort((a,b)=>a.id-b.id);
     if(dynamic.length>=5) projectsData=dynamic;
 
@@ -1333,13 +1343,15 @@ async function renderStrategy(ov={}){
   buildGantt();
 
   // person scores — реальний % виконання задач (done/total з усіх спринтів), а не час що минув
-  const staticProjects = window.E3D_STATIC ? window.E3D_STATIC.projects : PROJECTS;
+  const staticProjectsBase = window.E3D_STATIC ? window.E3D_STATIC.projects : PROJECTS;
   let pers={};
   try{
     let realProgress={};
+    let liveMeta={};
     try{
       const r=await fetch('data/strategy.json?t='+Date.now());
       const raw=await r.json();
+      liveMeta=raw.projects||{};
       const sprints=raw.sprints||[];
       const agg={};
       sprints.forEach(sp=>{
@@ -1353,6 +1365,14 @@ async function renderStrategy(ov={}){
         realProgress[pid]=a.total>0?Math.round(a.done/a.total*100):null;
       });
     }catch(e){}
+
+    // Живий власник з листа "Проекти" пріоритетніший за статичний файл
+    // (static.js буває застарілим — напр. власника ще не проставили при першому заповненні)
+    const staticProjects = staticProjectsBase.map(p=>{
+      const lm=liveMeta[String(p.id)+'.0']||liveMeta[String(p.id)];
+      const owner=(lm&&lm.owner&&lm.owner!=='Вакансія')?lm.owner:p.owner;
+      return owner===p.owner?p:{...p,owner};
+    });
 
     const now = new Date();
     const pscores = staticProjects.map(p=>{
@@ -1468,6 +1488,11 @@ function _renderActiveSprint(){
   const mp=total>0?Math.round(moved/total*100):0;
   const title=document.getElementById('sprint-title');
   if(title) title.textContent=`⚡ ${spLbl} (${spDt})`;
+  const sprintNumLbl = num==='all' ? 'Всі спринти' : `Спринт ${num}`;
+  const h2=document.getElementById('s2-header-title'); if(h2) h2.textContent=`⚡ Поточний спринт (${sprintNumLbl}: ${spDt})`;
+  const pt=document.getElementById('s2-progress-title'); if(pt) pt.textContent=`Прогрес ${sprintNumLbl}`;
+  const st=document.getElementById('s2-stats-title'); if(st) st.textContent=`Статистика ${sprintNumLbl}`;
+  const wm=document.getElementById('s2wm'); if(wm) wm.style.display='none';
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('s2t',total);set('s2d',done);set('s2w',inProg);set('s2moved',moved);set('s2p',dp+'%');set('s2movpct',mp+'%');set('s2b',dp+'% виконано');
   if(SDC){try{SDC.destroy();}catch(e){}}
