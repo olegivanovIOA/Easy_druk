@@ -183,3 +183,31 @@ jobs:
           for i in 1 2 3 4 5; do
             git pull --rebase origin main_root && git push && break || sleep $((i*3))
           done
+  update-batches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Fetch Batches/Lots data (Партії)
+        env:
+          CAPACITY_API_KEY: ${{ secrets.CAPACITY_API_KEY }}
+        run: python fetch_batches.py
+
+      - name: Commit Batches data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/batches_lots.json data/batches_history.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: update batches data [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main_root && git push && break || sleep $((i*3))
+          done
