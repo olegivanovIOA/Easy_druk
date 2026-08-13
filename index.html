@@ -442,8 +442,8 @@ a{color:var(--gd);text-decoration:none}
     <div class="sec">🎯 Стратегія 2026 — прогрес</div>
     <div class="g6" style="margin-bottom:14px">
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% виконання стратегії</div><div class="krow-val g" id="ceo-pp">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (парк)</div><div class="krow-val g">2 060</div><div class="krow-tgt">Ціль: <b>10 000</b></div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Активних локацій</div><div class="krow-val">5</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (парк)</div><div class="krow-val g" id="ceo-fleet-total">—</div><div class="krow-tgt">Ціль: <b>10 000</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Активних локацій</div><div class="krow-val" id="ceo-loc-count">—</div><div class="real-dot"></div></div>
       <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">OEE / Ефективність</div><div class="krow-val r">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
       <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">% Браку</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="demo-lbl">ДЕМО</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржинальність</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
@@ -454,7 +454,7 @@ a{color:var(--gd);text-decoration:none}
         <div class="pr"><div class="pn">Виручка 2026 (ціль 650M)</div><div class="pbw"><div class="pb" style="width:18%;background:var(--g)" id="ceo-rev-bar"></div></div><div class="pv g" id="ceo-rev-val">—</div></div>
         <div class="pr"><div class="pn">Диверсифікація ТОП-2 ≤70%</div><div class="pbw"><div class="pb" style="width:8%;background:var(--red)"></div></div><div class="pv r">94.7%</div></div>
         <div class="pr"><div class="pn">Штат → 200 осіб</div><div class="pbw"><div class="pb" style="width:67%;background:var(--amb)" id="ceo-staff-bar"></div></div><div class="pv" id="ceo-staff-val">—</div></div>
-        <div class="pr"><div class="pn">Парк принтерів → 10K</div><div class="pbw"><div class="pb" style="width:20.6%;background:var(--b)"></div></div><div class="pv b">2 060</div></div>
+        <div class="pr"><div class="pn">Парк принтерів → 10K</div><div class="pbw"><div class="pb" style="width:0%;background:var(--b)" id="ceo-fleet-bar"></div></div><div class="pv b" id="ceo-fleet-val">—</div></div>
         <div class="pr"><div class="pn">OEE → 80%+</div><div class="pbw"><div class="pb" style="width:30%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">~30%</div></div>
         <div class="pr"><div class="pn">Плинність → &lt;5%</div><div class="pbw"><div class="pb" style="width:36%;background:var(--red)" id="ceo-turn-bar"></div></div><div class="pv r" id="ceo-turn-val">—</div></div>
       </div>
@@ -491,6 +491,19 @@ a{color:var(--gd);text-decoration:none}
 
   <!-- Цілі SMART інтегровані у скорінг вище -->
   <div id="w-str-goals" style="display:none"><div id="goals-list"></div></div>
+
+  <!-- ПРОГРЕС У ЧАСІ — щоденні знімки (не перерахунок заднім числом, а факт на кожен день) -->
+  <div id="w-str-progress-history">
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>📊 Прогрес стратегії у часі <span class="ld" id="strprog-live-dot" style="margin-left:2px"></span></span>
+      <span id="strprog-note" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span>
+    </div>
+    <div class="card-flat">
+      <div style="font-size:10px;color:var(--tl);padding:8px 10px 0">Щоденні знімки з дня запуску трекінгу — CEO-скоринг, Скорінг цілей 2026, і сирий % виконаних задач</div>
+      <div class="cw" style="height:220px;padding:6px 10px 10px"><canvas id="strprog-chart"></canvas></div>
+    </div>
+  </div>
+
 
   <!-- GANTT timeline -->
   <div id="w-str-gantt">
@@ -865,8 +878,8 @@ a{color:var(--gd);text-decoration:none}
       <span>📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></span>
       <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · Невикор. ресурс — накопичено з початку історії, маш-год і % від можливого">ⓘ /api/capacity</span>
     </div>
-    <div class="card-flat" style="margin-bottom:8px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
-      <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
+    <div class="card-flat" style="margin-bottom:8px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Машин</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
+      <tr><td colspan="7" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
     </tbody></table></div></div>
   </div>
   <div id="w-loc-cards">
@@ -1082,6 +1095,28 @@ async function _buildCeoCharts(){
       ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
     }
   }catch(e){console.warn('[CEO hr]',e.message);}
+
+  // Дані парку принтерів (той самий live-фід що й Виробництво/Локації — щоб цифри ніде не розходились)
+  try{ await syncFleetStats(); }catch(e){console.warn('[CEO fleet]',e.message);}
+}
+
+// Єдине джерело "кількість принтерів / кількість локацій" для CEO-вкладки +
+// нотатки цілі G1. Викликається і тут (ранній рендер CEO), і після buildGoals()
+// у renderStrategy() (бо #ceo-g1-note ще не існує в DOM на момент першого виклику) —
+// обидва рази з того самого fetch capacity.json, без дублювання розрахунку.
+async function syncFleetStats(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const cd=await fetch('data/capacity.json?t='+Date.now()).then(r=>r.json());
+  const locs=cd.locations||[];
+  const totalMachines=locs.reduce((s,l)=>s+(l.machines?.total||0),0);
+  set('ceo-fleet-total', totalMachines.toLocaleString('uk-UA'));
+  set('ceo-loc-count', String(locs.length));
+  const fleetBar=document.getElementById('ceo-fleet-bar');
+  if(fleetBar){const pct=Math.min(totalMachines/10000*100,100);fleetBar.style.width=pct.toFixed(1)+'%';}
+  set('ceo-fleet-val', totalMachines.toLocaleString('uk-UA'));
+  const g1note=document.getElementById('ceo-g1-note');
+  if(g1note) g1note.textContent=`~${totalMachines.toLocaleString('uk-UA')} з 5 000 принтерів · ${locs.length} локацій`;
+  return {totalMachines, locCount:locs.length};
 }
 
 // ── ВИРОБНИЦТВО — реальні дані з capacity.json/capacity_history.json (той самий фід що й Локації) ──
@@ -1244,7 +1279,8 @@ function buildGoals(){
   const gl=document.getElementById('goals-list');if(!gl)return;gl.innerHTML='';
   GOALS_DATA.forEach(g=>{
     const bar = g.pct>0 ? `<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${Math.min(g.pct,100)}%"></div></div><div class="goal-pct">${g.pct}%</div>` : `<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%"></div></div><div class="goal-pct tbd">TBD</div>`;
-    gl.innerHTML+=`<div class="goal-row"><div class="goal-id">${g.id}</div><div><div class="goal-text">${g.text}</div><div style="font-size:10px;color:var(--tl);margin-top:3px">${g.note}</div></div><div class="goal-pct-wrap">${bar}</div></div>`;
+    const noteId = g.id==='G1' ? ' id="ceo-g1-note"' : '';
+    gl.innerHTML+=`<div class="goal-row"><div class="goal-id">${g.id}</div><div><div class="goal-text">${g.text}</div><div${noteId} style="font-size:10px;color:var(--tl);margin-top:3px">${g.note}</div></div><div class="goal-pct-wrap">${bar}</div></div>`;
   });
 }
 
@@ -1405,6 +1441,7 @@ function _sprintContainsToday(datesStr){
 
 async function renderStrategy(ov={}){
   buildGoals();
+  syncFleetStats().catch(e=>console.warn('[FleetStats]',e.message));
   buildGantt();
 
   // person scores — реальний % виконання задач (done/total з усіх спринтів), а не час що минув
@@ -1472,6 +1509,7 @@ async function renderStrategy(ov={}){
   // Живий перемикач спринтів + прогноз + проекти без фокусу
   await _loadAndRenderSprints();
   await buildForecast().catch(e=>console.warn('[Forecast]',e.message));
+  await buildProgressHistory().catch(e=>console.warn('[ProgressHistory]',e.message));
   await buildNoFocusProjects().catch(e=>console.warn('[NoFocus]',e.message));
 }
 
@@ -1765,6 +1803,41 @@ async function buildForecast(){
   ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
 }
 
+// ── Прогрес стратегії у часі — щоденні знімки з data/strategy_progress_history.json ──
+// На відміну від forecastChart (перераховується заднім числом з поточних кумулятивних
+// даних по спринтах), тут зберігається факт: яким показник БУВ на кожен конкретний день.
+async function buildProgressHistory(){
+  const canvas=document.getElementById('strprog-chart'); if(!canvas) return;
+  const note=document.getElementById('strprog-note');
+  const dot=document.getElementById('strprog-live-dot');
+  let hist;
+  try{
+    const r=await fetch('data/strategy_progress_history.json?t='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    hist=await r.json();
+  }catch(e){
+    if(note) note.textContent='Історія ще не накопичена';
+    return;
+  }
+  const days=(hist.days||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  if(!days.length){ if(note) note.textContent='Історія ще не накопичена'; return; }
+  if(dot) dot.className='ld ok';
+  if(note){
+    const n=days.length;
+    note.textContent = n<3
+      ? `Трекінг стартував ${days[0].date} · поки ${n} ${n===1?'знімок':'знімки'} — графік наповниться протягом наступних днів`
+      : `${n} днів історії · ${days[0].date} → ${days[n-1].date}`;
+  }
+  const labels=days.map(d=>d.date.slice(5).split('-').reverse().join('.'));
+  safeChart('strprog-chart',{type:'line',data:{labels,datasets:[
+    {label:'CEO-скоринг (сер. по 13 проектах)',data:days.map(d=>d.ceo_pct),borderColor:G,backgroundColor:GB,borderWidth:2.5,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:G},
+    {label:'Скорінг цілей 2026 (зважено)',data:days.map(d=>d.goal_scoring_pct),borderColor:A,backgroundColor:AB,borderWidth:2,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:A},
+    {label:'Сирий % задач (без ваг)',data:days.map(d=>d.raw_task_pct),borderColor:'#9CA3AF',borderWidth:1.5,borderDash:[4,3],tension:.3,fill:false,pointRadius:3,pointBackgroundColor:'#9CA3AF'},
+  ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}},tooltip:{callbacks:{afterBody:(items)=>{
+    const d=days[items[0]?.dataIndex]; if(!d) return ''; return `Спринт ${d.sprint_num??'—'} · ${d.done}/${d.total} задач`;
+  }}}},scales:{y:{min:0,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+}
+
 // ── Проекти без фокусу / без відповідального ───────────────────────────
 async function buildNoFocusProjects(){
   const wrap=document.getElementById('w-str-nofocus');
@@ -1986,6 +2059,7 @@ function flattenSprint(projMap){
 window.LocLoader = (() => {
   const DATA_URL = 'data/capacity.json';
   const HISTORY_URL = 'data/capacity_history.json';
+  const SALES_URL = 'data/sales_planner.json';
 
   const G = '#2A9D8F', A = '#457B9D', R = '#C0392B', B = '#6aA5C2', O = '#BA7517';
   const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)', BB = 'rgba(106,165,194,.12)', OB = 'rgba(186,117,23,.13)';
@@ -2010,18 +2084,29 @@ window.LocLoader = (() => {
 
   let _data = null;
   let _history = null;
+  let _monthRev = null; // остання компанійська виручка з фактом (для оцінки виручки/машину по локації)
   let _chartMonth = 'all'; // 'all' | '0'..'11'
   let _charts = {};
 
   async function load() {
     try {
-      const [snapR, histR] = await Promise.all([
+      const [snapR, histR, salesR] = await Promise.all([
         fetch(DATA_URL + '?t=' + Date.now()),
         fetch(HISTORY_URL + '?t=' + Date.now()).catch(() => null),
+        fetch(SALES_URL + '?t=' + Date.now()).catch(() => null),
       ]);
       if (!snapR.ok) throw new Error('HTTP ' + snapR.status);
       _data = await snapR.json();
       _history = (histR && histR.ok) ? await histR.json() : null;
+      try {
+        if (salesR && salesR.ok) {
+          const sd = await salesR.json();
+          const wm = sd.wholesale?.monthly || [], rm = sd.retail?.monthly || [];
+          const lastWh = [...wm].reverse().find(m => m.fact != null);
+          const lastRt = rm.find(m => m.month === lastWh?.month);
+          _monthRev = (lastWh?.fact || 0) + (lastRt?.fact || 0);
+        }
+      } catch (e) { _monthRev = null; }
       render();
     } catch (e) {
       console.warn('[Loc] Не вдалось завантажити дані локацій:', e);
@@ -2099,11 +2184,11 @@ window.LocLoader = (() => {
     if (!body) return;
     const locations = _data.locations || [];
     if (!locations.length) {
-      body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--tl)">Дані ще не синхронізовано</td></tr>`;
+      body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--tl)">Дані ще не синхронізовано</td></tr>`;
       return;
     }
     const idles = idlePotential();
-    body.innerHTML = locations.map(loc => {
+    const rows = locations.map(loc => {
       const num = locNum(loc.location);
       const meta = LOC_META[num] || { coef: '—', status: '—' };
       const { util, quality, completion } = metrics(loc);
@@ -2117,6 +2202,7 @@ window.LocLoader = (() => {
         : `<span class="pill ${idle.pct != null && idle.pct <= 20 ? 'pla' : 'plr'}">${fmtHours(idle.hours)}${idle.pct != null ? ' · ' + idle.pct.toFixed(1) + '%' : ''}</span>`;
       return `<tr>
         <td>${loc.location}</td>
+        <td>${(loc.machines?.total || 0).toLocaleString('uk-UA')}</td>
         <td>${meta.coef}</td>
         <td>${pill(util, 40, '%')}</td>
         <td>${qualityCell}</td>
@@ -2124,6 +2210,13 @@ window.LocLoader = (() => {
         <td>${idleCell}</td>
       </tr>`;
     }).join('');
+    const totalMachines = locations.reduce((s, l) => s + (l.machines?.total || 0), 0);
+    const totalRow = `<tr style="font-weight:700;background:var(--bg2,#F9FAFB)">
+      <td>Всього · ${locations.length} локацій</td>
+      <td>${totalMachines.toLocaleString('uk-UA')}</td>
+      <td colspan="5"></td>
+    </tr>`;
+    body.innerHTML = rows + totalRow;
   }
 
   // ─── Середні показники за поточний рік (з історії) ─────────────────────
@@ -2222,6 +2315,10 @@ window.LocLoader = (() => {
     }
     const avgs = yearAverages();
     const idles = idlePotential();
+    // План на добу (кг), а не факт друку на цю мить — план вже відомий з початку доби
+    // для всіх локацій, тоді як printed=0 до першої закритої партії (спотворило б
+    // картину зранку). Все одно це лише оцінка частки, не бухгалтерська виручка.
+    const totalPlanWeight = locations.reduce((s,l)=>s+(l.plan?.weightKg||0),0);
     container.innerHTML = locations.map(loc => {
       const num = locNum(loc.location);
       const meta = LOC_META[num] || { status: '—', badge: 'pla' };
@@ -2232,9 +2329,24 @@ window.LocLoader = (() => {
       const defectCurColor = (defectPct != null && defectPct > DEFECT_THRESHOLD) ? '#C0392B' : colors.line;
       const warn = (util != null && util < 40)
         ? `<div style="font-size:8px;color:var(--red);margin-top:1px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
-      const capRow = `<div style="font-size:8px;color:var(--tl);margin-top:3px;display:flex;gap:8px">
+      const machineCount = loc.machines?.total || 0;
+      // Оцінка виручки/машину: компанійська виручка за останній місяць із фактом,
+      // розподілена пропорційно частці локації в плані друку на сьогодні (кг).
+      // Це НЕ бухгалтерська виручка локації — оцінка за плановою часткою виробництва.
+      let revPerMachineTxt = '—';
+      if (_monthRev != null && totalPlanWeight > 0 && machineCount > 0) {
+        const locWeight = loc.plan?.weightKg || 0;
+        const locShare = locWeight / totalPlanWeight;
+        const revPerMachine = (_monthRev * locShare) / machineCount;
+        revPerMachineTxt = Math.round(revPerMachine).toLocaleString('uk-UA') + ' грн';
+      }
+      const capRow = `<div style="font-size:8px;color:var(--tl);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap">
+          <span>🖨️ Машин: <b style="color:var(--tx)">${machineCount.toLocaleString('uk-UA')}</b></span>
           <span>⚙️ Теор. потужність: <b style="color:var(--tx)">${theorCapacity.toLocaleString('uk-UA')} год/добу</b></span>
           <span>OEE спрощ.: <b style="color:var(--tx)">${oeeSimple!=null?oeeSimple.toFixed(1)+'%':'—'}</b></span>
+        </div>
+        <div style="font-size:8px;color:var(--tl);margin-top:2px" title="Оцінка: виручка компанії за міс. × частка локації в плані друку на сьогодні (кг) / к-сть машин — не бухгалтерська виручка локації">
+          💰 Виручка/машину (оцінка, міс.): <b style="color:var(--tx)">${revPerMachineTxt}</b>
         </div>`;
       const growthBox = idle.days > 0
         ? `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br><b style="color:var(--tx);font-size:12px">${fmtHours(idle.hours)}</b><br>невикор. ресурсу<br>з ${idle.since}</div>`

@@ -274,6 +274,141 @@ def main():
     print(f"[OK] {OUTPUT} — {size} байт, "
           f"{len(result_sprints)} спринтів, {len(final_projects)} проектів")
 
+    # Знімок прогресу на сьогодні → історія для графіка на вкладці Стратегія
+    try:
+        snapshot = compute_progress_snapshot(result_sprints)
+        current_sprint_num = max((sp["num"] for sp in result_sprints), default=None)
+        upsert_progress_history(snapshot, current_sprint_num)
+    except Exception as e:
+        print(f"[WARN] Знімок прогресу не вдався: {e}")
+
+
+# ── Прогрес у часі: щоденний знімок для графіка "Прогрес стратегії" ─────────
+HISTORY_OUTPUT = Path(__file__).parent / "data" / "strategy_progress_history.json"
+
+# Дзеркало 13 "офіційних" проектів з data/static.js — потрібне для CEO-style
+# розрахунку (сумарний done/total по проекту, timescore-фолбек як у
+# renderStrategy() в index.html). Тримати в синхроні при зміні static.js.
+CEO_PROJECTS = [
+    {"id": "1",  "start": "2026-04-22", "deadline": "2026-05-08"},
+    {"id": "2",  "start": "2026-05-01", "deadline": "2026-12-31"},
+    {"id": "3",  "start": "2026-04-22", "deadline": "2026-07-01"},
+    {"id": "4",  "start": "2026-01-01", "deadline": "2026-12-31"},
+    {"id": "5",  "start": "2026-04-06", "deadline": "2026-12-31"},
+    {"id": "6",  "start": "2026-06-08", "deadline": "2026-11-27"},
+    {"id": "7",  "start": "2026-04-20", "deadline": "2026-08-31"},
+    {"id": "8",  "start": "2026-05-04", "deadline": "2026-12-31"},
+    {"id": "9",  "start": "2026-04-20", "deadline": "2026-05-29"},
+    {"id": "10", "start": "2026-05-01", "deadline": "2026-12-31"},
+    {"id": "11", "start": "2026-05-01", "deadline": "2026-12-31"},
+    {"id": "12", "start": "2026-05-01", "deadline": "2026-12-31"},
+    {"id": "14", "start": "2026-05-01", "deadline": "2026-12-31"},
+]
+
+# Дзеркало GOALS_STATIC з js/strategy_scoring.js (5 цілей, ваги, проект→ціль).
+# Тримати в синхроні при зміні strategy_scoring.js.
+GOAL_WEIGHTS = {"Ц1": 25, "Ц2": 25, "Ц3": 20, "Ц4": 15, "Ц5": 15}
+GOAL_PROJECTS = {
+    "Ц1": ["1", "3", "12"],
+    "Ц2": ["8", "9", "10", "11", "16"],
+    "Ц3": ["7", "14", "13"],
+    "Ц4": ["2"],
+    "Ц5": ["4", "5", "6", "15"],
+}
+
+
+def _agg_done_total(result_sprints):
+    """{pid: {done,total}} — сумарно по всіх спринтах, pid нормалізовано без '.0'."""
+    agg = {}
+    for sp in result_sprints:
+        for pid_raw, p in (sp.get("projects") or {}).items():
+            pid = pid_raw[:-2] if pid_raw.endswith(".0") else pid_raw
+            a = agg.setdefault(pid, {"done": 0, "total": 0})
+            a["done"] += p.get("done", 0)
+            a["total"] += p.get("total", 0)
+    return agg
+
+
+def compute_progress_snapshot(result_sprints):
+    """Повертає {ceo_pct, goal_scoring_pct, raw_task_pct, done, total, goals:[...]}
+    — ті самі формули, що й на CEO-вкладці та у віджеті 'Скорінг цілей 2026'."""
+    import datetime
+    agg = _agg_done_total(result_sprints)
+    today = datetime.date.today()
+
+    # ── CEO-style: рівне середнє по 13 проектах, real done/total або
+    # timescore-фолбек якщо задач ще не заведено ──
+    ceo_scores = []
+    for p in CEO_PROJECTS:
+        a = agg.get(p["id"])
+        real = round(a["done"] / a["total"] * 100) if a and a["total"] > 0 else None
+        try:
+            dl = datetime.date.fromisoformat(p["deadline"])
+            st = datetime.date.fromisoformat(p["start"])
+            total_days = max(1, (dl - st).days)
+            elapsed = max(0, (today - st).days)
+            timescore = min(100, round(elapsed / total_days * 100))
+        except Exception:
+            timescore = 0
+        ceo_scores.append(real if real is not None else timescore)
+    ceo_pct = round(sum(ceo_scores) / len(ceo_scores), 1) if ceo_scores else None
+
+    # ── Скорінг цілей 2026: зважене по цілях середнє projPct, проекти без
+    # жодної задачі (total=0 у всіх спринтах) виключені з середнього ──
+    goals_out = []
+    weighted_sum = 0.0
+    for gid, pids in GOAL_PROJECTS.items():
+        proj_pcts = []
+        for pid in pids:
+            a = agg.get(pid)
+            if a and a["total"] > 0:
+                proj_pcts.append(a["done"] / a["total"] * 100)
+        goal_pct = round(sum(proj_pcts) / len(proj_pcts), 1) if proj_pcts else 0.0
+        w = GOAL_WEIGHTS.get(gid, 0)
+        weighted_sum += goal_pct * w / 100
+        goals_out.append({"id": gid, "pct": goal_pct, "weight": w})
+    goal_scoring_pct = round(weighted_sum, 1)
+
+    # ── Сирий підсумок — без жодних вагових коефіцієнтів (те, що показано як N/M задач) ──
+    done_total = sum(a["done"] for a in agg.values())
+    total_total = sum(a["total"] for a in agg.values())
+    raw_task_pct = round(done_total / total_total * 100, 1) if total_total else None
+
+    return {
+        "ceo_pct": ceo_pct,
+        "goal_scoring_pct": goal_scoring_pct,
+        "goals": goals_out,
+        "raw_task_pct": raw_task_pct,
+        "done": done_total,
+        "total": total_total,
+    }
+
+
+def upsert_progress_history(snapshot, sprint_num):
+    """Один запис на календарну дату (як capacity_history.json) — перезаписує
+    сьогоднішній запис при повторному запуску (щогодини), не плодить дублі."""
+    import datetime
+    today_str = datetime.date.today().isoformat()
+    try:
+        history = json.loads(HISTORY_OUTPUT.read_text(encoding="utf-8")) if HISTORY_OUTPUT.exists() else {}
+    except Exception:
+        history = {}
+    days = history.setdefault("days", [])
+    entry = {"date": today_str, "sprint_num": sprint_num, **snapshot}
+    for d in days:
+        if d.get("date") == today_str:
+            d.clear()
+            d.update(entry)
+            break
+    else:
+        days.append(entry)
+    history["updated_at"] = int(time.time() * 1000)
+    HISTORY_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    HISTORY_OUTPUT.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[OK] {HISTORY_OUTPUT} — {len(days)} днів історії, сьогодні: "
+          f"CEO={snapshot['ceo_pct']}% · Скорінг цілей={snapshot['goal_scoring_pct']}% · "
+          f"raw={snapshot['raw_task_pct']}% ({snapshot['done']}/{snapshot['total']})")
+
 
 if __name__ == "__main__":
     main()
