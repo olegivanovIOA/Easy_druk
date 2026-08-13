@@ -101,7 +101,16 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
     return sp.done / denom;
   }
   function projPct(p)    { const ps=p.sprints.map(sprintPct); return ps.length?ps.reduce((a,b)=>a+b,0)/ps.length:0; }
-  function goalPct(g)    { const ps=g.projects.map(projPct);  return ps.length?ps.reduce((a,b)=>a+b,0)/ps.length:0; }
+  // Проєкт без жодної заведеної задачі в жодному спринті (total=0 всюди) —
+  // це не "провал", а "ще не розписали / немає власника". Такий проєкт не
+  // повинен топити середнє по цілі нарівні з реально проваленими активними
+  // проєктами — виключаємо його з goalPct і показуємо окремо у картці цілі.
+  function hasNoData(p)  { return p.sprints.every(sp => (sp.total||0) === 0); }
+  function goalPct(g) {
+    const active = g.projects.filter(p => !hasNoData(p));
+    const ps = active.map(projPct);
+    return ps.length ? ps.reduce((a,b)=>a+b,0)/ps.length : 0;
+  }
   function fmt(v)        { return (v*100).toFixed(1)+'%'; }
 
   // ── Ваги ─────────────────────────────────────────────────────────────────
@@ -182,24 +191,26 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
   // ── Рендер проекту ────────────────────────────────────────────────────────
   function renderProject(proj, color) {
     const p       = projPct(proj);
+    const noData  = hasNoData(proj); // жодної задачі в жодному спринті — виключено з goalPct
     const noMove  = proj.sprints.every(sp=>sp.done===0);  // немає жодного виконаного
     const liveP = window.E3D_LOADER && E3D_LOADER.getAllSprints ? new Set(E3D_LOADER.getAllSprints().flatMap(s=>Object.keys(s.projects||{}))) : new Set();
     const dyn = liveP.has(proj.id) ? ` <span style="font-size:9px;background:#DBEAFE;color:#1D4ED8;padding:1px 5px;border-radius:8px">live</span>` : '';
-    const rowBg   = noMove ? '#FFFBEB' : 'transparent';
+    const rowBg   = noData ? 'repeating-linear-gradient(135deg,#F9FAFB,#F9FAFB 6px,#F3F4F6 6px,#F3F4F6 12px)' : noMove ? '#FFFBEB' : 'transparent';
 
     const sprintRows = proj.sprints.map(sp=>renderSprint(sp,color)).join('');
+    const noDataBadge = `<span title="Немає жодної заведеної задачі — не враховується в % цілі" style="background:#F3F4F6;color:#6B7280;font-size:10px;padding:2px 7px;border-radius:10px;white-space:nowrap">○ Без задач / без власника</span>`;
 
     return `<div style="border-bottom:0.5px solid var(--bd)">
-      <div class="proj-row" style="display:grid;grid-template-columns:70px 1fr 110px 1fr 60px 100px;gap:8px;align-items:center;padding:7px 12px 7px 18px;cursor:pointer;background:${rowBg}">
+      <div class="proj-row" style="display:grid;grid-template-columns:70px 1fr 110px 1fr 60px 100px;gap:8px;align-items:center;padding:7px 12px 7px 18px;cursor:pointer;background:${rowBg};opacity:${noData?.7:1}">
         <span style="font-size:11px;color:#9CA3AF;font-weight:500">${proj.id}${dyn}</span>
         <div>
           <div style="font-size:12px;font-weight:500;color:#1F2937">► ${proj.name}</div>
-          <div style="font-size:10px;color:#9CA3AF;margin-top:1px">Відп: ${proj.owner}</div>
+          <div style="font-size:10px;color:#9CA3AF;margin-top:1px">Відп: ${proj.owner}${noData?' · не враховується в % цілі':''}</div>
         </div>
         <div style="font-size:10px;color:#9CA3AF;line-height:1.4">${proj.participants}</div>
-        ${miniBar(p,color)}
+        ${noData?`<span style="font-size:11px;color:#9CA3AF">—</span>`:miniBar(p,color)}
         <span style="text-align:center;font-size:11px;color:#9CA3AF">${proj.sprints.length} спр.</span>
-        ${badge(p, noMove && proj.sprints.some(sp=>sp.total>0))}
+        ${noData?noDataBadge:badge(p, noMove && proj.sprints.some(sp=>sp.total>0))}
       </div>
       <div style="display:none">${sprintRows}</div>
     </div>`;
@@ -213,7 +224,11 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
     const totSp   = goal.projects.reduce((s,p)=>s+p.sprints.length,0);
     const doneSp  = goal.projects.reduce((s,p)=>s+p.sprints.filter(sp=>sp.done===sp.total&&sp.total>0).length,0);
     const bClr    = !weightOk?'#EF4444':'#D1D5DB';
+    const excluded= goal.projects.filter(hasNoData);
     const projRows= goal.projects.map(p=>renderProject(p,goal.color)).join('');
+    const excludedNote = excluded.length
+      ? `<div style="font-size:10px;color:#9CA3AF;padding:2px 12px 6px 18px;background:${goal.light}">⚠ ${excluded.length} проєкт${excluded.length>1?'и':''} без жодної задачі (${excluded.map(p=>p.id).join(', ')}) не враховано в % цілі — рахуються окремо як "без власника"</div>`
+      : '';
 
     return `<div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:8px">
       <div class="goal-row" style="display:grid;grid-template-columns:76px 1fr 110px 70px 140px 100px;gap:8px;align-items:center;padding:11px 12px;background:${goal.light}">
@@ -246,6 +261,7 @@ const E3D_STRATEGY = window.E3D_STRATEGY = (() => {
           <button class="goal-toggle" style="border:none;background:transparent;cursor:pointer;color:#9CA3AF;font-size:14px;padding:0 4px">▼</button>
         </div>
       </div>
+      ${excludedNote}
       <!-- ПРОЕКТИ (розкриваються) -->
       <div style="display:none">
         <div style="display:grid;grid-template-columns:70px 1fr 110px 1fr 60px 100px;gap:8px;padding:4px 12px;background:#F9FAFB;font-size:9px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px;border-bottom:0.5px solid var(--bd)">
