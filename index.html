@@ -603,6 +603,45 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF / MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD — потрібні дані простоїв</div></div>
     </div>
   </div>
+  <div id="w-prod-batches">
+    <div class="sec" style="justify-content:space-between">
+      <span>📦 Партії/ЛОТи (вчора · фінально) <span class="ld" id="prod-batches-live-dot" style="margin-left:2px"></span></span>
+      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="prod-batches-note"></span>
+    </div>
+    <div class="g6">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Партій</div><div class="krow-val g" id="pb-batches">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">ЛОТів</div><div class="krow-val a" id="pb-lots">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Прийнято ОТК, шт</div><div class="krow-val" id="pb-accepted">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">% браку (шт, зважено)</div><div class="krow-val r" id="pb-defect">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">% браку (по вазі, зважено)</div><div class="krow-val r" id="pb-defect-weight">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Машино-годин друку</div><div class="krow-val" id="pb-machine-hours">—</div><div class="real-dot"></div></div>
+    </div>
+
+    <!-- Собівартість — редагована ставка маш-години, все інше перераховується вживу -->
+    <div class="card-flat" style="margin-top:10px;padding:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:600;color:var(--tm)">⚙️ Параметри собівартості</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <label style="font-size:10px;color:var(--tl)" for="pb-machine-rate">Маш-година (амортизація+е/е), грн/год:</label>
+          <input type="number" id="pb-machine-rate" value="2.6" step="0.1" min="0"
+                 style="width:64px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;font-size:11px"
+                 oninput="recalcBatchCost()">
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--tl);margin-bottom:8px">
+        Вартість сировини — з прайсу (₴/кг без ПДВ), по базовому типу матеріалу (PETG/PLA/ABS/TPU), без розбивки по кольору/бренду — див. підказку.
+        Ставка маш-години — груба прикидка (амортизація принтера + електроенергія), підкрутіть під реальну — перерахунок миттєвий, нічого заново заливати не треба.
+      </div>
+      <div class="g6">
+        <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Ціна сировини — просте середнє по варіантах кольору/бренду одного типу, покриття по вчорашніх партіях наведено нижче">Вартість сировини, грн</div><div class="krow-val a" id="pb-material-cost">—</div><div class="real-dot"></div></div>
+        <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Покриття ціни, % од.</div><div class="krow-val" id="pb-material-coverage">—</div><div class="real-dot"></div></div>
+        <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Прямі витрати (сировина+маш-час), грн</div><div class="krow-val r" id="pb-direct-cost">—</div><div class="real-dot"></div></div>
+        <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Собівартість 1 од., грн</div><div class="krow-val r" id="pb-unit-cost">—</div><div class="real-dot"></div></div>
+        <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Вартість браку, грн</div><div class="krow-val r" id="pb-defect-cost">—</div><div class="real-dot"></div></div>
+        <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржинальність партії</div><div class="krow-val x">TBD</div><div class="tbd-lbl">потрібна виручка/партію — нема в API</div></div>
+      </div>
+    </div>
+  </div>
   <div id="w-prod-planweek">
     <div class="sec" style="justify-content:space-between">
       <span>📅 План друку по локаціях — горизонт планування<span class="ld" id="planweek-live-dot" style="margin-left:2px"></span></span>
@@ -623,6 +662,7 @@ a{color:var(--gd);text-decoration:none}
     <div class="g6">
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">% браку (компанія, сьогодні)</div><div class="krow-val r" id="qual-defect-pct">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
       <div class="krow" id="qual-worst-loc-row"><div class="krow-bar kb-a"></div><div class="krow-lbl">Найгірша локація</div><div class="krow-val a" id="qual-worst-loc">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% браку (компанія, вчора · фінально)</div><div class="krow-val g" id="qual-defect-pct-y">—</div><div class="krow-tgt">з ОТК, не проміжно</div><div class="real-dot"></div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% браку по оператору</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вартість браку / міс</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ТОП-5 причин (Парето)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
@@ -639,6 +679,26 @@ a{color:var(--gd);text-decoration:none}
       <div class="cw" style="height:220px;padding:6px 10px 10px"><canvas id="qual-defect-chart"></canvas></div>
     </div>
     <div style="font-size:9px;color:var(--tl);margin-top:4px" id="qual-trend-note"></div>
+  </div>
+
+  <!-- Розбивка браку по моделі принтера і типу деталі — з /api/batches/external/lots (вчора, фінально) -->
+  <div id="w-qual-batches" style="display:none">
+    <div class="sec" style="justify-content:space-between">
+      <span>🔬 Брак по моделі принтера і деталі (вчора · фінально) <span class="ld ok" style="margin-left:2px"></span></span>
+      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="qual-batches-note"></span>
+    </div>
+    <div class="g2">
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">% браку по моделі принтера</div>
+        <div class="cw" style="height:180px;padding:6px 10px 10px"><canvas id="qual-model-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">ТОП-10 деталей за обсягом — % браку</div>
+        <div class="tw" style="padding:6px 10px 10px"><table class="tbl"><thead><tr><th>Код деталі</th><th>Прийнято, шт</th><th>Брак, шт</th><th>% браку</th></tr></thead><tbody id="qual-product-tbl-body">
+          <tr><td colspan="4" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1193,7 +1253,62 @@ async function loadProdData(){
       safeChart('fleet-util-chart',{type:'line',data:{labels,datasets:[{label:'Завантаженість парку, %',data,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:days.length>40?0:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID},ticks:{autoSkip:true,maxTicksLimit:12,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}});
     }
   }catch(e){console.warn('[Prod]',e.message);}
+
+  // ── Партії/ЛОТи вчора (фінально) — з /api/batches/external/lots ──
+  try{
+    const bd=await fetch('data/batches_lots.json?t='+Date.now()).then(r=>r.json());
+    const c=bd.company||{};
+    _pbCompany=c; // кешуємо для recalcBatchCost() при зміні ставки маш-години
+    const dot=document.getElementById('prod-batches-live-dot'); if(dot) dot.className='ld ok';
+    const note=document.getElementById('prod-batches-note');
+    if(note) note.textContent=bd.date||'—';
+    set('pb-batches', c.batches!=null?c.batches.toLocaleString('uk-UA'):'—');
+    set('pb-lots', c.lots ?? '—');
+    set('pb-accepted', c.acceptedQty!=null?c.acceptedQty.toLocaleString('uk-UA'):'—');
+    set('pb-defect', c.defectPercent!=null?c.defectPercent.toFixed(2)+'%':'—');
+    set('pb-defect-weight', c.defectWeightPercent!=null?c.defectWeightPercent.toFixed(2)+'%':'—');
+    set('pb-machine-hours', c.totalPrintTimeMinutes!=null?Math.round(c.totalPrintTimeMinutes/60).toLocaleString('uk-UA')+' год':'—');
+    set('pb-material-cost', c.materialCostUAH!=null?Math.round(c.materialCostUAH).toLocaleString('uk-UA')+' грн':'—');
+    set('pb-material-coverage', c.materialCostCoveragePercent!=null?c.materialCostCoveragePercent.toFixed(1)+'%':'—');
+
+    const rateInput=document.getElementById('pb-machine-rate');
+    if(rateInput){
+      const saved=localStorage.getItem('e3d_machine_rate_v1');
+      if(saved!=null) rateInput.value=saved;
+    }
+    recalcBatchCost();
+  }catch(e){console.warn('[Prod batches]',e.message);}
+
   await loadPlanWeek();
+}
+
+// Кеш останнього завантаженого company-rollup з batches_lots.json — потрібен,
+// щоб при зміні ставки маш-години на дашборді перераховувати вживу без
+// повторного фетчу файлу.
+let _pbCompany=null;
+
+// Перерахунок собівартості при зміні ставки маш-години (грн/год) — усе, що
+// НЕ потребує виручки за партію (якої нема в цьому API): вартість сировини
+// вже прийшла порахованою з fetch_batches.py (той самий прайс, що й скрізь),
+// тут лише додаємо вартість маш-часу за поточною ставкою і ділимо на к-сть.
+function recalcBatchCost(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const c=_pbCompany; if(!c) return;
+  const rateInput=document.getElementById('pb-machine-rate');
+  const rate=rateInput?parseFloat(rateInput.value)||0:0;
+  try{ localStorage.setItem('e3d_machine_rate_v1', String(rate)); }catch(e){}
+
+  const machineHours = c.totalPrintTimeMinutes!=null ? c.totalPrintTimeMinutes/60 : null;
+  const machineCost = machineHours!=null ? machineHours*rate : null;
+  const materialCost = c.materialCostUAH;
+  const directCost = (materialCost!=null && machineCost!=null) ? materialCost+machineCost : null;
+  set('pb-direct-cost', directCost!=null?Math.round(directCost).toLocaleString('uk-UA')+' грн':'—');
+
+  const unitCost = (directCost!=null && c.acceptedQty) ? directCost/c.acceptedQty : null;
+  set('pb-unit-cost', unitCost!=null?unitCost.toFixed(2)+' грн':'—');
+
+  const defectCost = (unitCost!=null && c.defectQty!=null) ? unitCost*c.defectQty : null;
+  set('pb-defect-cost', defectCost!=null?Math.round(defectCost).toLocaleString('uk-UA')+' грн':'—');
 }
 
 // ── План друку по локаціях на горизонт планування (з ручного експорту Планування по локаціям) ──
@@ -1264,6 +1379,41 @@ async function loadQualityData(){
     const note=document.getElementById('qual-trend-note');
     if(note) note.textContent='Дані станом на '+(snap.fetched_at?new Date(snap.fetched_at).toLocaleString('uk-UA'):'—')+' · поріг браку 7.5% позначено пунктиром';
   }catch(e){console.warn('[Quality]',e.message);}
+
+  // ── Брак по моделі принтера / деталі — з /api/batches/external/lots (вчора, фінально) ──
+  try{
+    const bd=await fetch('data/batches_lots.json?t='+Date.now()).then(r=>r.json());
+    const company=bd.company||{};
+    if(company.defectPercent!=null){
+      set('qual-defect-pct-y', company.defectPercent.toFixed(2)+'%');
+    }
+    const wrap=document.getElementById('w-qual-batches');
+    const byModel=bd.byPrinterModel||[];
+    const byProduct=bd.byProduct||[];
+    if(wrap && (byModel.length||byProduct.length)){
+      wrap.style.display='';
+      const noteEl=document.getElementById('qual-batches-note');
+      if(noteEl) noteEl.textContent=`${bd.date||'—'} · ${company.batches??'—'} партій / ${company.lots??'—'} ЛОТів`;
+
+      safeChart('qual-model-chart',{type:'bar',data:{labels:byModel.map(m=>m.printerModel),datasets:[{
+        label:'% браку', data:byModel.map(m=>m.defectPercent), backgroundColor:byModel.map(m=>(m.defectPercent||0)>9?'#C0392B':'#2A9D8F'), borderRadius:6,
+      }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const m=byModel[ctx.dataIndex];return `${m.acceptedQty.toLocaleString('uk-UA')} шт · ${m.batches} партій`;}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+
+      const tbody=document.getElementById('qual-product-tbl-body');
+      if(tbody){
+        tbody.innerHTML = byProduct.slice(0,10).map(p=>{
+          const pct=p.defectPercent;
+          const color = pct==null?'inherit':(pct>9?'var(--red)':(pct>5?'var(--amb)':'var(--gd)'));
+          return `<tr>
+            <td>${p.baseProductCode}</td>
+            <td>${(p.acceptedQty||0).toLocaleString('uk-UA')}</td>
+            <td>${(p.defectQty||0).toLocaleString('uk-UA')}</td>
+            <td style="color:${color};font-weight:600">${pct!=null?pct.toFixed(1)+'%':'—'}</td>
+          </tr>`;
+        }).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--tl)">Немає даних</td></tr>`;
+      }
+    }
+  }catch(e){console.warn('[Quality batches]',e.message);}
 }
 
 // ── GOALS with progress indicators ───────────────────
@@ -1876,8 +2026,8 @@ const WKEY='e3d_widget_prefs_v1';
 const WCAT=[
   {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
   {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
-  {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
-  {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
+  {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batches',tab:'prod',label:'Партії/ЛОТи (вчора)'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
+  {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},{id:'qual-batches',tab:'qual',label:'Брак по моделі/деталі (вчора)'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
   {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
@@ -2060,6 +2210,7 @@ window.LocLoader = (() => {
   const DATA_URL = 'data/capacity.json';
   const HISTORY_URL = 'data/capacity_history.json';
   const SALES_URL = 'data/sales_planner.json';
+  const BATCHES_URL = 'data/batches_lots.json';
 
   const G = '#2A9D8F', A = '#457B9D', R = '#C0392B', B = '#6aA5C2', O = '#BA7517';
   const GB = 'rgba(42,157,143,.13)', AB = 'rgba(69,123,157,.13)', RB = 'rgba(192,57,43,.11)', BB = 'rgba(106,165,194,.12)', OB = 'rgba(186,117,23,.13)';
@@ -2085,15 +2236,17 @@ window.LocLoader = (() => {
   let _data = null;
   let _history = null;
   let _monthRev = null; // остання компанійська виручка з фактом (для оцінки виручки/машину по локації)
+  let _batchesYesterday = null; // {date, locations:{key:{...}}} — фінальний брак з ОТК за вчора
   let _chartMonth = 'all'; // 'all' | '0'..'11'
   let _charts = {};
 
   async function load() {
     try {
-      const [snapR, histR, salesR] = await Promise.all([
+      const [snapR, histR, salesR, batchesR] = await Promise.all([
         fetch(DATA_URL + '?t=' + Date.now()),
         fetch(HISTORY_URL + '?t=' + Date.now()).catch(() => null),
         fetch(SALES_URL + '?t=' + Date.now()).catch(() => null),
+        fetch(BATCHES_URL + '?t=' + Date.now()).catch(() => null),
       ]);
       if (!snapR.ok) throw new Error('HTTP ' + snapR.status);
       _data = await snapR.json();
@@ -2107,6 +2260,21 @@ window.LocLoader = (() => {
           _monthRev = (lastWh?.fact || 0) + (lastRt?.fact || 0);
         }
       } catch (e) { _monthRev = null; }
+      try {
+        if (batchesR && batchesR.ok) {
+          const bd = await batchesR.json();
+          _batchesYesterday = { date: bd.date, locations: {} };
+          (bd.locations || []).forEach(loc => {
+            const key = locNum(loc.location);
+            const accepted = (loc.lots || []).reduce((s, l) => s + (l.acceptedQty || 0), 0);
+            const defect = (loc.lots || []).reduce((s, l) => s + (l.defectQty || 0), 0);
+            _batchesYesterday.locations[key] = {
+              batches: loc.totals?.batches ?? null,
+              defectPercent: accepted ? Math.round(defect / accepted * 1000) / 10 : null,
+            };
+          });
+        }
+      } catch (e) { _batchesYesterday = null; }
       render();
     } catch (e) {
       console.warn('[Loc] Не вдалось завантажити дані локацій:', e);
@@ -2340,6 +2508,7 @@ window.LocLoader = (() => {
         const revPerMachine = (_monthRev * locShare) / machineCount;
         revPerMachineTxt = Math.round(revPerMachine).toLocaleString('uk-UA') + ' грн';
       }
+      const yb = (_batchesYesterday && _batchesYesterday.locations[num]) || null;
       const capRow = `<div style="font-size:8px;color:var(--tl);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap">
           <span>🖨️ Машин: <b style="color:var(--tx)">${machineCount.toLocaleString('uk-UA')}</b></span>
           <span>⚙️ Теор. потужність: <b style="color:var(--tx)">${theorCapacity.toLocaleString('uk-UA')} год/добу</b></span>
@@ -2347,7 +2516,10 @@ window.LocLoader = (() => {
         </div>
         <div style="font-size:8px;color:var(--tl);margin-top:2px" title="Оцінка: виручка компанії за міс. × частка локації в плані друку на сьогодні (кг) / к-сть машин — не бухгалтерська виручка локації">
           💰 Виручка/машину (оцінка, міс.): <b style="color:var(--tx)">${revPerMachineTxt}</b>
-        </div>`;
+        </div>
+        ${yb ? `<div style="font-size:8px;color:var(--tl);margin-top:2px" title="Фінальні дані ОТК за ${_batchesYesterday.date}, на відміну від сьогоднішнього % браку вище (той ще проміжний)">
+          ✅ Вчора (фінально): <b style="color:var(--tx)">${yb.batches ?? '—'} партій</b> · брак <b style="color:${(yb.defectPercent||0)>9?'var(--red)':'var(--tx)'}">${yb.defectPercent!=null?yb.defectPercent+'%':'—'}</b>
+        </div>` : ''}`;
       const growthBox = idle.days > 0
         ? `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br><b style="color:var(--tx);font-size:12px">${fmtHours(idle.hours)}</b><br>невикор. ресурсу<br>з ${idle.since}</div>`
         : `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br>накопичується</div>`;

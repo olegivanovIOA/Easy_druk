@@ -36,6 +36,25 @@ API_KEY      = os.environ.get("CAPACITY_API_KEY", "")  # той самий кл�
 OUTPUT       = Path(__file__).parent / "data" / "batches_lots.json"
 HISTORY_FILE = Path(__file__).parent / "data" / "batches_history.json"
 
+# ── Ціни сировини (грн/кг, БЕЗ ПДВ) — надано користувачем 13.08.2026 ───────
+# Джерело: прайс "Матеріал | Ціна за 1 грамм, грн, з ПДВ", перераховано ÷1.2.
+# ВАЖЛИВО: API віддає material.type тільки як базовий тип ("PETG", "PLA",
+# "ABS", "TPU") — без кольору/бренду.
+# PETG/PLA: користувач підтвердив — 90% замовлень друкується в чорному
+# кольорі → беремо саме варіант "Black" з прайсу, а не середнє по кольорах
+# (PETG MF Green майже вдвічі дорожчий за Black і спотворював би собівартість
+# для переважної більшості реального виробництва).
+# ABS/TPU: у прайсі варіанти розбиті по БРЕНДУ (Creality/TIRAPLAST), а не по
+# кольору — жодного явно "чорного" немає, тож для них лишається проста
+# середня між брендами (наближення, ще не уточнено користувачем).
+# "ABS Hyper Creality" (ціна 0 в прайсі — нема в наявності) виключено.
+MATERIAL_PRICE_UAH_PER_KG = {
+    "PETG": 330.0,    # PETG Black — домінує (90% замовлень), не середнє
+    "PLA":  351.67,   # PLA Black — єдиний варіант у прайсі, вже чорний
+    "ABS":  467.92,   # (ABS TIRAPLAST 279.17 + ABS Creality 656.67) / 2 — не по кольору, уточнити
+    "TPU":  1016.67,  # TPU 90A (єдиний варіант у прайсі)
+}
+
 
 def kyiv_yesterday():
     now = datetime.now(KYIV) if KYIV else datetime.utcnow()
@@ -48,6 +67,39 @@ def location_key(loc_field):
     s = str(loc_field or "")
     digits = "".join(ch for ch in s if ch.isdigit())
     return digits or s
+
+
+def batch_material_cost(batch):
+    """Вартість сировини для однієї партії (грн) = вага_деталі_кг × к-сть × ціна/кг.
+    None, якщо тип матеріалу невідомий (нема в MATERIAL_PRICE_UAH_PER_KG) або
+    відсутня калібрована вага (unitWeightG) — щоб не підміняти прочерк нулем."""
+    mat_type = (batch.get("material") or {}).get("type")
+    price = MATERIAL_PRICE_UAH_PER_KG.get(mat_type)
+    weight_g = batch.get("unitWeightG")
+    qty = batch.get("acceptedQty")
+    if price is None or not weight_g or not qty:
+        return None
+    return (weight_g / 1000) * qty * price
+
+
+def material_cost_for_location(loc):
+    """Сумарна вартість сировини по локації + покриття (яка частка прийнятих
+    ОТК одиниць реально має відому ціну — партії з невідомим типом матеріалу
+    чи без каліброваної ваги випадають з суми, а не рахуються як 0)."""
+    cost = 0.0
+    covered_qty = 0
+    total_qty = 0
+    for pm in loc.get("printerModels", []) or []:
+        for b in pm.get("batches", []) or []:
+            qty = b.get("acceptedQty") or 0
+            total_qty += qty
+            c = batch_material_cost(b)
+            if c is not None:
+                cost += c
+                covered_qty += qty
+    coverage_pct = round(covered_qty / total_qty * 100, 1) if total_qty else None
+    return {"materialCostUAH": round(cost, 2) if total_qty else None,
+            "materialCostCoveragePercent": coverage_pct}
 
 
 def rollup_location(loc):
@@ -80,7 +132,69 @@ def rollup_location(loc):
         "defectPercent": defect_pct,
         "defectWeightPercent": defect_weight_pct,
         "totalPrintTimeMinutes": print_minutes,
+        **material_cost_for_location(loc),
     }
+
+
+def rollup_company(locations_payload):
+    """Компанійський підсумок — та сама логіка, що й rollup_location, але по всіх
+    локаціях разом. Рахуємо тут (Python), а не в JS на клієнті, щоб зважена
+    математика (весь урок з defectWeightPercent — див. коментар у
+    rollup_location) не дублювалась і не розходилась між сервером і браузером."""
+    all_lots = []
+    all_printer_models = []
+    for loc in locations_payload or []:
+        all_lots.extend(loc.get("lots", []) or [])
+        all_printer_models.extend(loc.get("printerModels", []) or [])
+    fake_loc = {
+        "totals": {
+            "batches": sum(l.get("batchCount") or 0 for l in all_lots),
+            "lots": len(all_lots),
+        },
+        "lots": all_lots,
+        "printerModels": all_printer_models,  # потрібно для material_cost_for_location
+    }
+    return rollup_location(fake_loc)
+
+
+def rollup_by_printer_model(locations_payload):
+    """% браку по моделі принтера — агреговано по batches[] всередині
+    printerModels[] кожної локації (є в /api/batches/external/lots)."""
+    agg = {}
+    for loc in locations_payload or []:
+        for pm in loc.get("printerModels", []) or []:
+            model = pm.get("printerModel") or "Невідома"
+            a = agg.setdefault(model, {"batches": 0, "acceptedQty": 0, "defectQty": 0})
+            for b in pm.get("batches", []) or []:
+                a["batches"] += 1
+                a["acceptedQty"] += b.get("acceptedQty") or 0
+                a["defectQty"] += b.get("defectQty") or 0
+    out = []
+    for model, a in agg.items():
+        pct = round(a["defectQty"] / a["acceptedQty"] * 100, 2) if a["acceptedQty"] else None
+        out.append({"printerModel": model, **a, "defectPercent": pct})
+    out.sort(key=lambda x: -x["acceptedQty"])
+    return out
+
+
+def rollup_by_product(locations_payload, top_n=20):
+    """% браку по типу деталі (baseProductCode) — агреговано по lots[] всіх
+    локацій. Обмежено top_n по обсягу (acceptedQty), щоб не роздувati файл
+    сотнями рідкісних кодів деталей."""
+    agg = {}
+    for loc in locations_payload or []:
+        for lot in loc.get("lots", []) or []:
+            code = lot.get("baseProductCode") or "?"
+            a = agg.setdefault(code, {"batches": 0, "acceptedQty": 0, "defectQty": 0})
+            a["batches"] += lot.get("batchCount") or 0
+            a["acceptedQty"] += lot.get("acceptedQty") or 0
+            a["defectQty"] += lot.get("defectQty") or 0
+    out = []
+    for code, a in agg.items():
+        pct = round(a["defectQty"] / a["acceptedQty"] * 100, 2) if a["acceptedQty"] else None
+        out.append({"baseProductCode": code, **a, "defectPercent": pct})
+    out.sort(key=lambda x: -x["acceptedQty"])
+    return out[:top_n]
 
 
 def upsert_day(history, date_str, locations_payload):
@@ -126,6 +240,9 @@ def main():
         "date": target_date,
         "range": payload.get("range"),
         "totals": totals,
+        "company": rollup_company(locations),
+        "byPrinterModel": rollup_by_printer_model(locations),
+        "byProduct": rollup_by_product(locations),
         "locations": locations,
     }
 
