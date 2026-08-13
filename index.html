@@ -337,7 +337,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.1</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.2</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -584,8 +584,10 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Завантаженість (зважено)</div><div class="krow-val a" id="prod-fleet-util">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вільно зараз</div><div class="krow-val" id="prod-fleet-free">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% Браку (сьогодні)</div><div class="krow-val g" id="prod-fleet-defect">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">OEE (Availability×Perf×Quality)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD — потрібні дані простоїв</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF / MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Теор. потужність (год/добу)</div><div class="krow-val" id="prod-fleet-theor">—</div><div class="krow-tgt">К-сть принтерів × 24</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">OEE спрощ. (Завант.×Якість)</div><div class="krow-val a" id="prod-fleet-oee">—</div><div class="krow-tgt">без Availability/Perf</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Виручка/принтер, міс. (компанія)</div><div class="krow-val" id="prod-fleet-rpp">—</div><div class="krow-tgt">останній місяць з фактом</div><div class="real-dot"></div></div>
+      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF / MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD — потрібні дані простоїв</div></div>
     </div>
   </div>
   <div id="w-prod-planweek">
@@ -684,6 +686,7 @@ a{color:var(--gd);text-decoration:none}
         <div class="g2" style="margin-bottom:12px">
           <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val">121.9M</div><div class="real-dot"></div></div>
           <div class="krow" style="border-left:3px solid var(--red)"><div class="krow-bar kb-r"></div><div class="krow-lbl">ТОП-2 клієнти</div><div class="krow-val r">94.7%</div><div class="real-dot"></div></div>
+          <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Динаміка МоМ</div><div class="krow-val" id="sales-wh-mom">—</div><div class="real-dot"></div></div>
         </div>
         <div class="card" style="margin-bottom:12px;border-color:var(--wh-bd)">
           <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">План/факт по місяцях</div>
@@ -1108,6 +1111,26 @@ async function loadProdData(){
     set('prod-fleet-util', weightedUtil!=null?weightedUtil.toFixed(1)+'%':'—');
     set('prod-fleet-free', totalFree.toLocaleString('uk-UA'));
     set('prod-fleet-defect', defectPct!=null?defectPct.toFixed(1)+'%':'—');
+
+    // ── Теоретична потужність (год/добу) = принтерів × 24 ──
+    const theorCapacity = totalMachines * 24;
+    set('prod-fleet-theor', theorCapacity.toLocaleString('uk-UA')+' год');
+
+    // ── OEE спрощений = Завантаженість × Якість (без розбивки на Availability/Performance — немає даних простоїв) ──
+    const qualityPct = defectPct!=null ? Math.max(0,100-defectPct) : null;
+    const oeeSimple = (weightedUtil!=null && qualityPct!=null) ? (weightedUtil/100)*(qualityPct/100)*100 : null;
+    set('prod-fleet-oee', oeeSimple!=null?oeeSimple.toFixed(1)+'%':'—');
+
+    // ── Виручка на 1 принтер за останній місяць з фактом (компанія загалом, не по локаціях) ──
+    try{
+      const sd=await fetch('data/sales_planner.json?t='+Date.now()).then(r=>r.json());
+      const wm=sd.wholesale?.monthly||[], rm=sd.retail?.monthly||[];
+      const lastWh=[...wm].reverse().find(m=>m.fact!=null);
+      const lastRt=rm.find(m=>m.month===lastWh?.month);
+      const monthRev=(lastWh?.fact||0)+(lastRt?.fact||0);
+      const revPerPrinter=totalMachines?monthRev/totalMachines:null;
+      set('prod-fleet-rpp', revPerPrinter!=null?Math.round(revPerPrinter).toLocaleString('uk-UA')+' грн':'—');
+    }catch(e){console.warn('[Prod rev/printer]',e.message);}
 
     // ── Виконання плану по локаціях (сьогодні) ──
     const planLabels=locs.map(l=>l.location.replace('Локація ','Лок.'));
@@ -2020,7 +2043,9 @@ window.LocLoader = (() => {
     const defectPct = batches.parts ? (batches.defectParts || 0) / batches.parts * 100 : 0;
     const quality = batches.parts ? Math.max(0, 100 - defectPct) : null;
     const completion = plan.parts ? printed.parts / plan.parts * 100 : null;
-    return { util, quality, completion, defectPct };
+    const theorCapacity = (m.total || 0) * 24; // год/добу — К-сть принтерів × 24
+    const oeeSimple = (util != null && quality != null) ? (util / 100) * (quality / 100) * 100 : null;
+    return { util, quality, completion, defectPct, theorCapacity, oeeSimple };
   }
 
   // Партій сьогодні ще може не бути (зміна тільки почалась) — % Якості за
@@ -2201,12 +2226,16 @@ window.LocLoader = (() => {
       const num = locNum(loc.location);
       const meta = LOC_META[num] || { status: '—', badge: 'pla' };
       const colors = LOC_COLORS[num] || { line: A, bg: AB };
-      const { util, defectPct } = metrics(loc);
+      const { util, defectPct, theorCapacity, oeeSimple } = metrics(loc);
       const avg = avgs[num] || { avgUtil: null, avgDefect: null };
       const idle = idles[num] || { hours: 0, days: 0, since: null };
       const defectCurColor = (defectPct != null && defectPct > DEFECT_THRESHOLD) ? '#C0392B' : colors.line;
       const warn = (util != null && util < 40)
         ? `<div style="font-size:8px;color:var(--red);margin-top:1px;font-weight:600">Факт. завант. нижче цільового</div>` : '';
+      const capRow = `<div style="font-size:8px;color:var(--tl);margin-top:3px;display:flex;gap:8px">
+          <span>⚙️ Теор. потужність: <b style="color:var(--tx)">${theorCapacity.toLocaleString('uk-UA')} год/добу</b></span>
+          <span>OEE спрощ.: <b style="color:var(--tx)">${oeeSimple!=null?oeeSimple.toFixed(1)+'%':'—'}</b></span>
+        </div>`;
       const growthBox = idle.days > 0
         ? `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br><b style="color:var(--tx);font-size:12px">${fmtHours(idle.hours)}</b><br>невикор. ресурсу<br>з ${idle.since}</div>`
         : `<div style="font-size:9px;color:var(--tl);line-height:1.5">📈 <b>Потенціал росту</b><br>накопичується</div>`;
@@ -2222,6 +2251,7 @@ window.LocLoader = (() => {
           </div>
         </div>
         ${warn}
+        ${capRow}
       </div>`;
     }).join('');
   }
