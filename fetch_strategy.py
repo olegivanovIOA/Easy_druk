@@ -7,6 +7,7 @@ fetch_strategy.py — Easy 3D Print Dashboard v1.2
 
 import csv, io, json, os, re, time
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 
 # НОВИЙ Sheet ID (оновлено серпень 2026)
@@ -78,9 +79,10 @@ def normalize_date(raw):
     return ""
 
 
-def fetch_projects_meta(gid):
-    """Лист 'Проекти': повертає {pid: {name, owner, priority, start, deadline, team}}"""
-    rows = fetch_csv(gid)
+def build_projects_meta(rows):
+    """Лист 'Проекти': перетворює вже завантажені рядки → {pid: {name, owner, priority, start, deadline, team}}
+    Розділено з fetch_projects_meta, щоб сам HTTP-фетч можна було виконати
+    паралельно з іншими листами, а розбір рядків (CPU, без мережі) — окремо."""
     meta = {}
     for row in rows[1:]:  # пропускаємо заголовок
         pid_raw = cell(row, COL_ID)
@@ -98,6 +100,11 @@ def fetch_projects_meta(gid):
         print(f"       Проект {pid}: {meta[pid]['owner']} | "
               f"start={meta[pid]['start']} deadline={meta[pid]['deadline']}")
     return meta
+
+
+def fetch_projects_meta(gid):
+    """Сумісність зі старим API (не паралельний виклик) — фетч + розбір одразу."""
+    return build_projects_meta(fetch_csv(gid))
 
 
 def _add_task(proj, task_text, owner, deadline, status):
@@ -204,27 +211,55 @@ def main():
         raise SystemExit("[ERROR] Жодного листа-спринту не знайдено")
 
     # Читаємо метадані проектів (start/deadline/owner)
-    projects_meta = {}
     projects_sheet = next((s for s in all_sheets if s["title"] == "Проекти"), None)
-    if projects_sheet:
-        print(f"[STRATEGY] Читаю лист 'Проекти' (gid={projects_sheet['gid']})")
-        try:
-            projects_meta = fetch_projects_meta(projects_sheet["gid"])
-            print(f"[STRATEGY] Знайдено {len(projects_meta)} проектів у листі Проекти")
-        except Exception as e:
-            print(f"[WARN] Лист Проекти: {e}")
-    else:
+    if not projects_sheet:
         print("[WARN] Лист 'Проекти' не знайдено — start/deadline будуть порожніми")
 
-    # Парсимо всі спринти
+    # ── Паралельний фетч усіх CSV (Проекти + кожен спринт) ──
+    # Раніше це було послідовно: 1 запит на Проекти + N запитів на спринти,
+    # кожен export?format=csv у Google займає 1–5с — при 7+ спринтах виходило
+    # ~1 хв сумарно. Самі HTTP-запити незалежні один від одного (різні gid
+    # того самого документа), тож якщо парсинг (CPU, без мережі) прибрати з
+    # цього циклу, фетч можна розпаралелити — і час впирається лише в
+    # найповільніший ОДИН запит, а не в суму всіх.
+    fetch_jobs = list(sprint_sheets)
+    if projects_sheet:
+        fetch_jobs.append({"num": None, "gid": projects_sheet["gid"], "name": "Проекти"})
+
+    raw_rows_by_gid = {}
+    fetch_errors = {}
+    with ThreadPoolExecutor(max_workers=min(len(fetch_jobs), 8) or 1) as pool:
+        future_to_job = {pool.submit(fetch_csv, job["gid"]): job for job in fetch_jobs}
+        for future in as_completed(future_to_job):
+            job = future_to_job[future]
+            try:
+                raw_rows_by_gid[job["gid"]] = future.result()
+            except Exception as e:
+                fetch_errors[job["gid"]] = e
+                print(f"[WARN] Фетч '{job['name']}' (gid={job['gid']}): {e}")
+
+    # Метадані проектів — з уже завантажених рядків (без повторного мережевого виклику)
+    projects_meta = {}
+    if projects_sheet and projects_sheet["gid"] in raw_rows_by_gid:
+        try:
+            print(f"[STRATEGY] Читаю лист 'Проекти' (gid={projects_sheet['gid']})")
+            projects_meta = build_projects_meta(raw_rows_by_gid[projects_sheet["gid"]])
+            print(f"[STRATEGY] Знайдено {len(projects_meta)} проектів у листі Проекти")
+        except Exception as e:
+            print(f"[WARN] Розбір листа Проекти: {e}")
+
+    # Парсимо всі спринти (CPU-only, дані вже в пам'яті — швидко, послідовно заради детермінованого порядку)
     result_sprints = []
     all_pids_seen = {}  # pid → {sprintNums: []}
     name_to_pid = build_name_to_pid(projects_meta)
 
     for sp in sprint_sheets:
         print(f"[STRATEGY] Спринт {sp['num']}: gid={sp['gid']}")
+        if sp["gid"] not in raw_rows_by_gid:
+            print(f"[WARN] Спринт {sp['num']}: немає даних (фетч не вдався)")
+            continue
         try:
-            rows = fetch_csv(sp["gid"])
+            rows = raw_rows_by_gid[sp["gid"]]
             projects = parse_sprint(rows, name_to_pid)
             print(f"           Проектів: {len(projects)}, "
                   f"задач: {sum(p['total'] for p in projects.values())}, "
