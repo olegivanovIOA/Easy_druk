@@ -60,6 +60,18 @@ window.SalesLoader = (() => {
     const cm=(_data.avg_check?.monthly||[]).filter(m=>m.fact).slice(-1)[0];
     if(cm) _set('sales-rt-check', _fmt(cm.fact)+' грн');
 
+    // Динаміка МоМ (%) для ОПТ — (поточний факт − попередній факт) / попередній факт × 100
+    const whMonthly=(wh.monthly||[]).filter(m=>m.fact!=null);
+    if(whMonthly.length>=2){
+      const cur=whMonthly[whMonthly.length-1].fact, prev=whMonthly[whMonthly.length-2].fact;
+      const momEl=document.getElementById('sales-wh-mom');
+      if(momEl && prev){
+        const mom=(cur-prev)/prev*100;
+        momEl.textContent=(mom>=0?'+':'')+mom.toFixed(1)+'%';
+        momEl.style.color=mom>=0?GD:R;
+      }
+    }
+
     // Пайплайн KPI
     const pipe=_data.pipeline||{};
     _set('sales-pipe-total',  _fmt(pipe.total_active_sum)+' грн');
