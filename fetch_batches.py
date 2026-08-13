@@ -178,23 +178,142 @@ def rollup_by_printer_model(locations_payload):
 
 
 def rollup_by_product(locations_payload, top_n=20):
-    """% браку по типу деталі (baseProductCode) — агреговано по lots[] всіх
-    локацій. Обмежено top_n по обсягу (acceptedQty), щоб не роздувati файл
-    сотнями рідкісних кодів деталей."""
+    """% браку і вартість браку по типу деталі (baseProductCode) — агреговано
+    по batches[] всередині printerModels[] (не lots[]!), бо тільки на рівні
+    партії є material.type/unitWeightG — потрібні для вартості браку.
+    Обмежено top_n по обсягу (acceptedQty)."""
     agg = {}
     for loc in locations_payload or []:
-        for lot in loc.get("lots", []) or []:
-            code = lot.get("baseProductCode") or "?"
-            a = agg.setdefault(code, {"batches": 0, "acceptedQty": 0, "defectQty": 0})
-            a["batches"] += lot.get("batchCount") or 0
-            a["acceptedQty"] += lot.get("acceptedQty") or 0
-            a["defectQty"] += lot.get("defectQty") or 0
+        for pm in loc.get("printerModels", []) or []:
+            for b in pm.get("batches", []) or []:
+                code = (b.get("product") or {}).get("baseCode") or "?"
+                a = agg.setdefault(code, {"batches": 0, "acceptedQty": 0, "defectQty": 0, "defectCostUAH": 0.0})
+                a["batches"] += 1
+                accepted = b.get("acceptedQty") or 0
+                defect = b.get("defectQty") or 0
+                a["acceptedQty"] += accepted
+                a["defectQty"] += defect
+                if defect:
+                    mat_type = (b.get("material") or {}).get("type")
+                    price = MATERIAL_PRICE_UAH_PER_KG.get(mat_type)
+                    weight_g = b.get("unitWeightG")
+                    if price is not None and weight_g:
+                        a["defectCostUAH"] += (weight_g / 1000) * defect * price
     out = []
     for code, a in agg.items():
         pct = round(a["defectQty"] / a["acceptedQty"] * 100, 2) if a["acceptedQty"] else None
-        out.append({"baseProductCode": code, **a, "defectPercent": pct})
+        out.append({
+            "baseProductCode": code,
+            "batches": a["batches"], "acceptedQty": a["acceptedQty"], "defectQty": a["defectQty"],
+            "defectPercent": pct,
+            "defectCostUAH": round(a["defectCostUAH"], 2),  # тільки вартість сировини браку — без маш-часу (той рахується вживу на дашборді за редагованою ставкою)
+        })
     out.sort(key=lambda x: -x["acceptedQty"])
     return out[:top_n]
+
+
+def rollup_defect_cost_ranking(by_product, top_n=10):
+    """Найдорожчий брак у грошах (не в %) — top_n деталей за defectCostUAH.
+    Береться з уже порахованого rollup_by_product, а не рахується заново."""
+    ranked = [p for p in by_product if p.get("defectCostUAH")]
+    ranked.sort(key=lambda x: -x["defectCostUAH"])
+    return ranked[:top_n]
+
+
+def rollup_planned_vs_estimated(locations_payload, top_n=10):
+    """План vs факт по кількості машин у ЛОТі (plannedMachines.planned vs
+    .estimated) — документація API стверджує "estimated = planned", але на
+    реальних даних вони часто різні (напр. 123 vs 147.6) — ці розбіжності й
+    показуємо, а не сліпо довіряємо документації."""
+    lot_deviations = []
+    total_planned = total_estimated = 0.0
+    covered = 0
+    for loc in locations_payload or []:
+        loc_key = location_key(loc.get("location"))
+        for lot in loc.get("lots", []) or []:
+            pm = lot.get("plannedMachines") or {}
+            planned, estimated = pm.get("planned"), pm.get("estimated")
+            if planned is None or estimated is None:
+                continue
+            covered += 1
+            total_planned += planned
+            total_estimated += estimated
+            if planned:
+                dev_pct = round((estimated - planned) / planned * 100, 1)
+                lot_deviations.append({
+                    "location": loc_key, "baseProductCode": lot.get("baseProductCode"),
+                    "planned": planned, "estimated": estimated, "deviationPercent": dev_pct,
+                })
+    lot_deviations.sort(key=lambda x: -abs(x["deviationPercent"]))
+    company_dev_pct = round((total_estimated - total_planned) / total_planned * 100, 1) if total_planned else None
+    return {
+        "totalPlanned": round(total_planned, 1), "totalEstimated": round(total_estimated, 1),
+        "deviationPercent": company_dev_pct, "lotsCovered": covered,
+        "topDeviations": lot_deviations[:top_n],
+    }
+
+
+def rollup_pending_qc(locations_payload):
+    """ЛОТи, надруковані, але ще без жодної прийнятої ОТК одиниці
+    (acceptedQty=0 при batchCount>0) — операційна черга сортування."""
+    pending = []
+    for loc in locations_payload or []:
+        loc_key = location_key(loc.get("location"))
+        for lot in loc.get("lots", []) or []:
+            if (lot.get("acceptedQty") or 0) == 0 and (lot.get("batchCount") or 0) > 0:
+                pending.append({
+                    "location": loc_key, "baseProductCode": lot.get("baseProductCode"),
+                    "batchCount": lot.get("batchCount"),
+                    "totalPrintTimeMinutes": lot.get("totalPrintTimeMinutes"),
+                    "shift": lot.get("shift"),
+                })
+    by_location = {}
+    for p in pending:
+        by_location[p["location"]] = by_location.get(p["location"], 0) + 1
+    return {"count": len(pending), "byLocation": by_location, "lots": pending[:30]}
+
+
+def rollup_worst_best_lots(locations_payload, min_qty=50, top_n=10):
+    """ТОП проблемних і ТОП чистих ЛОТів — з фільтром по мінімальному обсягу
+    (min_qty), щоб крихітний ЛОТ на 3 деталі з 1 браком (33%) не забивав
+    рейтинг поряд із реальними проблемними тисячниками."""
+    all_lots = []
+    for loc in locations_payload or []:
+        loc_key = location_key(loc.get("location"))
+        for lot in loc.get("lots", []) or []:
+            if (lot.get("acceptedQty") or 0) < min_qty or lot.get("defectPercent") is None:
+                continue
+            all_lots.append({
+                "location": loc_key,
+                "lotKey": lot.get("lotKey"),
+                "baseProductCode": lot.get("baseProductCode"),
+                "printerModels": lot.get("printerModels"),
+                "shift": lot.get("shift"),
+                "acceptedQty": lot.get("acceptedQty"),
+                "defectQty": lot.get("defectQty"),
+                "defectPercent": lot.get("defectPercent"),
+            })
+    worst = sorted(all_lots, key=lambda x: -x["defectPercent"])[:top_n]
+    best = sorted(all_lots, key=lambda x: x["defectPercent"])[:top_n]
+    return {"worst": worst, "best": best, "minQty": min_qty}
+
+
+def rollup_by_shift(locations_payload):
+    """% браку по зміні (FIRST/SECOND) — агреговано по всіх локаціях. Може
+    виявити систематичну проблему конкретної зміни (напр. нічної)."""
+    agg = {}
+    for loc in locations_payload or []:
+        for lot in loc.get("lots", []) or []:
+            shift = lot.get("shift") or "?"
+            a = agg.setdefault(shift, {"lots": 0, "acceptedQty": 0, "defectQty": 0})
+            a["lots"] += 1
+            a["acceptedQty"] += lot.get("acceptedQty") or 0
+            a["defectQty"] += lot.get("defectQty") or 0
+    out = []
+    for shift, a in agg.items():
+        pct = round(a["defectQty"] / a["acceptedQty"] * 100, 2) if a["acceptedQty"] else None
+        out.append({"shift": shift, **a, "defectPercent": pct})
+    return out
 
 
 def upsert_day(history, date_str, locations_payload):
@@ -203,12 +322,15 @@ def upsert_day(history, date_str, locations_payload):
         key = location_key(loc.get("location"))
         day_locs[key] = {"name": f"Локація {key}", **rollup_location(loc)}
 
+    day_company = rollup_company(locations_payload)
+
     days = history.setdefault("days", [])
     for d in days:
         if d.get("date") == date_str:
             d["locations"] = day_locs
+            d["company"] = day_company
             return history
-    days.append({"date": date_str, "locations": day_locs})
+    days.append({"date": date_str, "locations": day_locs, "company": day_company})
     return history
 
 
@@ -235,6 +357,8 @@ def main():
     print(f"[Batches] ✓ Отримано {len(locations)} локацій, "
           f"{totals.get('batches', '?')} партій / {totals.get('lots', '?')} ЛОТів за {target_date}")
 
+    by_product = rollup_by_product(locations)
+
     result = {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "date": target_date,
@@ -242,7 +366,12 @@ def main():
         "totals": totals,
         "company": rollup_company(locations),
         "byPrinterModel": rollup_by_printer_model(locations),
-        "byProduct": rollup_by_product(locations),
+        "byProduct": by_product,
+        "defectCostRanking": rollup_defect_cost_ranking(by_product),
+        "byShift": rollup_by_shift(locations),
+        "worstBestLots": rollup_worst_best_lots(locations),
+        "plannedVsEstimated": rollup_planned_vs_estimated(locations),
+        "pendingQC": rollup_pending_qc(locations),
         "locations": locations,
     }
 
