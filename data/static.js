@@ -166,19 +166,29 @@ window.E3D_STATIC = {
     sprint_days: 18,      // середня тривалість спринту (днів)
   },
 
-  // ── METRICS REGISTRY (summary from xlsx) ─────────────
+  // ── METRICS REGISTRY — перерахунок з СС_easy3d_metrics_registry.xlsx
+  // (лист "Реєстр метрик", лише рядки Враховувати?=ТАК; total/yes/part/calc/no
+  // синхронізовані з реальним чек-листом, база — перерахунок 03.08.2026:
+  // 168 метрик у скоупі (було стало 178).
+  // 13.08.2026: з бакета "Можна порахувати" реалізовано і виведено на дашборд:
+  //  → yes:  Теоретична потужність (Виробництво/Локації — зведення + картки
+  //          локацій), Динаміка МоМ % ОПТ (Продажі)
+  //  → part: OEE спрощений = Завант.×Якість, без Availability/Performance —
+  //          немає даних простоїв (Виробництво/Локації); Виручка/принтер —
+  //          рахується тільки по компанії загалом, не по локаціях
+  //          (Виробництво/Локації) ─────────────────────────────────────────
   metrics_coverage: [
-    { section:'Виробництво — Локації',         total:19, yes:1, part:8, calc:6, no:4 },
+    { section:'Виробництво — Локації',         total:19, yes:4, part:8, calc:3, no:4 },
     { section:'Виробництво — Принтери',         total:16, yes:0, part:4, calc:4, no:8 },
     { section:'Виробництво — Партії (Batch)',   total:27, yes:3, part:12,calc:7, no:5 },
-    { section:'Юніт-економіка',                 total:8,  yes:0, part:1, calc:7, no:0 },
-    { section:'Якість та брак',                 total:13, yes:0, part:3, calc:1, no:9 },
-    { section:'Продажі ОПТ (B2B)',              total:16, yes:2, part:7, calc:4, no:3 },
+    { section:'Юніт-економіка',                 total:1,  yes:0, part:0, calc:1, no:0 },
+    { section:'Якість та брак',                 total:13, yes:2, part:5, calc:1, no:5 },
+    { section:'Продажі ОПТ (B2B)',              total:16, yes:3, part:7, calc:3, no:3 },
     { section:'Продажі Роздріб (B2C)',          total:9,  yes:2, part:3, calc:1, no:3 },
-    { section:'CRM та Маркетинг',               total:24, yes:0, part:2, calc:3, no:15},
+    { section:'CRM та Маркетинг',               total:20, yes:0, part:2, calc:3, no:15},
     { section:'Аналіз клієнтів',                total:12, yes:0, part:4, calc:1, no:7 },
     { section:'Фінанси та P&L',                 total:14, yes:2, part:5, calc:4, no:3 },
-    { section:'HR та Персонал',                 total:8,  yes:2, part:2, calc:1, no:3 },
-    { section:'Топ-дашборд CEO',                total:12, yes:0, part:9, calc:0, no:3 },
+    { section:'HR та Персонал',                 total:9,  yes:2, part:2, calc:2, no:3 },
+    { section:'Топ-дашборд CEO',                total:12, yes:1, part:8, calc:0, no:3 },
   ],
 };
