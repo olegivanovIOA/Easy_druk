@@ -61,9 +61,16 @@ def rollup_location(loc):
     defect_pct = round(defect / accepted * 100, 2) if accepted else None
 
     # qcDefectWeightPercent буває null (нема калібрування ваги/ОТК не завершено) —
-    # усереднюємо тільки по ЛОТах де воно є, а не по всіх (інакше зсунемо в нуль).
-    weight_defects = [l.get("qcDefectWeightPercent") for l in lots if l.get("qcDefectWeightPercent") is not None]
-    defect_weight_pct = round(sum(weight_defects) / len(weight_defects), 2) if weight_defects else None
+    # рахуємо тільки по ЛОТах де воно є, і ЗВАЖЕНО по acceptedQty (а не проста
+    # середня!) — інакше маленький ЛОТ з високим % браку перекошує показник так
+    # само, як і великий (на реальних даних 12.08 проста середня давала 45% при
+    # тому, що зважений і поштучний % браку узгоджено давали ~9%).
+    weighted_lots = [l for l in lots if l.get("qcDefectWeightPercent") is not None and (l.get("acceptedQty") or 0) > 0]
+    weight_qty_sum = sum(l.get("acceptedQty") or 0 for l in weighted_lots)
+    defect_weight_pct = (
+        round(sum((l.get("qcDefectWeightPercent") or 0) * (l.get("acceptedQty") or 0) for l in weighted_lots) / weight_qty_sum, 2)
+        if weight_qty_sum else None
+    )
 
     return {
         "batches":  loc.get("totals", {}).get("batches", 0),
