@@ -271,10 +271,11 @@ window.SalesLoader = (() => {
     const wm=_data.wholesale?.monthly||[], rm=_data.retail?.monthly||[];
     const labels=(wm.length?wm:rm).map(m=>m.month.substring(0,3));
     if(_charts.combined){try{_charts.combined.destroy();}catch(e){}}
-    _charts.combined=new Chart(canvas,{type:'bar',data:{labels,datasets:[
+    const DL=window.ChartDataLabels;
+    _charts.combined=new Chart(canvas,{type:'bar',plugins:DL?[DL]:[],data:{labels,datasets:[
       {label:'ОПТ факт',data:wm.map(m=>m.fact),backgroundColor:WHB,borderColor:WH,borderWidth:1.5,borderRadius:4,yAxisID:'y'},
       {label:'Роздріб факт',data:rm.map(m=>m.fact),backgroundColor:RTB,borderColor:RT,borderWidth:1.5,borderRadius:4,yAxisID:'y1'},
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10}}},scales:{
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10}},datalabels:{anchor:'end',align:'end',offset:2,font:{size:8,weight:'700'},color:(ctx)=>ctx.datasetIndex===0?WH:RT,formatter:v=>v?_fmt(v):''}},layout:{padding:{top:16}},scales:{
       x:{grid:{color:GRID}},
       y:{type:'linear',position:'left',grid:{color:GRID},ticks:{callback:v=>_fmt(v)},title:{display:true,text:'ОПТ',font:{size:9},color:WH}},
       y1:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>_fmt(v)},title:{display:true,text:'Роздріб',font:{size:9},color:RT}},
@@ -287,10 +288,11 @@ window.SalesLoader = (() => {
     const canvas=document.getElementById('sales-retail-chart');
     if(canvas&&data.length){
       if(_charts.retail){try{_charts.retail.destroy();}catch(e){}}
-      _charts.retail=new Chart(canvas,{type:'bar',data:{labels:data.map(m=>m.month.substring(0,3)),datasets:[
+      const DL=window.ChartDataLabels;
+      _charts.retail=new Chart(canvas,{type:'bar',plugins:DL?[DL]:[],data:{labels:data.map(m=>m.month.substring(0,3)),datasets:[
         {label:'План',data:data.map(m=>m.plan),backgroundColor:'rgba(150,168,144,.25)',borderRadius:4},
         {label:'Факт',data:data.map(m=>m.fact),backgroundColor:RTB,borderColor:RT,borderWidth:1.5,borderRadius:4},
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}},datalabels:{anchor:'end',align:'end',offset:2,font:{size:8,weight:'700'},color:(ctx)=>ctx.datasetIndex===0?'#96a890':RT,formatter:v=>v?_fmt(v):''}},layout:{padding:{top:14}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
     }
     const tbody=document.getElementById('sales-retail-table');
     if(tbody) tbody.innerHTML=data.map(m=>{
@@ -306,10 +308,11 @@ window.SalesLoader = (() => {
     const canvas=document.getElementById('sales-wholesale-chart');
     if(canvas&&data.length){
       if(_charts.wh){try{_charts.wh.destroy();}catch(e){}}
-      _charts.wh=new Chart(canvas,{type:'bar',data:{labels:data.map(m=>m.month.substring(0,3)),datasets:[
+      const DL=window.ChartDataLabels;
+      _charts.wh=new Chart(canvas,{type:'bar',plugins:DL?[DL]:[],data:{labels:data.map(m=>m.month.substring(0,3)),datasets:[
         {label:'План',data:data.map(m=>m.plan),backgroundColor:'rgba(150,168,144,.25)',borderRadius:4},
         {label:'Факт',data:data.map(m=>m.fact),backgroundColor:WHB,borderColor:WH,borderWidth:1.5,borderRadius:4},
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}},datalabels:{anchor:'end',align:'end',offset:2,font:{size:8,weight:'700'},color:(ctx)=>ctx.datasetIndex===0?'#96a890':WH,formatter:v=>v?_fmt(v):''}},layout:{padding:{top:14}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
     }
     const tbody=document.getElementById('sales-wholesale-table');
     if(tbody) tbody.innerHTML=data.map(m=>{
