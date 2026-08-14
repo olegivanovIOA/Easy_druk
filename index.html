@@ -762,6 +762,24 @@ a{color:var(--gd);text-decoration:none}
       </div>
     </div>
   </div>
+
+  <!-- Помісячна історія (2026) — data/batches_monthly_history.json, наповнюється backfill_batches_monthly.py -->
+  <div id="w-qual-batches-monthly" style="display:none">
+    <div class="sec" style="justify-content:space-between">
+      <span>🗓️ По місяцях (2026)</span>
+      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="qual-monthly-note"></span>
+    </div>
+    <div class="g2">
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">% браку по місяцях</div>
+        <div class="cw" style="height:180px;padding:6px 10px 10px"><canvas id="qual-monthly-defect-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">Партій по місяцях</div>
+        <div class="cw" style="height:180px;padding:6px 10px 10px"><canvas id="qual-monthly-volume-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ═════════════ ПРОДАЖІ ═════════════ -->
@@ -1581,6 +1599,32 @@ async function loadQualityData(){
       }))},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
     }
   }catch(e){console.warn('[Quality batches trend]',e.message);}
+
+  // ── По місяцях (2026) — data/batches_monthly_history.json, наповнюється backfill_batches_monthly.py ──
+  try{
+    const mh=await fetch('data/batches_monthly_history.json?t='+Date.now()).then(r=>r.json());
+    const months=(mh.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+    const wrap=document.getElementById('w-qual-batches-monthly');
+    if(wrap && months.length){
+      wrap.style.display='';
+      const note=document.getElementById('qual-monthly-note');
+      if(note){
+        const last=months[months.length-1];
+        note.textContent = `${months.length} міс. · ${months[0].month} → ${last.month}${last.complete===false?' (останній — частковий)':''}`;
+      }
+      const labels=months.map(m=>m.month);
+      safeChart('qual-monthly-defect-chart',{type:'line',data:{labels,datasets:[
+        {label:'% браку',data:months.map(m=>m.company?.defectPercent??null),borderColor:R,backgroundColor:RB,borderWidth:2.5,tension:.3,fill:true,pointRadius:4,pointBackgroundColor:R,spanGaps:true},
+      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+
+      safeChart('qual-monthly-volume-chart',{type:'bar',data:{labels,datasets:[
+        {label:'Партій',data:months.map(m=>m.company?.batches??null),backgroundColor:B,borderRadius:5},
+      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const m=months[ctx.dataIndex];return m.company?`${m.company.lots} ЛОТів · ${m.company.acceptedQty.toLocaleString('uk-UA')} шт`:'';}}}},scales:{y:{beginAtZero:true,grid:{color:GRID}},x:{grid:{display:false}}}}});
+    }
+  }catch(e){
+    // Файл ще не існує, поки не запущено backfill_batches_monthly.py вручну — це нормально, не помилка
+    console.info('[Quality monthly] Помісячна історія ще не забекфілена:', e.message);
+  }
 }
 
 // ── GOALS with progress indicators ───────────────────
@@ -2194,7 +2238,7 @@ const WCAT=[
   {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
   {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
   {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batches',tab:'prod',label:'Партії/ЛОТи (вчора)'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
-  {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},{id:'qual-batches',tab:'qual',label:'Брак по моделі/деталі (вчора)'},{id:'qual-lots',tab:'qual',label:'ТОП проблемних/чистих ЛОТів'},{id:'qual-batches-trend',tab:'qual',label:'Тренд браку по датах'},
+  {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},{id:'qual-batches',tab:'qual',label:'Брак по моделі/деталі (вчора)'},{id:'qual-lots',tab:'qual',label:'ТОП проблемних/чистих ЛОТів'},{id:'qual-batches-trend',tab:'qual',label:'Тренд браку по датах'},{id:'qual-batches-monthly',tab:'qual',label:'По місяцях (2026)'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
   {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
