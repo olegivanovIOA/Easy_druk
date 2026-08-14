@@ -834,7 +834,7 @@ a{color:var(--gd);text-decoration:none}
           <div class="cw ch180"><canvas id="sales-retail-chart"></canvas></div>
         </div>
         <div class="card-flat" style="border-color:var(--retail-bd)">
-          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
+          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">%</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -858,7 +858,7 @@ a{color:var(--gd);text-decoration:none}
           <div class="cw ch180"><canvas id="sales-wholesale-chart"></canvas></div>
         </div>
         <div class="card-flat" style="border-color:var(--wh-bd)">
-          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody id="sales-wholesale-table"></tbody></table></div>
+          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">%</th></tr></thead><tbody id="sales-wholesale-table"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -894,6 +894,10 @@ a{color:var(--gd);text-decoration:none}
     <div class="sec" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
       <span>❌ Причини відмов від угод <span class="ld ok" style="margin-left:2px"></span></span>
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <div style="display:flex;border:1px solid var(--bd);border-radius:6px;overflow:hidden">
+          <button id="loss-reasons-view-bar" onclick="setLossReasonsView('bar')" style="font-size:10px;padding:3px 8px;border:none;background:var(--tx);color:#fff;cursor:pointer">▬ Бар</button>
+          <button id="loss-reasons-view-pie" onclick="setLossReasonsView('pie')" style="font-size:10px;padding:3px 8px;border:none;background:#fff;color:var(--tx);cursor:pointer">◕ Пиріг</button>
+        </div>
         <select id="loss-reasons-period" style="font-size:10px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff">
           <option value="all">Всі місяці</option>
         </select>
