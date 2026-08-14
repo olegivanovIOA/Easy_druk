@@ -23,9 +23,9 @@ window.SalesLoader = (() => {
     }
   }
 
-  function render() {
+  async function render() {
     if (!_data) return;
-    _renderSummary();
+    await _renderSummary();
     _renderCombinedChart();
     _renderRetail();
     _renderWholesale();
@@ -44,7 +44,7 @@ window.SalesLoader = (() => {
   function _set(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
 
   // ── 1. KPI зведення ───────────────────────────────────────────────────────
-  function _renderSummary() {
+  async function _renderSummary() {
     const wh=_data.wholesale||{}, rt=_data.retail||{};
     _set('sales-wh-fact', _fmt(wh.ytd_fact)+' грн');
     _set('sales-wh-pct',  (wh.ytd_pct??'—')+'%');
@@ -78,6 +78,18 @@ window.SalesLoader = (() => {
     const active = (pipe.stages||[]).filter(s=>['active','test','calculation','waiting'].includes(s.stage)).reduce((s,x)=>s+x.sum,0);
     _set('sales-pipe-active', _fmt(active)+' грн');
     _set('sales-pipe-wr',     (pipe.win_rate_pct??'—')+'%');
+
+    // ── Реальний середній чек/медіана з Bitrix24 CRM (WON-угоди поточного місяця) ──
+    try{
+      const crm=await fetch('data/crm_deals.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+      if(crm){
+        const wh=crm.wholesale||{}, rt=crm.retail||{};
+        _set('crm-wh-avg', wh.avgCheck!=null ? _fmt(wh.avgCheck)+' грн ('+wh.deals+' уг.)' : '—');
+        _set('crm-wh-median', wh.medianCheck!=null ? _fmt(wh.medianCheck)+' грн' : '—');
+        _set('crm-rt-avg', rt.avgCheck!=null ? _fmt(rt.avgCheck)+' грн ('+rt.deals+' уг.)' : '—');
+        _set('crm-rt-median', rt.medianCheck!=null ? _fmt(rt.medianCheck)+' грн' : '—');
+      }
+    }catch(e){console.warn('[CRM deals]',e.message);}
   }
 
   // ── 2. Комбінований графік ОПТ + Роздріб ──────────────────────────────────
