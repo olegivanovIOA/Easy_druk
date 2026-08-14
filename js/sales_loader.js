@@ -11,6 +11,13 @@ window.SalesLoader = (() => {
   const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B';
   const GB = 'rgba(42,157,143,.15)', AB = 'rgba(69,123,157,.15)';
   const GRID = '#f0f2ee';
+  // Брендові кольори ОПТ/Роздріб (тепла українська палітра — пшеничне золото
+  // для Роздробу, м'яке небесне синє для ОПТ) — ОКРЕМО від G/A вище, бо ті
+  // ще використовуються як семантика "добре/середньо/погано" в інших місцях
+  // цього файлу (пороги виконання плану, стадії пайплайну) і їх не можна
+  // просто перефарбувати під бренд, не зламавши той сенс.
+  const WH = '#3D7EA6', WHB = 'rgba(61,126,166,.15)';
+  const RT = '#C98A2B', RTB = 'rgba(201,138,43,.15)';
 
   async function load() {
     try {
@@ -50,6 +57,10 @@ window.SalesLoader = (() => {
     _set('sales-wh-pct',  (wh.ytd_pct??'—')+'%');
     _set('sales-rt-fact', _fmt(rt.ytd_fact)+' грн');
     _set('sales-rt-pct',  (rt.ytd_pct??'—')+'%');
+    // Ті самі YTD-цифри, продубльовані в картках ОПТ/Роздріб зон (замість
+    // старих статичних "Виручка 2025", які були просто текстом, не даними)
+    _set('sales-wh-fact-zone', _fmt(wh.ytd_fact)+' грн');
+    _set('sales-rt-fact-zone', _fmt(rt.ytd_fact)+' грн');
 
     const lm = (_data.leads_conversion?.monthly||[]).filter(m=>m.leads).slice(-1)[0];
     if (lm) {
@@ -90,6 +101,128 @@ window.SalesLoader = (() => {
         _set('crm-rt-median', rt.medianCheck!=null ? _fmt(rt.medianCheck)+' грн' : '—');
       }
     }catch(e){console.warn('[CRM deals]',e.message);}
+
+    // ── Причини відмов + сегменти угод за розміром — поточний місяць (live) + історія ──
+    try{
+      const [current, hist] = await Promise.all([
+        fetch('data/crm_deals.json?t='+Date.now()).then(r=>r.ok?r.json():null),
+        fetch('data/crm_monthly_history.json?t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>null),
+      ]);
+      _lrCurrent=current; _lrHistory=hist;
+
+      const lrWrap=document.getElementById('w-sales-loss-reasons');
+      const tiersWrap=document.getElementById('w-sales-tiers');
+      const periodOptions = (hist && hist.months && hist.months.length)
+        ? '<option value="all">Всі місяці</option>' + hist.months.slice().sort((a,b)=>b.month.localeCompare(a.month)).map(m=>`<option value="${m.month}">${m.month}${m.complete===false?' (частково)':''}</option>`).join('')
+        : null;
+
+      if(lrWrap && current){
+        lrWrap.style.display='';
+        const sel=document.getElementById('loss-reasons-period');
+        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', renderLossReasons); }
+        renderLossReasons();
+      }
+      if(tiersWrap && current){
+        tiersWrap.style.display='';
+        const sel=document.getElementById('tiers-period');
+        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', renderTiers); }
+        renderTiers();
+      }
+    }catch(e){console.warn('[Loss reasons / Tiers]',e.message);}
+  }
+
+  let _lrCurrent=null, _lrHistory=null;
+
+  function renderLossReasons(){
+    const sel=document.getElementById('loss-reasons-period');
+    const period=sel?sel.value:'all';
+    const note=document.getElementById('loss-reasons-note');
+
+    let whReasons, rtReasons, label;
+    if(period==='all' && _lrHistory && _lrHistory.months && _lrHistory.months.length){
+      // Сумуємо причини по всіх забекфілених місяцях
+      const sumReasons=(key)=>{
+        const merged={};
+        _lrHistory.months.forEach(m=>(m[key]||[]).forEach(r=>{merged[r.reason]=(merged[r.reason]||0)+r.count;}));
+        return Object.entries(merged).map(([reason,count])=>({reason,count})).sort((a,b)=>b.count-a.count);
+      };
+      whReasons=sumReasons('lossReasonsWholesale');
+      rtReasons=sumReasons('lossReasonsRetail');
+      const months=_lrHistory.months.map(m=>m.month).sort();
+      label=`${months[0]} → ${months[months.length-1]} (${months.length} міс.)`;
+    }else if(period==='all'){
+      // Нема історії — показуємо хоча б поточний місяць
+      whReasons=(_lrCurrent&&_lrCurrent.lossReasonsWholesale)||[];
+      rtReasons=(_lrCurrent&&_lrCurrent.lossReasonsRetail)||[];
+      label=(_lrCurrent&&_lrCurrent.month)||'—';
+    }else{
+      const m=(_lrHistory&&_lrHistory.months||[]).find(x=>x.month===period);
+      whReasons=(m&&m.lossReasonsWholesale)||[];
+      rtReasons=(m&&m.lossReasonsRetail)||[];
+      label=period+(m&&m.complete===false?' (частково, ще триває)':'');
+    }
+    if(note) note.textContent=label;
+
+    const buildChart=(canvasId, reasons, color)=>{
+      safeChartLoss(canvasId,{type:'bar',data:{labels:reasons.map(r=>r.reason),datasets:[{
+        label:'Відмов', data:reasons.map(r=>r.count), backgroundColor:color+'26', borderColor:color, borderWidth:1.5, borderRadius:5,
+      }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+    };
+    buildChart('loss-reasons-wh-chart', whReasons.slice(0,10), WH);
+    buildChart('loss-reasons-rt-chart', rtReasons.slice(0,10), RT);
+  }
+
+  const TIER_LABELS=['Дрібні (<10К)','Середні (10К–100К)','Мега-опт (>100К)'];
+  const TIER_KEYS=['small','medium','mega'];
+
+  function renderTiers(){
+    const sel=document.getElementById('tiers-period');
+    const period=sel?sel.value:'all';
+    const note=document.getElementById('tiers-note');
+
+    let whTiers, rtTiers, label;
+    const sumTiers=(monthsArr, groupKey)=>{
+      const merged={}; TIER_KEYS.forEach(k=>merged[k]={deals:0,revenue:0});
+      monthsArr.forEach(m=>{
+        (m[groupKey]?.tiers||[]).forEach(t=>{ merged[t.tier].deals+=t.deals; merged[t.tier].revenue+=t.revenue; });
+      });
+      return TIER_KEYS.map((k,i)=>({tier:k,label:TIER_LABELS[i],...merged[k]}));
+    };
+
+    if(period==='all' && _lrHistory && _lrHistory.months && _lrHistory.months.length){
+      whTiers=sumTiers(_lrHistory.months,'wholesale');
+      rtTiers=sumTiers(_lrHistory.months,'retail');
+      const months=_lrHistory.months.map(m=>m.month).sort();
+      label=`${months[0]} → ${months[months.length-1]} (${months.length} міс.)`;
+    }else if(period==='all'){
+      whTiers=(_lrCurrent&&_lrCurrent.wholesale&&_lrCurrent.wholesale.tiers)||[];
+      rtTiers=(_lrCurrent&&_lrCurrent.retail&&_lrCurrent.retail.tiers)||[];
+      label=(_lrCurrent&&_lrCurrent.month)||'—';
+    }else{
+      const m=(_lrHistory&&_lrHistory.months||[]).find(x=>x.month===period);
+      whTiers=(m&&m.wholesale&&m.wholesale.tiers)||[];
+      rtTiers=(m&&m.retail&&m.retail.tiers)||[];
+      label=period+(m&&m.complete===false?' (частково, ще триває)':'');
+    }
+    if(note) note.textContent=label;
+
+    const tierColors=[RT, A, WH]; // дрібні->бренд роздрібу, середні->нейтральний, мега->бренд опту (умовно, просто для розрізнення стовпців)
+    const buildChart=(canvasId, tiers)=>{
+      safeChartLoss(canvasId,{type:'bar',data:{labels:tiers.map(t=>t.label),datasets:[{
+        label:'Угод', data:tiers.map(t=>t.deals), backgroundColor:tierColors.map(c=>c+'33'), borderColor:tierColors, borderWidth:1.5, borderRadius:6,
+      }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const t=tiers[ctx.dataIndex];return t?_fmt(t.revenue)+' грн разом':'';}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+    };
+    buildChart('tiers-wh-chart', whTiers);
+    buildChart('tiers-rt-chart', rtTiers);
+  }
+
+  // Локальний кеш чартів для причин відмов/тірів (окремо від _charts, щоб
+  // не конфліктувати з destroy-логікою інших графіків цього файлу)
+  const _lrCharts={};
+  function safeChartLoss(id,cfg){
+    const canvas=document.getElementById(id); if(!canvas) return;
+    if(_lrCharts[id]){ try{_lrCharts[id].destroy();}catch(e){} }
+    _lrCharts[id]=new Chart(canvas,cfg);
   }
 
   // ── 2. Комбінований графік ОПТ + Роздріб ──────────────────────────────────
@@ -99,12 +232,12 @@ window.SalesLoader = (() => {
     const labels=(wm.length?wm:rm).map(m=>m.month.substring(0,3));
     if(_charts.combined){try{_charts.combined.destroy();}catch(e){}}
     _charts.combined=new Chart(canvas,{type:'bar',data:{labels,datasets:[
-      {label:'ОПТ факт',data:wm.map(m=>m.fact),backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4,yAxisID:'y'},
-      {label:'Роздріб факт',data:rm.map(m=>m.fact),backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4,yAxisID:'y1'},
+      {label:'ОПТ факт',data:wm.map(m=>m.fact),backgroundColor:WHB,borderColor:WH,borderWidth:1.5,borderRadius:4,yAxisID:'y'},
+      {label:'Роздріб факт',data:rm.map(m=>m.fact),backgroundColor:RTB,borderColor:RT,borderWidth:1.5,borderRadius:4,yAxisID:'y1'},
     ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10}}},scales:{
       x:{grid:{color:GRID}},
-      y:{type:'linear',position:'left',grid:{color:GRID},ticks:{callback:v=>_fmt(v)},title:{display:true,text:'ОПТ',font:{size:9},color:G}},
-      y1:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>_fmt(v)},title:{display:true,text:'Роздріб',font:{size:9},color:A}},
+      y:{type:'linear',position:'left',grid:{color:GRID},ticks:{callback:v=>_fmt(v)},title:{display:true,text:'ОПТ',font:{size:9},color:WH}},
+      y1:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>_fmt(v)},title:{display:true,text:'Роздріб',font:{size:9},color:RT}},
     }}});
   }
 
@@ -116,7 +249,7 @@ window.SalesLoader = (() => {
       if(_charts.retail){try{_charts.retail.destroy();}catch(e){}}
       _charts.retail=new Chart(canvas,{type:'bar',data:{labels:data.map(m=>m.month.substring(0,3)),datasets:[
         {label:'План',data:data.map(m=>m.plan),backgroundColor:'rgba(150,168,144,.25)',borderRadius:4},
-        {label:'Факт',data:data.map(m=>m.fact),backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4},
+        {label:'Факт',data:data.map(m=>m.fact),backgroundColor:RTB,borderColor:RT,borderWidth:1.5,borderRadius:4},
       ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
     }
     const tbody=document.getElementById('sales-retail-table');
@@ -135,7 +268,7 @@ window.SalesLoader = (() => {
       if(_charts.wh){try{_charts.wh.destroy();}catch(e){}}
       _charts.wh=new Chart(canvas,{type:'bar',data:{labels:data.map(m=>m.month.substring(0,3)),datasets:[
         {label:'План',data:data.map(m=>m.plan),backgroundColor:'rgba(150,168,144,.25)',borderRadius:4},
-        {label:'Факт',data:data.map(m=>m.fact),backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4},
+        {label:'Факт',data:data.map(m=>m.fact),backgroundColor:WHB,borderColor:WH,borderWidth:1.5,borderRadius:4},
       ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
     }
     const tbody=document.getElementById('sales-wholesale-table');
