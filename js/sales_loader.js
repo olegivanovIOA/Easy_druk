@@ -19,6 +19,17 @@ window.SalesLoader = (() => {
   const WH = '#3D7EA6', WHB = 'rgba(61,126,166,.15)';
   const RT = '#C98A2B', RTB = 'rgba(201,138,43,.15)';
 
+  // Змішує hex-колір з білим у пропорції amount (0=майже білий, 1=повний
+  // колір) — потрібно для градієнта відтінків сегментів пирога причин
+  // відмов (щоб усі сектори лишались впізнавано "в тому самому бренді",
+  // а не бралися з довільної палітри).
+  function shadeColor(hex, amount){
+    const h=hex.replace('#','');
+    const r=parseInt(h.substring(0,2),16), g=parseInt(h.substring(2,4),16), b=parseInt(h.substring(4,6),16);
+    const mix=(c)=>Math.round(255+(c-255)*amount);
+    return `rgb(${mix(r)},${mix(g)},${mix(b)})`;
+  }
+
   async function load() {
     try {
       const r = await fetch(DATA_URL + '?t=' + Date.now());
@@ -132,6 +143,20 @@ window.SalesLoader = (() => {
   }
 
   let _lrCurrent=null, _lrHistory=null;
+  let _lossReasonsView='bar'; // 'bar' | 'pie'
+
+  window.setLossReasonsView=function(view){
+    _lossReasonsView=view;
+    const barBtn=document.getElementById('loss-reasons-view-bar');
+    const pieBtn=document.getElementById('loss-reasons-view-pie');
+    if(barBtn&&pieBtn){
+      barBtn.style.background=view==='bar'?'var(--tx)':'#fff';
+      barBtn.style.color=view==='bar'?'#fff':'var(--tx)';
+      pieBtn.style.background=view==='pie'?'var(--tx)':'#fff';
+      pieBtn.style.color=view==='pie'?'#fff':'var(--tx)';
+    }
+    renderLossReasons();
+  };
 
   function renderLossReasons(){
     const sel=document.getElementById('loss-reasons-period');
@@ -164,9 +189,22 @@ window.SalesLoader = (() => {
     if(note) note.textContent=label;
 
     const buildChart=(canvasId, reasons, color)=>{
-      safeChartLoss(canvasId,{type:'bar',data:{labels:reasons.map(r=>r.reason),datasets:[{
+      const DL=window.ChartDataLabels;
+      const total=reasons.reduce((s,r)=>s+r.count,0);
+      if(_lossReasonsView==='pie'){
+        // Палітра відтінків базового кольору групи (щоб не плутати ОПТ/Роздріб між собою)
+        const shades=reasons.map((_,i)=>{
+          const t=reasons.length>1?i/(reasons.length-1):0;
+          return shadeColor(color, .15+t*.55);
+        });
+        safeChartLoss(canvasId,{type:'pie',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
+          data:reasons.map(r=>r.count), backgroundColor:shades, borderColor:'#fff', borderWidth:2,
+        }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},boxWidth:10,padding:6}},datalabels:{color:'#fff',font:{size:10,weight:'700'},formatter:v=>total?Math.round(v/total*100)+'%':'',display:ctx=>ctx.dataset.data[ctx.dataIndex]/total>0.04}}}});
+        return;
+      }
+      safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
         label:'Відмов', data:reasons.map(r=>r.count), backgroundColor:color+'26', borderColor:color, borderWidth:1.5, borderRadius:5,
-      }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+      }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:4,color:color,font:{size:10,weight:'700'},formatter:v=>total?`${v} (${Math.round(v/total*100)}%)`:v}},layout:{padding:{right:60}},scales:{x:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
     };
     buildChart('loss-reasons-wh-chart', whReasons.slice(0,10), WH);
     buildChart('loss-reasons-rt-chart', rtReasons.slice(0,10), RT);
@@ -208,9 +246,11 @@ window.SalesLoader = (() => {
 
     const tierColors=[RT, A, WH]; // дрібні->бренд роздрібу, середні->нейтральний, мега->бренд опту (умовно, просто для розрізнення стовпців)
     const buildChart=(canvasId, tiers)=>{
-      safeChartLoss(canvasId,{type:'bar',data:{labels:tiers.map(t=>t.label),datasets:[{
+      const DL=window.ChartDataLabels;
+      const total=tiers.reduce((s,t)=>s+t.deals,0);
+      safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:tiers.map(t=>t.label),datasets:[{
         label:'Угод', data:tiers.map(t=>t.deals), backgroundColor:tierColors.map(c=>c+'33'), borderColor:tierColors, borderWidth:1.5, borderRadius:6,
-      }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const t=tiers[ctx.dataIndex];return t?_fmt(t.revenue)+' грн разом':'';}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+      }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const t=tiers[ctx.dataIndex];return t?_fmt(t.revenue)+' грн разом':'';}}},datalabels:{anchor:'end',align:'end',offset:4,color:(ctx)=>tierColors[ctx.dataIndex],font:{size:11,weight:'700'},formatter:v=>total?`${v} (${Math.round(v/total*100)}%)`:v}},layout:{padding:{top:24}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
     };
     buildChart('tiers-wh-chart', whTiers);
     buildChart('tiers-rt-chart', rtTiers);
