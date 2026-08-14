@@ -26,8 +26,8 @@
   --shm: 0 4px 16px rgba(20,60,20,.08);
   --r:10px; --rs:7px; --nh:54px;
   /* Насичена корпоративна палітра — для акцентних блоків (Продажі: Опт/Роздріб) */
-  --retail-c:#0F6CBD; --retail-cd:#0A4D87; --retail-bg:#E8F1FB; --retail-bd:#9EC5EC;
-  --wh-c:#0A7D4B; --wh-cd:#075C37; --wh-bg:#E6F7EE; --wh-bd:#8FD4B0;
+  --retail-c:#C98A2B; --retail-cd:#9C6A1E; --retail-bg:#FBF3E1; --retail-bd:#E8C787;
+  --wh-c:#3D7EA6; --wh-cd:#295A78; --wh-bg:#E9F2F7; --wh-bd:#A3C9DD;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;-webkit-text-size-adjust:100%}
@@ -345,7 +345,7 @@ a{color:var(--gd);text-decoration:none}
       <button class="tb" data-tab="prod" onclick="go('prod',this)"><span class="ti">🏭</span>Виробництво<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="qual" onclick="go('qual',this)"><span class="ti">✅</span>Якість<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="sales" onclick="go('sales',this)"><span class="ti">💼</span>Продажі<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-sales"></div></button>
-      <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>CRM<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
+      <button class="tb" data-tab="mkt" onclick="go('mkt',this)"><span class="ti">📣</span>Маркетинг<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-mkt"></div></button>
       <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
       <button class="tb" data-tab="hr" onclick="go('hr',this)"><span class="ti">👥</span>HR<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-hr"></div></button>
       <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -824,7 +824,7 @@ a{color:var(--gd);text-decoration:none}
       </div>
       <div class="sales-zone-body">
         <div class="g2" style="margin-bottom:12px">
-          <div class="krow krow-retail"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val">16.9M</div><div class="real-dot"></div></div>
+          <div class="krow krow-retail" title="Факт з початку 2026 року — те саме джерело, що й зведений показник YTD вище"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2026 YTD</div><div class="krow-val" id="sales-rt-fact-zone">—</div><div class="real-dot"></div></div>
           <div class="krow krow-retail"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек (останній міс.)</div><div class="krow-val" id="sales-rt-check">—</div></div>
           <div class="krow krow-retail" title="З Bitrix24, WON-угоди поточного місяця, воронки «Товарка»+«Магазин»"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек з CRM (міс.)</div><div class="krow-val" id="crm-rt-avg">—</div></div>
           <div class="krow krow-retail" title="Медіана надійніша за середнє при наявності викидів"><div class="krow-bar"></div><div class="krow-lbl">Медіана чека з CRM</div><div class="krow-val" id="crm-rt-median">—</div></div>
@@ -847,7 +847,7 @@ a{color:var(--gd);text-decoration:none}
       </div>
       <div class="sales-zone-body">
         <div class="g2" style="margin-bottom:12px">
-          <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2025</div><div class="krow-val">121.9M</div><div class="real-dot"></div></div>
+          <div class="krow krow-wh" title="Факт з початку 2026 року — те саме джерело, що й зведений показник YTD вище"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2026 YTD</div><div class="krow-val" id="sales-wh-fact-zone">—</div><div class="real-dot"></div></div>
           <div class="krow" style="border-left:3px solid var(--red)"><div class="krow-bar kb-r"></div><div class="krow-lbl">ТОП-2 клієнти</div><div class="krow-val r">94.7%</div><div class="real-dot"></div></div>
           <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Динаміка МоМ</div><div class="krow-val" id="sales-wh-mom">—</div><div class="real-dot"></div></div>
           <div class="krow krow-wh" title="З Bitrix24, WON-угоди поточного місяця, воронка «Виробництво»"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек з CRM (міс.)</div><div class="krow-val" id="crm-wh-avg">—</div><div class="real-dot"></div></div>
@@ -864,11 +864,58 @@ a{color:var(--gd);text-decoration:none}
     </div>
 
   </div>
+
+  <!-- ═══ Сегменти угод за розміром (тіри) — Bitrix24, без клієнтських ID ═══ -->
+  <div id="w-sales-tiers" style="margin-top:18px;display:none">
+    <div class="sec" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>📊 Сегменти угод за розміром <span class="ld ok" style="margin-left:2px"></span></span>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <select id="tiers-period" style="font-size:10px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff">
+          <option value="all">Всі місяці</option>
+        </select>
+        <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="tiers-note"></span>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--tl);margin-bottom:8px">Дрібні &lt;10К грн · Середні 10К–100К грн · Мега-опт &gt;100К грн — за сумою КОЖНОЇ окремої угоди, без прив'язки до клієнта.</div>
+    <div class="g2">
+      <div class="card" style="border-color:var(--wh-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">ОПТ — угод по сегментах</div>
+        <div class="cw ch210"><canvas id="tiers-wh-chart"></canvas></div>
+      </div>
+      <div class="card" style="border-color:var(--retail-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Роздріб — угод по сегментах</div>
+        <div class="cw ch210"><canvas id="tiers-rt-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Причини відмов — Bitrix24, фільтр "Всі"/по місяцях ═══ -->
+  <div id="w-sales-loss-reasons" style="margin-top:18px;display:none">
+    <div class="sec" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>❌ Причини відмов від угод <span class="ld ok" style="margin-left:2px"></span></span>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <select id="loss-reasons-period" style="font-size:10px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff">
+          <option value="all">Всі місяці</option>
+        </select>
+        <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="loss-reasons-note"></span>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card" style="border-color:var(--wh-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">ОПТ — причини відмов</div>
+        <div class="cw ch210"><canvas id="loss-reasons-wh-chart"></canvas></div>
+      </div>
+      <div class="card" style="border-color:var(--retail-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Роздріб — причини відмов</div>
+        <div class="cw ch210"><canvas id="loss-reasons-rt-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- ═════════════ CRM ═════════════ -->
-<div class="panel" id="panel-crm">
-  <div id="w-crm-funnel">
+<!-- ═════════════ МАРКЕТИНГ ═════════════ -->
+<div class="panel" id="panel-mkt">
+  <div id="w-mkt-funnel">
 
     <!-- Заголовок -->
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
@@ -899,7 +946,7 @@ a{color:var(--gd);text-decoration:none}
     </div>
 
     <!-- Таблиця активних кампаній -->
-    <div id="w-crm-camp">
+    <div id="w-mkt-camp">
       <div class="sec">📢 Активні кампанії — 30 днів</div>
       <div class="card-flat" style="margin-bottom:14px">
         <div id="ads-campaigns-table"><p style="padding:12px;color:var(--tl);font-size:12px">Завантаження…</p></div>
@@ -916,7 +963,7 @@ a{color:var(--gd);text-decoration:none}
   </div>
 
   <!-- ═══ MQL→SQL АНАЛІТИКА ═══ -->
-  <div id="w-crm-mql">
+  <div id="w-mkt-mql">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
       <div class="sec" style="margin-bottom:0">🎯 MQL→SQL Аналітика</div>
       <div style="display:flex;align-items:center;gap:10px">
@@ -2315,14 +2362,14 @@ const WCAT=[
   {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
   {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batches',tab:'prod',label:'Партії/ЛОТи (вчора)'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},{id:'qual-batches',tab:'qual',label:'Брак по моделі/деталі (вчора)'},{id:'qual-lots',tab:'qual',label:'ТОП проблемних/чистих ЛОТів'},{id:'qual-batches-trend',tab:'qual',label:'Тренд браку по датах'},{id:'qual-batches-monthly',tab:'qual',label:'По місяцях (2026)'},
-  {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
-  {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},
+  {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},{id:'sales-tiers',tab:'sales',label:'Сегменти угод за розміром'},{id:'sales-loss-reasons',tab:'sales',label:'Причини відмов'},
+  {id:'mkt-funnel',tab:'mkt',label:'Воронка та CAC/LTV'},{id:'mkt-camp',tab:'mkt',label:'Рекламні кампанії'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
   {id:'hr-kpi',tab:'hr',label:'HR показники'},
   {id:'loc-tbl',tab:'loc',label:'Зведена таблиця локацій'},{id:'loc-cards',tab:'loc',label:'Картки локацій'},{id:'loc-trends',tab:'loc',label:'Динаміка по локаціях'},
   {id:'reg-ch',tab:'reg',label:'Графіки покриття'},{id:'reg-tbl',tab:'reg',label:'Таблиця реєстру'},
 ];
-const TNMS={ceo:'🏢 CEO',str:'🎯 Стратегія',prod:'🏭 Виробництво',qual:'✅ Якість',sales:'💼 Продажі',crm:'📣 CRM',fin:'💰 Фінанси',hr:'👥 HR',loc:'📍 Локації',reg:'📋 Реєстр'};
+const TNMS={ceo:'🏢 CEO',str:'🎯 Стратегія',prod:'🏭 Виробництво',qual:'✅ Якість',sales:'💼 Продажі',mkt:'📣 Маркетинг',fin:'💰 Фінанси',hr:'👥 HR',loc:'📍 Локації',reg:'📋 Реєстр'};
 function loadPrefs(){try{return JSON.parse(localStorage.getItem(WKEY)||'{}');}catch(e){return{};}}
 function savePrefs(p){try{localStorage.setItem(WKEY,JSON.stringify(p));}catch(e){}}
 function isVis(id){const p=loadPrefs();return p[id]!==undefined?p[id]:true;}
@@ -2359,8 +2406,8 @@ function go(id,btn){
   if(id==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
     window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
   }
-  if(id==='crm'&&window.AdsLoader&&!document.getElementById('panel-crm').dataset.loaded){
-    window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
+  if(id==='mkt'&&window.AdsLoader&&!document.getElementById('panel-mkt').dataset.loaded){
+    window.AdsLoader.load();document.getElementById('panel-mkt').dataset.loaded='1';
     if(window.MqlLoader) window.MqlLoader.load();
   }
   if(id==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
@@ -2413,19 +2460,19 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
     function fmtTs(iso){if(!iso)return'—';try{return new Date(iso).toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}}
     var ts=document.getElementById('tip-str');if(ts)ts.innerHTML=tipHTML('partial','Google Sheets','—',true);
-    var tc=document.getElementById('tip-crm');if(tc)tc.innerHTML=tipHTML('partial','Google Ads','—',true);
-    // CRM: статус 'live' після завантаження ads.json
+    var tc=document.getElementById('tip-mkt');if(tc)tc.innerHTML=tipHTML('partial','Google Ads','—',true);
+    // Маркетинг: статус 'live' після завантаження ads.json
     if(window.AdsLoader){
       Promise.resolve(window.AdsLoader.load()).then(function(){
         fetch('data/ads.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-          var tc2=document.getElementById('tip-crm');
+          var tc2=document.getElementById('tip-mkt');
           if(tc2&&d.fetched_at)tc2.innerHTML=tipHTML('live','Google Ads',fmtTs(d.fetched_at),false);
           // Оновлюємо точку статусу на жовту → зелену
-          var btn=document.querySelector('[data-tab="crm"]');
+          var btn=document.querySelector('[data-tab="mkt"]');
           if(btn){var dot=btn.querySelector('.e3d-dot');if(dot)dot.style.background='#16A34A';}
         }).catch(function(){});
       }).catch(function(){});
-      document.getElementById('panel-crm').dataset.loaded='1';
+      document.getElementById('panel-mkt').dataset.loaded='1';
     }
     if(window.MqlLoader) window.MqlLoader.load();
     if(window.SalesLoader){
