@@ -682,11 +682,19 @@ a{color:var(--gd);text-decoration:none}
     <div style="font-size:9px;color:var(--tl);margin-top:4px" id="qual-trend-note"></div>
   </div>
 
-  <!-- Розбивка браку по моделі принтера і типу деталі — з /api/batches/external/lots (вчора, фінально) -->
+  <!-- Розбивка браку по моделі принтера і типу деталі — з /api/batches/external/lots -->
   <div id="w-qual-batches" style="display:none">
-    <div class="sec" style="justify-content:space-between">
-      <span>🔬 Брак по моделі принтера і деталі (вчора · фінально) <span class="ld ok" style="margin-left:2px"></span></span>
-      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="qual-batches-note"></span>
+    <div class="sec" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>🔬 Брак по моделі принтера і деталі <span class="ld ok" style="margin-left:2px"></span></span>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <select id="qual-batches-period" style="font-size:10px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff">
+          <option value="yesterday">Вчора</option>
+        </select>
+        <select id="qual-batches-location" style="font-size:10px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff">
+          <option value="all">Всі локації</option>
+        </select>
+        <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="qual-batches-note"></span>
+      </div>
     </div>
     <div class="g3">
       <div class="card-flat">
@@ -1433,6 +1441,76 @@ async function loadPlanWeek(){
 }
 
 // ── ЯКІСТЬ — реальні дані з того самого фіду capacity.json/capacity_history.json ──
+// Кеш для панелі "Брак по моделі/деталі" (вкладка Якість) — щоб перемикання
+// фільтрів період/локація не тягнуло дані заново з мережі.
+let _qbDaily=null, _qbMonthly=null;
+
+function renderQualBatchesPanel(){
+  const periodSel=document.getElementById('qual-batches-period');
+  const locSel=document.getElementById('qual-batches-location');
+  const period=periodSel?periodSel.value:'yesterday';
+  const location=locSel?locSel.value:'all';
+
+  // Місячні дані по локаціях поки не бекфіляться — при виборі місяця скидаємо
+  // фільтр локації й дизейблимо його, щоб не давати ілюзію вибору, якого нема.
+  if(locSel){
+    if(period!=='yesterday'){ locSel.value='all'; locSel.disabled=true; }
+    else{ locSel.disabled=false; }
+  }
+  const effLocation = period==='yesterday' ? location : 'all';
+
+  let source, label;
+  if(period==='yesterday'){
+    if(!_qbDaily) return;
+    if(effLocation==='all'){
+      source={byPrinterModel:_qbDaily.byPrinterModel, byProduct:_qbDaily.byProduct, defectCostRanking:_qbDaily.defectCostRanking, company:_qbDaily.company};
+      label=`${_qbDaily.date||'—'} · ${_qbDaily.company?.batches??'—'} партій / ${_qbDaily.company?.lots??'—'} ЛОТів`;
+    }else{
+      const locData=(_qbDaily.byLocation||{})[effLocation];
+      source=locData ? {...locData, company:null} : {byPrinterModel:[],byProduct:[],defectCostRanking:[]};
+      label=`${_qbDaily.date||'—'} · Локація ${effLocation}`;
+    }
+  }else{
+    const m=(_qbMonthly?.months||[]).find(x=>x.month===period);
+    if(!m) return;
+    source={byPrinterModel:m.byPrinterModel, byProduct:m.byProduct, defectCostRanking:m.defectCostRanking, company:m.company};
+    label=`${m.month}${m.complete===false?' (частково, ще триває)':''} · ${m.company?.batches??'—'} партій / ${m.company?.lots??'—'} ЛОТів`;
+  }
+
+  const noteEl=document.getElementById('qual-batches-note');
+  if(noteEl) noteEl.textContent=label;
+
+  const byModel=source.byPrinterModel||[];
+  safeChart('qual-model-chart',{type:'bar',data:{labels:byModel.map(m=>m.printerModel),datasets:[{
+    label:'% браку', data:byModel.map(m=>m.defectPercent), backgroundColor:byModel.map(m=>(m.defectPercent||0)>9?'#C0392B':'#2A9D8F'), borderRadius:6,
+  }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const m=byModel[ctx.dataIndex];return m?`${m.acceptedQty.toLocaleString('uk-UA')} шт · ${m.batches} партій`:'';}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+
+  const byProduct=source.byProduct||[];
+  const tbody=document.getElementById('qual-product-tbl-body');
+  if(tbody){
+    tbody.innerHTML = byProduct.slice(0,10).map(p=>{
+      const pct=p.defectPercent;
+      const color = pct==null?'inherit':(pct>9?'var(--red)':(pct>5?'var(--amb)':'var(--gd)'));
+      return `<tr>
+        <td>${p.baseProductCode}</td>
+        <td>${(p.acceptedQty||0).toLocaleString('uk-UA')}</td>
+        <td>${(p.defectQty||0).toLocaleString('uk-UA')}</td>
+        <td style="color:${color};font-weight:600">${pct!=null?pct.toFixed(1)+'%':'—'}</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--tl)">Немає даних</td></tr>`;
+  }
+
+  const costRanking=source.defectCostRanking||[];
+  const costBody=document.getElementById('qual-defect-cost-tbl-body');
+  if(costBody){
+    costBody.innerHTML = costRanking.map(p=>`<tr>
+        <td>${p.baseProductCode}</td>
+        <td>${(p.defectQty||0).toLocaleString('uk-UA')}</td>
+        <td style="color:var(--red);font-weight:600">${Math.round(p.defectCostUAH).toLocaleString('uk-UA')}</td>
+      </tr>`).join('') || `<tr><td colspan="3" style="text-align:center;color:var(--tl)">Немає даних</td></tr>`;
+  }
+}
+
 async function loadQualityData(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   try{
@@ -1466,48 +1544,42 @@ async function loadQualityData(){
     if(note) note.textContent='Дані станом на '+(snap.fetched_at?new Date(snap.fetched_at).toLocaleString('uk-UA'):'—')+' · поріг браку 7.5% позначено пунктиром';
   }catch(e){console.warn('[Quality]',e.message);}
 
-  // ── Брак по моделі принтера / деталі — з /api/batches/external/lots (вчора, фінально) ──
+  // ── Брак по моделі принтера / деталі — з /api/batches/external/lots, з фільтром період+локація ──
   try{
     const bd=await fetch('data/batches_lots.json?t='+Date.now()).then(r=>r.json());
+    _qbDaily=bd; // кеш для перемикання фільтрів без повторного фетчу
     const company=bd.company||{};
     if(company.defectPercent!=null){
       set('qual-defect-pct-y', company.defectPercent.toFixed(2)+'%');
     }
+
+    let monthly=null;
+    try{ monthly=await fetch('data/batches_monthly_history.json?t='+Date.now()).then(r=>r.ok?r.json():null); }catch(e){}
+    _qbMonthly=monthly;
+
     const wrap=document.getElementById('w-qual-batches');
-    const byModel=bd.byPrinterModel||[];
-    const byProduct=bd.byProduct||[];
-    if(wrap && (byModel.length||byProduct.length)){
+    const hasAnyData = (bd.byPrinterModel||[]).length || (bd.byProduct||[]).length;
+    if(wrap && hasAnyData){
       wrap.style.display='';
-      const noteEl=document.getElementById('qual-batches-note');
-      if(noteEl) noteEl.textContent=`${bd.date||'—'} · ${company.batches??'—'} партій / ${company.lots??'—'} ЛОТів`;
 
-      safeChart('qual-model-chart',{type:'bar',data:{labels:byModel.map(m=>m.printerModel),datasets:[{
-        label:'% браку', data:byModel.map(m=>m.defectPercent), backgroundColor:byModel.map(m=>(m.defectPercent||0)>9?'#C0392B':'#2A9D8F'), borderRadius:6,
-      }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const m=byModel[ctx.dataIndex];return `${m.acceptedQty.toLocaleString('uk-UA')} шт · ${m.batches} партій`;}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
-
-      const tbody=document.getElementById('qual-product-tbl-body');
-      if(tbody){
-        tbody.innerHTML = byProduct.slice(0,10).map(p=>{
-          const pct=p.defectPercent;
-          const color = pct==null?'inherit':(pct>9?'var(--red)':(pct>5?'var(--amb)':'var(--gd)'));
-          return `<tr>
-            <td>${p.baseProductCode}</td>
-            <td>${(p.acceptedQty||0).toLocaleString('uk-UA')}</td>
-            <td>${(p.defectQty||0).toLocaleString('uk-UA')}</td>
-            <td style="color:${color};font-weight:600">${pct!=null?pct.toFixed(1)+'%':'—'}</td>
-          </tr>`;
-        }).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--tl)">Немає даних</td></tr>`;
+      // Період: "Вчора" завжди перша, далі місяці з бекфілу (якщо є)
+      const periodSel=document.getElementById('qual-batches-period');
+      if(periodSel && monthly && monthly.months && monthly.months.length){
+        const months=monthly.months.slice().sort((a,b)=>b.month.localeCompare(a.month)); // нові зверху
+        periodSel.innerHTML = '<option value="yesterday">Вчора</option>' +
+          months.map(m=>`<option value="${m.month}">${m.month}${m.complete===false?' (частково)':''}</option>`).join('');
       }
 
-      const costRanking=bd.defectCostRanking||[];
-      const costBody=document.getElementById('qual-defect-cost-tbl-body');
-      if(costBody){
-        costBody.innerHTML = costRanking.map(p=>`<tr>
-            <td>${p.baseProductCode}</td>
-            <td>${(p.defectQty||0).toLocaleString('uk-UA')}</td>
-            <td style="color:var(--red);font-weight:600">${Math.round(p.defectCostUAH).toLocaleString('uk-UA')}</td>
-          </tr>`).join('') || `<tr><td colspan="3" style="text-align:center;color:var(--tl)">Немає даних</td></tr>`;
+      // Локація: тільки для "Вчора" (по місяцях поки нема розбивки по локаціях)
+      const locSel=document.getElementById('qual-batches-location');
+      if(locSel && bd.byLocation){
+        const locKeys=Object.keys(bd.byLocation).sort();
+        locSel.innerHTML = '<option value="all">Всі локації</option>' + locKeys.map(k=>`<option value="${k}">Лок. ${k}</option>`).join('');
       }
+
+      periodSel?.addEventListener('change', renderQualBatchesPanel);
+      locSel?.addEventListener('change', renderQualBatchesPanel);
+      renderQualBatchesPanel();
     }
   }catch(e){console.warn('[Quality batches]',e.message);}
 

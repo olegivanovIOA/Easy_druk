@@ -293,9 +293,16 @@ def rollup_worst_best_lots(locations_payload, min_qty=50, top_n=10):
                 "defectQty": lot.get("defectQty"),
                 "defectPercent": lot.get("defectPercent"),
             })
-    worst = sorted(all_lots, key=lambda x: -x["defectPercent"])[:top_n]
-    best = sorted(all_lots, key=lambda x: x["defectPercent"])[:top_n]
-    return {"worst": worst, "best": best, "minQty": min_qty}
+    # Сортуємо за спаданням % браку й ділимо навпіл — worst і best НІКОЛИ не
+    # перетинаються (раніше при малому пулі — напр. 3 ЛОТи вчора — top_n=10
+    # черпав з того самого пулу для обох списків, і "0.0% брак" потрапляв у
+    # "найпроблемніші" разом з тим самим ЛОТом одночасно в обох таблицях).
+    sorted_desc = sorted(all_lots, key=lambda x: -x["defectPercent"])
+    n = len(sorted_desc)
+    split = (n + 1) // 2  # worst отримує "верхню" половину (округлення вгору)
+    worst = sorted_desc[:split][:top_n]
+    best = list(reversed(sorted_desc[split:]))[:top_n]
+    return {"worst": worst, "best": best, "minQty": min_qty, "poolSize": n}
 
 
 def rollup_by_shift(locations_payload):
@@ -359,6 +366,19 @@ def main():
 
     by_product = rollup_by_product(locations)
 
+    # Розбивка по кожній локації окремо — для фільтра "Локація" на вкладці
+    # Якість (панель "Брак по моделі/деталі"). Ті самі функції, що й для
+    # компанії, просто викликані на списку з ОДНІЄЮ локацією.
+    by_location = {}
+    for loc in locations:
+        loc_key = location_key(loc.get("location"))
+        loc_product = rollup_by_product([loc])
+        by_location[loc_key] = {
+            "byPrinterModel": rollup_by_printer_model([loc]),
+            "byProduct": loc_product,
+            "defectCostRanking": rollup_defect_cost_ranking(loc_product),
+        }
+
     result = {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "date": target_date,
@@ -368,6 +388,7 @@ def main():
         "byPrinterModel": rollup_by_printer_model(locations),
         "byProduct": by_product,
         "defectCostRanking": rollup_defect_cost_ranking(by_product),
+        "byLocation": by_location,
         "byShift": rollup_by_shift(locations),
         "worstBestLots": rollup_worst_best_lots(locations),
         "plannedVsEstimated": rollup_planned_vs_estimated(locations),
