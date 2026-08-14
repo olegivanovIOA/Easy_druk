@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-14T06:08:08Z",
+  "fetched_at": "2026-08-14T06:18:16Z",
   "month": "2026-08",
   "from": "2026-08-01",
   "to": "2026-08-14",
@@ -8,13 +8,53 @@
     "deals": 75,
     "revenue": 39911863.06,
     "avgCheck": 532158.17,
-    "medianCheck": 2082.0
+    "medianCheck": 2082.0,
+    "tiers": [
+      {
+        "tier": "small",
+        "label": "Дрібні (<10К)",
+        "deals": 55,
+        "revenue": 119556.8
+      },
+      {
+        "tier": "medium",
+        "label": "Середні (10К–100К)",
+        "deals": 11,
+        "revenue": 467866.0
+      },
+      {
+        "tier": "mega",
+        "label": "Мега-опт (>100К)",
+        "deals": 9,
+        "revenue": 39324440.26
+      }
+    ]
   },
   "retail": {
     "deals": 1,
     "revenue": 425.2,
     "avgCheck": 425.2,
-    "medianCheck": 425.2
+    "medianCheck": 425.2,
+    "tiers": [
+      {
+        "tier": "small",
+        "label": "Дрібні (<10К)",
+        "deals": 1,
+        "revenue": 425.2
+      },
+      {
+        "tier": "medium",
+        "label": "Середні (10К–100К)",
+        "deals": 0,
+        "revenue": 0.0
+      },
+      {
+        "tier": "mega",
+        "label": "Мега-опт (>100К)",
+        "deals": 0,
+        "revenue": 0.0
+      }
+    ]
   },
   "byCategory": {
     "24": {
@@ -78,6 +118,86 @@
       "medianCheck": null,
       "otherCurrencyDealsSkipped": 0,
       "top5": []
+    }
+  },
+  "lossReasonsWholesale": [
+    {
+      "reason": "НЕ можем реализовать запрос",
+      "count": 119
+    },
+    {
+      "reason": "ДОРОГО",
+      "count": 76
+    },
+    {
+      "reason": "Ищет в своем ГОРОДЕ",
+      "count": 23
+    },
+    {
+      "reason": "НЕ актуально",
+      "count": 18
+    },
+    {
+      "reason": "НЕ отвечает (более 3-х попыток)",
+      "count": 14
+    },
+    {
+      "reason": "НЕ устраивают сроки",
+      "count": 13
+    },
+    {
+      "reason": "ДУБЛЬ",
+      "count": 2
+    }
+  ],
+  "lossReasonsRetail": [],
+  "lossReasonsByCategory": {
+    "24": {
+      "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
+      "group": "wholesale",
+      "reasons": [
+        {
+          "reason": "НЕ можем реализовать запрос",
+          "count": 119
+        },
+        {
+          "reason": "ДОРОГО",
+          "count": 76
+        },
+        {
+          "reason": "Ищет в своем ГОРОДЕ",
+          "count": 23
+        },
+        {
+          "reason": "НЕ актуально",
+          "count": 18
+        },
+        {
+          "reason": "НЕ отвечает (более 3-х попыток)",
+          "count": 14
+        },
+        {
+          "reason": "НЕ устраивают сроки",
+          "count": 13
+        },
+        {
+          "reason": "ДУБЛЬ",
+          "count": 2
+        }
+      ],
+      "totalLost": 265
+    },
+    "18": {
+      "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
+      "group": "retail",
+      "reasons": [],
+      "totalLost": 0
+    },
+    "32": {
+      "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
+      "group": "retail",
+      "reasons": [],
+      "totalLost": 0
     }
   }
 }
