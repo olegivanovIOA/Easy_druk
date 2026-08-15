@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-15T12:23:23Z",
+  "fetched_at": "2026-08-15T13:24:39Z",
   "date": "2026-08-14",
   "range": {
     "from": "14.08.2026",
@@ -14,12 +14,12 @@
   "company": {
     "batches": 109,
     "lots": 21,
-    "acceptedQty": 32008,
-    "defectQty": 690,
-    "defectPercent": 2.16,
-    "defectWeightPercent": 2.14,
+    "acceptedQty": 32248,
+    "defectQty": 719,
+    "defectPercent": 2.23,
+    "defectWeightPercent": 2.21,
     "totalPrintTimeMinutes": 2325078.5,
-    "materialCostUAH": 139199.69,
+    "materialCostUAH": 142119.51,
     "materialCostCoveragePercent": 100.0
   },
   "byPrinterModel": [
@@ -33,9 +33,9 @@
     {
       "printerModel": "P1S",
       "batches": 60,
-      "acceptedQty": 14564,
-      "defectQty": 500,
-      "defectPercent": 3.43
+      "acceptedQty": 14804,
+      "defectQty": 529,
+      "defectPercent": 3.57
     },
     {
       "printerModel": "A2L",
@@ -102,6 +102,14 @@
       "defectCostUAH": 559.63
     },
     {
+      "baseProductCode": "83113",
+      "batches": 5,
+      "acceptedQty": 240,
+      "defectQty": 29,
+      "defectPercent": 12.08,
+      "defectCostUAH": 352.81
+    },
+    {
       "baseProductCode": "52109",
       "batches": 26,
       "acceptedQty": 71,
@@ -128,14 +136,6 @@
     {
       "baseProductCode": "485",
       "batches": 6,
-      "acceptedQty": 0,
-      "defectQty": 0,
-      "defectPercent": null,
-      "defectCostUAH": 0.0
-    },
-    {
-      "baseProductCode": "83113",
-      "batches": 5,
       "acceptedQty": 0,
       "defectQty": 0,
       "defectPercent": null,
@@ -182,6 +182,14 @@
       "defectQty": 35,
       "defectPercent": 6.52,
       "defectCostUAH": 462.0
+    },
+    {
+      "baseProductCode": "83113",
+      "batches": 5,
+      "acceptedQty": 240,
+      "defectQty": 29,
+      "defectPercent": 12.08,
+      "defectCostUAH": 352.81
     },
     {
       "baseProductCode": "52967",
@@ -321,9 +329,9 @@
         {
           "printerModel": "P1S",
           "batches": 50,
-          "acceptedQty": 14564,
-          "defectQty": 500,
-          "defectPercent": 3.43
+          "acceptedQty": 14804,
+          "defectQty": 529,
+          "defectPercent": 3.57
         }
       ],
       "byProduct": [
@@ -362,10 +370,10 @@
         {
           "baseProductCode": "83113",
           "batches": 5,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
+          "acceptedQty": 240,
+          "defectQty": 29,
+          "defectPercent": 12.08,
+          "defectCostUAH": 352.81
         },
         {
           "baseProductCode": "72725",
@@ -400,6 +408,14 @@
           "defectQty": 46,
           "defectPercent": 18.11,
           "defectCostUAH": 559.63
+        },
+        {
+          "baseProductCode": "83113",
+          "batches": 5,
+          "acceptedQty": 240,
+          "defectQty": 29,
+          "defectPercent": 12.08,
+          "defectCostUAH": 352.81
         },
         {
           "baseProductCode": "52967",
@@ -447,9 +463,9 @@
     {
       "shift": "FIRST",
       "lots": 9,
-      "acceptedQty": 25117,
-      "defectQty": 408,
-      "defectPercent": 1.62
+      "acceptedQty": 25357,
+      "defectQty": 437,
+      "defectPercent": 1.72
     },
     {
       "shift": "SECOND",
@@ -484,6 +500,18 @@
         "acceptedQty": 254,
         "defectQty": 46,
         "defectPercent": 18.11
+      },
+      {
+        "location": "5",
+        "lotKey": "226-D-26-05-83113",
+        "baseProductCode": "83113",
+        "printerModels": [
+          "P1S"
+        ],
+        "shift": "FIRST",
+        "acceptedQty": 240,
+        "defectQty": 29,
+        "defectPercent": 12.08
       },
       {
         "location": "6",
@@ -561,7 +589,7 @@
       }
     ],
     "minQty": 50,
-    "poolSize": 8
+    "poolSize": 9
   },
   "plannedVsEstimated": {
     "totalPlanned": 3358.0,
@@ -642,12 +670,12 @@
     ]
   },
   "pendingQC": {
-    "count": 13,
+    "count": 12,
     "byLocation": {
       "1": 2,
       "2": 1,
       "4": 5,
-      "5": 4,
+      "5": 3,
       "6": 1
     },
     "lots": [
@@ -706,13 +734,6 @@
         "batchCount": 13,
         "totalPrintTimeMinutes": 187275,
         "shift": "SECOND"
-      },
-      {
-        "location": "5",
-        "baseProductCode": "83113",
-        "batchCount": 3,
-        "totalPrintTimeMinutes": 66309,
-        "shift": "FIRST"
       },
       {
         "location": "5",
@@ -2801,9 +2822,9 @@
             "P1S"
           ],
           "batchCount": 3,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
+          "acceptedQty": 240,
+          "defectQty": 29,
+          "defectPercent": 12.08,
           "totalPrintTimeMinutes": 66309,
           "printTimeCoverage": 1,
           "plannedMachines": {
@@ -2812,8 +2833,8 @@
           },
           "avgPartsPerMachine": 5.1,
           "avgPartsPerMachineEstimated": 4.2,
-          "qcDefectWeightPercent": null,
-          "defectWeightCoverage": 0
+          "qcDefectWeightPercent": 12.08,
+          "defectWeightCoverage": 0.3333
         },
         {
           "lotKey": "226-N-26-05-52967",
@@ -3409,11 +3430,11 @@
                 "color": "#00AE42",
                 "source": "gcode_files"
               },
-              "acceptedQty": 0,
-              "defectQty": 0,
-              "defectPercent": null,
-              "qcCompleted": false,
-              "unitWeightG": null,
+              "acceptedQty": 240,
+              "defectQty": 29,
+              "defectPercent": 12.08,
+              "qcCompleted": true,
+              "unitWeightG": 26,
               "printTime": {
                 "perPartMinutes": 93,
                 "qty": 236,
@@ -3424,7 +3445,7 @@
                 "planned": 140,
                 "estimated": 168
               },
-              "qcDefectWeightPercent": null
+              "qcDefectWeightPercent": 12.08
             },
             {
               "batchNumber": "226-D-26-05-3855-72724-012",
