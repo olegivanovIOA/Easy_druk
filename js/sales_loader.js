@@ -130,14 +130,16 @@ window.SalesLoader = (() => {
       if(lrWrap && current){
         lrWrap.style.display='';
         const sel=document.getElementById('loss-reasons-period');
-        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', renderLossReasons); }
+        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', ()=>{renderLossReasons();renderLossReasonsTrend();}); }
         renderLossReasons();
+        renderLossReasonsTrend();
       }
       if(tiersWrap && current){
         tiersWrap.style.display='';
         const sel=document.getElementById('tiers-period');
-        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', renderTiers); }
+        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', ()=>{renderTiers();renderTiersTrend();}); }
         renderTiers();
+        renderTiersTrend();
       }
     }catch(e){console.warn('[Loss reasons / Tiers]',e.message);}
   }
@@ -263,6 +265,70 @@ window.SalesLoader = (() => {
     const canvas=document.getElementById(id); if(!canvas) return;
     if(_lrCharts[id]){ try{_lrCharts[id].destroy();}catch(e){} }
     _lrCharts[id]=new Chart(canvas,cfg);
+  }
+
+  // ── Динаміка тірів по місяцях (сезонність) — завжди весь рік, вибраний у
+  // фільтрі місяць лише підсвічується більшою точкою на лінії ──
+  function renderTiersTrend(){
+    const wrap=document.getElementById('tiers-trend-wrap');
+    if(!wrap) return;
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+    if(months.length<2){ wrap.style.display='none'; return; }
+    wrap.style.display='';
+    const sel=document.getElementById('tiers-period');
+    const selected=sel?sel.value:'all';
+    const labels=months.map(m=>m.month);
+    const tierColors=[RT, A, WH];
+
+    const buildTrend=(canvasId, groupKey)=>{
+      const datasets=TIER_KEYS.map((key,i)=>{
+        const data=months.map(m=>{
+          const t=(m[groupKey]?.tiers||[]).find(x=>x.tier===key);
+          return t?t.deals:0;
+        });
+        const pointRadius=months.map(m=>m.month===selected?7:3);
+        return {
+          label:TIER_LABELS[i], data, borderColor:tierColors[i], backgroundColor:tierColors[i]+'22',
+          borderWidth:2, tension:.3, pointRadius, pointBackgroundColor:tierColors[i], fill:false,
+        };
+      });
+      safeChartLoss(canvasId,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+    };
+    buildTrend('tiers-wh-trend-chart','wholesale');
+    buildTrend('tiers-rt-trend-chart','retail');
+  }
+
+  // ── Динаміка причин відмов по місяцях — та сама логіка "завжди весь рік,
+  // фільтр лише підсвічує точку". ТОП-8 причин за групою (щоб лінії не
+  // захаращували графік, якщо причин багато — як в ОПТ, де їх 8) ──
+  function renderLossReasonsTrend(){
+    const wrap=document.getElementById('loss-reasons-trend-wrap');
+    if(!wrap) return;
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+    if(months.length<2){ wrap.style.display='none'; return; }
+    wrap.style.display='';
+    const sel=document.getElementById('loss-reasons-period');
+    const selected=sel?sel.value:'all';
+    const labels=months.map(m=>m.month);
+    const palette=[WH,RT,G,A,R,GD,'#8B5CF6','#EC4899','#14B8A6','#F59E0B'];
+
+    const buildTrend=(canvasId, groupKey)=>{
+      const totals={};
+      months.forEach(m=>(m[groupKey]||[]).forEach(r=>{totals[r.reason]=(totals[r.reason]||0)+r.count;}));
+      const topReasons=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
+      const datasets=topReasons.map((reason,i)=>{
+        const data=months.map(m=>{
+          const r=(m[groupKey]||[]).find(x=>x.reason===reason);
+          return r?r.count:0;
+        });
+        const pointRadius=months.map(m=>m.month===selected?7:3);
+        const color=palette[i%palette.length];
+        return {label:reason, data, borderColor:color, backgroundColor:color+'22', borderWidth:2, tension:.3, pointRadius, pointBackgroundColor:color, fill:false};
+      });
+      safeChartLoss(canvasId,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+    };
+    buildTrend('loss-reasons-wh-trend-chart','lossReasonsWholesale');
+    buildTrend('loss-reasons-rt-trend-chart','lossReasonsRetail');
   }
 
   // ── 2. Комбінований графік ОПТ + Роздріб ──────────────────────────────────
