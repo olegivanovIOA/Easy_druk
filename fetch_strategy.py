@@ -311,8 +311,9 @@ def main():
 
     # Знімок прогресу на сьогодні → історія для графіка на вкладці Стратегія
     try:
+        import datetime
         snapshot = compute_progress_snapshot(result_sprints)
-        current_sprint_num = max((sp["num"] for sp in result_sprints), default=None)
+        current_sprint_num = _current_sprint_num(result_sprints, datetime.date.today())
         upsert_progress_history(snapshot, current_sprint_num)
     except Exception as e:
         print(f"[WARN] Знімок прогресу не вдався: {e}")
@@ -364,12 +365,47 @@ def _agg_done_total(result_sprints):
     return agg
 
 
-def compute_progress_snapshot(result_sprints):
+def _parse_sprint_range(dates_str, year=2026):
+    """'07.08–13.08' -> (date(2026,8,7), date(2026,8,13)); None якщо не розпарсити."""
+    import datetime
+    m = re.match(r"(\d{1,2})\.(\d{1,2})[–-](\d{1,2})\.(\d{1,2})", dates_str or "")
+    if not m:
+        return None
+    d1, mo1, d2, mo2 = (int(x) for x in m.groups())
+    try:
+        return datetime.date(year, mo1, d1), datetime.date(year, mo2, d2)
+    except ValueError:
+        return None
+
+
+def _current_sprint_num(result_sprints, ref_date):
+    """Спринт, чий діапазон дат реально містить ref_date — НЕ просто
+    найбільший номер спринту. Раніше цю функцію не мали: якщо в таблиці вже
+    створені порожні вкладки для майбутніх спринтів (напр. 9,10), max()
+    хибно повертав їх номер замість реального поточного спринту."""
+    for sp in result_sprints:
+        rng = _parse_sprint_range(sp.get("dates", ""))
+        if rng and rng[0] <= ref_date <= rng[1]:
+            return sp["num"]
+    # Фолбек: найпізніший спринт, що вже почався на ref_date (напр. якщо
+    # запускаємо в вихідний між спринтами) — краще за просто max(усі номери).
+    started = [sp for sp in result_sprints
+               if (rng := _parse_sprint_range(sp.get("dates", ""))) and rng[0] <= ref_date]
+    if started:
+        return max(started, key=lambda sp: sp["num"])["num"]
+    return None
+
+
+def compute_progress_snapshot(result_sprints, today=None):
     """Повертає {ceo_pct, goal_scoring_pct, raw_task_pct, done, total, goals:[...]}
-    — ті самі формули, що й на CEO-вкладці та у віджеті 'Скорінг цілей 2026'."""
+    — ті самі формули, що й на CEO-вкладці та у віджеті 'Скорінг цілей 2026'.
+    today: опційно — дата "на яку" рахуємо timescore-фолбек (за замовчуванням
+    справжнє сьогодні). Потрібно для бекфілу історичних точок за минулі
+    спринти, де timescore має рахуватись на дату ЗАВЕРШЕННЯ того спринту,
+    а не на поточну реальну дату (інакше старі точки вийдуть завищеними)."""
     import datetime
     agg = _agg_done_total(result_sprints)
-    today = datetime.date.today()
+    today = today or datetime.date.today()
 
     # ── CEO-style: рівне середнє по 13 проектах, real done/total або
     # timescore-фолбек якщо задач ще не заведено ──
@@ -419,19 +455,21 @@ def compute_progress_snapshot(result_sprints):
     }
 
 
-def upsert_progress_history(snapshot, sprint_num):
+def upsert_progress_history(snapshot, sprint_num, date_str=None):
     """Один запис на календарну дату (як capacity_history.json) — перезаписує
-    сьогоднішній запис при повторному запуску (щогодини), не плодить дублі."""
+    сьогоднішній запис при повторному запуску (щогодини), не плодить дублі.
+    date_str: опційно — для бекфілу історичних точок (дата завершення
+    минулого спринту), за замовчуванням справжнє сьогодні."""
     import datetime
-    today_str = datetime.date.today().isoformat()
+    date_str = date_str or datetime.date.today().isoformat()
     try:
         history = json.loads(HISTORY_OUTPUT.read_text(encoding="utf-8")) if HISTORY_OUTPUT.exists() else {}
     except Exception:
         history = {}
     days = history.setdefault("days", [])
-    entry = {"date": today_str, "sprint_num": sprint_num, **snapshot}
+    entry = {"date": date_str, "sprint_num": sprint_num, **snapshot}
     for d in days:
-        if d.get("date") == today_str:
+        if d.get("date") == date_str:
             d.clear()
             d.update(entry)
             break
@@ -440,7 +478,7 @@ def upsert_progress_history(snapshot, sprint_num):
     history["updated_at"] = int(time.time() * 1000)
     HISTORY_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     HISTORY_OUTPUT.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[OK] {HISTORY_OUTPUT} — {len(days)} днів історії, сьогодні: "
+    print(f"[OK] {HISTORY_OUTPUT} — {len(days)} днів історії, {date_str}: "
           f"CEO={snapshot['ceo_pct']}% · Скорінг цілей={snapshot['goal_scoring_pct']}% · "
           f"raw={snapshot['raw_task_pct']}% ({snapshot['done']}/{snapshot['total']})")
 
