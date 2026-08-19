@@ -20,7 +20,7 @@ SA_JSON_STR  = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
 HR_OUTPUT    = Path(__file__).parent / "data" / "hr.json"
 VAC_HISTORY  = Path(__file__).parent / "data" / "hr_vacancies_history.json"
 
-SHEET_EMPLOYEES   = "Співробітники"
+SHEET_EMPLOYEES_CANDIDATES = ["Співробітники", "Сотрудники", "Штат", "Employees", "Персонал"]  # перевіряємо декілька варіантів назви — попередній варіант ("Співробітники" тільки) мовчки провалювався, якщо вкладку перейменували/пересворили під іншою назвою (напр. рос. "Сотрудники")
 SHEET_INTERNS     = "Стажери"
 SHEET_VACANCIES   = "Відкриті вакансії"
 SHEET_CLOSE_NORMS = "Час закритття позицій"
@@ -285,7 +285,7 @@ def main():
         for i, r in enumerate(debug_rows[:12]):
             print(f"  Row {i}: {r}")
 
-    # ── Основні парсери (без SHEET_EMPLOYEES — лист видалено) ──
+    # ── Основні парсери (employees_count рахується окремо нижче, з переліку кандидатів) ──
     PARSERS = [
         (SHEET_INTERNS,     "A:A",  parse_interns,      "interns_by_month"),
         (SHEET_VACANCIES,   "A:F",  parse_vacancies,    "vacancies_current"),
@@ -302,18 +302,24 @@ def main():
         val = result[key]
         print(f"[HR] ✓ {sheet_name}: {val if isinstance(val, int) else 'ok'}")
 
-    # ── employees_count: лист 'Співробітники' видалено —
-    #    fallback на 'Плинність кадрів' (рядок 'Факт на кінець периода') ──
-    if SHEET_EMPLOYEES in sheet_names:
-        rows = sheets_get(token, f"{SHEET_EMPLOYEES}!A:N")
+    # ── employees_count: пробуємо кожну можливу назву листа зі списку
+    #    співробітників (раніше перевіряли лише "Співробітники" — якщо
+    #    вкладку перейменували/пересворили під іншою назвою, перевірка
+    #    мовчки провалювалась і падало в фолбек на 'Плинність кадрів',
+    #    який теж може бути зламаний окремо від цього) ──
+    employees_sheet_found = next((s for s in SHEET_EMPLOYEES_CANDIDATES if s in sheet_names), None)
+    if employees_sheet_found:
+        rows = sheets_get(token, f"{employees_sheet_found}!A:N")
         result["employees_count"] = parse_employees(rows)
-        print(f"[HR] ✓ {SHEET_EMPLOYEES}: {result['employees_count']}")
+        print(f"[HR] ✓ '{employees_sheet_found}': {result['employees_count']} співробітників "
+              f"(перший контигентний список у колонці A)")
     elif SHEET_TURNOVER in sheet_names:
         rows = sheets_get(token, f"{SHEET_TURNOVER}!A:Z")
         result["employees_count"] = parse_employees_from_turnover(rows)
         print(f"[HR] ✓ employees_count з '{SHEET_TURNOVER}': {result['employees_count']}")
     else:
-        print("[HR] ⚠ Немає джерела для employees_count")
+        print(f"[HR] ⚠ Немає джерела для employees_count. Шукали серед листів: {SHEET_EMPLOYEES_CANDIDATES} "
+              f"і '{SHEET_TURNOVER}'. Реальні листи в книзі: {sheet_names}")
 
     if result["vacancies_current"]:
         result["vacancies_history"] = update_vacancies_history(result["vacancies_current"])
