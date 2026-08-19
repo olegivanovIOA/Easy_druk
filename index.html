@@ -114,7 +114,7 @@ a{color:var(--gd);text-decoration:none}
   .ti{font-size:14px}.tb{padding:6px 8px;font-size:11px;letter-spacing:0}
   .nav-top{padding:0 10px;gap:4px}.lname{font-size:13px}.lcube{width:24px;height:24px}
   .card{padding:10px 12px}.sec{font-size:12px;padding:10px 0 6px}
-  .ch210{height:160px}.ch180{height:140px}.ch160{height:130px}.ch140{height:120px}
+  .ch210{height:160px}.ch180{height:140px}.ch160{height:130px}.ch140{height:120px}.ch240{height:180px}
 }
 @media(max-width:480px){.g6,.g5,.g4,.g3,.g2{grid-template-columns:1fr}.ltag,.lp span{display:none}
   .ti{display:none}.tb{padding:5px 7px;font-size:11px}
@@ -160,7 +160,7 @@ a{color:var(--gd);text-decoration:none}
 .bdg-b{background:var(--bl);color:var(--bd2);border:1px solid var(--bb)}
 .bdg-tbd{background:var(--s2);color:var(--tl);border:1px dashed var(--bd3);font-style:italic}
 .cw{position:relative}
-.ch140{height:140px}.ch160{height:160px}.ch180{height:180px}.ch210{height:210px}
+.ch140{height:140px}.ch160{height:160px}.ch180{height:180px}.ch210{height:210px}.ch240{height:240px}
 
 
 /* WATERMARKS */
@@ -813,31 +813,8 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
-  <!-- ═══ РОЗДРІБ + ОПТ ═══ -->
+  <!-- ═══ ОПТ + РОЗДРІБ ═══ -->
   <div class="g2" style="margin-top:18px;align-items:start">
-
-    <!-- РОЗДРІБ -->
-    <div class="sales-zone sales-zone-retail">
-      <div class="sales-zone-header">
-        <div class="sec" style="color:var(--retail-cd)">🛒 Роздріб B2C</div>
-        <span class="sales-badge sales-badge-retail">Retail</span>
-      </div>
-      <div class="sales-zone-body">
-        <div class="g2" style="margin-bottom:12px">
-          <div class="krow krow-retail" title="Факт з початку 2026 року — те саме джерело, що й зведений показник YTD вище"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2026 YTD</div><div class="krow-val" id="sales-rt-fact-zone">—</div><div class="real-dot"></div></div>
-          <div class="krow krow-retail"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек (останній міс.)</div><div class="krow-val" id="sales-rt-check">—</div></div>
-          <div class="krow krow-retail" title="З Bitrix24, WON-угоди поточного місяця, воронки «Товарка»+«Магазин»"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек з CRM (міс.)</div><div class="krow-val" id="crm-rt-avg">—</div></div>
-          <div class="krow krow-retail" title="Медіана надійніша за середнє при наявності викидів"><div class="krow-bar"></div><div class="krow-lbl">Медіана чека з CRM</div><div class="krow-val" id="crm-rt-median">—</div></div>
-        </div>
-        <div class="card" style="margin-bottom:12px;border-color:var(--retail-bd)">
-          <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">План/факт по місяцях</div>
-          <div class="cw ch180"><canvas id="sales-retail-chart"></canvas></div>
-        </div>
-        <div class="card-flat" style="border-color:var(--retail-bd)">
-          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">%</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
-        </div>
-      </div>
-    </div>
 
     <!-- ОПТ -->
     <div class="sales-zone sales-zone-wh">
@@ -859,6 +836,29 @@ a{color:var(--gd);text-decoration:none}
         </div>
         <div class="card-flat" style="border-color:var(--wh-bd)">
           <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">%</th></tr></thead><tbody id="sales-wholesale-table"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- РОЗДРІБ -->
+    <div class="sales-zone sales-zone-retail">
+      <div class="sales-zone-header">
+        <div class="sec" style="color:var(--retail-cd)">🛒 Роздріб B2C</div>
+        <span class="sales-badge sales-badge-retail">Retail</span>
+      </div>
+      <div class="sales-zone-body">
+        <div class="g2" style="margin-bottom:12px">
+          <div class="krow krow-retail" title="Факт з початку 2026 року — те саме джерело, що й зведений показник YTD вище"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2026 YTD</div><div class="krow-val" id="sales-rt-fact-zone">—</div><div class="real-dot"></div></div>
+          <div class="krow krow-retail"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек (останній міс.)</div><div class="krow-val" id="sales-rt-check">—</div></div>
+          <div class="krow krow-retail" title="З Bitrix24, WON-угоди поточного місяця, воронки «Товарка»+«Магазин»"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек з CRM (міс.)</div><div class="krow-val" id="crm-rt-avg">—</div></div>
+          <div class="krow krow-retail" title="Медіана надійніша за середнє при наявності викидів"><div class="krow-bar"></div><div class="krow-lbl">Медіана чека з CRM</div><div class="krow-val" id="crm-rt-median">—</div></div>
+        </div>
+        <div class="card" style="margin-bottom:12px;border-color:var(--retail-bd)">
+          <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">План/факт по місяцях</div>
+          <div class="cw ch180"><canvas id="sales-retail-chart"></canvas></div>
+        </div>
+        <div class="card-flat" style="border-color:var(--retail-bd)">
+          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">%</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -887,6 +887,16 @@ a{color:var(--gd);text-decoration:none}
         <div class="cw ch210"><canvas id="tiers-rt-chart"></canvas></div>
       </div>
     </div>
+    <div class="g2" style="margin-top:10px" id="tiers-trend-wrap">
+      <div class="card" style="border-color:var(--wh-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">ОПТ — динаміка сегментів по місяцях (сезонність)</div>
+        <div class="cw ch210"><canvas id="tiers-wh-trend-chart"></canvas></div>
+      </div>
+      <div class="card" style="border-color:var(--retail-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Роздріб — динаміка сегментів по місяцях (сезонність)</div>
+        <div class="cw ch210"><canvas id="tiers-rt-trend-chart"></canvas></div>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ Причини відмов — Bitrix24, фільтр "Всі"/по місяцях ═══ -->
@@ -912,6 +922,17 @@ a{color:var(--gd);text-decoration:none}
       <div class="card" style="border-color:var(--retail-bd)">
         <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Роздріб — причини відмов</div>
         <div class="cw ch210"><canvas id="loss-reasons-rt-chart"></canvas></div>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--tl);margin:10px 0 6px">Динаміка нижче завжди показує весь рік — вибір конкретного місяця вище лише підсвічує його точку на лінії.</div>
+    <div class="g2" id="loss-reasons-trend-wrap">
+      <div class="card" style="border-color:var(--wh-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">ОПТ — динаміка причин по місяцях</div>
+        <div class="cw ch240"><canvas id="loss-reasons-wh-trend-chart"></canvas></div>
+      </div>
+      <div class="card" style="border-color:var(--retail-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Роздріб — динаміка причин по місяцях</div>
+        <div class="cw ch240"><canvas id="loss-reasons-rt-trend-chart"></canvas></div>
       </div>
     </div>
   </div>
@@ -3120,6 +3141,6 @@ window.LocLoader = (() => {
 <script src="js/hr_loader.js?v=20260814"></script>
 <script src="js/ads_loader.js?v=20260814"></script>
 <script src="js/mql_loader.js?v=20260814"></script>
-<script src="js/sales_loader.js?v=20260814b"></script>
+<script src="js/sales_loader.js?v=20260819"></script>
 </body>
 </html>
