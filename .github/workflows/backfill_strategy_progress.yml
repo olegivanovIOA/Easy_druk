@@ -1,0 +1,32 @@
+name: Backfill Strategy Progress History
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backfill-strategy-progress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Backfill strategy progress history (per completed sprint)
+        run: python backfill_strategy_progress.py
+
+      - name: Commit strategy progress history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/strategy_progress_history.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: backfill strategy progress history per sprint"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main_root && git push && break || sleep $((i*3))
+          done
