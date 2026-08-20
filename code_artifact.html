@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Організаційна структура — Інтерактивний редактор</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .tree-connector {
+            position: relative;
+        }
+        
+        /* Interactive tree node styles */
+        .node-card {
+            transition: all 0.2s ease;
+        }
+        .node-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1);
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-full { width: 100% !important; max-width: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 no-print sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-600 rounded-lg text-white font-bold">
+                    <i class="fa-solid fa-sitemap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Організаційна структура</h1>
+                    <p class="text-xs text-slate-400">Інтерактивний редактор та генератор схем</p>
+                </div>
+            </div>
+
+            <!-- View Switchers & Actions -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <div class="bg-slate-800 p-1 rounded-lg flex gap-1 border border-slate-700">
+                    <button onclick="switchTab('chart')" id="tab-chart" class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white transition">
+                        <i class="fa-solid fa-diagram-project mr-1.5"></i>Візуальна схема
+                    </button>
+                    <button onclick="switchTab('tree')" id="tab-tree" class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                        <i class="fa-solid fa-list-tree mr-1.5"></i>Дерево / Диспетчер
+                    </button>
+                    <button onclick="switchTab('export')" id="tab-export" class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                        <i class="fa-solid fa-code mr-1.5"></i>Експорт (Miro/Mermaid/JSON)
+                    </button>
+                </div>
+
+                <button onclick="resetToOriginal()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg transition" title="Скинути до оригінальної схеми">
+                    <i class="fa-solid fa-rotate-left mr-1"></i>Скинути
+                </button>
+                <button onclick="window.print()" class="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition shadow-sm">
+                    <i class="fa-solid fa-print mr-1"></i>Друкувати / PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col gap-4">
+
+        <!-- Controls & Search Toolbar -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-3 flex flex-wrap items-center justify-between gap-3 no-print">
+            <!-- Search -->
+            <div class="relative min-w-[240px] flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Пошук відділу чи посади..." class="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            </div>
+
+            <!-- Quick Add Root or Action -->
+            <div class="flex items-center gap-2">
+                <button onclick="openAddModal(null)" class="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-xs font-semibold rounded-lg transition">
+                    <i class="fa-solid fa-plus mr-1"></i>Додати кореневий вузол
+                </button>
+                <button onclick="expandAll()" class="px-2.5 py-1.5 text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition" title="Розгорнути все">
+                    <i class="fa-solid fa-angles-down"></i>
+                </button>
+                <button onclick="collapseAll()" class="px-2.5 py-1.5 text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition" title="Згорнути все">
+                    <i class="fa-solid fa-angles-up"></i>
+                </button>
+            </div>
+        </div>
+
+        
+        <!-- VIEW 1: Visual Interactive Chart -->
+        <div id="view-chart" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex-1 overflow-x-auto min-h-[600px]">
+            <div id="chartContainer" class="flex justify-center min-w-max pb-10">
+                <!-- Dynamically generated visual tree -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: Tree Manager & Editor -->
+        <div id="view-tree" class="hidden bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex-1">
+            <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Ієрархічний список підрозділів (Клікніть для редагування)</h2>
+            <div id="treeContainer" class="space-y-2 max-w-4xl">
+                <!-- Dynamically generated list -->
+            </div>
+        </div>
+
+        <!-- VIEW 3: Export & Integrations -->
+        <div id="view-export" class="hidden bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex-1 space-y-6">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800 mb-1">Експорт та інтеграції</h2>
+                <p class="text-sm text-slate-500">Скопіюйте код у потрібний сервіс для побудови схем (Miro, Draw.io, Notion, Mermaid, Lucidchart).</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- Mermaid JS Code -->
+                <div class="flex flex-col bg-slate-900 rounded-xl p-4 text-slate-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-blue-400 uppercase tracking-wider"><i class="fa-solid fa-diagram-nested mr-1"></i> Mermaid.js Code</span>
+                        <button onclick="copyToClipboard('mermaidCode')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-white rounded border border-slate-700">
+                            <i class="fa-regular fa-copy mr-1"></i>Копіювати
+                        </button>
+                    </div>
+                    <textarea id="mermaidCode" readonly class="w-full h-64 bg-slate-950 font-mono text-xs text-slate-300 p-3 rounded-lg border border-slate-800 focus:outline-none resize-none"></textarea>
+                    <p class="text-[11px] text-slate-500 mt-2">Підходить для Notion, GitHub, Mermaid Live Editor, Draw.io.</p>
+                </div>
+
+                <!-- Structured Text Outline -->
+                <div class="flex flex-col bg-slate-900 rounded-xl p-4 text-slate-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider"><i class="fa-solid fa-list-ol mr-1"></i> Текстова ієрархія / Outline</span>
+                        <button onclick="copyToClipboard('outlineText')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-white rounded border border-slate-700">
+                            <i class="fa-regular fa-copy mr-1"></i>Копіювати
+                        </button>
+                    </div>
+                    <textarea id="outlineText" readonly class="w-full h-64 bg-slate-950 font-mono text-xs text-slate-300 p-3 rounded-lg border border-slate-800 focus:outline-none resize-none"></textarea>
+                    <p class="text-[11px] text-slate-500 mt-2">Зручно вставляти в Word, Гугл Документи, Slack або Telegram.</p>
+                </div>
+
+                <!-- JSON Data -->
+                <div class="flex flex-col bg-slate-900 rounded-xl p-4 text-slate-100 lg:col-span-2">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-amber-400 uppercase tracking-wider"><i class="fa-code mr-1"></i> JSON Структура</span>
+                        <button onclick="copyToClipboard('jsonCode')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-white rounded border border-slate-700">
+                            <i class="fa-regular fa-copy mr-1"></i>Копіювати JSON
+                        </button>
+                    </div>
+                    <textarea id="jsonCode" readonly class="w-full h-48 bg-slate-950 font-mono text-xs text-slate-300 p-3 rounded-lg border border-slate-800 focus:outline-none resize-none"></textarea>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-slate-100">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 id="modalTitle" class="font-bold text-slate-800 text-base">Редагування вузла</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">Назва посади / Відділу</label>
+                    <input type="text" id="modalInputTitle" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">Тип блоку</label>
+                    <select id="modalInputType" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+                        <option value="executive">Керівництво (Top Management)</option>
+                        <option value="department">Департамент / Напрямок</option>
+                        <option value="division">Відділ / Підрозділ</option>
+                        <option value="role">Посада / Виконавець</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-4 border-t">
+                <button onclick="deleteCurrentNode()" id="btnDeleteNode" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 text-xs font-semibold rounded-lg transition">
+                    <i class="fa-solid fa-trash mr-1"></i>Видалити
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold rounded-lg">Скасувати</button>
+                    <button onclick="saveModalChanges()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-sm">Зберегти</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2 transition-all opacity-0 translate-y-4 pointer-events-none z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Повідомлення</span>
+    </div>
+
+    <script>
+        // Original parsed org structure data
+        const defaultOrgData = {
+            id: "root-1",
+            title: "Власник",
+            type: "executive",
+            children: [
+                {
+                    id: "ceo",
+                    title: "CEO",
+                    type: "executive",
+                    children: [
+                        {
+                            id: "dep-comm",
+                            title: "Комерційний департамент",
+                            type: "department",
+                            children: [
+                                {
+                                    id: "comm-dir",
+                                    title: "Комерційний директор",
+                                    type: "executive",
+                                    children: [
+                                        {
+                                            id: "v-b2b",
+                                            title: "Відділ продажів B2B",
+                                            type: "division",
+                                            children: [{ id: "m-b2b", title: "Менеджер з продажів", type: "role" }]
+                                        },
+                                        {
+                                            id: "v-b2c",
+                                            title: "Відділ продажів B2C",
+                                            type: "division",
+                                            children: [
+                                                { 
+                                                    id: "head-b2c", 
+                                                    title: "Керівник відділу продажів", 
+                                                    type: "role",
+                                                    children: [{ id: "m-b2c", title: "Менеджер з продажів", type: "role" }]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            id: "v-mkt",
+                                            title: "Відділ маркетингу",
+                                            type: "division",
+                                            children: [
+                                                {
+                                                    id: "head-mkt",
+                                                    title: "Керівник відділу маркетингу",
+                                                    type: "role",
+                                                    children: [{ id: "mkt-spec", title: "Маркетолог", type: "role" }]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: "dep-hr",
+                            title: "Департамент з управління персоналом",
+                            type: "department",
+                            children: [
+                                {
+                                    id: "hr-dept",
+                                    title: "HR-відділ",
+                                    type: "division",
+                                    children: [
+                                        { 
+                                            id: "hr-role", 
+                                            title: "HR", 
+                                            type: "role",
+                                            children: [{ id: "recruiter", title: "Рекрутер", type: "role" }]
+                                        }
+                                    ]
+                                },
+                                {
+                                    id: "kadri-dept",
+                                    title: "Відділ кадрів",
+                                    type: "division",
+                                    children: [{ id: "kadri-spec", title: "Фахівець з кадрового діловодства", type: "role" }]
+                                }
+                            ]
+                        },
+                        {
+                            id: "dep-dev",
+                            title: "Департамент розвитку та масштабування",
+                            type: "department",
+                            children: [
+                                {
+                                    id: "v-dev",
+                                    title: "Відділ розвитку",
+                                    type: "division",
+                                    children: [{ id: "head-dev", title: "Керівник відділу розвитку", type: "role" }]
+                                },
+                                {
+                                    id: "v-scale",
+                                    title: "Відділ масштабування",
+                                    type: "division",
+                                    children: [{ id: "head-scale", title: "Керівник відділу масштабування", type: "role" }]
+                                }
+                            ]
+                        },
+                        {
+                            id: "dep-fin",
+                            title: "Фінансовий департамент",
+                            type: "department",
+                            children: [
+                                {
+                                    id: "v-acc",
+                                    title: "Відділ бухгалтерії",
+                                    type: "division",
+                                    children: [
+                                        {
+                                            id: "head-acc",
+                                            title: "Головний бухгалтер",
+                                            type: "role",
+                                            children: [
+                                                { id: "acc-salary", title: "Бухгалтер із заробітної плати", type: "role" },
+                                                { id: "acc-prod", title: "Бухгалтер з виробництва", type: "role" },
+                                                { id: "acc-gen", title: "Бухгалтер", type: "role" }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    id: "v-fin",
+                                    title: "Фінансовий відділ",
+                                    type: "division",
+                                    children: [{ id: "fin-spec", title: "Фінансист", type: "role" }]
+                                },
+                                {
+                                    id: "v-econ",
+                                    title: "Економічний відділ",
+                                    type: "division",
+                                    children: [{ id: "econ-spec", title: "Економіст", type: "role" }]
+                                }
+                            ]
+                        },
+                        {
+                            id: "dep-sec",
+                            title: "Департамент безпеки та інфраструктури",
+                            type: "department",
+                            children: [
+                                { id: "sec-dir", title: "Директор з безпеки", type: "role" },
+                                {
+                                    id: "v-sec-work",
+                                    title: "Відділ охорони праці",
+                                    type: "division",
+                                    children: [{ id: "sec-work-eng", title: "Інженер з охорони праці", type: "role" }]
+                                },
+                                {
+                                    id: "v-it",
+                                    title: "IT-відділ",
+                                    type: "division",
+                                    children: [{ id: "sys-admin", title: "Системний адміністратор", type: "role" }]
+                                },
+                                {
+                                    id: "v-energy",
+                                    title: "Відділ енергозабезпечення",
+                                    type: "division",
+                                    children: [{ id: "chief-energy", title: "Головний енергетик", type: "role" }]
+                                }
+                            ]
+                        },
+                        {
+                            id: "dep-prod",
+                            title: "Виробничий департамент",
+                            type: "department",
+                            children: [
+                                {
+                                    id: "dir-prod-b2b",
+                                    title: "Директор виробництва B2B",
+                                    type: "executive",
+                                    children: [
+                                        {
+                                            id: "v-buy-log",
+                                            title: "Відділ закупівель та логістики",
+                                            type: "division",
+                                            children: [
+                                                {
+                                                    id: "m-buy-log",
+                                                    title: "Менеджер з закупівель та логістики",
+                                                    type: "role",
+                                                    children: [{ id: "driver", title: "Водій", type: "role" }]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            id: "v-norm",
+                                            title: "Відділ нормування праці",
+                                            type: "division",
+                                            children: [{ id: "m-norm", title: "Менеджер з нормування праці", type: "role" }]
+                                        },
+                                        {
+                                            id: "v-test",
+                                            title: "Відділ тестування",
+                                            type: "division",
+                                            children: [{ id: "testers", title: "Тестувальники", type: "role" }]
+                                        },
+                                        {
+                                            id: "v-plan",
+                                            title: "Відділ планування",
+                                            type: "division",
+                                            children: [{ id: "planner", title: "Планувальник", type: "role" }]
+                                        },
+                                        {
+                                            id: "v-loc-mgmt",
+                                            title: "Відділ управління виробничими локаціями",
+                                            type: "division",
+                                            children: [
+                                                {
+                                                    id: "loc-heads",
+                                                    title: "Керівники локацій",
+                                                    type: "role",
+                                                    children: [
+                                                        { id: "b2b-op-dep", title: "Відділ операторів", type: "division", children: [{ id: "b2b-op", title: "Оператори", type: "role" }] },
+                                                        { id: "b2b-maint-dep", title: "Відділ технічного обслуговування", type: "division", children: [{ id: "b2b-tech", title: "Техніки", type: "role" }] },
+                                                        { id: "b2b-proc-dep", title: "Відділ обробки", type: "division", children: [{ id: "b2b-proc", title: "Обробники", type: "role" }] },
+                                                        { id: "b2b-qa-dep", title: "Відділ контролю якості", type: "division", children: [{ id: "b2b-qa", title: "Інспектори з якості", type: "role" }] },
+                                                        { id: "b2b-ship-dep", title: "Відділ відправки", type: "division", children: [{ id: "b2b-ship", title: "Відправники", type: "role" }] },
+                                                        { id: "b2b-clean-dep", title: "Клінінг", type: "division", children: [{ id: "b2b-clean", title: "Клінери", type: "role" }] }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    id: "head-prod-b2c",
+                                    title: "Начальник виробництва B2C",
+                                    type: "executive",
+                                    children: [
+                                        { id: "b2c-mod-dep", title: "Відділ моделювання", type: "division", children: [{ id: "b2c-mod", title: "Інженери-конструктори (моделісти)", type: "role" }] },
+                                        { id: "b2c-op-dep", title: "Відділ операторів", type: "division", children: [{ id: "b2c-op", title: "Оператори", type: "role" }] },
+                                        { id: "b2c-maint-dep", title: "Відділ технічного обслуговування", type: "division", children: [{ id: "b2c-tech", title: "Техніки", type: "role" }] },
+                                        { id: "b2c-proc-dep", title: "Відділ обробки", type: "division", children: [{ id: "b2c-proc", title: "Обробники", type: "role" }] },
+                                        { id: "b2c-paint-dep", title: "Відділ фарбування", type: "division", children: [{ id: "b2c-paint", title: "Фарбувальники (художники)", type: "role" }] },
+                                        { id: "b2c-ship-dep", title: "Відділ відправки", type: "division", children: [{ id: "b2c-ship", title: "Відправники", type: "role" }] },
+                                        { id: "b2c-clean-dep", title: "Клінінг", type: "division", children: [{ id: "b2c-clean", title: "Клінери", type: "role" }] }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Current active state
+        let orgData = JSON.parse(JSON.stringify(defaultOrgData));
+        let activeNodeId = null;
+        let isAddingChild = false;
+        let searchQuery = "";
+
+        window.onload = function() {
+            renderAll();
+        };
+
+        function renderAll() {
+            renderChart();
+            renderTreeList();
+            generateExports();
+        }
+
+        function renderChart() {
+            const container = document.getElementById('chartContainer');
+            container.innerHTML = createNodeHTML(orgData);
+        }
+
+        function createNodeHTML(node) {
+            if (!matchesSearch(node) && !hasMatchingChild(node)) {
+                return '';
+            }
+
+            const styleClasses = getTypeClasses(node.type);
+            const hasChildren = node.children && node.children.length > 0;
+            const isHighlighted = searchQuery && node.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+            let childrenHTML = '';
+            if (hasChildren) {
+                const childItemsHTML = node.children
+                    .map(child => createNodeHTML(child))
+                    .filter(html => html !== '')
+                    .map(html => `<div class="px-2 flex flex-col items-center">${html}</div>`)
+                    .join('');
+
+                if (childItemsHTML) {
+                    childrenHTML = `
+                        <!-- Connector down -->
+                        <div class="w-px h-6 bg-slate-300"></div>
+                        
+                        <!-- Horizontal connector line -->
+                        <div class="relative flex justify-center pt-6 before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-slate-300 node-children-wrap">
+                            <div class="flex items-start justify-center">
+                                ${childItemsHTML}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            return `
+                <div class="flex flex-col items-center relative group">
+                    <!-- Node Card -->
+                    <div class="node-card relative p-3 rounded-xl border ${styleClasses.border} ${styleClasses.bg} shadow-sm min-w-[150px] max-w-[220px] text-center cursor-pointer transition ${isHighlighted ? 'ring-2 ring-amber-400 font-bold' : ''}"
+                         onclick="openEditModal('${node.id}')">
+                        <div class="text-[10px] font-bold uppercase tracking-wider ${styleClasses.badgeText} mb-0.5">${getTypeLabel(node.type)}</div>
+                        <div class="text-xs font-semibold ${styleClasses.text} leading-tight">${escapeHTML(node.title)}</div>
+                        
+                        <!-- Quick Add Button -->
+                        <button onclick="event.stopPropagation(); openAddModal('${node.id}')" title="Додати підпорядкований елемент" class="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border border-slate-300 hover:border-blue-500 hover:bg-blue-50 text-slate-500 hover:text-blue-600 rounded-full flex items-center justify-center text-[10px] shadow-sm transition">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+
+                    ${childrenHTML}
+                </div>
+            `;
+        }
+
+        function getTypeClasses(type) {
+            switch(type) {
+                case 'executive': 
+                    return { bg: 'bg-slate-900 text-white', border: 'border-slate-800', text: 'text-white', badgeText: 'text-blue-400' };
+                case 'department': 
+                    return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-900', badgeText: 'text-blue-600' };
+                case 'division': 
+                    return { bg: 'bg-indigo-50/70', border: 'border-indigo-200', text: 'text-indigo-900', badgeText: 'text-indigo-600' };
+                default: 
+                    return { bg: 'bg-white', border: 'border-slate-200', text: 'text-slate-700', badgeText: 'text-slate-400' };
+            }
+        }
+
+        function getTypeLabel(type) {
+            switch(type) {
+                case 'executive': return 'Керівництво';
+                case 'department': return 'Департамент';
+                case 'division': return 'Відділ';
+                default: return 'Посада';
+            }
+        }
+
+        function renderTreeList() {
+            const container = document.getElementById('treeContainer');
+            container.innerHTML = createTreeListHTML(orgData, 0);
+        }
+
+        function createTreeListHTML(node, depth) {
+            if (!matchesSearch(node) && !hasMatchingChild(node)) return '';
+
+            const indent = depth * 24;
+            const hasChildren = node.children && node.children.length > 0;
+            const styleClasses = getTypeClasses(node.type);
+
+            let childrenHTML = '';
+            if (hasChildren) {
+                childrenHTML = node.children.map(c => createTreeListHTML(c, depth + 1)).join('');
+            }
+
+            return `
+                <div>
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-100 border border-slate-100 transition group mb-1" style="margin-left: ${indent}px">
+                        <div class="flex items-center gap-2 cursor-pointer flex-1" onclick="openEditModal('${node.id}')">
+                            <span class="text-xs px-2 py-0.5 rounded font-mono font-semibold ${styleClasses.bg} ${styleClasses.text} border ${styleClasses.border}">
+                                ${getTypeLabel(node.type)}
+                            </span>
+                            <span class="text-sm font-medium text-slate-800">${escapeHTML(node.title)}</span>
+                        </div>
+                        <div class="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition">
+                            <button onclick="openAddModal('${node.id}')" class="p-1 px-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-medium">
+                                <i class="fa-solid fa-plus mr-1"></i>Додати
+                            </button>
+                            <button onclick="openEditModal('${node.id}')" class="p-1 px-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${childrenHTML}
+                </div>
+            `;
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value.trim();
+            renderAll();
+        }
+
+        function matchesSearch(node) {
+            if (!searchQuery) return true;
+            return node.title.toLowerCase().includes(searchQuery.toLowerCase());
+        }
+
+        function hasMatchingChild(node) {
+            if (!node.children) return false;
+            return node.children.some(c => matchesSearch(c) || hasMatchingChild(c));
+        }
+
+        function openEditModal(nodeId) {
+            isAddingChild = false;
+            activeNodeId = nodeId;
+            const node = findNodeById(orgData, nodeId);
+            if (!node) return;
+
+            document.getElementById('modalTitle').innerText = "Редагування вузла";
+            document.getElementById('modalInputTitle').value = node.title;
+            document.getElementById('modalInputType').value = node.type || 'role';
+            document.getElementById('btnDeleteNode').classList.remove('hidden');
+
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function openAddModal(parentId) {
+            isAddingChild = true;
+            activeNodeId = parentId;
+
+            document.getElementById('modalTitle').innerText = parentId ? "Додати підпорядкований елемент" : "Додати кореневий елемент";
+            document.getElementById('modalInputTitle').value = "";
+            document.getElementById('modalInputType').value = "division";
+            document.getElementById('btnDeleteNode').classList.add('hidden');
+
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        function saveModalChanges() {
+            const title = document.getElementById('modalInputTitle').value.trim();
+            const type = document.getElementById('modalInputType').value;
+
+            if (!title) {
+                showToast("Введіть назву", "error");
+                return;
+            }
+
+            if (isAddingChild) {
+                const newNode = {
+                    id: 'node-' + Date.now(),
+                    title: title,
+                    type: type,
+                    children: []
+                };
+
+                if (!activeNodeId) {
+                    // Adding new root
+                    orgData.children.push(newNode);
+                } else {
+                    const parent = findNodeById(orgData, activeNodeId);
+                    if (parent) {
+                        if (!parent.children) parent.children = [];
+                        parent.children.push(newNode);
+                    }
+                }
+                showToast("Елемент успішно додано");
+            } else {
+                const node = findNodeById(orgData, activeNodeId);
+                if (node) {
+                    node.title = title;
+                    node.type = type;
+                    showToast("Зміни збережено");
+                }
+            }
+
+            closeModal();
+            renderAll();
+        }
+
+        function deleteCurrentNode() {
+            if (!activeNodeId) return;
+
+            if (activeNodeId === orgData.id) {
+                showToast("Неможливо видалити корінь системи", "error");
+                return;
+            }
+
+            deleteNodeById(orgData, activeNodeId);
+            closeModal();
+            renderAll();
+            showToast("Елемент видалено");
+        }
+
+        // Helper functions for tree mutation
+        function findNodeById(node, id) {
+            if (node.id === id) return node;
+            if (node.children) {
+                for (let child of node.children) {
+                    const found = findNodeById(child, id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        function deleteNodeById(parent, id) {
+            if (!parent.children) return false;
+            const index = parent.children.findIndex(c => c.id === id);
+            if (index !== -1) {
+                parent.children.splice(index, 1);
+                return true;
+            }
+            for (let child of parent.children) {
+                if (deleteNodeById(child, id)) return true;
+            }
+            return false;
+        }
+
+        function generateExports() {
+            // Mermaid JS
+            document.getElementById('mermaidCode').value = generateMermaid(orgData);
+            // Outline Text
+            document.getElementById('outlineText').value = generateOutline(orgData, 0);
+            // JSON
+            document.getElementById('jsonCode').value = JSON.stringify(orgData, null, 2);
+        }
+
+        function generateMermaid(node) {
+            let res = "graph TD\n";
+            function traverse(n) {
+                const cleanParentTitle = n.title.replace(/"/g, "'");
+                if (n.children) {
+                    n.children.forEach(c => {
+                        const cleanChildTitle = c.title.replace(/"/g, "'");
+                        res += `    ["${cleanParentTitle}"] --> ["${cleanChildTitle}"]\n`;
+                        traverse(c);
+                    });
+                }
+            }
+            traverse(node);
+            return res;
+        }
+
+        function generateOutline(node, depth) {
+            const indent = "  ".repeat(depth);
+            let res = `${indent}- ${node.title} (${getTypeLabel(node.type)})\n`;
+            if (node.children) {
+                node.children.forEach(c => {
+                    res += generateOutline(c, depth + 1);
+                });
+            }
+            return res;
+        }
+
+        function switchTab(tab) {
+            document.getElementById('view-chart').classList.add('hidden');
+            document.getElementById('view-tree').classList.add('hidden');
+            document.getElementById('view-export').classList.add('hidden');
+
+            document.getElementById('tab-chart').className = "px-3 py-1.5 text-xs font-medium rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition";
+            document.getElementById('tab-tree').className = "px-3 py-1.5 text-xs font-medium rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition";
+            document.getElementById('tab-export').className = "px-3 py-1.5 text-xs font-medium rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition";
+
+            if (tab === 'chart') {
+                document.getElementById('view-chart').classList.remove('hidden');
+                document.getElementById('tab-chart').className = "px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white transition";
+            } else if (tab === 'tree') {
+                document.getElementById('view-tree').classList.remove('hidden');
+                document.getElementById('tab-tree').className = "px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white transition";
+            } else {
+                document.getElementById('view-export').classList.remove('hidden');
+                document.getElementById('tab-export').className = "px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white transition";
+            }
+        }
+
+        function resetToOriginal() {
+            if (confirm("Скинути всі зміни та повернути оригінальну структуру?")) {
+                orgData = JSON.parse(JSON.stringify(defaultOrgData));
+                renderAll();
+                showToast("Структуру скинуто");
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).value;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Скопійовано в буфер обміну!");
+            }).catch(() => {
+                document.getElementById(elementId).select();
+                document.execCommand('copy');
+                showToast("Скопійовано!");
+            });
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+            if (type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-red-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            }
+
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 2500);
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
