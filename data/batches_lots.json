@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-20T00:51:31Z",
+  "fetched_at": "2026-08-20T02:13:15Z",
   "date": "2026-08-19",
   "range": {
     "from": "19.08.2026",
@@ -18,7 +18,7 @@
     "defectQty": 167,
     "defectPercent": 4.43,
     "defectWeightPercent": 4.43,
-    "totalPrintTimeMinutes": 1495839.6,
+    "totalPrintTimeMinutes": 1559708.1,
     "materialCostUAH": 9047.68,
     "materialCostCoveragePercent": 100.0
   },
@@ -522,7 +522,7 @@
         "location": "4",
         "baseProductCode": "62339",
         "batchCount": 1,
-        "totalPrintTimeMinutes": null,
+        "totalPrintTimeMinutes": 63868.5,
         "shift": "SECOND"
       },
       {
@@ -1174,14 +1174,14 @@
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
-          "totalPrintTimeMinutes": null,
-          "printTimeCoverage": 0,
+          "totalPrintTimeMinutes": 63868.5,
+          "printTimeCoverage": 1,
           "plannedMachines": {
             "planned": 270,
             "estimated": 324
           },
-          "avgPartsPerMachine": 0,
-          "avgPartsPerMachineEstimated": 0,
+          "avgPartsPerMachine": 2.8,
+          "avgPartsPerMachineEstimated": 2.3,
           "qcDefectWeightPercent": null,
           "defectWeightCoverage": 0
         }
@@ -2083,7 +2083,12 @@
               "defectPercent": null,
               "qcCompleted": false,
               "unitWeightG": 37.77,
-              "printTime": null,
+              "printTime": {
+                "perPartMinutes": 85.5,
+                "qty": 747,
+                "totalMinutes": 63868.5,
+                "source": "production_plans_daily"
+              },
               "plannedMachines": {
                 "planned": 270,
                 "estimated": 324
