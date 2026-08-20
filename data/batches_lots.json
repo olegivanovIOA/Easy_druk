@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-20T05:24:00Z",
+  "fetched_at": "2026-08-20T05:57:16Z",
   "date": "2026-08-19",
   "range": {
     "from": "19.08.2026",
@@ -14,21 +14,28 @@
   "company": {
     "batches": 78,
     "lots": 16,
-    "acceptedQty": 9393,
+    "acceptedQty": 22640,
     "defectQty": 171,
-    "defectPercent": 1.82,
-    "defectWeightPercent": 1.81,
+    "defectPercent": 0.76,
+    "defectWeightPercent": 0.75,
     "totalPrintTimeMinutes": 2228165.1,
-    "materialCostUAH": 24501.75,
+    "materialCostUAH": 32915.66,
     "materialCostCoveragePercent": 100.0
   },
   "byPrinterModel": [
     {
       "printerModel": "A1 mini",
       "batches": 15,
-      "acceptedQty": 8438,
+      "acceptedQty": 21419,
       "defectQty": 160,
-      "defectPercent": 1.9
+      "defectPercent": 0.75
+    },
+    {
+      "printerModel": "A2L",
+      "batches": 6,
+      "acceptedQty": 737,
+      "defectQty": 4,
+      "defectPercent": 0.54
     },
     {
       "printerModel": "P1S",
@@ -36,13 +43,6 @@
       "acceptedQty": 484,
       "defectQty": 7,
       "defectPercent": 1.45
-    },
-    {
-      "printerModel": "A2L",
-      "batches": 6,
-      "acceptedQty": 471,
-      "defectQty": 4,
-      "defectPercent": 0.85
     },
     {
       "printerModel": "P2S",
@@ -54,11 +54,19 @@
   ],
   "byProduct": [
     {
+      "baseProductCode": "52488",
+      "batches": 2,
+      "acceptedQty": 12968,
+      "defectQty": 0,
+      "defectPercent": 0.0,
+      "defectCostUAH": 0.0
+    },
+    {
       "baseProductCode": "61635",
       "batches": 10,
-      "acceptedQty": 6540,
+      "acceptedQty": 6553,
       "defectQty": 111,
-      "defectPercent": 1.7,
+      "defectPercent": 1.69,
       "defectCostUAH": 193.01
     },
     {
@@ -70,28 +78,20 @@
       "defectCostUAH": 24.53
     },
     {
+      "baseProductCode": "72723",
+      "batches": 6,
+      "acceptedQty": 737,
+      "defectQty": 4,
+      "defectPercent": 0.54,
+      "defectCostUAH": 54.96
+    },
+    {
       "baseProductCode": "31062",
       "batches": 9,
       "acceptedQty": 484,
       "defectQty": 7,
       "defectPercent": 1.45,
       "defectCostUAH": 82.22
-    },
-    {
-      "baseProductCode": "72723",
-      "batches": 6,
-      "acceptedQty": 471,
-      "defectQty": 4,
-      "defectPercent": 0.85,
-      "defectCostUAH": 54.96
-    },
-    {
-      "baseProductCode": "52488",
-      "batches": 2,
-      "acceptedQty": 0,
-      "defectQty": 0,
-      "defectPercent": null,
-      "defectCostUAH": 0.0
     },
     {
       "baseProductCode": "62339",
@@ -122,9 +122,9 @@
     {
       "baseProductCode": "61635",
       "batches": 10,
-      "acceptedQty": 6540,
+      "acceptedQty": 6553,
       "defectQty": 111,
-      "defectPercent": 1.7,
+      "defectPercent": 1.69,
       "defectCostUAH": 193.01
     },
     {
@@ -138,9 +138,9 @@
     {
       "baseProductCode": "72723",
       "batches": 6,
-      "acceptedQty": 471,
+      "acceptedQty": 737,
       "defectQty": 4,
-      "defectPercent": 0.85,
+      "defectPercent": 0.54,
       "defectCostUAH": 54.96
     },
     {
@@ -158,7 +158,7 @@
         {
           "printerModel": "A1 mini",
           "batches": 7,
-          "acceptedQty": 5780,
+          "acceptedQty": 5793,
           "defectQty": 54,
           "defectPercent": 0.93
         }
@@ -167,7 +167,7 @@
         {
           "baseProductCode": "61635",
           "batches": 7,
-          "acceptedQty": 5780,
+          "acceptedQty": 5793,
           "defectQty": 54,
           "defectPercent": 0.93,
           "defectCostUAH": 94.45
@@ -177,7 +177,7 @@
         {
           "baseProductCode": "61635",
           "batches": 7,
-          "acceptedQty": 5780,
+          "acceptedQty": 5793,
           "defectQty": 54,
           "defectPercent": 0.93,
           "defectCostUAH": 94.45
@@ -189,12 +189,20 @@
         {
           "printerModel": "A1 mini",
           "batches": 8,
-          "acceptedQty": 2658,
+          "acceptedQty": 15626,
           "defectQty": 106,
-          "defectPercent": 3.99
+          "defectPercent": 0.68
         }
       ],
       "byProduct": [
+        {
+          "baseProductCode": "52488",
+          "batches": 2,
+          "acceptedQty": 12968,
+          "defectQty": 0,
+          "defectPercent": 0.0,
+          "defectCostUAH": 0.0
+        },
         {
           "baseProductCode": "61637",
           "batches": 3,
@@ -210,14 +218,6 @@
           "defectQty": 57,
           "defectPercent": 7.5,
           "defectCostUAH": 98.56
-        },
-        {
-          "baseProductCode": "52488",
-          "batches": 2,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
         }
       ],
       "defectCostRanking": [
@@ -320,18 +320,18 @@
         {
           "printerModel": "A2L",
           "batches": 6,
-          "acceptedQty": 471,
+          "acceptedQty": 737,
           "defectQty": 4,
-          "defectPercent": 0.85
+          "defectPercent": 0.54
         }
       ],
       "byProduct": [
         {
           "baseProductCode": "72723",
           "batches": 6,
-          "acceptedQty": 471,
+          "acceptedQty": 737,
           "defectQty": 4,
-          "defectPercent": 0.85,
+          "defectPercent": 0.54,
           "defectCostUAH": 54.96
         }
       ],
@@ -339,9 +339,9 @@
         {
           "baseProductCode": "72723",
           "batches": 6,
-          "acceptedQty": 471,
+          "acceptedQty": 737,
           "defectQty": 4,
-          "defectPercent": 0.85,
+          "defectPercent": 0.54,
           "defectCostUAH": 54.96
         }
       ]
@@ -351,14 +351,14 @@
     {
       "shift": "FIRST",
       "lots": 8,
-      "acceptedQty": 5230,
+      "acceptedQty": 5253,
       "defectQty": 171,
-      "defectPercent": 3.27
+      "defectPercent": 3.26
     },
     {
       "shift": "SECOND",
       "lots": 8,
-      "acceptedQty": 4163,
+      "acceptedQty": 17387,
       "defectQty": 0,
       "defectPercent": 0.0
     }
@@ -385,9 +385,9 @@
           "A1 mini"
         ],
         "shift": "FIRST",
-        "acceptedQty": 1916,
+        "acceptedQty": 1939,
         "defectQty": 54,
-        "defectPercent": 2.82
+        "defectPercent": 2.78
       },
       {
         "location": "2",
@@ -423,7 +423,19 @@
           "A2L"
         ],
         "shift": "SECOND",
-        "acceptedQty": 299,
+        "acceptedQty": 565,
+        "defectQty": 0,
+        "defectPercent": 0
+      },
+      {
+        "location": "2",
+        "lotKey": "231-N-26-02-52488",
+        "baseProductCode": "52488",
+        "printerModels": [
+          "A1 mini"
+        ],
+        "shift": "SECOND",
+        "acceptedQty": 12968,
         "defectQty": 0,
         "defectPercent": 0
       },
@@ -435,7 +447,7 @@
           "A1 mini"
         ],
         "shift": "SECOND",
-        "acceptedQty": 3864,
+        "acceptedQty": 3854,
         "defectQty": 0,
         "defectPercent": 0
       },
@@ -453,7 +465,7 @@
       }
     ],
     "minQty": 50,
-    "poolSize": 7
+    "poolSize": 8
   },
   "plannedVsEstimated": {
     "totalPlanned": 3818.0,
@@ -534,9 +546,9 @@
     ]
   },
   "pendingQC": {
-    "count": 9,
+    "count": 8,
     "byLocation": {
-      "2": 4,
+      "2": 3,
       "4": 3,
       "5": 2
     },
@@ -547,13 +559,6 @@
         "batchCount": 1,
         "totalPrintTimeMinutes": 64213.5,
         "shift": "FIRST"
-      },
-      {
-        "location": "2",
-        "baseProductCode": "52488",
-        "batchCount": 1,
-        "totalPrintTimeMinutes": 56240,
-        "shift": "SECOND"
       },
       {
         "location": "2",
@@ -626,9 +631,9 @@
             "A1 mini"
           ],
           "batchCount": 4,
-          "acceptedQty": 1916,
+          "acceptedQty": 1939,
           "defectQty": 54,
-          "defectPercent": 2.82,
+          "defectPercent": 2.78,
           "totalPrintTimeMinutes": 115530,
           "printTimeCoverage": 1,
           "plannedMachines": {
@@ -652,7 +657,7 @@
             "A1 mini"
           ],
           "batchCount": 3,
-          "acceptedQty": 3864,
+          "acceptedQty": 3854,
           "defectQty": 0,
           "defectPercent": 0,
           "totalPrintTimeMinutes": 116580,
@@ -752,11 +757,11 @@
                 "color": "#009639",
                 "source": "gcode_files"
               },
-              "acceptedQty": 1288,
+              "acceptedQty": 1311,
               "defectQty": 0,
               "defectPercent": 0,
               "qcCompleted": true,
-              "unitWeightG": 5.396,
+              "unitWeightG": 5.3,
               "printTime": {
                 "perPartMinutes": 30,
                 "qty": 1288,
@@ -880,11 +885,11 @@
                 "color": "#009639",
                 "source": "gcode_files"
               },
-              "acceptedQty": 1118,
+              "acceptedQty": 1108,
               "defectQty": 0,
               "defectPercent": 0,
               "qcCompleted": true,
-              "unitWeightG": 5.251,
+              "unitWeightG": 5.3,
               "printTime": {
                 "perPartMinutes": 30,
                 "qty": 1118,
@@ -998,9 +1003,9 @@
             "A1 mini"
           ],
           "batchCount": 1,
-          "acceptedQty": 0,
+          "acceptedQty": 12968,
           "defectQty": 0,
-          "defectPercent": null,
+          "defectPercent": 0,
           "totalPrintTimeMinutes": 56240,
           "printTimeCoverage": 1,
           "plannedMachines": {
@@ -1009,8 +1014,8 @@
           },
           "avgPartsPerMachine": 161.9,
           "avgPartsPerMachineEstimated": 134.9,
-          "qcDefectWeightPercent": null,
-          "defectWeightCoverage": 0
+          "qcDefectWeightPercent": 0,
+          "defectWeightCoverage": 1
         },
         {
           "lotKey": "231-N-26-02-61635",
@@ -1278,10 +1283,10 @@
                 "color": "#00AE42",
                 "source": "gcode_files"
               },
-              "acceptedQty": 0,
+              "acceptedQty": 12968,
               "defectQty": 0,
-              "defectPercent": null,
-              "qcCompleted": false,
+              "defectPercent": 0,
+              "qcCompleted": true,
               "unitWeightG": 1.112,
               "printTime": {
                 "perPartMinutes": 4.343,
@@ -1293,7 +1298,7 @@
                 "planned": 80,
                 "estimated": 96
               },
-              "qcDefectWeightPercent": null
+              "qcDefectWeightPercent": 0
             },
             {
               "batchNumber": "231-N-26-02-6966-61637-001",
@@ -3399,7 +3404,7 @@
             "A2L"
           ],
           "batchCount": 4,
-          "acceptedQty": 299,
+          "acceptedQty": 565,
           "defectQty": 0,
           "defectPercent": 0,
           "totalPrintTimeMinutes": 109442.6,
@@ -3411,7 +3416,7 @@
           "avgPartsPerMachine": 7,
           "avgPartsPerMachineEstimated": 5.8,
           "qcDefectWeightPercent": 0,
-          "defectWeightCoverage": 0.25
+          "defectWeightCoverage": 0.5
         }
       ],
       "printerModels": [
@@ -3499,11 +3504,11 @@
                 "color": "#9EA2A2",
                 "source": "gcode_files"
               },
-              "acceptedQty": 0,
+              "acceptedQty": 266,
               "defectQty": 0,
-              "defectPercent": null,
-              "qcCompleted": false,
-              "unitWeightG": 41.117,
+              "defectPercent": 0,
+              "qcCompleted": true,
+              "unitWeightG": 41.64,
               "printTime": {
                 "perPartMinutes": 109.333,
                 "qty": 270,
@@ -3514,7 +3519,7 @@
                 "planned": 144,
                 "estimated": 172.8
               },
-              "qcDefectWeightPercent": null
+              "qcDefectWeightPercent": 0
             },
             {
               "batchNumber": "231-N-26-06-2290-72723-001",
