@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-21T16:23:52Z",
+  "fetched_at": "2026-08-21T17:21:30Z",
   "date": "2026-08-20",
   "range": {
     "from": "20.08.2026",
@@ -717,11 +717,18 @@
     "poolSize": 18
   },
   "plannedVsEstimated": {
-    "totalPlanned": 3118.0,
-    "totalEstimated": 3741.6,
+    "totalPlanned": 3278.0,
+    "totalEstimated": 3933.6,
     "deviationPercent": 20.0,
     "lotsCovered": 18,
     "topDeviations": [
+      {
+        "location": "1",
+        "baseProductCode": "61635",
+        "planned": 160,
+        "estimated": 192,
+        "deviationPercent": 20.0
+      },
       {
         "location": "1",
         "baseProductCode": "61635",
@@ -784,13 +791,6 @@
         "planned": 270,
         "estimated": 324,
         "deviationPercent": 20.0
-      },
-      {
-        "location": "4",
-        "baseProductCode": "31062",
-        "planned": 100,
-        "estimated": 120,
-        "deviationPercent": 20.0
       }
     ]
   },
@@ -851,11 +851,11 @@
           "totalPrintTimeMinutes": 111780,
           "printTimeCoverage": 1,
           "plannedMachines": {
-            "planned": 0,
-            "estimated": 0
+            "planned": 160,
+            "estimated": 192
           },
-          "avgPartsPerMachine": null,
-          "avgPartsPerMachineEstimated": null,
+          "avgPartsPerMachine": 23.3,
+          "avgPartsPerMachineEstimated": 19.4,
           "qcDefectWeightPercent": 3.26,
           "defectWeightCoverage": 1
         }
@@ -924,10 +924,7 @@
                 "totalMinutes": 46650,
                 "source": "production_plans_daily"
               },
-              "plannedMachines": {
-                "planned": 160,
-                "estimated": 192
-              },
+              "plannedMachines": null,
               "qcDefectWeightPercent": 8.1
             },
             {
@@ -956,10 +953,7 @@
                 "totalMinutes": 18960,
                 "source": "production_plans_daily"
               },
-              "plannedMachines": {
-                "planned": 160,
-                "estimated": 192
-              },
+              "plannedMachines": null,
               "qcDefectWeightPercent": 12.71
             },
             {
@@ -1021,8 +1015,8 @@
                 "source": "production_plans_daily"
               },
               "plannedMachines": {
-                "planned": 0,
-                "estimated": 0
+                "planned": 160,
+                "estimated": 192
               },
               "qcDefectWeightPercent": 2.99
             },
@@ -1053,8 +1047,8 @@
                 "source": "production_plans_daily"
               },
               "plannedMachines": {
-                "planned": 0,
-                "estimated": 0
+                "planned": 160,
+                "estimated": 192
               },
               "qcDefectWeightPercent": 2.18
             },
@@ -1085,8 +1079,8 @@
                 "source": "production_plans_daily"
               },
               "plannedMachines": {
-                "planned": 0,
-                "estimated": 0
+                "planned": 160,
+                "estimated": 192
               },
               "qcDefectWeightPercent": 4.27
             }
