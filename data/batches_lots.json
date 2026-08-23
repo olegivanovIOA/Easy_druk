@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-23T00:55:23Z",
+  "fetched_at": "2026-08-23T02:20:54Z",
   "date": "2026-08-22",
   "range": {
     "from": "22.08.2026",
@@ -8,17 +8,17 @@
     "basis": "date"
   },
   "totals": {
-    "batches": 94,
+    "batches": 96,
     "lots": 20
   },
   "company": {
-    "batches": 94,
+    "batches": 96,
     "lots": 20,
     "acceptedQty": 0,
     "defectQty": 0,
     "defectPercent": null,
     "defectWeightPercent": null,
-    "totalPrintTimeMinutes": 1728542.7,
+    "totalPrintTimeMinutes": 1804507.5,
     "materialCostUAH": null,
     "materialCostCoveragePercent": null
   },
@@ -32,7 +32,7 @@
     },
     {
       "printerModel": "P1S",
-      "batches": 63,
+      "batches": 65,
       "acceptedQty": 0,
       "defectQty": 0,
       "defectPercent": null
@@ -135,7 +135,7 @@
     },
     {
       "baseProductCode": "000529",
-      "batches": 3,
+      "batches": 4,
       "acceptedQty": 0,
       "defectQty": 0,
       "defectPercent": null,
@@ -143,7 +143,7 @@
     },
     {
       "baseProductCode": "000530",
-      "batches": 3,
+      "batches": 4,
       "acceptedQty": 0,
       "defectQty": 0,
       "defectPercent": null,
@@ -293,7 +293,7 @@
       "byPrinterModel": [
         {
           "printerModel": "P1S",
-          "batches": 54,
+          "batches": 56,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null
@@ -318,7 +318,7 @@
         },
         {
           "baseProductCode": "000529",
-          "batches": 3,
+          "batches": 4,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
@@ -326,7 +326,7 @@
         },
         {
           "baseProductCode": "000530",
-          "batches": 3,
+          "batches": 4,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
@@ -570,15 +570,15 @@
       {
         "location": "5",
         "baseProductCode": "000529",
-        "batchCount": 3,
-        "totalPrintTimeMinutes": 119441.3,
+        "batchCount": 4,
+        "totalPrintTimeMinutes": 168750.1,
         "shift": "SECOND"
       },
       {
         "location": "5",
         "baseProductCode": "000530",
-        "batchCount": 3,
-        "totalPrintTimeMinutes": 88506.3,
+        "batchCount": 4,
+        "totalPrintTimeMinutes": 115162.3,
         "shift": "SECOND"
       },
       {
@@ -2121,7 +2121,7 @@
     {
       "location": 5,
       "totals": {
-        "batches": 54,
+        "batches": 56,
         "lots": 7
       },
       "lots": [
@@ -2188,18 +2188,18 @@
           "printerModels": [
             "P1S"
           ],
-          "batchCount": 3,
+          "batchCount": 4,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
-          "totalPrintTimeMinutes": 119441.3,
+          "totalPrintTimeMinutes": 168750.1,
           "printTimeCoverage": 1,
           "plannedMachines": {
             "planned": 369,
             "estimated": 442.8
           },
-          "avgPartsPerMachine": 9.6,
-          "avgPartsPerMachineEstimated": 8,
+          "avgPartsPerMachine": 13.6,
+          "avgPartsPerMachineEstimated": 11.3,
           "qcDefectWeightPercent": null,
           "defectWeightCoverage": 0
         },
@@ -2214,18 +2214,18 @@
           "printerModels": [
             "P1S"
           ],
-          "batchCount": 3,
+          "batchCount": 4,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
-          "totalPrintTimeMinutes": 88506.3,
+          "totalPrintTimeMinutes": 115162.3,
           "printTimeCoverage": 1,
           "plannedMachines": {
             "planned": 295,
             "estimated": 354
           },
-          "avgPartsPerMachine": 10.1,
-          "avgPartsPerMachineEstimated": 8.4,
+          "avgPartsPerMachine": 13.1,
+          "avgPartsPerMachineEstimated": 10.9,
           "qcDefectWeightPercent": null,
           "defectWeightCoverage": 0
         },
@@ -2311,7 +2311,7 @@
       "printerModels": [
         {
           "printerModel": "P1S",
-          "batchCount": 54,
+          "batchCount": 56,
           "lotCount": 7,
           "batches": [
             {
@@ -3883,6 +3883,38 @@
               "qcDefectWeightPercent": null
             },
             {
+              "batchNumber": "234-N-26-05-7799-000530-004",
+              "lotKey": "234-N-26-05-000530",
+              "date": "22.08.2026",
+              "shift": "SECOND",
+              "product": {
+                "code": "000530",
+                "baseCode": "000530",
+                "orderNumber": "6000_08"
+              },
+              "material": {
+                "type": "PETG",
+                "color": "#00AE42",
+                "source": "gcode_files"
+              },
+              "acceptedQty": 0,
+              "defectQty": 0,
+              "defectPercent": null,
+              "qcCompleted": false,
+              "unitWeightG": null,
+              "printTime": {
+                "perPartMinutes": 29.75,
+                "qty": 896,
+                "totalMinutes": 26656,
+                "source": "production_plans_daily"
+              },
+              "plannedMachines": {
+                "planned": 295,
+                "estimated": 354
+              },
+              "qcDefectWeightPercent": null
+            },
+            {
               "batchNumber": "234-N-26-05-8375-484-002",
               "lotKey": "234-N-26-05-484",
               "date": "22.08.2026",
@@ -3975,6 +4007,38 @@
               "plannedMachines": {
                 "planned": 75,
                 "estimated": 90
+              },
+              "qcDefectWeightPercent": null
+            },
+            {
+              "batchNumber": "234-N-26-05-9340-000529-004",
+              "lotKey": "234-N-26-05-000529",
+              "date": "22.08.2026",
+              "shift": "SECOND",
+              "product": {
+                "code": "000529",
+                "baseCode": "000529",
+                "orderNumber": "6000_08"
+              },
+              "material": {
+                "type": "PETG",
+                "color": "#00AE42",
+                "source": "gcode_files"
+              },
+              "acceptedQty": 0,
+              "defectQty": 0,
+              "defectPercent": null,
+              "qcCompleted": false,
+              "unitWeightG": null,
+              "printTime": {
+                "perPartMinutes": 33.75,
+                "qty": 1461,
+                "totalMinutes": 49308.8,
+                "source": "production_plans_daily"
+              },
+              "plannedMachines": {
+                "planned": 369,
+                "estimated": 442.8
               },
               "qcDefectWeightPercent": null
             },
