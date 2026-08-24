@@ -129,12 +129,8 @@ window.SalesLoader = (() => {
 
       if(lrWrap && current){
         lrWrap.style.display='';
-        const sel=document.getElementById('loss-reasons-period');
-        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', ()=>{renderLossReasons();renderLossReasonsTrend();renderScreeningReasons();renderScreeningReasonsTrend();renderTotalReasons();renderTotalReasonsTrend();}); }
-        renderLossReasons();
-        renderLossReasonsTrend();
-        renderScreeningReasons();
-        renderScreeningReasonsTrend();
+        const sel=document.getElementById('loss-reasons-total-period');
+        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', ()=>{renderTotalReasons();renderTotalReasonsTrend();}); }
         renderTotalReasons();
         renderTotalReasonsTrend();
       }
@@ -149,149 +145,6 @@ window.SalesLoader = (() => {
   }
 
   let _lrCurrent=null, _lrHistory=null;
-  let _lossReasonsView='bar'; // 'bar' | 'pie'
-
-  window.setLossReasonsView=function(view){
-    _lossReasonsView=view;
-    const barBtn=document.getElementById('loss-reasons-view-bar');
-    const pieBtn=document.getElementById('loss-reasons-view-pie');
-    if(barBtn&&pieBtn){
-      barBtn.style.background=view==='bar'?'var(--tx)':'#fff';
-      barBtn.style.color=view==='bar'?'#fff':'var(--tx)';
-      pieBtn.style.background=view==='pie'?'var(--tx)':'#fff';
-      pieBtn.style.color=view==='pie'?'#fff':'var(--tx)';
-    }
-    renderLossReasons();
-  };
-
-  function renderLossReasons(){
-    const sel=document.getElementById('loss-reasons-period');
-    const period=sel?sel.value:'all';
-    const note=document.getElementById('loss-reasons-note');
-
-    let whReasons, rtReasons, label;
-    if(period==='all' && _lrHistory && _lrHistory.months && _lrHistory.months.length){
-      // Сумуємо причини по всіх забекфілених місяцях
-      const sumReasons=(key)=>{
-        const merged={};
-        _lrHistory.months.forEach(m=>(m[key]||[]).forEach(r=>{merged[r.reason]=(merged[r.reason]||0)+r.count;}));
-        return Object.entries(merged).map(([reason,count])=>({reason,count})).sort((a,b)=>b.count-a.count);
-      };
-      whReasons=sumReasons('lossReasonsWholesale');
-      rtReasons=sumReasons('lossReasonsRetail');
-      const months=_lrHistory.months.map(m=>m.month).sort();
-      label=`${months[0]} → ${months[months.length-1]} (${months.length} міс.)`;
-    }else if(period==='all'){
-      // Нема історії — показуємо хоча б поточний місяць
-      whReasons=(_lrCurrent&&_lrCurrent.lossReasonsWholesale)||[];
-      rtReasons=(_lrCurrent&&_lrCurrent.lossReasonsRetail)||[];
-      label=(_lrCurrent&&_lrCurrent.month)||'—';
-    }else{
-      const m=(_lrHistory&&_lrHistory.months||[]).find(x=>x.month===period);
-      whReasons=(m&&m.lossReasonsWholesale)||[];
-      rtReasons=(m&&m.lossReasonsRetail)||[];
-      label=period+(m&&m.complete===false?' (частково, ще триває)':'');
-    }
-    if(note) note.textContent=label;
-
-    const buildChart=(canvasId, reasons, color)=>{
-      const DL=window.ChartDataLabels;
-      const total=reasons.reduce((s,r)=>s+r.count,0);
-      if(_lossReasonsView==='pie'){
-        // Палітра відтінків базового кольору групи (щоб не плутати ОПТ/Роздріб між собою)
-        const shades=reasons.map((_,i)=>{
-          const t=reasons.length>1?i/(reasons.length-1):0;
-          return shadeColor(color, .15+t*.55);
-        });
-        safeChartLoss(canvasId,{type:'pie',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
-          data:reasons.map(r=>r.count), backgroundColor:shades, borderColor:'#fff', borderWidth:2,
-        }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},boxWidth:10,padding:6}},datalabels:{color:'#fff',font:{size:10,weight:'700'},formatter:v=>total?Math.round(v/total*100)+'%':'',display:ctx=>ctx.dataset.data[ctx.dataIndex]/total>0.04}}}});
-        return;
-      }
-      safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
-        label:'Відмов', data:reasons.map(r=>r.count), backgroundColor:color+'26', borderColor:color, borderWidth:1.5, borderRadius:5,
-      }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:4,color:color,font:{size:10,weight:'700'},formatter:v=>total?`${v} (${Math.round(v/total*100)}%)`:v}},layout:{padding:{right:60}},scales:{x:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
-    };
-    buildChart('loss-reasons-wh-chart', whReasons.slice(0,10), WH);
-    buildChart('loss-reasons-rt-chart', rtReasons.slice(0,10), RT);
-  }
-
-  // ── Скринінг лідів (категорія 0 Bitrix24) — окрема воронка, окремий колір
-  // (не бренд ОПТ/Роздроб, нейтральний сірувато-синій), той самий фільтр
-  // періоду, що й вище (loss-reasons-period), свій власний перемикач бар/пиріг. ──
-  const SCREEN = '#6B7A99';
-  let _screeningReasonsView='bar';
-
-  window.setScreeningView=function(view){
-    _screeningReasonsView=view;
-    const barBtn=document.getElementById('loss-reasons-screen-view-bar');
-    const pieBtn=document.getElementById('loss-reasons-screen-view-pie');
-    if(barBtn&&pieBtn){
-      barBtn.style.background=view==='bar'?'var(--tx)':'#fff';
-      barBtn.style.color=view==='bar'?'#fff':'var(--tx)';
-      pieBtn.style.background=view==='pie'?'var(--tx)':'#fff';
-      pieBtn.style.color=view==='pie'?'#fff':'var(--tx)';
-    }
-    renderScreeningReasons();
-  };
-
-  function renderScreeningReasons(){
-    const sel=document.getElementById('loss-reasons-period');
-    const period=sel?sel.value:'all';
-
-    let reasons;
-    if(period==='all' && _lrHistory && _lrHistory.months && _lrHistory.months.length){
-      const merged={};
-      _lrHistory.months.forEach(m=>(m['lossReasonsScreening']||[]).forEach(r=>{merged[r.reason]=(merged[r.reason]||0)+r.count;}));
-      reasons=Object.entries(merged).map(([reason,count])=>({reason,count})).sort((a,b)=>b.count-a.count);
-    }else if(period==='all'){
-      reasons=(_lrCurrent&&_lrCurrent.lossReasonsScreening)||[];
-    }else{
-      const m=(_lrHistory&&_lrHistory.months||[]).find(x=>x.month===period);
-      reasons=(m&&m.lossReasonsScreening)||[];
-    }
-
-    const DL=window.ChartDataLabels;
-    const total=reasons.reduce((s,r)=>s+r.count,0);
-    const canvasId='loss-reasons-screen-chart';
-    if(_screeningReasonsView==='pie'){
-      const shades=reasons.map((_,i)=>{
-        const t=reasons.length>1?i/(reasons.length-1):0;
-        return shadeColor(SCREEN, .15+t*.55);
-      });
-      safeChartLoss(canvasId,{type:'pie',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
-        data:reasons.map(r=>r.count), backgroundColor:shades, borderColor:'#fff', borderWidth:2,
-      }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},boxWidth:10,padding:6}},datalabels:{color:'#fff',font:{size:10,weight:'700'},formatter:v=>total?Math.round(v/total*100)+'%':'',display:ctx=>ctx.dataset.data[ctx.dataIndex]/total>0.04}}}});
-      return;
-    }
-    safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:reasons.slice(0,10).map(r=>r.reason),datasets:[{
-      label:'Відсіяно', data:reasons.slice(0,10).map(r=>r.count), backgroundColor:SCREEN+'26', borderColor:SCREEN, borderWidth:1.5, borderRadius:5,
-    }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:4,color:SCREEN,font:{size:10,weight:'700'},formatter:v=>total?`${v} (${Math.round(v/total*100)}%)`:v}},layout:{padding:{right:60}},scales:{x:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
-  }
-
-  function renderScreeningReasonsTrend(){
-    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
-    const canvas=document.getElementById('loss-reasons-screen-trend-chart');
-    if(!canvas || months.length<2) return;
-    const sel=document.getElementById('loss-reasons-period');
-    const selected=sel?sel.value:'all';
-    const labels=months.map(m=>m.month);
-    const palette=[SCREEN,WH,RT,G,A,R,GD,'#8B5CF6','#EC4899','#14B8A6'];
-
-    const totals={};
-    months.forEach(m=>(m['lossReasonsScreening']||[]).forEach(r=>{totals[r.reason]=(totals[r.reason]||0)+r.count;}));
-    const topReasons=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
-    const datasets=topReasons.map((reason,i)=>{
-      const data=months.map(m=>{
-        const r=(m['lossReasonsScreening']||[]).find(x=>x.reason===reason);
-        return r?r.count:0;
-      });
-      const pointRadius=months.map(m=>m.month===selected?7:3);
-      const color=palette[i%palette.length];
-      return {label:reason, data, borderColor:color, backgroundColor:color+'22', borderWidth:2, tension:.3, pointRadius, pointBackgroundColor:color, fill:false};
-    });
-    safeChartLoss('loss-reasons-screen-trend-chart',{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
-  }
 
   // ── Всього (компанія) — сума 24+18+32+0 разом. Безпечно сумувати причини
   // відмов (не гроші!) — вже порахована на сервері як lossReasonsTotal,
@@ -314,20 +167,26 @@ window.SalesLoader = (() => {
   };
 
   function renderTotalReasons(){
-    const sel=document.getElementById('loss-reasons-period');
+    const sel=document.getElementById('loss-reasons-total-period');
     const period=sel?sel.value:'all';
+    const note=document.getElementById('loss-reasons-total-note');
 
-    let reasons;
+    let reasons, label;
     if(period==='all' && _lrHistory && _lrHistory.months && _lrHistory.months.length){
       const merged={};
       _lrHistory.months.forEach(m=>(m['lossReasonsTotal']||[]).forEach(r=>{merged[r.reason]=(merged[r.reason]||0)+r.count;}));
       reasons=Object.entries(merged).map(([reason,count])=>({reason,count})).sort((a,b)=>b.count-a.count);
+      const months=_lrHistory.months.map(m=>m.month).sort();
+      label=`${months[0]} → ${months[months.length-1]} (${months.length} міс.)`;
     }else if(period==='all'){
       reasons=(_lrCurrent&&_lrCurrent.lossReasonsTotal)||[];
+      label=(_lrCurrent&&_lrCurrent.month)||'—';
     }else{
       const m=(_lrHistory&&_lrHistory.months||[]).find(x=>x.month===period);
       reasons=(m&&m.lossReasonsTotal)||[];
+      label=period+(m&&m.complete===false?' (частково, ще триває)':'');
     }
+    if(note) note.textContent=label;
 
     const DL=window.ChartDataLabels;
     const total=reasons.reduce((s,r)=>s+r.count,0);
@@ -351,10 +210,10 @@ window.SalesLoader = (() => {
     const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
     const canvas=document.getElementById('loss-reasons-total-trend-chart');
     if(!canvas || months.length<2) return;
-    const sel=document.getElementById('loss-reasons-period');
+    const sel=document.getElementById('loss-reasons-total-period');
     const selected=sel?sel.value:'all';
     const labels=months.map(m=>m.month);
-    const palette=[TOTAL_CLR,SCREEN,WH,RT,G,A,R,GD,'#8B5CF6','#EC4899'];
+    const palette=[TOTAL_CLR,WH,RT,G,A,R,GD,'#8B5CF6','#EC4899','#14B8A6'];
 
     const totals={};
     months.forEach(m=>(m['lossReasonsTotal']||[]).forEach(r=>{totals[r.reason]=(totals[r.reason]||0)+r.count;}));
@@ -456,39 +315,6 @@ window.SalesLoader = (() => {
     };
     buildTrend('tiers-wh-trend-chart','wholesale');
     buildTrend('tiers-rt-trend-chart','retail');
-  }
-
-  // ── Динаміка причин відмов по місяцях — та сама логіка "завжди весь рік,
-  // фільтр лише підсвічує точку". ТОП-8 причин за групою (щоб лінії не
-  // захаращували графік, якщо причин багато — як в ОПТ, де їх 8) ──
-  function renderLossReasonsTrend(){
-    const wrap=document.getElementById('loss-reasons-trend-wrap');
-    if(!wrap) return;
-    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
-    if(months.length<2){ wrap.style.display='none'; return; }
-    wrap.style.display='';
-    const sel=document.getElementById('loss-reasons-period');
-    const selected=sel?sel.value:'all';
-    const labels=months.map(m=>m.month);
-    const palette=[WH,RT,G,A,R,GD,'#8B5CF6','#EC4899','#14B8A6','#F59E0B'];
-
-    const buildTrend=(canvasId, groupKey)=>{
-      const totals={};
-      months.forEach(m=>(m[groupKey]||[]).forEach(r=>{totals[r.reason]=(totals[r.reason]||0)+r.count;}));
-      const topReasons=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
-      const datasets=topReasons.map((reason,i)=>{
-        const data=months.map(m=>{
-          const r=(m[groupKey]||[]).find(x=>x.reason===reason);
-          return r?r.count:0;
-        });
-        const pointRadius=months.map(m=>m.month===selected?7:3);
-        const color=palette[i%palette.length];
-        return {label:reason, data, borderColor:color, backgroundColor:color+'22', borderWidth:2, tension:.3, pointRadius, pointBackgroundColor:color, fill:false};
-      });
-      safeChartLoss(canvasId,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
-    };
-    buildTrend('loss-reasons-wh-trend-chart','lossReasonsWholesale');
-    buildTrend('loss-reasons-rt-trend-chart','lossReasonsRetail');
   }
 
   // ── 2. Комбінований графік ОПТ + Роздріб ──────────────────────────────────
