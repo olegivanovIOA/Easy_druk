@@ -303,6 +303,22 @@ def process_month(month_start, month_end, month_key, complete):
         out.sort(key=lambda x: -x["count"])
         return out
 
+    def merge_reasons_all():
+        """Причини відмов з УСІХ воронок разом (24+18+32+0) — безпечно
+        сумувати, на відміну від виручки: відхилений лід за визначенням
+        ніколи не став угодою деінде, подвійного рахунку тут немає (на
+        відміну від WON у категорії 0, яку свідомо НЕ додаємо до виручки —
+        підтверджено користувачем 24.08.2026: WON-угоди категорії 0
+        переїжджають у 24/18/32 для виконання, тому рахувати виручку звідти
+        було б задвоєнням)."""
+        merged = {}
+        for c in loss_reasons_by_cat.values():
+            for r in c["reasons"]:
+                merged[r["reason"]] = merged.get(r["reason"], 0) + r["count"]
+        out = [{"reason": r, "count": c} for r, c in merged.items()]
+        out.sort(key=lambda x: -x["count"])
+        return out
+
     return {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "month": month_key,
@@ -315,6 +331,7 @@ def process_month(month_start, month_end, month_key, complete):
         "lossReasonsWholesale": merge_reasons("wholesale"),
         "lossReasonsRetail": merge_reasons("retail"),
         "lossReasonsScreening": merge_reasons("screening"),
+        "lossReasonsTotal": merge_reasons_all(),
         "lossReasonsByCategory": loss_reasons_by_cat,
     }
 

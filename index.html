@@ -959,6 +959,31 @@ a{color:var(--gd);text-decoration:none}
         </div>
       </div>
     </div>
+
+    <!-- ═══ Всього (компанія) — сума 24+18+32+0, для звірки з ручним підрахунком.
+         Безпечно сумувати причини відмов (не гроші!) — відхилений лід ніколи
+         не стає угодою деінде, подвійного рахунку немає. ═══ -->
+    <div style="font-size:9px;color:var(--tl);margin:16px 0 6px;padding-top:12px;border-top:2px solid #334155">
+      ⓘ <b>Всього по компанії</b> — сума причин відмов з усіх 4 воронок разом (ОПТ+Роздроб+Скринінг). Саме ці цифри мають збігатись зі зведеним ручним підрахунком. Гроші так НЕ підсумовуються — WON з категорії 0 переїжджає в 24/18/32 і рахувалась би двічі, тому виручка/середній чек лишаються тільки по 24/18/32.
+    </div>
+    <div id="w-sales-loss-reasons-total">
+      <div class="g2">
+        <div class="card" style="border-color:#334155;border-width:1.5px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            <div style="font-size:12px;font-weight:700;color:#1F2937">Всього (компанія) — причини відмов</div>
+            <div style="display:flex;border:1px solid var(--bd);border-radius:6px;overflow:hidden">
+              <button id="loss-reasons-total-view-bar" onclick="setTotalReasonsView('bar')" style="font-size:10px;padding:3px 8px;border:none;background:var(--tx);color:#fff;cursor:pointer">▬ Бар</button>
+              <button id="loss-reasons-total-view-pie" onclick="setTotalReasonsView('pie')" style="font-size:10px;padding:3px 8px;border:none;background:#fff;color:var(--tx);cursor:pointer">◕ Пиріг</button>
+            </div>
+          </div>
+          <div class="cw ch240"><canvas id="loss-reasons-total-chart"></canvas></div>
+        </div>
+        <div class="card" style="border-color:#334155;border-width:1.5px">
+          <div style="font-size:12px;font-weight:700;color:#1F2937;margin-bottom:10px">Всього (компанія) — динаміка по місяцях</div>
+          <div class="cw ch240"><canvas id="loss-reasons-total-trend-chart"></canvas></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3165,6 +3190,6 @@ window.LocLoader = (() => {
 <script src="js/hr_loader.js?v=20260814"></script>
 <script src="js/ads_loader.js?v=20260814"></script>
 <script src="js/mql_loader.js?v=20260814"></script>
-<script src="js/sales_loader.js?v=20260824"></script>
+<script src="js/sales_loader.js?v=20260824b"></script>
 </body>
 </html>
