@@ -46,6 +46,31 @@ CATEGORIES = {
     32: ("ОТДЕЛ ПРОДАЖ МАГАЗИН", "retail"),
 }
 
+# Категорія 0 "ЛИДЫ" — дефолтна воронка Bitrix24 (первинний скринінг:
+# спам/дублі/недодзвони, ДО того як звернення взагалі стає угодою в 24/18/32).
+# Знайдено 24.08.2026: основний обсяг відмов (сотні на місяць — "Не берет/не
+# отвечает", "СПАМ/МУСОР", "ДУБЛЬ" тощо) осідав саме тут і повністю випадав
+# з дашборду, бо цю категорію ніколи не запитували.
+# НЕ рахуємо сюди виручку/WON — незрозуміло, чи угода, що пройшла скринінг,
+# рахується вдруге, коли потрапляє в 24/18/32 (ризик задвоєння), тому ця
+# категорія йде ОКРЕМОЮ групою "screening": тільки причини відмов, без
+# виручки/середнього чека/тірів.
+SCREENING_CATEGORIES = {
+    0: ("ЛИДЫ (первинний скринінг)", "screening"),
+}
+
+# Категорія 0 (дефолтна) використовує ГОЛІ коди стадій без префіксу "C{id}:"
+# (напр. просто "WON"/"LOSE"/"16", а не "C24:WON") — і поле стадій у
+# crm.status.list називається "DEAL_STAGE", без числового суфіксу.
+# Усі інші (24/18/32 тощо) — "C{category}:{code}" і "DEAL_STAGE_{category}".
+def _stage_entity_id(category_id):
+    return "DEAL_STAGE" if category_id == 0 else f"DEAL_STAGE_{category_id}"
+
+
+def _stage_filter_value(category_id, code):
+    return code if category_id == 0 else f"C{category_id}:{code}"
+
+
 PAGE_SIZE = 50  # фіксовано стороною Bitrix24, не параметризується
 
 
@@ -64,7 +89,7 @@ def fetch_won_deals(category_id, date_from, date_to):
     start = 0
     while True:
         params = {
-            "filter[STAGE_ID]": f"C{category_id}:WON",
+            "filter[STAGE_ID]": _stage_filter_value(category_id, "WON"),
             "filter[>=CLOSEDATE]": date_from.isoformat(),
             "filter[<=CLOSEDATE]": date_to.isoformat(),
             "select[]": ["ID", "TITLE", "OPPORTUNITY", "CURRENCY_ID", "CLOSEDATE"],
@@ -127,10 +152,12 @@ def rollup_deals(deals):
 
 def fetch_stage_list(category_id):
     """Стадії воронки з семантикою (S=успіх, F=провал, process=у роботі).
-    Динамічно, не хардкодимо — стадії можуть змінюватись у Bitrix24."""
+    Динамічно, не хардкодимо — стадії можуть змінюватись у Bitrix24.
+    Категорія 0 (дефолтна) — поле називається просто "DEAL_STAGE", без
+    суфікса; усі інші — "DEAL_STAGE_{id}"."""
     r = requests.get(
         WEBHOOK_URL + "crm.status.list",
-        params={"filter[ENTITY_ID]": f"DEAL_STAGE_{category_id}"},
+        params={"filter[ENTITY_ID]": _stage_entity_id(category_id)},
         timeout=30,
     )
     r.raise_for_status()
@@ -251,9 +278,11 @@ def process_month(month_start, month_end, month_key, complete):
     # ── Причини відмов — окремий прохід по ВСІХ угодах місяця (не тільки
     # WON), бо треба бачити й LOSE/APOLOGY-стадії. Може зайняти помітно
     # більше запитів, ніж WON-угоди, оскільки провалених/у роботі угод
-    # зазвичай більше, ніж успішних. ──
+    # зазвичай більше, ніж успішних. Включає й категорію 0 "ЛИДЫ"
+    # (первинний скринінг) — саме там основний обсяг відмов, вона НЕ бере
+    # участі в розрахунку виручки/тірів вище. ──
     loss_reasons_by_cat = {}
-    for cat_id, (label, group) in CATEGORIES.items():
+    for cat_id, (label, group) in {**CATEGORIES, **SCREENING_CATEGORIES}.items():
         print(f"[CRM] Причини відмов, воронка {cat_id} ({label})…")
         stage_list = fetch_stage_list(cat_id)
         time.sleep(0.3)
@@ -285,6 +314,7 @@ def process_month(month_start, month_end, month_key, complete):
         "byCategory": {k: {kk: vv for kk, vv in v.items() if kk != "_amounts"} for k, v in by_category.items()},
         "lossReasonsWholesale": merge_reasons("wholesale"),
         "lossReasonsRetail": merge_reasons("retail"),
+        "lossReasonsScreening": merge_reasons("screening"),
         "lossReasonsByCategory": loss_reasons_by_cat,
     }
 

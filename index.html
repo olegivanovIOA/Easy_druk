@@ -935,6 +935,30 @@ a{color:var(--gd);text-decoration:none}
         <div class="cw ch240"><canvas id="loss-reasons-rt-trend-chart"></canvas></div>
       </div>
     </div>
+
+    <!-- ═══ Скринінг лідів (категорія 0 Bitrix24) — окрема воронка ДО угоди,
+         НЕ впливає на виручку/тіри ОПТ/Роздрoб вище ═══ -->
+    <div style="font-size:9px;color:var(--tl);margin:16px 0 6px;padding-top:12px;border-top:1px dashed var(--bd)">
+      ⓘ Нижче — окрема воронка Bitrix24 «ЛИДЫ» (первинний скринінг: спам/дублі/недодзвони), яка відсіює звернення <b>ДО</b> того, як вони стають угодою ОПТ/Роздроб. Основний обсяг відмов компанії — саме тут, а не вище. НЕ входить у виручку/середній чек/тіри — тільки причини відсіву.
+    </div>
+    <div id="w-sales-loss-reasons-screening">
+      <div class="g2">
+        <div class="card" style="border-color:#c7ccd6">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            <div style="font-size:12px;font-weight:700;color:#4b5568">Скринінг лідів — причини відсіву</div>
+            <div style="display:flex;border:1px solid var(--bd);border-radius:6px;overflow:hidden">
+              <button id="loss-reasons-screen-view-bar" onclick="setScreeningView('bar')" style="font-size:10px;padding:3px 8px;border:none;background:var(--tx);color:#fff;cursor:pointer">▬ Бар</button>
+              <button id="loss-reasons-screen-view-pie" onclick="setScreeningView('pie')" style="font-size:10px;padding:3px 8px;border:none;background:#fff;color:var(--tx);cursor:pointer">◕ Пиріг</button>
+            </div>
+          </div>
+          <div class="cw ch240"><canvas id="loss-reasons-screen-chart"></canvas></div>
+        </div>
+        <div class="card" style="border-color:#c7ccd6">
+          <div style="font-size:12px;font-weight:700;color:#4b5568;margin-bottom:10px">Скринінг лідів — динаміка по місяцях</div>
+          <div class="cw ch240"><canvas id="loss-reasons-screen-trend-chart"></canvas></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3141,6 +3165,6 @@ window.LocLoader = (() => {
 <script src="js/hr_loader.js?v=20260814"></script>
 <script src="js/ads_loader.js?v=20260814"></script>
 <script src="js/mql_loader.js?v=20260814"></script>
-<script src="js/sales_loader.js?v=20260819"></script>
+<script src="js/sales_loader.js?v=20260824"></script>
 </body>
 </html>
