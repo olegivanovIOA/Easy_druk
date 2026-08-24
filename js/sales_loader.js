@@ -130,11 +130,13 @@ window.SalesLoader = (() => {
       if(lrWrap && current){
         lrWrap.style.display='';
         const sel=document.getElementById('loss-reasons-period');
-        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', ()=>{renderLossReasons();renderLossReasonsTrend();renderScreeningReasons();renderScreeningReasonsTrend();}); }
+        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', ()=>{renderLossReasons();renderLossReasonsTrend();renderScreeningReasons();renderScreeningReasonsTrend();renderTotalReasons();renderTotalReasonsTrend();}); }
         renderLossReasons();
         renderLossReasonsTrend();
         renderScreeningReasons();
         renderScreeningReasonsTrend();
+        renderTotalReasons();
+        renderTotalReasonsTrend();
       }
       if(tiersWrap && current){
         tiersWrap.style.display='';
@@ -290,6 +292,85 @@ window.SalesLoader = (() => {
     });
     safeChartLoss('loss-reasons-screen-trend-chart',{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
   }
+
+  // ── Всього (компанія) — сума 24+18+32+0 разом. Безпечно сумувати причини
+  // відмов (не гроші!) — вже порахована на сервері як lossReasonsTotal,
+  // тут просто рендеримо. Темний нейтральний колір — виділяє це як
+  // ЗВЕДЕНИЙ підсумок, не ще одну "групу" поряд з ОПТ/Роздроб/Скринінг. ──
+  const TOTAL_CLR = '#334155';
+  let _totalReasonsView='bar';
+
+  window.setTotalReasonsView=function(view){
+    _totalReasonsView=view;
+    const barBtn=document.getElementById('loss-reasons-total-view-bar');
+    const pieBtn=document.getElementById('loss-reasons-total-view-pie');
+    if(barBtn&&pieBtn){
+      barBtn.style.background=view==='bar'?'var(--tx)':'#fff';
+      barBtn.style.color=view==='bar'?'#fff':'var(--tx)';
+      pieBtn.style.background=view==='pie'?'var(--tx)':'#fff';
+      pieBtn.style.color=view==='pie'?'#fff':'var(--tx)';
+    }
+    renderTotalReasons();
+  };
+
+  function renderTotalReasons(){
+    const sel=document.getElementById('loss-reasons-period');
+    const period=sel?sel.value:'all';
+
+    let reasons;
+    if(period==='all' && _lrHistory && _lrHistory.months && _lrHistory.months.length){
+      const merged={};
+      _lrHistory.months.forEach(m=>(m['lossReasonsTotal']||[]).forEach(r=>{merged[r.reason]=(merged[r.reason]||0)+r.count;}));
+      reasons=Object.entries(merged).map(([reason,count])=>({reason,count})).sort((a,b)=>b.count-a.count);
+    }else if(period==='all'){
+      reasons=(_lrCurrent&&_lrCurrent.lossReasonsTotal)||[];
+    }else{
+      const m=(_lrHistory&&_lrHistory.months||[]).find(x=>x.month===period);
+      reasons=(m&&m.lossReasonsTotal)||[];
+    }
+
+    const DL=window.ChartDataLabels;
+    const total=reasons.reduce((s,r)=>s+r.count,0);
+    const canvasId='loss-reasons-total-chart';
+    if(_totalReasonsView==='pie'){
+      const shades=reasons.map((_,i)=>{
+        const t=reasons.length>1?i/(reasons.length-1):0;
+        return shadeColor(TOTAL_CLR, .15+t*.55);
+      });
+      safeChartLoss(canvasId,{type:'pie',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
+        data:reasons.map(r=>r.count), backgroundColor:shades, borderColor:'#fff', borderWidth:2,
+      }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},boxWidth:10,padding:6}},datalabels:{color:'#fff',font:{size:10,weight:'700'},formatter:v=>total?Math.round(v/total*100)+'%':'',display:ctx=>ctx.dataset.data[ctx.dataIndex]/total>0.04}}}});
+      return;
+    }
+    safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:reasons.slice(0,10).map(r=>r.reason),datasets:[{
+      label:'Відмов', data:reasons.slice(0,10).map(r=>r.count), backgroundColor:TOTAL_CLR+'26', borderColor:TOTAL_CLR, borderWidth:1.5, borderRadius:5,
+    }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:4,color:TOTAL_CLR,font:{size:10,weight:'700'},formatter:v=>total?`${v} (${Math.round(v/total*100)}%)`:v}},layout:{padding:{right:60}},scales:{x:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  }
+
+  function renderTotalReasonsTrend(){
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+    const canvas=document.getElementById('loss-reasons-total-trend-chart');
+    if(!canvas || months.length<2) return;
+    const sel=document.getElementById('loss-reasons-period');
+    const selected=sel?sel.value:'all';
+    const labels=months.map(m=>m.month);
+    const palette=[TOTAL_CLR,SCREEN,WH,RT,G,A,R,GD,'#8B5CF6','#EC4899'];
+
+    const totals={};
+    months.forEach(m=>(m['lossReasonsTotal']||[]).forEach(r=>{totals[r.reason]=(totals[r.reason]||0)+r.count;}));
+    const topReasons=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
+    const datasets=topReasons.map((reason,i)=>{
+      const data=months.map(m=>{
+        const r=(m['lossReasonsTotal']||[]).find(x=>x.reason===reason);
+        return r?r.count:0;
+      });
+      const pointRadius=months.map(m=>m.month===selected?7:3);
+      const color=palette[i%palette.length];
+      return {label:reason, data, borderColor:color, backgroundColor:color+'22', borderWidth:2, tension:.3, pointRadius, pointBackgroundColor:color, fill:false};
+    });
+    safeChartLoss('loss-reasons-total-trend-chart',{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+  }
+
 
   const TIER_LABELS=['Дрібні (<10К)','Середні (10К–100К)','Мега-опт (>100К)'];
   const TIER_KEYS=['small','medium','mega'];
