@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-25T11:21:21Z",
+  "fetched_at": "2026-08-25T11:57:05Z",
   "month": "2026-08",
   "from": "2026-08-01",
   "to": "2026-08-25",
@@ -28,6 +28,53 @@
         "deals": 11,
         "revenue": 39932440.26
       }
+    ],
+    "histogram": [
+      {
+        "bucket": "b1",
+        "label": "<1К",
+        "deals": 6
+      },
+      {
+        "bucket": "b2",
+        "label": "1К–2К",
+        "deals": 54
+      },
+      {
+        "bucket": "b3",
+        "label": "2К–5К",
+        "deals": 31
+      },
+      {
+        "bucket": "b4",
+        "label": "5К–10К",
+        "deals": 8
+      },
+      {
+        "bucket": "b5",
+        "label": "10К–25К",
+        "deals": 8
+      },
+      {
+        "bucket": "b6",
+        "label": "25К–50К",
+        "deals": 7
+      },
+      {
+        "bucket": "b7",
+        "label": "50К–100К",
+        "deals": 6
+      },
+      {
+        "bucket": "b8",
+        "label": "100К–300К",
+        "deals": 4
+      },
+      {
+        "bucket": "b9",
+        "label": ">300К",
+        "deals": 7
+      }
     ]
   },
   "retail": {
@@ -53,6 +100,53 @@
         "label": "Мега-опт (>100К)",
         "deals": 0,
         "revenue": 0.0
+      }
+    ],
+    "histogram": [
+      {
+        "bucket": "b1",
+        "label": "<1К",
+        "deals": 2
+      },
+      {
+        "bucket": "b2",
+        "label": "1К–2К",
+        "deals": 0
+      },
+      {
+        "bucket": "b3",
+        "label": "2К–5К",
+        "deals": 0
+      },
+      {
+        "bucket": "b4",
+        "label": "5К–10К",
+        "deals": 0
+      },
+      {
+        "bucket": "b5",
+        "label": "10К–25К",
+        "deals": 0
+      },
+      {
+        "bucket": "b6",
+        "label": "25К–50К",
+        "deals": 0
+      },
+      {
+        "bucket": "b7",
+        "label": "50К–100К",
+        "deals": 0
+      },
+      {
+        "bucket": "b8",
+        "label": "100К–300К",
+        "deals": 0
+      },
+      {
+        "bucket": "b9",
+        "label": ">300К",
+        "deals": 0
       }
     ]
   },
@@ -128,7 +222,7 @@
   "lossReasonsWholesale": [
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 193
+      "count": 196
     },
     {
       "reason": "ДОРОГО",
@@ -159,11 +253,11 @@
   "lossReasonsScreening": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 295
+      "count": 296
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 152
+      "count": 153
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -171,11 +265,11 @@
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 98
+      "count": 99
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 80
+      "count": 81
     },
     {
       "reason": "Некорректные контакты для связи",
@@ -189,15 +283,15 @@
   "lossReasonsTotal": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 295
+      "count": 296
     },
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 193
+      "count": 196
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 152
+      "count": 153
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -209,11 +303,11 @@
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 100
+      "count": 101
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 80
+      "count": 81
     },
     {
       "reason": "НЕ актуально",
@@ -247,7 +341,7 @@
       "reasons": [
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 193
+          "count": 196
         },
         {
           "reason": "ДОРОГО",
@@ -274,19 +368,22 @@
           "count": 2
         }
       ],
-      "totalLost": 459
+      "totalLost": 462,
+      "totalReviewed": 678
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
       "group": "retail",
       "reasons": [],
-      "totalLost": 0
+      "totalLost": 0,
+      "totalReviewed": 2
     },
     "32": {
       "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
       "group": "retail",
       "reasons": [],
-      "totalLost": 0
+      "totalLost": 0,
+      "totalReviewed": 0
     },
     "0": {
       "label": "ЛИДЫ (первинний скринінг)",
@@ -294,11 +391,11 @@
       "reasons": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 295
+          "count": 296
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 152
+          "count": 153
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -306,11 +403,11 @@
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 98
+          "count": 99
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 80
+          "count": 81
         },
         {
           "reason": "Некорректные контакты для связи",
@@ -321,7 +418,14 @@
           "count": 13
         }
       ],
-      "totalLost": 817
+      "totalLost": 821,
+      "totalReviewed": 827
     }
+  },
+  "totalReviewed": {
+    "wholesale": 678,
+    "retail": 2,
+    "screening": 827,
+    "all": 1507
   }
 }
