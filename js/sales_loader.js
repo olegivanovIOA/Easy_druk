@@ -141,10 +141,62 @@ window.SalesLoader = (() => {
         renderTiers();
         renderTiersTrend();
       }
+
+      // #9 гістограма + #6 конверсія — з'являються тільки якщо бекенд уже
+      // віддає нові поля histogram/totalReviewed (після перезаливки
+      // fetch_crm_deals.py і повторного прогону — старі знімки їх не мають)
+      const histWrap=document.getElementById('w-sales-histogram-funnel');
+      if(histWrap && current && current.wholesale && current.wholesale.histogram){
+        histWrap.style.display='';
+        renderHistogram();
+      }
+      if(histWrap && hist && hist.months && hist.months.some(m=>m.totalReviewed)){
+        histWrap.style.display='';
+        renderConversionTrend();
+      }
     }catch(e){console.warn('[Loss reasons / Tiers]',e.message);}
   }
 
   let _lrCurrent=null, _lrHistory=null;
+
+  // ── #9 Розподіл сум угод (гістограма, 9 бакетів) — поточний місяць ──
+  function renderHistogram(){
+    const buildChart=(canvasId, histData, color)=>{
+      if(!histData || !histData.length) return;
+      safeChartLoss(canvasId,{type:'bar',data:{labels:histData.map(h=>h.label),datasets:[
+        {label:'Угод', data:histData.map(h=>h.deals), backgroundColor:color+'33', borderColor:color, borderWidth:1.5, borderRadius:4},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{display:false},ticks:{font:{size:8}}}}}});
+    };
+    buildChart('hist-wh-chart', _lrCurrent?.wholesale?.histogram, WH);
+    buildChart('hist-rt-chart', _lrCurrent?.retail?.histogram, RT);
+  }
+
+  // ── #6 Конверсія в угоду по місяцях — WON / totalReviewed × 100, окремо
+  // по ОПТ/Роздроб/Скринінгу. Потребує wholesale.deals (вже є) і
+  // totalReviewed.* (нове поле, з'явиться після бекфілу). ──
+  function renderConversionTrend(){
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month)).filter(m=>m.totalReviewed);
+    if(months.length<2) return;
+    const labels=months.map(m=>m.month);
+
+    const buildChart=(canvasId, wonKey, reviewedKey, color)=>{
+      const data=months.map(m=>{
+        const reviewed=m.totalReviewed?.[reviewedKey];
+        const won=wonKey==='screening' ? null : m[wonKey]?.deals; // скринінг не рахує WON як виручку — рахуємо частку "не відмова" замість
+        if(wonKey==='screening'){
+          const lost=(m.lossReasonsScreening||[]).reduce((s,r)=>s+r.count,0);
+          return reviewed ? Math.round((1-lost/reviewed)*1000)/10 : null;
+        }
+        return (reviewed && won!=null) ? Math.round(won/reviewed*1000)/10 : null;
+      });
+      safeChartLoss(canvasId,{type:'line',data:{labels,datasets:[
+        {label:'% конверсії',data,borderColor:color,backgroundColor:color+'22',borderWidth:2.5,tension:.3,fill:true,pointRadius:4,pointBackgroundColor:color,spanGaps:true},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>ctx.parsed.y+'%'}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+    };
+    buildChart('conv-wh-chart', 'wholesale', 'wholesale', WH);
+    buildChart('conv-rt-chart', 'retail', 'retail', RT);
+    buildChart('conv-screen-chart', 'screening', 'screening', '#6B7A99');
+  }
 
   // ── Всього (компанія) — сума 24+18+32+0 разом. Безпечно сумувати причини
   // відмов (не гроші!) — вже порахована на сервері як lossReasonsTotal,
