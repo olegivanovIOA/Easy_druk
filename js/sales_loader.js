@@ -167,11 +167,13 @@ window.SalesLoader = (() => {
 
   // ── #9 Розподіл сум угод (гістограма, 9 бакетів) — поточний місяць ──
   function renderHistogram(){
+    const DL=window.ChartDataLabels;
     const buildChart=(canvasId, histData, color)=>{
       if(!histData || !histData.length) return;
-      safeChartLoss(canvasId,{type:'bar',data:{labels:histData.map(h=>h.label),datasets:[
+      const total=histData.reduce((s,h)=>s+h.deals,0);
+      safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:histData.map(h=>h.label),datasets:[
         {label:'Угод', data:histData.map(h=>h.deals), backgroundColor:color+'33', borderColor:color, borderWidth:1.5, borderRadius:4},
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{display:false},ticks:{font:{size:8}}}}}});
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:2,font:{size:9,weight:'700'},color:color,formatter:v=>v?`${v} (${Math.round(v/total*100)}%)`:''}},layout:{padding:{top:16}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{display:false},ticks:{font:{size:8}}}}}});
     };
     buildChart('hist-wh-chart', _lrCurrent?.wholesale?.histogram, WH);
     buildChart('hist-rt-chart', _lrCurrent?.retail?.histogram, RT);
