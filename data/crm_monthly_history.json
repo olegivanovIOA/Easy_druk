@@ -1,7 +1,7 @@
 {
   "months": [
     {
-      "fetched_at": "2026-08-24T15:55:29Z",
+      "fetched_at": "2026-08-25T11:59:06Z",
       "month": "2026-01",
       "from": "2026-01-01",
       "to": "2026-01-31",
@@ -30,6 +30,53 @@
             "deals": 3,
             "revenue": 574327.0
           }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 18
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 61
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 49
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 21
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 12
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 5
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 2
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 3
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
+          }
         ]
       },
       "retail": {
@@ -55,6 +102,53 @@
             "label": "Мега-опт (>100К)",
             "deals": 0,
             "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 1
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 3
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 0
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 1
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 1
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
           }
         ]
       },
@@ -320,7 +414,8 @@
               "count": 2
             }
           ],
-          "totalLost": 632
+          "totalLost": 632,
+          "totalReviewed": 805
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -335,13 +430,15 @@
               "count": 1
             }
           ],
-          "totalLost": 3
+          "totalLost": 3,
+          "totalReviewed": 9
         },
         "32": {
           "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 0
         },
         "0": {
           "label": "ЛИДЫ (первинний скринінг)",
@@ -376,12 +473,19 @@
               "count": 11
             }
           ],
-          "totalLost": 964
+          "totalLost": 964,
+          "totalReviewed": 964
         }
+      },
+      "totalReviewed": {
+        "wholesale": 805,
+        "retail": 9,
+        "screening": 964,
+        "all": 1778
       }
     },
     {
-      "fetched_at": "2026-08-24T15:56:22Z",
+      "fetched_at": "2026-08-25T11:59:52Z",
       "month": "2026-02",
       "from": "2026-02-01",
       "to": "2026-02-28",
@@ -410,6 +514,53 @@
             "deals": 8,
             "revenue": 26398279.63
           }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 30
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 76
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 72
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 20
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 15
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 8
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 4
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 3
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 5
+          }
         ]
       },
       "retail": {
@@ -435,6 +586,53 @@
             "label": "Мега-опт (>100К)",
             "deals": 0,
             "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 3
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 4
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 0
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 0
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 0
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
           }
         ]
       },
@@ -692,7 +890,8 @@
               "count": 2
             }
           ],
-          "totalLost": 753
+          "totalLost": 753,
+          "totalReviewed": 987
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -703,13 +902,15 @@
               "count": 2
             }
           ],
-          "totalLost": 2
+          "totalLost": 2,
+          "totalReviewed": 11
         },
         "32": {
           "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 0
         },
         "0": {
           "label": "ЛИДЫ (первинний скринінг)",
@@ -744,12 +945,19 @@
               "count": 29
             }
           ],
-          "totalLost": 991
+          "totalLost": 991,
+          "totalReviewed": 991
         }
+      },
+      "totalReviewed": {
+        "wholesale": 987,
+        "retail": 11,
+        "screening": 991,
+        "all": 1989
       }
     },
     {
-      "fetched_at": "2026-08-24T15:42:02Z",
+      "fetched_at": "2026-08-25T12:00:46Z",
       "month": "2026-03",
       "from": "2026-03-01",
       "to": "2026-03-31",
@@ -778,6 +986,53 @@
             "deals": 9,
             "revenue": 25621382.16
           }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 15
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 93
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 58
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 16
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 17
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 9
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 3
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 4
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 5
+          }
         ]
       },
       "retail": {
@@ -803,6 +1058,53 @@
             "label": "Мега-опт (>100К)",
             "deals": 0,
             "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 4
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 3
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 2
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 0
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 0
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
           }
         ]
       },
@@ -951,6 +1253,60 @@
           "count": 26
         }
       ],
+      "lossReasonsTotal": [
+        {
+          "reason": "Не берет / не отвечает (более 3 попыток)",
+          "count": 341
+        },
+        {
+          "reason": "ДУБЛЬ",
+          "count": 325
+        },
+        {
+          "reason": "НЕ можем реализовать запрос",
+          "count": 248
+        },
+        {
+          "reason": "Уже НЕ актуально (не озвучил запрос)",
+          "count": 241
+        },
+        {
+          "reason": "ОШИБСЯ (запрос не по теме)",
+          "count": 204
+        },
+        {
+          "reason": "ДОРОГО",
+          "count": 177
+        },
+        {
+          "reason": "СПАМ / МУСОР",
+          "count": 166
+        },
+        {
+          "reason": "НЕ актуально",
+          "count": 142
+        },
+        {
+          "reason": "НЕ отвечает (более 3-х попыток)",
+          "count": 141
+        },
+        {
+          "reason": "Некорректные контакты для связи",
+          "count": 52
+        },
+        {
+          "reason": "Ищет в своем ГОРОДЕ",
+          "count": 50
+        },
+        {
+          "reason": "ТЕСТОВЫЙ звонок",
+          "count": 26
+        },
+        {
+          "reason": "НЕ устраивают сроки",
+          "count": 15
+        }
+      ],
       "lossReasonsByCategory": {
         "24": {
           "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
@@ -985,19 +1341,22 @@
               "count": 6
             }
           ],
-          "totalLost": 779
+          "totalLost": 779,
+          "totalReviewed": 1006
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 9
         },
         "32": {
           "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 0
         },
         "0": {
           "label": "ЛИДЫ (первинний скринінг)",
@@ -1032,12 +1391,19 @@
               "count": 26
             }
           ],
-          "totalLost": 1349
+          "totalLost": 1349,
+          "totalReviewed": 1349
         }
+      },
+      "totalReviewed": {
+        "wholesale": 1006,
+        "retail": 9,
+        "screening": 1349,
+        "all": 2364
       }
     },
     {
-      "fetched_at": "2026-08-24T15:42:52Z",
+      "fetched_at": "2026-08-25T12:01:38Z",
       "month": "2026-04",
       "from": "2026-04-01",
       "to": "2026-04-30",
@@ -1066,6 +1432,53 @@
             "deals": 8,
             "revenue": 5874760.23
           }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 20
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 82
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 65
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 25
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 16
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 4
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 8
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 5
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 3
+          }
         ]
       },
       "retail": {
@@ -1091,6 +1504,53 @@
             "label": "Мега-опт (>100К)",
             "deals": 0,
             "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 3
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 1
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 0
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 1
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 1
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
           }
         ]
       },
@@ -1239,6 +1699,60 @@
           "count": 32
         }
       ],
+      "lossReasonsTotal": [
+        {
+          "reason": "Не берет / не отвечает (более 3 попыток)",
+          "count": 307
+        },
+        {
+          "reason": "НЕ можем реализовать запрос",
+          "count": 249
+        },
+        {
+          "reason": "СПАМ / МУСОР",
+          "count": 248
+        },
+        {
+          "reason": "ДУБЛЬ",
+          "count": 207
+        },
+        {
+          "reason": "ДОРОГО",
+          "count": 194
+        },
+        {
+          "reason": "Уже НЕ актуально (не озвучил запрос)",
+          "count": 191
+        },
+        {
+          "reason": "ОШИБСЯ (запрос не по теме)",
+          "count": 188
+        },
+        {
+          "reason": "НЕ актуально",
+          "count": 119
+        },
+        {
+          "reason": "НЕ отвечает (более 3-х попыток)",
+          "count": 108
+        },
+        {
+          "reason": "Ищет в своем ГОРОДЕ",
+          "count": 55
+        },
+        {
+          "reason": "ТЕСТОВЫЙ звонок",
+          "count": 50
+        },
+        {
+          "reason": "Некорректные контакты для связи",
+          "count": 32
+        },
+        {
+          "reason": "НЕ устраивают сроки",
+          "count": 23
+        }
+      ],
       "lossReasonsByCategory": {
         "24": {
           "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
@@ -1273,19 +1787,22 @@
               "count": 6
             }
           ],
-          "totalLost": 754
+          "totalLost": 754,
+          "totalReviewed": 987
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 7
         },
         "32": {
           "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 0
         },
         "0": {
           "label": "ЛИДЫ (первинний скринінг)",
@@ -1320,12 +1837,19 @@
               "count": 32
             }
           ],
-          "totalLost": 1217
+          "totalLost": 1217,
+          "totalReviewed": 1217
         }
+      },
+      "totalReviewed": {
+        "wholesale": 987,
+        "retail": 7,
+        "screening": 1217,
+        "all": 2211
       }
     },
     {
-      "fetched_at": "2026-08-24T15:59:52Z",
+      "fetched_at": "2026-08-25T12:02:31Z",
       "month": "2026-05",
       "from": "2026-05-01",
       "to": "2026-05-31",
@@ -1354,6 +1878,53 @@
             "deals": 7,
             "revenue": 20671166.43
           }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 15
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 98
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 60
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 25
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 11
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 6
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 7
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 2
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 5
+          }
         ]
       },
       "retail": {
@@ -1379,6 +1950,53 @@
             "label": "Мега-опт (>100К)",
             "deals": 0,
             "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 1
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 0
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 0
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 2
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 0
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
           }
         ]
       },
@@ -1617,19 +2235,22 @@
               "count": 4
             }
           ],
-          "totalLost": 757
+          "totalLost": 757,
+          "totalReviewed": 995
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 3
         },
         "32": {
           "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 0
         },
         "0": {
           "label": "ЛИДЫ (первинний скринінг)",
@@ -1664,12 +2285,19 @@
               "count": 7
             }
           ],
-          "totalLost": 1252
+          "totalLost": 1252,
+          "totalReviewed": 1252
         }
+      },
+      "totalReviewed": {
+        "wholesale": 995,
+        "retail": 3,
+        "screening": 1252,
+        "all": 2250
       }
     },
     {
-      "fetched_at": "2026-08-24T16:00:51Z",
+      "fetched_at": "2026-08-25T12:03:23Z",
       "month": "2026-06",
       "from": "2026-06-01",
       "to": "2026-06-30",
@@ -1698,6 +2326,53 @@
             "deals": 11,
             "revenue": 29279670.98
           }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 9
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 88
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 81
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 23
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 12
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 7
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 10
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 4
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 7
+          }
         ]
       },
       "retail": {
@@ -1723,6 +2398,53 @@
             "label": "Мега-опт (>100К)",
             "deals": 0,
             "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 0
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 1
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 2
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 0
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 0
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
           }
         ]
       },
@@ -1961,19 +2683,22 @@
               "count": 3
             }
           ],
-          "totalLost": 843
+          "totalLost": 843,
+          "totalReviewed": 1101
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 3
         },
         "32": {
           "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 0
         },
         "0": {
           "label": "ЛИДЫ (первинний скринінг)",
@@ -2008,12 +2733,19 @@
               "count": 8
             }
           ],
-          "totalLost": 1111
+          "totalLost": 1111,
+          "totalReviewed": 1111
         }
+      },
+      "totalReviewed": {
+        "wholesale": 1101,
+        "retail": 3,
+        "screening": 1111,
+        "all": 2215
       }
     },
     {
-      "fetched_at": "2026-08-24T16:01:50Z",
+      "fetched_at": "2026-08-25T12:04:16Z",
       "month": "2026-07",
       "from": "2026-07-01",
       "to": "2026-07-31",
@@ -2042,6 +2774,53 @@
             "deals": 11,
             "revenue": 33982083.72
           }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 11
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 79
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 50
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 26
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 16
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 6
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 5
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 5
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 6
+          }
         ]
       },
       "retail": {
@@ -2067,6 +2846,53 @@
             "label": "Мега-опт (>100К)",
             "deals": 0,
             "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 1
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 0
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 1
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 0
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 1
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
           }
         ]
       },
@@ -2318,7 +3144,8 @@
               "count": 1
             }
           ],
-          "totalLost": 767
+          "totalLost": 767,
+          "totalReviewed": 999
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -2333,13 +3160,15 @@
               "count": 1
             }
           ],
-          "totalLost": 3
+          "totalLost": 3,
+          "totalReviewed": 6
         },
         "32": {
           "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 0
         },
         "0": {
           "label": "ЛИДЫ (первинний скринінг)",
@@ -2374,39 +3203,93 @@
               "count": 27
             }
           ],
-          "totalLost": 1252
+          "totalLost": 1252,
+          "totalReviewed": 1255
         }
+      },
+      "totalReviewed": {
+        "wholesale": 999,
+        "retail": 6,
+        "screening": 1255,
+        "all": 2260
       }
     },
     {
-      "fetched_at": "2026-08-24T16:02:29Z",
+      "fetched_at": "2026-08-25T12:04:53Z",
       "month": "2026-08",
       "from": "2026-08-01",
-      "to": "2026-08-24",
+      "to": "2026-08-25",
       "complete": false,
       "wholesale": {
-        "deals": 125,
-        "revenue": 40673093.06,
-        "avgCheck": 325384.74,
+        "deals": 131,
+        "revenue": 41003029.06,
+        "avgCheck": 313000.22,
         "medianCheck": 2187.8,
         "tiers": [
           {
             "tier": "small",
             "label": "Дрібні (<10К)",
-            "deals": 95,
-            "revenue": 217996.8
+            "deals": 99,
+            "revenue": 227432.8
           },
           {
             "tier": "medium",
             "label": "Середні (10К–100К)",
-            "deals": 20,
-            "revenue": 826656.0
+            "deals": 21,
+            "revenue": 843156.0
           },
           {
             "tier": "mega",
             "label": "Мега-опт (>100К)",
-            "deals": 10,
-            "revenue": 39628440.26
+            "deals": 11,
+            "revenue": 39932440.26
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 6
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 54
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 31
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 8
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 8
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 7
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 6
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 4
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 7
           }
         ]
       },
@@ -2434,15 +3317,62 @@
             "deals": 0,
             "revenue": 0.0
           }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 2
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 0
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 0
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 0
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 0
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
+          }
         ]
       },
       "byCategory": {
         "24": {
           "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
           "group": "wholesale",
-          "deals": 125,
-          "revenue": 40673093.06,
-          "avgCheck": 325384.74,
+          "deals": 131,
+          "revenue": 41003029.06,
+          "avgCheck": 313000.22,
           "medianCheck": 2187.8,
           "otherCurrencyDealsSkipped": 0,
           "top5": [
@@ -2467,8 +3397,8 @@
               "amount": 733945.97
             },
             {
-              "id": "194030",
-              "title": "Ручка 50 т order two",
+              "id": "194696",
+              "title": "Ручка 50 т order three ",
               "amount": 304000.0
             }
           ]
@@ -2508,23 +3438,23 @@
       "lossReasonsWholesale": [
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 184
+          "count": 196
         },
         {
           "reason": "ДОРОГО",
-          "count": 124
+          "count": 129
         },
         {
           "reason": "НЕ актуально",
-          "count": 40
+          "count": 46
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 34
+          "count": 35
         },
         {
           "reason": "НЕ отвечает (более 3-х попыток)",
-          "count": 27
+          "count": 31
         },
         {
           "reason": "НЕ устраивают сроки",
@@ -2539,27 +3469,27 @@
       "lossReasonsScreening": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 288
+          "count": 296
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 145
+          "count": 153
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 143
+          "count": 150
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 94
+          "count": 99
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 73
+          "count": 81
         },
         {
           "reason": "Некорректные контакты для связи",
-          "count": 26
+          "count": 29
         },
         {
           "reason": "ТЕСТОВЫЙ звонок",
@@ -2569,47 +3499,47 @@
       "lossReasonsTotal": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 288
+          "count": 296
         },
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 184
+          "count": 196
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 145
+          "count": 153
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 143
+          "count": 150
         },
         {
           "reason": "ДОРОГО",
-          "count": 124
+          "count": 129
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 96
+          "count": 101
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 73
+          "count": 81
         },
         {
           "reason": "НЕ актуально",
-          "count": 40
+          "count": 46
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 34
+          "count": 35
         },
         {
           "reason": "НЕ отвечает (более 3-х попыток)",
-          "count": 27
+          "count": 31
         },
         {
           "reason": "Некорректные контакты для связи",
-          "count": 26
+          "count": 29
         },
         {
           "reason": "НЕ устраивают сроки",
@@ -2627,23 +3557,23 @@
           "reasons": [
             {
               "reason": "НЕ можем реализовать запрос",
-              "count": 184
+              "count": 196
             },
             {
               "reason": "ДОРОГО",
-              "count": 124
+              "count": 129
             },
             {
               "reason": "НЕ актуально",
-              "count": 40
+              "count": 46
             },
             {
               "reason": "Ищет в своем ГОРОДЕ",
-              "count": 34
+              "count": 35
             },
             {
               "reason": "НЕ отвечает (более 3-х попыток)",
-              "count": 27
+              "count": 31
             },
             {
               "reason": "НЕ устраивают сроки",
@@ -2654,19 +3584,22 @@
               "count": 2
             }
           ],
-          "totalLost": 434
+          "totalLost": 462,
+          "totalReviewed": 678
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 2
         },
         "32": {
           "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
           "group": "retail",
           "reasons": [],
-          "totalLost": 0
+          "totalLost": 0,
+          "totalReviewed": 0
         },
         "0": {
           "label": "ЛИДЫ (первинний скринінг)",
@@ -2674,37 +3607,44 @@
           "reasons": [
             {
               "reason": "Не берет / не отвечает (более 3 попыток)",
-              "count": 288
+              "count": 296
             },
             {
               "reason": "СПАМ / МУСОР",
-              "count": 145
+              "count": 153
             },
             {
               "reason": "Уже НЕ актуально (не озвучил запрос)",
-              "count": 143
+              "count": 150
             },
             {
               "reason": "ДУБЛЬ",
-              "count": 94
+              "count": 99
             },
             {
               "reason": "ОШИБСЯ (запрос не по теме)",
-              "count": 73
+              "count": 81
             },
             {
               "reason": "Некорректные контакты для связи",
-              "count": 26
+              "count": 29
             },
             {
               "reason": "ТЕСТОВЫЙ звонок",
               "count": 13
             }
           ],
-          "totalLost": 782
+          "totalLost": 821,
+          "totalReviewed": 827
         }
+      },
+      "totalReviewed": {
+        "wholesale": 678,
+        "retail": 2,
+        "screening": 827,
+        "all": 1507
       }
     }
   ],
-  "updated_at": "2026-08-24T16:02:29Z"
+  "updated_at": "2026-08-25T12:04:53Z"
 }
