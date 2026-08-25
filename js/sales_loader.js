@@ -154,6 +154,12 @@ window.SalesLoader = (() => {
         histWrap.style.display='';
         renderConversionTrend();
       }
+      // #7 швидкість закриття — те саме "з'явиться тільки якщо є дані" правило
+      const ttcWrap=document.getElementById('w-sales-time-to-close');
+      if(ttcWrap && hist && hist.months && hist.months.some(m=>m.wholesale?.timeToClose?.sampleSize)){
+        ttcWrap.style.display='';
+        renderTimeToClose();
+      }
     }catch(e){console.warn('[Loss reasons / Tiers]',e.message);}
   }
 
@@ -199,6 +205,27 @@ window.SalesLoader = (() => {
     };
     buildChart('conv-wh-chart', 'wholesale', 'wholesale', WH);
     buildChart('conv-rt-chart', 'retail', 'retail', RT);
+  }
+
+  // ── #7 Швидкість закриття угоди (днів від DATE_CREATE до CLOSEDATE) —
+  // тільки для WON, тому надійно (CLOSEDATE перевірено для WON раніше).
+  // Показуємо і середнє, і медіану — за аналогією з середнім чеком: якщо
+  // кілька угод довго висіли, середнє спотвориться сильніше за медіану. ──
+  function renderTimeToClose(){
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month)).filter(m=>m.wholesale?.timeToClose || m.retail?.timeToClose);
+    if(months.length<2) return;
+    const labels=months.map(m=>m.month);
+
+    const buildChart=(canvasId, groupKey, color)=>{
+      const avgData=months.map(m=>m[groupKey]?.timeToClose?.avgDays ?? null);
+      const medData=months.map(m=>m[groupKey]?.timeToClose?.medianDays ?? null);
+      safeChartLoss(canvasId,{type:'line',data:{labels,datasets:[
+        {label:'Середнє',data:avgData,borderColor:color,backgroundColor:color+'15',borderWidth:2,tension:.3,fill:false,pointRadius:3,pointBackgroundColor:color,spanGaps:true},
+        {label:'Медіана',data:medData,borderColor:color,borderWidth:2.5,borderDash:[5,3],tension:.3,fill:false,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:color,pointBorderWidth:2,spanGaps:true},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}},tooltip:{callbacks:{label:(ctx)=>ctx.dataset.label+': '+ctx.parsed.y+' дн.',afterBody:(items)=>{const m=months[items[0]?.dataIndex];const n=m?.[groupKey]?.timeToClose?.sampleSize;return n?`на основі ${n} угод`:'';}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+' дн.'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+    };
+    buildChart('ttc-wh-chart', 'wholesale', WH);
+    buildChart('ttc-rt-chart', 'retail', RT);
   }
 
   // ── Всього (компанія) — сума 24+18+32+0 разом. Безпечно сумувати причини
