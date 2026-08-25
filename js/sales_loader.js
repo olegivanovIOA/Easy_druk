@@ -179,14 +179,18 @@ window.SalesLoader = (() => {
     if(months.length<2) return;
     const labels=months.map(m=>m.month);
 
+    // Примітка: конверсію скринінгу лідів (категорія 0) свідомо НЕ рахуємо —
+    // 25.08.2026 з'ясувалось, що totalReviewed для цієї категорії фактично
+    // збігається з к-стю відмов (тому "конверсія" виходила ~0%). Причина:
+    // WON-угоди переїжджають з категорії 0 в 24/18/32 і зникають з вибірки,
+    // а угоди "в роботі" мають ненадійний CLOSEDATE і випадають з місячного
+    // фільтра — на виду лишаються тільки реальні відмови. Щоб порахувати це
+    // правильно, знадобиться DATE_CREATE замість CLOSEDATE саме для
+    // категорії 0 — окрема задача, не робимо цього нашвидкуруч.
     const buildChart=(canvasId, wonKey, reviewedKey, color)=>{
       const data=months.map(m=>{
         const reviewed=m.totalReviewed?.[reviewedKey];
-        const won=wonKey==='screening' ? null : m[wonKey]?.deals; // скринінг не рахує WON як виручку — рахуємо частку "не відмова" замість
-        if(wonKey==='screening'){
-          const lost=(m.lossReasonsScreening||[]).reduce((s,r)=>s+r.count,0);
-          return reviewed ? Math.round((1-lost/reviewed)*1000)/10 : null;
-        }
+        const won=m[wonKey]?.deals;
         return (reviewed && won!=null) ? Math.round(won/reviewed*1000)/10 : null;
       });
       safeChartLoss(canvasId,{type:'line',data:{labels,datasets:[
@@ -195,7 +199,6 @@ window.SalesLoader = (() => {
     };
     buildChart('conv-wh-chart', 'wholesale', 'wholesale', WH);
     buildChart('conv-rt-chart', 'retail', 'retail', RT);
-    buildChart('conv-screen-chart', 'screening', 'screening', '#6B7A99');
   }
 
   // ── Всього (компанія) — сума 24+18+32+0 разом. Безпечно сумувати причини
