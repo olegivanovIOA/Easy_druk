@@ -331,13 +331,33 @@ def upsert_day(history, date_str, locations_payload):
 
     day_company = rollup_company(locations_payload)
 
+    # #3 (25.08.2026) — легкий масив окремих ЛОТів (тільки розмір+% браку,
+    # без усіх деталей з batches_lots.json) для кореляції "розмір лоту ↔
+    # % браку" (scatter-plot), яку неможливо порахувати на самому лише
+    # "вчора" (2-3 лоти на локацію — замало для статистики). Накопичується
+    # день у день, дає повноцінну вибірку за кілька тижнів/місяців.
+    day_lots = []
+    for loc in locations_payload or []:
+        key = location_key(loc.get("location"))
+        for lot in loc.get("lots") or []:
+            if lot.get("defectPercent") is None or not lot.get("acceptedQty"):
+                continue  # ще не закрита партія (немає фінальних ОТК-даних) — пропускаємо
+            day_lots.append({
+                "location": key,
+                "acceptedQty": lot.get("acceptedQty"),
+                "batchCount": lot.get("batchCount"),
+                "defectPercent": lot.get("defectPercent"),
+                "printerModels": lot.get("printerModels"),
+            })
+
     days = history.setdefault("days", [])
     for d in days:
         if d.get("date") == date_str:
             d["locations"] = day_locs
             d["company"] = day_company
+            d["lots"] = day_lots
             return history
-    days.append({"date": date_str, "locations": day_locs, "company": day_company})
+    days.append({"date": date_str, "locations": day_locs, "company": day_company, "lots": day_lots})
     return history
 
 

@@ -84,7 +84,11 @@ def month_bounds(year, month, cap_to=None):
 
 
 def fetch_won_deals(category_id, date_from, date_to):
-    """Усі WON-угоди воронки за період — з пагінацією (50/сторінку)."""
+    """Усі WON-угоди воронки за період — з пагінацією (50/сторінку).
+    DATE_CREATE додано 25.08.2026 для #7 (швидкість закриття) — рахуємо
+    CLOSEDATE-DATE_CREATE ТІЛЬКИ для WON (де CLOSEDATE уже перевірено
+    надійний), не для LOSE/скринінгу (там дата ще проблемна, див. 25.08.2026
+    знахідку з totalReviewed)."""
     deals = []
     start = 0
     while True:
@@ -92,7 +96,7 @@ def fetch_won_deals(category_id, date_from, date_to):
             "filter[STAGE_ID]": _stage_filter_value(category_id, "WON"),
             "filter[>=CLOSEDATE]": date_from.isoformat(),
             "filter[<=CLOSEDATE]": date_to.isoformat(),
-            "select[]": ["ID", "TITLE", "OPPORTUNITY", "CURRENCY_ID", "CLOSEDATE"],
+            "select[]": ["ID", "TITLE", "OPPORTUNITY", "CURRENCY_ID", "CLOSEDATE", "DATE_CREATE"],
             "order[CLOSEDATE]": "DESC",
             "start": start,
         }
@@ -109,6 +113,37 @@ def fetch_won_deals(category_id, date_from, date_to):
         start = nxt
         time.sleep(0.5)  # ввічливість до ліміту Bitrix24 (~2 запити/сек на вебхук)
     return deals
+
+
+def _parse_bitrix_datetime(s):
+    """'2026-08-13T03:00:00+03:00' -> datetime, або None якщо не парситься."""
+    if not s:
+        return None
+    try:
+        return datetime.fromisoformat(s)
+    except (ValueError, TypeError):
+        return None
+
+
+def rollup_time_to_close(deals):
+    """#7 — днів від створення угоди до WON. ТІЛЬКИ для угод, де ОБИДВІ дати
+    парсяться і DATE_CREATE <= CLOSEDATE (захист від сміттєвих значень —
+    якщо раптом навпаки, це явно не реальний час закриття, пропускаємо, а
+    не рахуємо як від'ємне число днів)."""
+    days_list = []
+    for d in deals:
+        created = _parse_bitrix_datetime(d.get("DATE_CREATE"))
+        closed = _parse_bitrix_datetime(d.get("CLOSEDATE"))
+        if not created or not closed or closed < created:
+            continue
+        days_list.append((closed - created).days)
+    if not days_list:
+        return {"avgDays": None, "medianDays": None, "sampleSize": 0}
+    return {
+        "avgDays": round(sum(days_list) / len(days_list), 1),
+        "medianDays": round(statistics.median(days_list), 1),
+        "sampleSize": len(days_list),
+    }
 
 
 def rollup_deals(deals):
@@ -289,24 +324,29 @@ def process_month(month_start, month_end, month_key, complete):
         print(f"[CRM] Воронка {cat_id} ({label})…")
         deals = fetch_won_deals(cat_id, month_start, month_end)
         rolled = rollup_deals(deals)
-        by_category[str(cat_id)] = {"label": label, "group": group, **rolled}
+        time_to_close = rollup_time_to_close(deals)
+        by_category[str(cat_id)] = {"label": label, "group": group, **rolled, "timeToClose": time_to_close, "_deals": deals}
         print(f"[CRM]   ✓ {rolled['deals']} угод, {round(rolled['revenue']):,} грн, "
-              f"сер.чек {rolled['avgCheck']}, медіана {rolled['medianCheck']}".replace(",", " "))
+              f"сер.чек {rolled['avgCheck']}, медіана {rolled['medianCheck']}, "
+              f"час закриття (сер./медіана) {time_to_close['avgDays']}/{time_to_close['medianDays']} дн.".replace(",", " "))
         time.sleep(0.5)
 
     # Групуємо по ОПТ/Роздріб — медіана рахується по ОБ'ЄДНАНИХ сирих сумах
     # групи (не по медіанах воронок), інакше з двома воронками в Роздрібі
-    # вийде статистично некоректна "медіана медіан".
+    # вийде статистично некоректна "медіана медіан". Те саме для часу
+    # закриття (#7) — рахуємо по ОБ'ЄДНАНОМУ списку угод групи.
     def merge_group(group_name):
         cats = [c for c in by_category.values() if c["group"] == group_name]
         all_amounts = [a for c in cats for a in c["_amounts"]]
+        all_deals_raw = [d for c in cats for d in c["_deals"]]
         all_deals = len(all_amounts)
         all_revenue = sum(all_amounts)
         avg = round(all_revenue / all_deals, 2) if all_deals else None
         median = round(statistics.median(all_amounts), 2) if all_deals else None
         tiers = rollup_tiers(all_amounts)
         histogram = rollup_histogram(all_amounts)
-        return {"deals": all_deals, "revenue": round(all_revenue, 2), "avgCheck": avg, "medianCheck": median, "tiers": tiers, "histogram": histogram}
+        time_to_close = rollup_time_to_close(all_deals_raw)
+        return {"deals": all_deals, "revenue": round(all_revenue, 2), "avgCheck": avg, "medianCheck": median, "tiers": tiers, "histogram": histogram, "timeToClose": time_to_close}
 
     # ── Причини відмов — окремий прохід по ВСІХ угодах місяця (не тільки
     # WON), бо треба бачити й LOSE/APOLOGY-стадії. Може зайняти помітно
@@ -374,7 +414,7 @@ def process_month(month_start, month_end, month_key, complete):
         "complete": complete,
         "wholesale": merge_group("wholesale"),
         "retail": merge_group("retail"),
-        "byCategory": {k: {kk: vv for kk, vv in v.items() if kk != "_amounts"} for k, v in by_category.items()},
+        "byCategory": {k: {kk: vv for kk, vv in v.items() if kk not in ("_amounts", "_deals")} for k, v in by_category.items()},
         "lossReasonsWholesale": merge_reasons("wholesale"),
         "lossReasonsRetail": merge_reasons("retail"),
         "lossReasonsScreening": merge_reasons("screening"),

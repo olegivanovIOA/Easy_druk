@@ -789,6 +789,19 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
+  <!-- #3 Кореляція розмір лоту ↔ % браку — накопичується день у день з
+       data/batches_history.json (поле "lots", з'явиться після редеплою
+       fetch_batches.py) ═══ -->
+  <div id="w-qual-lot-size-scatter" style="display:none;margin-top:10px">
+    <div class="sec" style="justify-content:space-between">
+      <span>🔬 Розмір лоту ⇄ % браку <span style="cursor:help;font-size:10px;color:var(--tl);font-weight:500" title="Кожна точка — один ЛОТ (не партія): вісь X — прийнято штук, вісь Y — % браку. Якщо точки утворюють висхідну лінію — великі тиражі псуються частіше (втома обладнання/оператора); низхідну — навпаки, economies of scale. Накопичується день у день, для статистики потрібно кілька тижнів.">ⓘ</span></span>
+      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="qual-lot-scatter-note"></span>
+    </div>
+    <div class="card-flat">
+      <div class="cw" style="height:220px;padding:6px 10px 10px"><canvas id="qual-lot-scatter-chart"></canvas></div>
+    </div>
+  </div>
+
   <!-- Помісячна історія (2026) — data/batches_monthly_history.json, наповнюється backfill_batches_monthly.py -->
   <div id="w-qual-batches-monthly" style="display:none">
     <div class="sec" style="justify-content:space-between">
@@ -971,6 +984,16 @@ a{color:var(--gd);text-decoration:none}
       <div class="card">
         <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Конверсія Роздріб по місяцях</div>
         <div class="cw ch180"><canvas id="conv-rt-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="g2" id="w-sales-time-to-close" style="margin-top:10px;display:none">
+      <div class="card" style="border-color:var(--wh-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">ОПТ — днів від створення до продажу <span style="cursor:help;font-size:10px;color:var(--tl);font-weight:500" title="Тільки для WON-угод — від дати створення угоди (DATE_CREATE) до фактичного закриття (CLOSEDATE). Медіана надійніша за середнє, якщо є кілька угод, що висіли місяцями.">ⓘ</span></div>
+        <div class="cw ch180"><canvas id="ttc-wh-chart"></canvas></div>
+      </div>
+      <div class="card" style="border-color:var(--retail-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Роздріб — днів від створення до продажу</div>
+        <div class="cw ch180"><canvas id="ttc-rt-chart"></canvas></div>
       </div>
     </div>
   </div>
@@ -1809,6 +1832,32 @@ async function loadQualityData(){
         data:days.map(d=>d.locations?.[num]?.defectPercent??null),
         borderColor:palette[i%palette.length], borderWidth:2, tension:.3, fill:false, pointRadius:3, spanGaps:true,
       }))},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+    }
+
+    // #3 — кореляція розмір лоту ↔ % браку. Поле "lots" з'явиться в
+    // batches_history.json тільки ПІСЛЯ редеплою fetch_batches.py — до того
+    // просто мовчки нічого не покаже (немає поля -> flatMap дає []).
+    const scatterWrap=document.getElementById('w-qual-lot-size-scatter');
+    const allLots=days.flatMap(d=>d.lots||[]);
+    if(scatterWrap && allLots.length){
+      scatterWrap.style.display='';
+      const note=document.getElementById('qual-lot-scatter-note');
+      if(note){
+        note.textContent = allLots.length<20
+          ? `${allLots.length} лотів — накопичується, для надійної статистики бажано ≥20`
+          : `${allLots.length} лотів · ${days[0].date} → ${days[days.length-1].date}`;
+      }
+      const locNumsScatter=[...new Set(allLots.map(l=>l.location))].sort();
+      const scatterPalette=[G,A,R,B,'#BA7517'];
+      safeChart('qual-lot-scatter-chart',{type:'scatter',data:{datasets:locNumsScatter.map((num,i)=>({
+        label:'Лок. '+num,
+        data:allLots.filter(l=>l.location===num).map(l=>({x:l.acceptedQty, y:l.defectPercent})),
+        backgroundColor:scatterPalette[i%scatterPalette.length]+'99',
+        pointRadius:5, pointHoverRadius:7,
+      }))},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}},tooltip:{callbacks:{label:(ctx)=>`${ctx.parsed.x.toLocaleString('uk-UA')} шт · ${ctx.parsed.y}% браку`}}},scales:{
+        x:{type:'linear',title:{display:true,text:'Прийнято, шт',font:{size:9}},grid:{color:GRID}},
+        y:{beginAtZero:true,title:{display:true,text:'% браку',font:{size:9}},grid:{color:GRID},ticks:{callback:v=>v+'%'}},
+      }}});
     }
   }catch(e){console.warn('[Quality batches trend]',e.message);}
 
@@ -3355,6 +3404,6 @@ window.LocLoader = (() => {
 <script src="js/hr_loader.js?v=20260814"></script>
 <script src="js/ads_loader.js?v=20260814"></script>
 <script src="js/mql_loader.js?v=20260814"></script>
-<script src="js/sales_loader.js?v=20260825b"></script>
+<script src="js/sales_loader.js?v=20260825c"></script>
 </body>
 </html>
