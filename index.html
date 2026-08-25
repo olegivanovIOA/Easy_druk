@@ -1674,6 +1674,18 @@ function renderQualBatchesPanel(){
   }
 }
 
+// Поріг браку 7.5% — той самий, що вже використовується на вкладці Локації
+// (DEFECT_THRESHOLD, рядок ~3178) — тут окрема легка константа+хелпер, бо ці
+// графіки Якості будуються інакше (прості safeChart-виклики, не через
+// спільну buildLineChart). Той самий візуальний патерн: темно-синій пунктир,
+// підпис у легенді "Поріг 7.5%".
+const QUAL_DEFECT_THRESHOLD = 7.5;
+function thresholdDataset(labels, yAxisID){
+  const ds={label:`Поріг ${QUAL_DEFECT_THRESHOLD}%`, data:labels.map(()=>QUAL_DEFECT_THRESHOLD), borderColor:'#1A2B3C', borderWidth:2, borderDash:[7,4], pointRadius:0, tension:0, fill:false, order:0};
+  if(yAxisID) ds.yAxisID=yAxisID;
+  return ds;
+}
+
 async function loadQualityData(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   try{
@@ -1823,15 +1835,19 @@ async function loadQualityData(){
 
       safeChart('qual-batches-date-chart',{type:'line',data:{labels,datasets:[
         {label:'% браку (компанія)',data:days.map(d=>d.company?.defectPercent??null),borderColor:R,backgroundColor:RB,borderWidth:2.5,tension:.3,fill:true,pointRadius:4,pointBackgroundColor:R,spanGaps:true},
-      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterBody:(items)=>{const d=days[items[0]?.dataIndex];return d?.company?`${d.company.batches} партій · ${d.company.acceptedQty.toLocaleString('uk-UA')} шт`:'';}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+        thresholdDataset(labels),
+      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{usePointStyle:true,padding:8,font:{size:9}}},tooltip:{callbacks:{afterBody:(items)=>{const d=days[items[0]?.dataIndex];return d?.company?`${d.company.batches} партій · ${d.company.acceptedQty.toLocaleString('uk-UA')} шт`:'';}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
 
       const locNums=[...new Set(days.flatMap(d=>Object.keys(d.locations||{})))].sort();
       const palette=[G,A,R,B,'#BA7517'];
-      safeChart('qual-batches-loc-date-chart',{type:'line',data:{labels,datasets:locNums.map((num,i)=>({
-        label:'Лок. '+num,
-        data:days.map(d=>d.locations?.[num]?.defectPercent??null),
-        borderColor:palette[i%palette.length], borderWidth:2, tension:.3, fill:false, pointRadius:3, spanGaps:true,
-      }))},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+      safeChart('qual-batches-loc-date-chart',{type:'line',data:{labels,datasets:[
+        ...locNums.map((num,i)=>({
+          label:'Лок. '+num,
+          data:days.map(d=>d.locations?.[num]?.defectPercent??null),
+          borderColor:palette[i%palette.length], borderWidth:2, tension:.3, fill:false, pointRadius:3, spanGaps:true,
+        })),
+        thresholdDataset(labels),
+      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
     }
 
     // #3 — кореляція розмір лоту ↔ % браку. Поле "lots" з'явиться в
@@ -1876,7 +1892,8 @@ async function loadQualityData(){
       const labels=months.map(m=>m.month);
       safeChart('qual-monthly-defect-chart',{type:'line',data:{labels,datasets:[
         {label:'% браку',data:months.map(m=>m.company?.defectPercent??null),borderColor:R,backgroundColor:RB,borderWidth:2.5,tension:.3,fill:true,pointRadius:4,pointBackgroundColor:R,spanGaps:true},
-      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+        thresholdDataset(labels),
+      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
 
       safeChart('qual-monthly-volume-chart',{type:'bar',data:{labels,datasets:[
         {label:'Партій',data:months.map(m=>m.company?.batches??null),backgroundColor:B,borderRadius:5},
@@ -1903,16 +1920,20 @@ async function loadQualityData(){
       // #2 — % браку по моделі принтера, тренд
       const allModels=[...new Set(months.flatMap(m=>(m.byPrinterModel||[]).map(x=>x.printerModel)))];
       const modelPalette=[G,A,R,B,'#BA7517','#8B5CF6'];
-      safeChart('qual-model-trend-chart',{type:'line',data:{labels,datasets:allModels.map((model,i)=>({
-        label:model,
-        data:months.map(m=>{const x=(m.byPrinterModel||[]).find(y=>y.printerModel===model);return x?x.defectPercent:null;}),
-        borderColor:modelPalette[i%modelPalette.length], borderWidth:2, tension:.3, fill:false, pointRadius:3, spanGaps:true,
-      }))},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+      safeChart('qual-model-trend-chart',{type:'line',data:{labels,datasets:[
+        ...allModels.map((model,i)=>({
+          label:model,
+          data:months.map(m=>{const x=(m.byPrinterModel||[]).find(y=>y.printerModel===model);return x?x.defectPercent:null;}),
+          borderColor:modelPalette[i%modelPalette.length], borderWidth:2, tension:.3, fill:false, pointRadius:3, spanGaps:true,
+        })),
+        thresholdDataset(labels),
+      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
 
       // #5 — розрив день/ніч, тренд
       safeChart('qual-shift-trend-chart',{type:'line',data:{labels,datasets:[
         {label:'День',data:months.map(m=>{const x=(m.byShift||[]).find(y=>y.shift==='FIRST');return x?x.defectPercent:null;}),borderColor:G,backgroundColor:GB,borderWidth:2.5,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:G,spanGaps:true},
         {label:'Ніч',data:months.map(m=>{const x=(m.byShift||[]).find(y=>y.shift==='SECOND');return x?x.defectPercent:null;}),borderColor:R,backgroundColor:RB,borderWidth:2.5,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:R,spanGaps:true},
+        thresholdDataset(labels),
       ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
 
       // #1 — ТОП-5 SKU за сумарною вартістю браку за весь наявний період
@@ -1941,6 +1962,7 @@ async function loadQualityData(){
           safeChart('qual-vs-complaints-chart',{type:'line',data:{labels:commonLabels,datasets:[
             {label:'% браку (виробництво)',data:defectSeries,borderColor:R,backgroundColor:RB,borderWidth:2.5,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:R,yAxisID:'y',spanGaps:true},
             {label:'Скарг "НЕ влаштувала якість" (CRM)',data:complaintSeries,borderColor:A,backgroundColor:AB,borderWidth:2,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:A,yAxisID:'y1',borderDash:[5,3]},
+            thresholdDataset(commonLabels, 'y'),
           ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{
             y:{type:'linear',position:'left',min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'},title:{display:true,text:'% браку',font:{size:9},color:R}},
             y1:{type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false},title:{display:true,text:'Скарг, шт',font:{size:9},color:A}},
@@ -3404,6 +3426,6 @@ window.LocLoader = (() => {
 <script src="js/hr_loader.js?v=20260814"></script>
 <script src="js/ads_loader.js?v=20260814"></script>
 <script src="js/mql_loader.js?v=20260814"></script>
-<script src="js/sales_loader.js?v=20260825c"></script>
+<script src="js/sales_loader.js?v=20260825d"></script>
 </body>
 </html>
