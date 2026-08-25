@@ -195,6 +195,38 @@ def rollup_tiers(amounts):
     return [{"tier": k, **v, "revenue": round(v["revenue"], 2)} for k, v in buckets.items()]
 
 
+# Дрібніші бакети — для повноцінної гістограми розподілу сум угод (не тільки
+# 3 грубих тіри вище). Межі емпіричні, під типовий розподіл цієї компанії
+# (переважна більшість угод — дрібні кастомні замовлення, тому нижні бакети
+# густіші за верхні).
+HISTOGRAM_BUCKETS = [
+    ("b1", "<1К", 0, 1_000),
+    ("b2", "1К–2К", 1_000, 2_000),
+    ("b3", "2К–5К", 2_000, 5_000),
+    ("b4", "5К–10К", 5_000, 10_000),
+    ("b5", "10К–25К", 10_000, 25_000),
+    ("b6", "25К–50К", 25_000, 50_000),
+    ("b7", "50К–100К", 50_000, 100_000),
+    ("b8", "100К–300К", 100_000, 300_000),
+    ("b9", ">300К", 300_000, float("inf")),
+]
+
+
+def rollup_histogram(amounts):
+    """К-сть угод по дев'яти дрібніших бакетах суми — для #9 (гістограма
+    розподілу), на відміну від грубих 3 тірів вище. Той самий принцип:
+    рахуємо ТІЛЬКИ по сумі угоди, без клієнтських ID."""
+    buckets = {b[0]: {"label": b[1], "deals": 0} for b in HISTOGRAM_BUCKETS}
+    for a in amounts:
+        for key, label, lo, hi in HISTOGRAM_BUCKETS:
+            if lo <= a < hi:
+                buckets[key]["deals"] += 1
+                break
+        else:
+            buckets[HISTOGRAM_BUCKETS[-1][0]]["deals"] += 1
+    return [{"bucket": k, **v} for k, v in buckets.items()]
+
+
 def fetch_all_deals_for_month(category_id, date_from, date_to):
     """Усі угоди воронки за період — БЕЗ фільтра по стадії (потрібно бачити
     і WON, і LOSE, і всі варіанти "не склалось"). Легкий select — тільки
@@ -273,7 +305,8 @@ def process_month(month_start, month_end, month_key, complete):
         avg = round(all_revenue / all_deals, 2) if all_deals else None
         median = round(statistics.median(all_amounts), 2) if all_deals else None
         tiers = rollup_tiers(all_amounts)
-        return {"deals": all_deals, "revenue": round(all_revenue, 2), "avgCheck": avg, "medianCheck": median, "tiers": tiers}
+        histogram = rollup_histogram(all_amounts)
+        return {"deals": all_deals, "revenue": round(all_revenue, 2), "avgCheck": avg, "medianCheck": median, "tiers": tiers, "histogram": histogram}
 
     # ── Причини відмов — окремий прохід по ВСІХ угодах місяця (не тільки
     # WON), бо треба бачити й LOSE/APOLOGY-стадії. Може зайняти помітно
@@ -289,7 +322,14 @@ def process_month(month_start, month_end, month_key, complete):
         all_deals = fetch_all_deals_for_month(cat_id, month_start, month_end)
         reasons = rollup_loss_reasons(all_deals, stage_list)
         total_lost = sum(r["count"] for r in reasons)
-        loss_reasons_by_cat[str(cat_id)] = {"label": label, "group": group, "reasons": reasons, "totalLost": total_lost}
+        # totalReviewed = усі угоди воронки за місяць (WON+LOSE+у роботі) —
+        # знаменник для конверсії (#6) і потоку звернень (#13). Раніше
+        # рахувалось (len(all_deals)) тільки для консольного логу, тепер
+        # зберігаємо в JSON.
+        loss_reasons_by_cat[str(cat_id)] = {
+            "label": label, "group": group, "reasons": reasons,
+            "totalLost": total_lost, "totalReviewed": len(all_deals),
+        }
         print(f"[CRM]   ✓ {len(all_deals)} угод переглянуто, {total_lost} відмов, {len(reasons)} причин")
         time.sleep(0.3)
 
@@ -319,6 +359,13 @@ def process_month(month_start, month_end, month_key, complete):
         out.sort(key=lambda x: -x["count"])
         return out
 
+    def sum_total_reviewed(group_name=None):
+        """Сума totalReviewed — знаменник для конверсії (#6) і потоку
+        звернень (#13). group_name=None -> по всіх 4 воронках разом."""
+        cats = loss_reasons_by_cat.values() if group_name is None else \
+            (c for c in loss_reasons_by_cat.values() if c["group"] == group_name)
+        return sum(c.get("totalReviewed", 0) for c in cats)
+
     return {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "month": month_key,
@@ -333,6 +380,12 @@ def process_month(month_start, month_end, month_key, complete):
         "lossReasonsScreening": merge_reasons("screening"),
         "lossReasonsTotal": merge_reasons_all(),
         "lossReasonsByCategory": loss_reasons_by_cat,
+        "totalReviewed": {
+            "wholesale": sum_total_reviewed("wholesale"),
+            "retail": sum_total_reviewed("retail"),
+            "screening": sum_total_reviewed("screening"),
+            "all": sum_total_reviewed(),
+        },
     }
 
 

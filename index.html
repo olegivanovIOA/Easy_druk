@@ -532,6 +532,24 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
+  <!-- SPRINT VELOCITY + GOALS RADAR -->
+  <div id="w-str-velocity-radar">
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>🚀 Швидкість команди та баланс цілей</span>
+      <span style="cursor:help;font-size:10px;color:var(--tl);font-weight:500" title="Швидкість — скільки задач РЕАЛЬНО закрито за кожен окремий спринт (не наростаючий підсумок, як на графіку прогнозу вище). Радар — поточний % виконання кожної з 5 цілей (Ц1-Ц5) одним поглядом, щоб бачити дисбаланс між напрямками.">ⓘ пояснення</span>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ct" style="margin-bottom:9px">Задач закрито за спринт (пропускна здатність)</div>
+        <div class="cw ch210"><canvas id="velocityChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:9px">Баланс 5 цілей — поточний % виконання</div>
+        <div class="cw ch210"><canvas id="goalsRadarChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
   <!-- PROJECTS NO FOCUS -->
   <div id="w-str-nofocus">
     <div class="sec">⚠️ Проекти не в фокусі / без відповідального</div>
@@ -788,6 +806,33 @@ a{color:var(--gd);text-decoration:none}
       </div>
     </div>
   </div>
+
+  <!-- НОВЕ: тренди по моделях/змінах/деталях + якість×скарги — все на вже
+       накопичених даних data/batches_monthly_history.json + crm_monthly_history.json -->
+  <div id="w-qual-extra-trends" style="display:none;margin-top:14px">
+    <div class="sec" style="justify-content:space-between">
+      <span>📈 Тренди по моделях, змінах і найдорожчому браку</span>
+      <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)" id="qual-extra-note"></span>
+    </div>
+    <div class="g3">
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">% браку по моделі принтера, по місяцях</div>
+        <div class="cw" style="height:190px;padding:6px 10px 10px"><canvas id="qual-model-trend-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">Розрив день/ніч по місяцях</div>
+        <div class="cw" style="height:190px;padding:6px 10px 10px"><canvas id="qual-shift-trend-chart"></canvas></div>
+      </div>
+      <div class="card-flat">
+        <div class="ct" style="padding:8px 10px 0">ТОП-5 найдорожчих SKU за весь період (грн)</div>
+        <div class="cw" style="height:190px;padding:6px 10px 10px"><canvas id="qual-sku-cost-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="card-flat" style="margin-top:10px">
+      <div class="ct" style="padding:8px 10px 0">Якість виробництва ⇄ скарги клієнтів «НЕ влаштувала якість» <span style="cursor:help;font-size:10px;color:var(--tl);font-weight:500" title="Дві незалежні лінії з двох різних джерел (виробничий ОТК і CRM-угоди) — якщо рухаються разом, це підтверджує, що брак реально відчувають клієнти, а не тільки внутрішній контроль.">ⓘ</span></div>
+      <div class="cw" style="height:190px;padding:6px 10px 10px"><canvas id="qual-vs-complaints-chart"></canvas></div>
+    </div>
+  </div>
 </div>
 
 <!-- ═════════════ ПРОДАЖІ ═════════════ -->
@@ -895,6 +940,41 @@ a{color:var(--gd);text-decoration:none}
       <div class="card" style="border-color:var(--retail-bd)">
         <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Роздріб — динаміка сегментів по місяцях (сезонність) <span style="cursor:help;font-size:10px;color:var(--tl);font-weight:500" title="ОПТ = воронка Bitrix24 «24 — ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО». Роздріб = воронки «18 — ТОВАРКА» + «32 — МАГАЗИН». Визначається відділом, який обробляв угоду, а НЕ сумою угоди — тіри за сумою рахуються ОКРЕМО, всередині кожної групи.">ⓘ</span></div>
         <div class="cw ch210"><canvas id="tiers-rt-trend-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ #9 Детальний розподіл сум угод (гістограма, 9 бакетів) + #6 конверсія
+       по місяцях. Потребує поля totalReviewed/histogram — з'являться після
+       перезаливки fetch_crm_deals.py і повторного прогону update-crm +
+       Backfill CRM Monthly History. ═══ -->
+  <div id="w-sales-histogram-funnel" style="margin-top:18px;display:none">
+    <div class="sec" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>📊 Розподіл сум угод і конверсія в угоду</span>
+      <span style="cursor:help;font-size:10px;color:var(--tl);font-weight:500" title="Гістограма — 9 дрібніших бакетів суми (не 3 грубих тіри вище). Конверсія — скільки % угод, які реально пройшли воронку (ОПТ/Роздроб/Скринінг), закінчились успіхом (WON), по місяцях.">ⓘ</span>
+    </div>
+    <div class="g2">
+      <div class="card" style="border-color:var(--wh-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">ОПТ — розподіл сум угод (поточний місяць)</div>
+        <div class="cw ch210"><canvas id="hist-wh-chart"></canvas></div>
+      </div>
+      <div class="card" style="border-color:var(--retail-bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Роздріб — розподіл сум угод (поточний місяць)</div>
+        <div class="cw ch210"><canvas id="hist-rt-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="g3" style="margin-top:10px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">Конверсія ОПТ по місяцях</div>
+        <div class="cw ch180"><canvas id="conv-wh-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Конверсія Роздріб по місяцях</div>
+        <div class="cw ch180"><canvas id="conv-rt-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#4b5568;margin-bottom:10px">Конверсія скринінгу лідів по місяцях</div>
+        <div class="cw ch180"><canvas id="conv-screen-chart"></canvas></div>
       </div>
     </div>
   </div>
@@ -1090,8 +1170,8 @@ a{color:var(--gd);text-decoration:none}
       <span>📍 Зведена таблиця локацій<span class="ld" id="loc-live-dot" style="margin-left:2px"></span><span id="loc-live-label" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></span>
       <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Джерело: /api/capacity (easy3dprint.pp.ua) · Коеф. — довідково (бізнес-параметр) · Невикор. ресурс — накопичено з початку історії, маш-год і % від можливого">ⓘ /api/capacity</span>
     </div>
-    <div class="card-flat" style="margin-bottom:8px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Машин</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
-      <tr><td colspan="7" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
+    <div class="card-flat" style="margin-bottom:8px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Машин</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th><th>Вартість браку (вчора)</th></tr></thead><tbody id="loc-tbl-body">
+      <tr><td colspan="8" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
     </tbody></table></div></div>
   </div>
   <div id="w-loc-cards">
@@ -1761,6 +1841,75 @@ async function loadQualityData(){
     // Файл ще не існує, поки не запущено backfill_batches_monthly.py вручну — це нормально, не помилка
     console.info('[Quality monthly] Помісячна історія ще не забекфілена:', e.message);
   }
+
+  // ── НОВЕ: тренди по моделях/змінах/SKU + якість×скарги — усе з уже
+  // накопичених data/batches_monthly_history.json + crm_monthly_history.json,
+  // без додаткових мережевих запитів понад те, що вже тягнеться вище. ──
+  try{
+    const mh=await fetch('data/batches_monthly_history.json?t='+Date.now()).then(r=>r.json());
+    const months=(mh.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+    const wrap=document.getElementById('w-qual-extra-trends');
+    if(wrap && months.length>=2){
+      wrap.style.display='';
+      const labels=months.map(m=>m.month);
+      const note=document.getElementById('qual-extra-note');
+      if(note) note.textContent=`${months[0].month} → ${months[months.length-1].month}`;
+
+      // #2 — % браку по моделі принтера, тренд
+      const allModels=[...new Set(months.flatMap(m=>(m.byPrinterModel||[]).map(x=>x.printerModel)))];
+      const modelPalette=[G,A,R,B,'#BA7517','#8B5CF6'];
+      safeChart('qual-model-trend-chart',{type:'line',data:{labels,datasets:allModels.map((model,i)=>({
+        label:model,
+        data:months.map(m=>{const x=(m.byPrinterModel||[]).find(y=>y.printerModel===model);return x?x.defectPercent:null;}),
+        borderColor:modelPalette[i%modelPalette.length], borderWidth:2, tension:.3, fill:false, pointRadius:3, spanGaps:true,
+      }))},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+
+      // #5 — розрив день/ніч, тренд
+      safeChart('qual-shift-trend-chart',{type:'line',data:{labels,datasets:[
+        {label:'День',data:months.map(m=>{const x=(m.byShift||[]).find(y=>y.shift==='FIRST');return x?x.defectPercent:null;}),borderColor:G,backgroundColor:GB,borderWidth:2.5,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:G,spanGaps:true},
+        {label:'Ніч',data:months.map(m=>{const x=(m.byShift||[]).find(y=>y.shift==='SECOND');return x?x.defectPercent:null;}),borderColor:R,backgroundColor:RB,borderWidth:2.5,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:R,spanGaps:true},
+      ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+
+      // #1 — ТОП-5 SKU за сумарною вартістю браку за весь наявний період
+      const skuTotals={};
+      months.forEach(m=>(m.defectCostRanking||[]).forEach(x=>{skuTotals[x.baseProductCode]=(skuTotals[x.baseProductCode]||0)+(x.defectCostUAH||0);}));
+      const topSku=Object.entries(skuTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const DL=window.ChartDataLabels;
+      safeChart('qual-sku-cost-chart',{type:'bar',plugins:DL?[DL]:[],data:{labels:topSku.map(x=>x[0]),datasets:[
+        {label:'Вартість браку',data:topSku.map(x=>Math.round(x[1])),backgroundColor:'rgba(192,57,43,.2)',borderColor:R,borderWidth:1.5,borderRadius:5},
+      ]},options:{indexAxis:'y',animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:4,color:R,font:{size:10,weight:'700'},formatter:v=>v.toLocaleString('uk-UA')+' грн'}},layout:{padding:{right:70}},scales:{x:{beginAtZero:true,grid:{color:GRID}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+      // #12 — якість ⇄ скарги: накладаємо % браку (виробництво) і кількість
+      // скарг "НЕ влаштувала якість" (з CRM lossReasonsTotal, якщо файл є)
+      try{
+        const ch=await fetch('data/crm_monthly_history.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+        const crmMonths=(ch&&ch.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+        // Вирівнюємо по спільних місяцях (можуть не повністю збігатись)
+        const commonLabels=labels.filter(l=>crmMonths.some(cm=>cm.month===l));
+        if(commonLabels.length>=2){
+          const defectSeries=commonLabels.map(l=>{const m=months.find(x=>x.month===l);return m?.company?.defectPercent??null;});
+          const complaintSeries=commonLabels.map(l=>{
+            const cm=crmMonths.find(x=>x.month===l);
+            const matches=(cm?.lossReasonsTotal||[]).filter(x=>/якіст|качеств/i.test(x.reason));
+            return matches.reduce((s,x)=>s+x.count,0);
+          });
+          safeChart('qual-vs-complaints-chart',{type:'line',data:{labels:commonLabels,datasets:[
+            {label:'% браку (виробництво)',data:defectSeries,borderColor:R,backgroundColor:RB,borderWidth:2.5,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:R,yAxisID:'y',spanGaps:true},
+            {label:'Скарг "НЕ влаштувала якість" (CRM)',data:complaintSeries,borderColor:A,backgroundColor:AB,borderWidth:2,tension:.3,fill:false,pointRadius:4,pointBackgroundColor:A,yAxisID:'y1',borderDash:[5,3]},
+          ]},options:{animation:{duration:0},responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{
+            y:{type:'linear',position:'left',min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'},title:{display:true,text:'% браку',font:{size:9},color:R}},
+            y1:{type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false},title:{display:true,text:'Скарг, шт',font:{size:9},color:A}},
+            x:{grid:{color:GRID},ticks:{font:{size:9}}},
+          }}});
+        }else{
+          const el=document.getElementById('qual-vs-complaints-chart');
+          if(el && el.parentElement) el.parentElement.innerHTML='<div style="font-size:10px;color:var(--tl);padding:20px 10px">Замало спільних місяців між виробничою і CRM історією для накладення (потрібно ≥2)</div>';
+        }
+      }catch(e){console.info('[Quality vs complaints]',e.message);}
+    }
+  }catch(e){
+    console.info('[Quality extra trends] Ще не готово:', e.message);
+  }
 }
 
 // ── GOALS with progress indicators ───────────────────
@@ -2006,6 +2155,8 @@ async function renderStrategy(ov={}){
   // Живий перемикач спринтів + прогноз + проекти без фокусу
   await _loadAndRenderSprints();
   await buildForecast().catch(e=>console.warn('[Forecast]',e.message));
+  await buildSprintVelocity().catch(e=>console.warn('[Velocity]',e.message));
+  await buildGoalsRadar().catch(e=>console.warn('[GoalsRadar]',e.message));
   await buildProgressHistory().catch(e=>console.warn('[ProgressHistory]',e.message));
   await buildNoFocusProjects().catch(e=>console.warn('[NoFocus]',e.message));
 }
@@ -2303,6 +2454,72 @@ async function buildForecast(){
 // ── Прогрес стратегії у часі — щоденні знімки з data/strategy_progress_history.json ──
 // На відміну від forecastChart (перераховується заднім числом з поточних кумулятивних
 // даних по спринтах), тут зберігається факт: яким показник БУВ на кожен конкретний день.
+// ── Швидкість команди (пропускна здатність за спринт) — на відміну від
+// forecastChart, що показує НАРОСТАЮЧИЙ %, тут кожен спринт незалежний:
+// скільки задач реально закрито САМЕ в ньому. ──
+async function buildSprintVelocity(){
+  const canvas=document.getElementById('velocityChart'); if(!canvas) return;
+  let raw;
+  try{const r=await fetch('data/strategy.json?t='+Date.now());raw=await r.json();}
+  catch(e){return;}
+  const sprints=(raw.sprints||[]).slice().sort((a,b)=>a.num-b.num);
+  const withData=sprints.filter(sp=>{
+    const t=Object.values(sp.projects||{}).reduce((s,p)=>s+(p.total||0),0);
+    return t>0;
+  });
+  if(!withData.length) return;
+  const labels=withData.map(sp=>'Спринт '+sp.num);
+  const done=withData.map(sp=>Object.values(sp.projects||{}).reduce((s,p)=>s+(p.done||0),0));
+  const total=withData.map(sp=>Object.values(sp.projects||{}).reduce((s,p)=>s+(p.total||0),0));
+  const DL=window.ChartDataLabels;
+  safeChart('velocityChart',{type:'bar',plugins:DL?[DL]:[],data:{labels,datasets:[
+    {label:'Закрито задач',data:done,backgroundColor:'rgba(42,157,143,.25)',borderColor:G,borderWidth:1.5,borderRadius:5},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:2,font:{size:9,weight:'700'},color:G,formatter:(v,ctx)=>`${v}/${total[ctx.dataIndex]}`},tooltip:{callbacks:{afterLabel:(ctx)=>{const t=total[ctx.dataIndex];return t?`з ${t} задач (${Math.round(ctx.parsed.y/t*100)}%)`:'';}}}},layout:{padding:{top:16}},scales:{y:{beginAtZero:true,grid:{color:GRID}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+}
+
+// ── Радар балансу 5 цілей (Ц1-Ц5) — та сама формула, що на "Скорінг цілей
+// 2026" (sprintPct/projPct/hasNoData/goalPct з js/strategy_scoring.js), тут
+// продубльована мінімально: тільки мапінг id-проєктів на цілі (без хардкод
+// значень done/total — ті завжди беремо живими з strategy.json). Звірено з
+// живим віджетом раніше (24.08.2026) — збіг з точністю до різниці в
+// індивідуальних вагах користувача. ──
+const GOAL_MAP = {
+  'Ц1': {name:'Система управління та діджиталізація', color:'#1D4ED8', projects:['1.0','3.0','12.0']},
+  'Ц2': {name:'Операційна ефективність виробництва', color:'#16A34A', projects:['8.0','9.0','10.0','11.0','16.0']},
+  'Ц3': {name:'Продажі та диверсифікація клієнтської бази', color:'#EA580C', projects:['7.0','14.0','13.0']},
+  'Ц4': {name:'Команда та HR', color:'#7C3AED', projects:['2.0']},
+  'Ц5': {name:'Нові продукти та ринки', color:'#0891B2', projects:['4.0','5.0','6.0','15.0']},
+};
+
+async function buildGoalsRadar(){
+  const canvas=document.getElementById('goalsRadarChart'); if(!canvas) return;
+  let raw;
+  try{const r=await fetch('data/strategy.json?t='+Date.now());raw=await r.json();}
+  catch(e){return;}
+  const sprints=(raw.sprints||[]).slice().sort((a,b)=>a.num-b.num);
+
+  const sprintPct=(done,total)=> total>0 ? done/total : (done>0?1:0);
+  const projPct=(pid)=>{
+    const vals=sprints
+      .filter(sp=>sp.projects && sp.projects[pid] && (sp.projects[pid].total||0)>0)
+      .map(sp=>sprintPct(sp.projects[pid].done||0, sp.projects[pid].total||0));
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null; // null = проєкт без жодної задачі (виключаємо)
+  };
+  const goalPct=(pids)=>{
+    const vals=pids.map(projPct).filter(v=>v!==null);
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length*100 : 0;
+  };
+
+  const labels=Object.values(GOAL_MAP).map(g=>g.name.length>22?g.name.slice(0,20)+'…':g.name);
+  const data=Object.values(GOAL_MAP).map(g=>Math.round(goalPct(g.projects)));
+
+  const DL=window.ChartDataLabels;
+  safeChart('goalsRadarChart',{type:'radar',plugins:DL?[DL]:[],data:{labels,datasets:[{
+    label:'% виконання', data, backgroundColor:'rgba(42,157,143,.2)', borderColor:G, borderWidth:2,
+    pointBackgroundColor:Object.values(GOAL_MAP).map(g=>g.color), pointRadius:4,
+  }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{color:'#1e293b',font:{size:10,weight:'700'},formatter:v=>v+'%',align:'end'}},scales:{r:{min:0,max:100,ticks:{stepSize:20,backdropColor:'transparent',font:{size:8}},grid:{color:GRID},pointLabels:{font:{size:9}}}}}});
+}
+
 async function buildProgressHistory(){
   const canvas=document.getElementById('strprog-chart'); if(!canvas) return;
   const note=document.getElementById('strprog-note');
@@ -2374,7 +2591,7 @@ const WCAT=[
   {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
   {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
   {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-batches',tab:'prod',label:'Партії/ЛОТи (вчора)'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
-  {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},{id:'qual-batches',tab:'qual',label:'Брак по моделі/деталі (вчора)'},{id:'qual-lots',tab:'qual',label:'ТОП проблемних/чистих ЛОТів'},{id:'qual-batches-trend',tab:'qual',label:'Тренд браку по датах'},{id:'qual-batches-monthly',tab:'qual',label:'По місяцях (2026)'},
+  {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},{id:'qual-batches',tab:'qual',label:'Брак по моделі/деталі (вчора)'},{id:'qual-lots',tab:'qual',label:'ТОП проблемних/чистих ЛОТів'},{id:'qual-batches-trend',tab:'qual',label:'Тренд браку по датах'},{id:'qual-batches-monthly',tab:'qual',label:'По місяцях (2026)'},{id:'qual-extra-trends',tab:'qual',label:'Тренди по моделях/змінах/SKU + якість×скарги'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},{id:'sales-tiers',tab:'sales',label:'Сегменти угод за розміром'},{id:'sales-loss-reasons',tab:'sales',label:'Причини відмов'},
   {id:'mkt-funnel',tab:'mkt',label:'Воронка та CAC/LTV'},{id:'mkt-camp',tab:'mkt',label:'Рекламні кампанії'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
@@ -2415,6 +2632,8 @@ function go(id,btn){
   if(id==='str'&&window.E3D_STRATEGY){
     E3D_STRATEGY.render();
     try{ buildForecast(); }catch(e){}
+    try{ buildSprintVelocity(); }catch(e){}
+    try{ buildGoalsRadar(); }catch(e){}
   }
   if(id==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
     window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
@@ -2525,6 +2744,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       // Перерендерити скорінг після отримання даних
       if(window.E3D_STRATEGY){ E3D_STRATEGY.render(); }
       try{ buildForecast(); }catch(e){console.warn('[Forecast]',e.message);}
+      try{ buildSprintVelocity(); }catch(e){console.warn('[Velocity]',e.message);}
+      try{ buildGoalsRadar(); }catch(e){console.warn('[GoalsRadar]',e.message);}
       try{ buildNoFocusProjects(data); }catch(e){console.warn('[NoFocus]',e.message);}
       updDot(E3D_LOADER.summary());
     });
@@ -2615,9 +2836,11 @@ window.LocLoader = (() => {
             const key = locNum(loc.location);
             const accepted = (loc.lots || []).reduce((s, l) => s + (l.acceptedQty || 0), 0);
             const defect = (loc.lots || []).reduce((s, l) => s + (l.defectQty || 0), 0);
+            const defectCostUAH = ((bd.byLocation || {})[key]?.byProduct || []).reduce((s, p) => s + (p.defectCostUAH || 0), 0);
             _batchesYesterday.locations[key] = {
               batches: loc.totals?.batches ?? null,
               defectPercent: accepted ? Math.round(defect / accepted * 1000) / 10 : null,
+              defectCostUAH,
             };
           });
         }
@@ -2715,6 +2938,10 @@ window.LocLoader = (() => {
       const idleCell = idle.days === 0
         ? `<span class="cov ctt">TBD</span>`
         : `<span class="pill ${idle.pct != null && idle.pct <= 20 ? 'pla' : 'plr'}">${fmtHours(idle.hours)}${idle.pct != null ? ' · ' + idle.pct.toFixed(1) + '%' : ''}</span>`;
+      const yb = (_batchesYesterday && _batchesYesterday.locations[num]) || null;
+      const costCell = (yb && yb.defectCostUAH != null)
+        ? `<span title="ОТК за ${_batchesYesterday.date}">${Math.round(yb.defectCostUAH).toLocaleString('uk-UA')} грн</span>`
+        : `<span class="cov ctt">—</span>`;
       return `<tr>
         <td>${loc.location}</td>
         <td>${(loc.machines?.total || 0).toLocaleString('uk-UA')}</td>
@@ -2723,13 +2950,16 @@ window.LocLoader = (() => {
         <td>${qualityCell}</td>
         <td>${pill(completion, 60, '%')}</td>
         <td>${idleCell}</td>
+        <td>${costCell}</td>
       </tr>`;
     }).join('');
     const totalMachines = locations.reduce((s, l) => s + (l.machines?.total || 0), 0);
+    const totalCost = Object.values((_batchesYesterday && _batchesYesterday.locations) || {}).reduce((s, l) => s + (l.defectCostUAH || 0), 0);
     const totalRow = `<tr style="font-weight:700;background:var(--bg2,#F9FAFB)">
       <td>Всього · ${locations.length} локацій</td>
       <td>${totalMachines.toLocaleString('uk-UA')}</td>
-      <td colspan="5"></td>
+      <td colspan="4"></td>
+      <td>${totalCost ? Math.round(totalCost).toLocaleString('uk-UA') + ' грн' : '—'}</td>
     </tr>`;
     body.innerHTML = rows + totalRow;
   }
@@ -3129,6 +3359,6 @@ window.LocLoader = (() => {
 <script src="js/hr_loader.js?v=20260814"></script>
 <script src="js/ads_loader.js?v=20260814"></script>
 <script src="js/mql_loader.js?v=20260814"></script>
-<script src="js/sales_loader.js?v=20260824d"></script>
+<script src="js/sales_loader.js?v=20260825"></script>
 </body>
 </html>
