@@ -30,12 +30,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/strategy.json
+          git add data/strategy.json data/strategy_progress_history.json
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: update strategy data [skip ci]"
           for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
+            git pull --rebase origin main_root && git push && exit 0
+            sleep $((i*3))
           done
+          echo "::error::Не вдалось запушити strategy.json після 5 спроб"
+          exit 1
 
   update-hr:
     runs-on: ubuntu-latest
