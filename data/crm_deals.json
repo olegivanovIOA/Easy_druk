@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-01T00:17:25Z",
+  "fetched_at": "2026-09-01T05:57:00Z",
   "month": "2026-09",
   "from": "2026-09-01",
   "to": "2026-09-01",
@@ -207,17 +207,49 @@
       }
     }
   },
-  "lossReasonsWholesale": [],
+  "lossReasonsWholesale": [
+    {
+      "reason": "НЕ можем реализовать запрос",
+      "count": 1
+    }
+  ],
   "lossReasonsRetail": [],
-  "lossReasonsScreening": [],
-  "lossReasonsTotal": [],
+  "lossReasonsScreening": [
+    {
+      "reason": "ОШИБСЯ (запрос не по теме)",
+      "count": 2
+    },
+    {
+      "reason": "СПАМ / МУСОР",
+      "count": 1
+    }
+  ],
+  "lossReasonsTotal": [
+    {
+      "reason": "ОШИБСЯ (запрос не по теме)",
+      "count": 2
+    },
+    {
+      "reason": "НЕ можем реализовать запрос",
+      "count": 1
+    },
+    {
+      "reason": "СПАМ / МУСОР",
+      "count": 1
+    }
+  ],
   "lossReasonsByCategory": {
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "reasons": [],
-      "totalLost": 0,
-      "totalReviewed": 7
+      "reasons": [
+        {
+          "reason": "НЕ можем реализовать запрос",
+          "count": 1
+        }
+      ],
+      "totalLost": 1,
+      "totalReviewed": 8
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -236,15 +268,24 @@
     "0": {
       "label": "ЛИДЫ (первинний скринінг)",
       "group": "screening",
-      "reasons": [],
-      "totalLost": 0,
-      "totalReviewed": 0
+      "reasons": [
+        {
+          "reason": "ОШИБСЯ (запрос не по теме)",
+          "count": 2
+        },
+        {
+          "reason": "СПАМ / МУСОР",
+          "count": 1
+        }
+      ],
+      "totalLost": 3,
+      "totalReviewed": 3
     }
   },
   "totalReviewed": {
-    "wholesale": 7,
+    "wholesale": 8,
     "retail": 0,
-    "screening": 0,
-    "all": 7
+    "screening": 3,
+    "all": 11
   }
 }
