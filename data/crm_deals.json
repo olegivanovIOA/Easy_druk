@@ -1,20 +1,20 @@
 {
-  "fetched_at": "2026-09-01T05:57:00Z",
+  "fetched_at": "2026-09-01T10:21:07Z",
   "month": "2026-09",
   "from": "2026-09-01",
   "to": "2026-09-01",
   "complete": false,
   "wholesale": {
-    "deals": 0,
-    "revenue": 0,
-    "avgCheck": null,
-    "medianCheck": null,
+    "deals": 14,
+    "revenue": 37613.0,
+    "avgCheck": 2686.64,
+    "medianCheck": 2121.5,
     "tiers": [
       {
         "tier": "small",
         "label": "Дрібні (<10К)",
-        "deals": 0,
-        "revenue": 0.0
+        "deals": 14,
+        "revenue": 37613.0
       },
       {
         "tier": "medium",
@@ -38,12 +38,12 @@
       {
         "bucket": "b2",
         "label": "1К–2К",
-        "deals": 0
+        "deals": 5
       },
       {
         "bucket": "b3",
         "label": "2К–5К",
-        "deals": 0
+        "deals": 9
       },
       {
         "bucket": "b4",
@@ -77,9 +77,9 @@
       }
     ],
     "timeToClose": {
-      "avgDays": null,
-      "medianDays": null,
-      "sampleSize": 0
+      "avgDays": 19.9,
+      "medianDays": 19.5,
+      "sampleSize": 14
     }
   },
   "retail": {
@@ -164,16 +164,42 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 0,
-      "revenue": 0,
-      "avgCheck": null,
-      "medianCheck": null,
+      "deals": 14,
+      "revenue": 37613.0,
+      "avgCheck": 2686.64,
+      "medianCheck": 2121.5,
       "otherCurrencyDealsSkipped": 0,
-      "top5": [],
+      "top5": [
+        {
+          "id": "191450",
+          "title": "Салазкі",
+          "amount": 4800.0
+        },
+        {
+          "id": "194972",
+          "title": "TR300 по 30 шт",
+          "amount": 4500.0
+        },
+        {
+          "id": "194728",
+          "title": "Готові 3Д моделі 50 шт",
+          "amount": 3750.0
+        },
+        {
+          "id": "195486",
+          "title": "Форма для масла з логотипом пташки 2",
+          "amount": 3670.0
+        },
+        {
+          "id": "194438",
+          "title": "консультація і друк деталі кріплення 5 шт 50 грам 1 шт",
+          "amount": 3350.0
+        }
+      ],
       "timeToClose": {
-        "avgDays": null,
-        "medianDays": null,
-        "sampleSize": 0
+        "avgDays": 19.9,
+        "medianDays": 19.5,
+        "sampleSize": 14
       }
     },
     "18": {
@@ -210,31 +236,79 @@
   "lossReasonsWholesale": [
     {
       "reason": "НЕ можем реализовать запрос",
+      "count": 4
+    },
+    {
+      "reason": "НЕ отвечает (более 3-х попыток)",
+      "count": 2
+    },
+    {
+      "reason": "ДОРОГО",
+      "count": 2
+    },
+    {
+      "reason": "НЕ устраивают сроки",
       "count": 1
     }
   ],
   "lossReasonsRetail": [],
   "lossReasonsScreening": [
     {
-      "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 2
+      "reason": "Не берет / не отвечает (более 3 попыток)",
+      "count": 12
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 1
+      "count": 5
+    },
+    {
+      "reason": "ОШИБСЯ (запрос не по теме)",
+      "count": 5
+    },
+    {
+      "reason": "Уже НЕ актуально (не озвучил запрос)",
+      "count": 2
+    },
+    {
+      "reason": "ДУБЛЬ",
+      "count": 2
     }
   ],
   "lossReasonsTotal": [
     {
-      "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 2
-    },
-    {
-      "reason": "НЕ можем реализовать запрос",
-      "count": 1
+      "reason": "Не берет / не отвечает (более 3 попыток)",
+      "count": 12
     },
     {
       "reason": "СПАМ / МУСОР",
+      "count": 5
+    },
+    {
+      "reason": "ОШИБСЯ (запрос не по теме)",
+      "count": 5
+    },
+    {
+      "reason": "НЕ можем реализовать запрос",
+      "count": 4
+    },
+    {
+      "reason": "НЕ отвечает (более 3-х попыток)",
+      "count": 2
+    },
+    {
+      "reason": "ДОРОГО",
+      "count": 2
+    },
+    {
+      "reason": "Уже НЕ актуально (не озвучил запрос)",
+      "count": 2
+    },
+    {
+      "reason": "ДУБЛЬ",
+      "count": 2
+    },
+    {
+      "reason": "НЕ устраивают сроки",
       "count": 1
     }
   ],
@@ -245,11 +319,23 @@
       "reasons": [
         {
           "reason": "НЕ можем реализовать запрос",
+          "count": 4
+        },
+        {
+          "reason": "НЕ отвечает (более 3-х попыток)",
+          "count": 2
+        },
+        {
+          "reason": "ДОРОГО",
+          "count": 2
+        },
+        {
+          "reason": "НЕ устраивают сроки",
           "count": 1
         }
       ],
-      "totalLost": 1,
-      "totalReviewed": 8
+      "totalLost": 9,
+      "totalReviewed": 33
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -270,22 +356,34 @@
       "group": "screening",
       "reasons": [
         {
-          "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 2
+          "reason": "Не берет / не отвечает (более 3 попыток)",
+          "count": 12
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 1
+          "count": 5
+        },
+        {
+          "reason": "ОШИБСЯ (запрос не по теме)",
+          "count": 5
+        },
+        {
+          "reason": "Уже НЕ актуально (не озвучил запрос)",
+          "count": 2
+        },
+        {
+          "reason": "ДУБЛЬ",
+          "count": 2
         }
       ],
-      "totalLost": 3,
-      "totalReviewed": 3
+      "totalLost": 26,
+      "totalReviewed": 26
     }
   },
   "totalReviewed": {
-    "wholesale": 8,
+    "wholesale": 33,
     "retail": 0,
-    "screening": 3,
-    "all": 11
+    "screening": 26,
+    "all": 59
   }
 }
