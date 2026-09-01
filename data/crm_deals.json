@@ -1,98 +1,98 @@
 {
-  "fetched_at": "2026-08-31T20:34:46Z",
-  "month": "2026-08",
-  "from": "2026-08-01",
-  "to": "2026-08-31",
-  "complete": true,
+  "fetched_at": "2026-09-01T00:17:25Z",
+  "month": "2026-09",
+  "from": "2026-09-01",
+  "to": "2026-09-01",
+  "complete": false,
   "wholesale": {
-    "deals": 188,
-    "revenue": 42803343.98,
-    "avgCheck": 227677.36,
-    "medianCheck": 2200.0,
+    "deals": 0,
+    "revenue": 0,
+    "avgCheck": null,
+    "medianCheck": null,
     "tiers": [
       {
         "tier": "small",
         "label": "Дрібні (<10К)",
-        "deals": 148,
-        "revenue": 357798.8
+        "deals": 0,
+        "revenue": 0.0
       },
       {
         "tier": "medium",
         "label": "Середні (10К–100К)",
-        "deals": 27,
-        "revenue": 991596.92
+        "deals": 0,
+        "revenue": 0.0
       },
       {
         "tier": "mega",
         "label": "Мега-опт (>100К)",
-        "deals": 13,
-        "revenue": 41453948.26
+        "deals": 0,
+        "revenue": 0.0
       }
     ],
     "histogram": [
       {
         "bucket": "b1",
         "label": "<1К",
-        "deals": 8
+        "deals": 0
       },
       {
         "bucket": "b2",
         "label": "1К–2К",
-        "deals": 76
+        "deals": 0
       },
       {
         "bucket": "b3",
         "label": "2К–5К",
-        "deals": 50
+        "deals": 0
       },
       {
         "bucket": "b4",
         "label": "5К–10К",
-        "deals": 14
+        "deals": 0
       },
       {
         "bucket": "b5",
         "label": "10К–25К",
-        "deals": 12
+        "deals": 0
       },
       {
         "bucket": "b6",
         "label": "25К–50К",
-        "deals": 8
+        "deals": 0
       },
       {
         "bucket": "b7",
         "label": "50К–100К",
-        "deals": 7
+        "deals": 0
       },
       {
         "bucket": "b8",
         "label": "100К–300К",
-        "deals": 4
+        "deals": 0
       },
       {
         "bucket": "b9",
         "label": ">300К",
-        "deals": 9
+        "deals": 0
       }
     ],
     "timeToClose": {
-      "avgDays": 29.6,
-      "medianDays": 16.5,
-      "sampleSize": 188
+      "avgDays": null,
+      "medianDays": null,
+      "sampleSize": 0
     }
   },
   "retail": {
-    "deals": 2,
-    "revenue": 823.0,
-    "avgCheck": 411.5,
-    "medianCheck": 411.5,
+    "deals": 0,
+    "revenue": 0,
+    "avgCheck": null,
+    "medianCheck": null,
     "tiers": [
       {
         "tier": "small",
         "label": "Дрібні (<10К)",
-        "deals": 2,
-        "revenue": 823.0
+        "deals": 0,
+        "revenue": 0.0
       },
       {
         "tier": "medium",
@@ -111,7 +111,7 @@
       {
         "bucket": "b1",
         "label": "<1К",
-        "deals": 2
+        "deals": 0
       },
       {
         "bucket": "b2",
@@ -164,64 +164,27 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 188,
-      "revenue": 42803343.98,
-      "avgCheck": 227677.36,
-      "medianCheck": 2200.0,
+      "deals": 0,
+      "revenue": 0,
+      "avgCheck": null,
+      "medianCheck": null,
       "otherCurrencyDealsSkipped": 0,
-      "top5": [
-        {
-          "id": "186634",
-          "title": "Оптовый заказ_19",
-          "amount": 29769207.29
-        },
-        {
-          "id": "186638",
-          "title": "Дронариум",
-          "amount": 3933300.0
-        },
-        {
-          "id": "186632",
-          "title": "Вомакс",
-          "amount": 3866550.0
-        },
-        {
-          "id": "194114",
-          "title": "Корпус 1 і 2 по 50 шт",
-          "amount": 831560.0
-        },
-        {
-          "id": "175028",
-          "title": "ОПТ заказ_15 заказ",
-          "amount": 733945.97
-        }
-      ],
+      "top5": [],
       "timeToClose": {
-        "avgDays": 29.6,
-        "medianDays": 16.5,
-        "sampleSize": 188
+        "avgDays": null,
+        "medianDays": null,
+        "sampleSize": 0
       }
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
       "group": "retail",
-      "deals": 2,
-      "revenue": 823.0,
-      "avgCheck": 411.5,
-      "medianCheck": 411.5,
+      "deals": 0,
+      "revenue": 0,
+      "avgCheck": null,
+      "medianCheck": null,
       "otherCurrencyDealsSkipped": 0,
-      "top5": [
-        {
-          "id": "193190",
-          "title": "Стрелец",
-          "amount": 425.2
-        },
-        {
-          "id": "194986",
-          "title": "Стрелец",
-          "amount": 397.8
-        }
-      ],
+      "top5": [],
       "timeToClose": {
         "avgDays": null,
         "medianDays": null,
@@ -244,176 +207,24 @@
       }
     }
   },
-  "lossReasonsWholesale": [
-    {
-      "reason": "НЕ можем реализовать запрос",
-      "count": 235
-    },
-    {
-      "reason": "ДОРОГО",
-      "count": 171
-    },
-    {
-      "reason": "НЕ актуально",
-      "count": 74
-    },
-    {
-      "reason": "НЕ отвечает (более 3-х попыток)",
-      "count": 54
-    },
-    {
-      "reason": "Ищет в своем ГОРОДЕ",
-      "count": 40
-    },
-    {
-      "reason": "НЕ устраивают сроки",
-      "count": 31
-    },
-    {
-      "reason": "ДУБЛЬ",
-      "count": 2
-    },
-    {
-      "reason": "НЕ устроило качество",
-      "count": 1
-    }
-  ],
+  "lossReasonsWholesale": [],
   "lossReasonsRetail": [],
-  "lossReasonsScreening": [
-    {
-      "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 375
-    },
-    {
-      "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 196
-    },
-    {
-      "reason": "СПАМ / МУСОР",
-      "count": 187
-    },
-    {
-      "reason": "ДУБЛЬ",
-      "count": 119
-    },
-    {
-      "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 116
-    },
-    {
-      "reason": "Некорректные контакты для связи",
-      "count": 33
-    },
-    {
-      "reason": "ТЕСТОВЫЙ звонок",
-      "count": 13
-    }
-  ],
-  "lossReasonsTotal": [
-    {
-      "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 375
-    },
-    {
-      "reason": "НЕ можем реализовать запрос",
-      "count": 235
-    },
-    {
-      "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 196
-    },
-    {
-      "reason": "СПАМ / МУСОР",
-      "count": 187
-    },
-    {
-      "reason": "ДОРОГО",
-      "count": 171
-    },
-    {
-      "reason": "ДУБЛЬ",
-      "count": 121
-    },
-    {
-      "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 116
-    },
-    {
-      "reason": "НЕ актуально",
-      "count": 74
-    },
-    {
-      "reason": "НЕ отвечает (более 3-х попыток)",
-      "count": 54
-    },
-    {
-      "reason": "Ищет в своем ГОРОДЕ",
-      "count": 40
-    },
-    {
-      "reason": "Некорректные контакты для связи",
-      "count": 33
-    },
-    {
-      "reason": "НЕ устраивают сроки",
-      "count": 31
-    },
-    {
-      "reason": "ТЕСТОВЫЙ звонок",
-      "count": 13
-    },
-    {
-      "reason": "НЕ устроило качество",
-      "count": 1
-    }
-  ],
+  "lossReasonsScreening": [],
+  "lossReasonsTotal": [],
   "lossReasonsByCategory": {
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "reasons": [
-        {
-          "reason": "НЕ можем реализовать запрос",
-          "count": 235
-        },
-        {
-          "reason": "ДОРОГО",
-          "count": 171
-        },
-        {
-          "reason": "НЕ актуально",
-          "count": 74
-        },
-        {
-          "reason": "НЕ отвечает (более 3-х попыток)",
-          "count": 54
-        },
-        {
-          "reason": "Ищет в своем ГОРОДЕ",
-          "count": 40
-        },
-        {
-          "reason": "НЕ устраивают сроки",
-          "count": 31
-        },
-        {
-          "reason": "ДУБЛЬ",
-          "count": 2
-        },
-        {
-          "reason": "НЕ устроило качество",
-          "count": 1
-        }
-      ],
-      "totalLost": 608,
-      "totalReviewed": 853
+      "reasons": [],
+      "totalLost": 0,
+      "totalReviewed": 7
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
       "group": "retail",
       "reasons": [],
       "totalLost": 0,
-      "totalReviewed": 2
+      "totalReviewed": 0
     },
     "32": {
       "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
@@ -425,44 +236,15 @@
     "0": {
       "label": "ЛИДЫ (первинний скринінг)",
       "group": "screening",
-      "reasons": [
-        {
-          "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 375
-        },
-        {
-          "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 196
-        },
-        {
-          "reason": "СПАМ / МУСОР",
-          "count": 187
-        },
-        {
-          "reason": "ДУБЛЬ",
-          "count": 119
-        },
-        {
-          "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 116
-        },
-        {
-          "reason": "Некорректные контакты для связи",
-          "count": 33
-        },
-        {
-          "reason": "ТЕСТОВЫЙ звонок",
-          "count": 13
-        }
-      ],
-      "totalLost": 1039,
-      "totalReviewed": 1042
+      "reasons": [],
+      "totalLost": 0,
+      "totalReviewed": 0
     }
   },
   "totalReviewed": {
-    "wholesale": 853,
-    "retail": 2,
-    "screening": 1042,
-    "all": 1897
+    "wholesale": 7,
+    "retail": 0,
+    "screening": 0,
+    "all": 7
   }
 }
