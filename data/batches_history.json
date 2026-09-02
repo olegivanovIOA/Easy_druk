@@ -2650,77 +2650,95 @@
       "locations": {
         "1": {
           "name": "Локація 1",
-          "batches": 2,
-          "lots": 2,
-          "acceptedQty": 0,
+          "batches": 6,
+          "lots": 4,
+          "acceptedQty": 755,
           "defectQty": 0,
-          "defectPercent": null,
-          "defectWeightPercent": null,
-          "totalPrintTimeMinutes": 91812.7,
-          "materialCostUAH": null,
-          "materialCostCoveragePercent": null
+          "defectPercent": 0.0,
+          "defectWeightPercent": 0.0,
+          "totalPrintTimeMinutes": 221991.2,
+          "materialCostUAH": 1316.76,
+          "materialCostCoveragePercent": 100.0
         },
         "2": {
           "name": "Локація 2",
           "batches": 5,
           "lots": 4,
-          "acceptedQty": 0,
+          "acceptedQty": 1577,
           "defectQty": 0,
-          "defectPercent": null,
-          "defectWeightPercent": null,
-          "totalPrintTimeMinutes": 167701.9,
-          "materialCostUAH": null,
-          "materialCostCoveragePercent": null
+          "defectPercent": 0.0,
+          "defectWeightPercent": 0.0,
+          "totalPrintTimeMinutes": 311948.7,
+          "materialCostUAH": 4842.94,
+          "materialCostCoveragePercent": 100.0
         },
         "4": {
           "name": "Локація 4",
-          "batches": 11,
-          "lots": 3,
+          "batches": 21,
+          "lots": 4,
           "acceptedQty": 1073,
           "defectQty": 30,
           "defectPercent": 2.8,
           "defectWeightPercent": 2.8,
-          "totalPrintTimeMinutes": 239143,
+          "totalPrintTimeMinutes": 396234.5,
           "materialCostUAH": 2584.86,
           "materialCostCoveragePercent": 100.0
         },
         "5": {
           "name": "Локація 5",
-          "batches": 47,
-          "lots": 7,
-          "acceptedQty": 7880,
+          "batches": 64,
+          "lots": 10,
+          "acceptedQty": 10457,
           "defectQty": 150,
-          "defectPercent": 1.9,
-          "defectWeightPercent": 1.78,
-          "totalPrintTimeMinutes": 730944.8999999999,
+          "defectPercent": 1.43,
+          "defectWeightPercent": 1.33,
+          "totalPrintTimeMinutes": 999409.7,
           "materialCostUAH": 14507.1,
-          "materialCostCoveragePercent": 46.7
+          "materialCostCoveragePercent": 35.2
         },
         "6": {
           "name": "Локація 6",
-          "batches": 4,
-          "lots": 1,
-          "acceptedQty": 475,
+          "batches": 7,
+          "lots": 2,
+          "acceptedQty": 1543,
           "defectQty": 29,
-          "defectPercent": 6.11,
-          "defectWeightPercent": 6.1,
-          "totalPrintTimeMinutes": 132900,
-          "materialCostUAH": 5407.88,
+          "defectPercent": 1.88,
+          "defectWeightPercent": 1.88,
+          "totalPrintTimeMinutes": 249688.1,
+          "materialCostUAH": 17267.13,
           "materialCostCoveragePercent": 100.0
         }
       },
       "company": {
-        "batches": 69,
-        "lots": 17,
-        "acceptedQty": 9428,
+        "batches": 103,
+        "lots": 24,
+        "acceptedQty": 15405,
         "defectQty": 209,
-        "defectPercent": 2.22,
-        "defectWeightPercent": 2.11,
-        "totalPrintTimeMinutes": 1362502.5,
-        "materialCostUAH": 22499.83,
-        "materialCostCoveragePercent": 55.4
+        "defectPercent": 1.36,
+        "defectWeightPercent": 1.29,
+        "totalPrintTimeMinutes": 2179272.2,
+        "materialCostUAH": 40518.78,
+        "materialCostCoveragePercent": 56.0
       },
       "lots": [
+        {
+          "location": "1",
+          "acceptedQty": 755,
+          "batchCount": 2,
+          "defectPercent": 0,
+          "printerModels": [
+            "A1 mini"
+          ]
+        },
+        {
+          "location": "2",
+          "acceptedQty": 1577,
+          "batchCount": 1,
+          "defectPercent": 0,
+          "printerModels": [
+            "A1 mini"
+          ]
+        },
         {
           "location": "4",
           "acceptedQty": 1073,
@@ -2732,9 +2750,9 @@
         },
         {
           "location": "5",
-          "acceptedQty": 6096,
+          "acceptedQty": 6947,
           "batchCount": 8,
-          "defectPercent": 0.69,
+          "defectPercent": 0.6,
           "printerModels": [
             "P1S"
           ]
@@ -2758,6 +2776,15 @@
           ]
         },
         {
+          "location": "5",
+          "acceptedQty": 1726,
+          "batchCount": 10,
+          "defectPercent": 0,
+          "printerModels": [
+            "P1S"
+          ]
+        },
+        {
           "location": "6",
           "acceptedQty": 475,
           "batchCount": 4,
@@ -2765,9 +2792,18 @@
           "printerModels": [
             "A2L"
           ]
+        },
+        {
+          "location": "6",
+          "acceptedQty": 1068,
+          "batchCount": 3,
+          "defectPercent": 0,
+          "printerModels": [
+            "A2L"
+          ]
         }
       ]
     }
   ],
-  "updated_at": "2026-09-02T00:44:43Z"
+  "updated_at": "2026-09-02T05:19:33Z"
 }
