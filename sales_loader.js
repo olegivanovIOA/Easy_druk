@@ -129,86 +129,191 @@ window.SalesLoader = (() => {
 
       if(lrWrap && current){
         lrWrap.style.display='';
-        const sel=document.getElementById('loss-reasons-period');
-        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', renderLossReasons); }
-        renderLossReasons();
+        const sel=document.getElementById('loss-reasons-total-period');
+        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', ()=>{renderTotalReasons();renderTotalReasonsTrend();}); }
+        renderTotalReasons();
+        renderTotalReasonsTrend();
       }
       if(tiersWrap && current){
         tiersWrap.style.display='';
         const sel=document.getElementById('tiers-period');
-        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', renderTiers); }
+        if(sel && periodOptions){ sel.innerHTML=periodOptions; sel.addEventListener('change', ()=>{renderTiers();renderTiersTrend();}); }
         renderTiers();
+        renderTiersTrend();
+      }
+
+      // #9 гістограма + #6 конверсія — з'являються тільки якщо бекенд уже
+      // віддає нові поля histogram/totalReviewed (після перезаливки
+      // fetch_crm_deals.py і повторного прогону — старі знімки їх не мають)
+      const histWrap=document.getElementById('w-sales-histogram-funnel');
+      if(histWrap && current && current.wholesale && current.wholesale.histogram){
+        histWrap.style.display='';
+        renderHistogram();
+      }
+      if(histWrap && hist && hist.months && hist.months.some(m=>m.totalReviewed)){
+        histWrap.style.display='';
+        renderConversionTrend();
+      }
+      // #7 швидкість закриття — те саме "з'явиться тільки якщо є дані" правило
+      const ttcWrap=document.getElementById('w-sales-time-to-close');
+      if(ttcWrap && hist && hist.months && hist.months.some(m=>m.wholesale?.timeToClose?.sampleSize)){
+        ttcWrap.style.display='';
+        renderTimeToClose();
       }
     }catch(e){console.warn('[Loss reasons / Tiers]',e.message);}
   }
 
   let _lrCurrent=null, _lrHistory=null;
-  let _lossReasonsView='bar'; // 'bar' | 'pie'
 
-  window.setLossReasonsView=function(view){
-    _lossReasonsView=view;
-    const barBtn=document.getElementById('loss-reasons-view-bar');
-    const pieBtn=document.getElementById('loss-reasons-view-pie');
+  // ── #9 Розподіл сум угод (гістограма, 9 бакетів) — поточний місяць ──
+  function renderHistogram(){
+    const DL=window.ChartDataLabels;
+    const buildChart=(canvasId, histData, color)=>{
+      if(!histData || !histData.length) return;
+      const total=histData.reduce((s,h)=>s+h.deals,0);
+      safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:histData.map(h=>h.label),datasets:[
+        {label:'Угод', data:histData.map(h=>h.deals), backgroundColor:color+'33', borderColor:color, borderWidth:1.5, borderRadius:4},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:2,font:{size:9,weight:'700'},color:color,formatter:v=>v?`${v} (${Math.round(v/total*100)}%)`:''}},layout:{padding:{top:16}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{display:false},ticks:{font:{size:8}}}}}});
+    };
+    buildChart('hist-wh-chart', _lrCurrent?.wholesale?.histogram, WH);
+    buildChart('hist-rt-chart', _lrCurrent?.retail?.histogram, RT);
+  }
+
+  // ── #6 Конверсія в угоду по місяцях — WON / totalReviewed × 100, окремо
+  // по ОПТ/Роздроб/Скринінгу. Потребує wholesale.deals (вже є) і
+  // totalReviewed.* (нове поле, з'явиться після бекфілу). ──
+  function renderConversionTrend(){
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month)).filter(m=>m.totalReviewed);
+    if(months.length<2) return;
+    const labels=months.map(m=>m.month);
+
+    // Примітка: конверсію скринінгу лідів (категорія 0) свідомо НЕ рахуємо —
+    // 25.08.2026 з'ясувалось, що totalReviewed для цієї категорії фактично
+    // збігається з к-стю відмов (тому "конверсія" виходила ~0%). Причина:
+    // WON-угоди переїжджають з категорії 0 в 24/18/32 і зникають з вибірки,
+    // а угоди "в роботі" мають ненадійний CLOSEDATE і випадають з місячного
+    // фільтра — на виду лишаються тільки реальні відмови. Щоб порахувати це
+    // правильно, знадобиться DATE_CREATE замість CLOSEDATE саме для
+    // категорії 0 — окрема задача, не робимо цього нашвидкуруч.
+    const buildChart=(canvasId, wonKey, reviewedKey, color)=>{
+      const data=months.map(m=>{
+        const reviewed=m.totalReviewed?.[reviewedKey];
+        const won=m[wonKey]?.deals;
+        return (reviewed && won!=null) ? Math.round(won/reviewed*1000)/10 : null;
+      });
+      safeChartLoss(canvasId,{type:'line',data:{labels,datasets:[
+        {label:'% конверсії',data,borderColor:color,backgroundColor:color+'22',borderWidth:2.5,tension:.3,fill:true,pointRadius:4,pointBackgroundColor:color,spanGaps:true},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>ctx.parsed.y+'%'}}},scales:{y:{min:0,grid:{color:GRID},ticks:{callback:v=>v+'%'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+    };
+    buildChart('conv-wh-chart', 'wholesale', 'wholesale', WH);
+    buildChart('conv-rt-chart', 'retail', 'retail', RT);
+  }
+
+  // ── #7 Швидкість закриття угоди (днів від DATE_CREATE до CLOSEDATE) —
+  // тільки для WON, тому надійно (CLOSEDATE перевірено для WON раніше).
+  // Показуємо і середнє, і медіану — за аналогією з середнім чеком: якщо
+  // кілька угод довго висіли, середнє спотвориться сильніше за медіану. ──
+  function renderTimeToClose(){
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month)).filter(m=>m.wholesale?.timeToClose || m.retail?.timeToClose);
+    if(months.length<2) return;
+    const labels=months.map(m=>m.month);
+
+    const buildChart=(canvasId, groupKey, color)=>{
+      const avgData=months.map(m=>m[groupKey]?.timeToClose?.avgDays ?? null);
+      const medData=months.map(m=>m[groupKey]?.timeToClose?.medianDays ?? null);
+      safeChartLoss(canvasId,{type:'line',data:{labels,datasets:[
+        {label:'Середнє',data:avgData,borderColor:color,backgroundColor:color+'15',borderWidth:2,tension:.3,fill:false,pointRadius:3,pointBackgroundColor:color,spanGaps:true},
+        {label:'Медіана',data:medData,borderColor:color,borderWidth:2.5,borderDash:[5,3],tension:.3,fill:false,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:color,pointBorderWidth:2,spanGaps:true},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}},tooltip:{callbacks:{label:(ctx)=>ctx.dataset.label+': '+ctx.parsed.y+' дн.',afterBody:(items)=>{const m=months[items[0]?.dataIndex];const n=m?.[groupKey]?.timeToClose?.sampleSize;return n?`на основі ${n} угод`:'';}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+' дн.'}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+    };
+    buildChart('ttc-wh-chart', 'wholesale', WH);
+    buildChart('ttc-rt-chart', 'retail', RT);
+  }
+
+  // ── Всього (компанія) — сума 24+18+32+0 разом. Безпечно сумувати причини
+  // відмов (не гроші!) — вже порахована на сервері як lossReasonsTotal,
+  // тут просто рендеримо. Темний нейтральний колір — виділяє це як
+  // ЗВЕДЕНИЙ підсумок, не ще одну "групу" поряд з ОПТ/Роздроб/Скринінг. ──
+  const TOTAL_CLR = '#334155';
+  let _totalReasonsView='bar';
+
+  window.setTotalReasonsView=function(view){
+    _totalReasonsView=view;
+    const barBtn=document.getElementById('loss-reasons-total-view-bar');
+    const pieBtn=document.getElementById('loss-reasons-total-view-pie');
     if(barBtn&&pieBtn){
       barBtn.style.background=view==='bar'?'var(--tx)':'#fff';
       barBtn.style.color=view==='bar'?'#fff':'var(--tx)';
       pieBtn.style.background=view==='pie'?'var(--tx)':'#fff';
       pieBtn.style.color=view==='pie'?'#fff':'var(--tx)';
     }
-    renderLossReasons();
+    renderTotalReasons();
   };
 
-  function renderLossReasons(){
-    const sel=document.getElementById('loss-reasons-period');
+  function renderTotalReasons(){
+    const sel=document.getElementById('loss-reasons-total-period');
     const period=sel?sel.value:'all';
-    const note=document.getElementById('loss-reasons-note');
+    const note=document.getElementById('loss-reasons-total-note');
 
-    let whReasons, rtReasons, label;
+    let reasons, label;
     if(period==='all' && _lrHistory && _lrHistory.months && _lrHistory.months.length){
-      // Сумуємо причини по всіх забекфілених місяцях
-      const sumReasons=(key)=>{
-        const merged={};
-        _lrHistory.months.forEach(m=>(m[key]||[]).forEach(r=>{merged[r.reason]=(merged[r.reason]||0)+r.count;}));
-        return Object.entries(merged).map(([reason,count])=>({reason,count})).sort((a,b)=>b.count-a.count);
-      };
-      whReasons=sumReasons('lossReasonsWholesale');
-      rtReasons=sumReasons('lossReasonsRetail');
+      const merged={};
+      _lrHistory.months.forEach(m=>(m['lossReasonsTotal']||[]).forEach(r=>{merged[r.reason]=(merged[r.reason]||0)+r.count;}));
+      reasons=Object.entries(merged).map(([reason,count])=>({reason,count})).sort((a,b)=>b.count-a.count);
       const months=_lrHistory.months.map(m=>m.month).sort();
       label=`${months[0]} → ${months[months.length-1]} (${months.length} міс.)`;
     }else if(period==='all'){
-      // Нема історії — показуємо хоча б поточний місяць
-      whReasons=(_lrCurrent&&_lrCurrent.lossReasonsWholesale)||[];
-      rtReasons=(_lrCurrent&&_lrCurrent.lossReasonsRetail)||[];
+      reasons=(_lrCurrent&&_lrCurrent.lossReasonsTotal)||[];
       label=(_lrCurrent&&_lrCurrent.month)||'—';
     }else{
       const m=(_lrHistory&&_lrHistory.months||[]).find(x=>x.month===period);
-      whReasons=(m&&m.lossReasonsWholesale)||[];
-      rtReasons=(m&&m.lossReasonsRetail)||[];
+      reasons=(m&&m.lossReasonsTotal)||[];
       label=period+(m&&m.complete===false?' (частково, ще триває)':'');
     }
     if(note) note.textContent=label;
 
-    const buildChart=(canvasId, reasons, color)=>{
-      const DL=window.ChartDataLabels;
-      const total=reasons.reduce((s,r)=>s+r.count,0);
-      if(_lossReasonsView==='pie'){
-        // Палітра відтінків базового кольору групи (щоб не плутати ОПТ/Роздріб між собою)
-        const shades=reasons.map((_,i)=>{
-          const t=reasons.length>1?i/(reasons.length-1):0;
-          return shadeColor(color, .15+t*.55);
-        });
-        safeChartLoss(canvasId,{type:'pie',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
-          data:reasons.map(r=>r.count), backgroundColor:shades, borderColor:'#fff', borderWidth:2,
-        }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},boxWidth:10,padding:6}},datalabels:{color:'#fff',font:{size:10,weight:'700'},formatter:v=>total?Math.round(v/total*100)+'%':'',display:ctx=>ctx.dataset.data[ctx.dataIndex]/total>0.04}}}});
-        return;
-      }
-      safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
-        label:'Відмов', data:reasons.map(r=>r.count), backgroundColor:color+'26', borderColor:color, borderWidth:1.5, borderRadius:5,
-      }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:4,color:color,font:{size:10,weight:'700'},formatter:v=>total?`${v} (${Math.round(v/total*100)}%)`:v}},layout:{padding:{right:60}},scales:{x:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
-    };
-    buildChart('loss-reasons-wh-chart', whReasons.slice(0,10), WH);
-    buildChart('loss-reasons-rt-chart', rtReasons.slice(0,10), RT);
+    const DL=window.ChartDataLabels;
+    const total=reasons.reduce((s,r)=>s+r.count,0);
+    const canvasId='loss-reasons-total-chart';
+    if(_totalReasonsView==='pie'){
+      const shades=reasons.map((_,i)=>{
+        const t=reasons.length>1?i/(reasons.length-1):0;
+        return shadeColor(TOTAL_CLR, .15+t*.55);
+      });
+      safeChartLoss(canvasId,{type:'pie',plugins:DL?[DL]:[],data:{labels:reasons.map(r=>r.reason),datasets:[{
+        data:reasons.map(r=>r.count), backgroundColor:shades, borderColor:'#fff', borderWidth:2,
+      }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},boxWidth:10,padding:6}},datalabels:{color:'#fff',font:{size:10,weight:'700'},formatter:v=>total?Math.round(v/total*100)+'%':'',display:ctx=>ctx.dataset.data[ctx.dataIndex]/total>0.04}}}});
+      return;
+    }
+    safeChartLoss(canvasId,{type:'bar',plugins:DL?[DL]:[],data:{labels:reasons.slice(0,10).map(r=>r.reason),datasets:[{
+      label:'Відмов', data:reasons.slice(0,10).map(r=>r.count), backgroundColor:TOTAL_CLR+'26', borderColor:TOTAL_CLR, borderWidth:1.5, borderRadius:5,
+    }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:4,color:TOTAL_CLR,font:{size:10,weight:'700'},formatter:v=>total?`${v} (${Math.round(v/total*100)}%)`:v}},layout:{padding:{right:60}},scales:{x:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
   }
+
+  function renderTotalReasonsTrend(){
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+    const canvas=document.getElementById('loss-reasons-total-trend-chart');
+    if(!canvas || months.length<2) return;
+    const sel=document.getElementById('loss-reasons-total-period');
+    const selected=sel?sel.value:'all';
+    const labels=months.map(m=>m.month);
+    const palette=[TOTAL_CLR,WH,RT,G,A,R,GD,'#8B5CF6','#EC4899','#14B8A6'];
+
+    const totals={};
+    months.forEach(m=>(m['lossReasonsTotal']||[]).forEach(r=>{totals[r.reason]=(totals[r.reason]||0)+r.count;}));
+    const topReasons=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
+    const datasets=topReasons.map((reason,i)=>{
+      const data=months.map(m=>{
+        const r=(m['lossReasonsTotal']||[]).find(x=>x.reason===reason);
+        return r?r.count:0;
+      });
+      const pointRadius=months.map(m=>m.month===selected?7:3);
+      const color=palette[i%palette.length];
+      return {label:reason, data, borderColor:color, backgroundColor:color+'22', borderWidth:2, tension:.3, pointRadius, pointBackgroundColor:color, fill:false};
+    });
+    safeChartLoss('loss-reasons-total-trend-chart',{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:6,font:{size:8},boxWidth:8}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+  }
+
 
   const TIER_LABELS=['Дрібні (<10К)','Середні (10К–100К)','Мега-опт (>100К)'];
   const TIER_KEYS=['small','medium','mega'];
@@ -263,6 +368,37 @@ window.SalesLoader = (() => {
     const canvas=document.getElementById(id); if(!canvas) return;
     if(_lrCharts[id]){ try{_lrCharts[id].destroy();}catch(e){} }
     _lrCharts[id]=new Chart(canvas,cfg);
+  }
+
+  // ── Динаміка тірів по місяцях (сезонність) — завжди весь рік, вибраний у
+  // фільтрі місяць лише підсвічується більшою точкою на лінії ──
+  function renderTiersTrend(){
+    const wrap=document.getElementById('tiers-trend-wrap');
+    if(!wrap) return;
+    const months=(_lrHistory&&_lrHistory.months||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+    if(months.length<2){ wrap.style.display='none'; return; }
+    wrap.style.display='';
+    const sel=document.getElementById('tiers-period');
+    const selected=sel?sel.value:'all';
+    const labels=months.map(m=>m.month);
+    const tierColors=[RT, A, WH];
+
+    const buildTrend=(canvasId, groupKey)=>{
+      const datasets=TIER_KEYS.map((key,i)=>{
+        const data=months.map(m=>{
+          const t=(m[groupKey]?.tiers||[]).find(x=>x.tier===key);
+          return t?t.deals:0;
+        });
+        const pointRadius=months.map(m=>m.month===selected?7:3);
+        return {
+          label:TIER_LABELS[i], data, borderColor:tierColors[i], backgroundColor:tierColors[i]+'22',
+          borderWidth:2, tension:.3, pointRadius, pointBackgroundColor:tierColors[i], fill:false,
+        };
+      });
+      safeChartLoss(canvasId,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}}},scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{stepSize:1}},x:{grid:{color:GRID},ticks:{font:{size:9}}}}}});
+    };
+    buildTrend('tiers-wh-trend-chart','wholesale');
+    buildTrend('tiers-rt-trend-chart','retail');
   }
 
   // ── 2. Комбінований графік ОПТ + Роздріб ──────────────────────────────────
@@ -349,22 +485,6 @@ window.SalesLoader = (() => {
         y:{type:'linear',position:'left',grid:{color:GRID},ticks:{callback:v=>_fmt(v)},title:{display:true,text:'Сума',font:{size:9},color:GD}},
         y1:{type:'linear',position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Угод',font:{size:9}}},
       }}});
-    }
-
-    // Топ активних угод
-    const listEl=document.getElementById('sales-pipeline-list');
-    if(listEl){
-      const deals=(pipe.active_deals||[]).slice(0,8);
-      if(!deals.length){listEl.innerHTML='<p style="color:var(--tl)">Немає активних угод</p>';return;}
-      const STAGE_COLOR={won:GD,active:G,test:'#b58b2a',calculation:A,waiting:'#a06e3c',slow:'#c08c39'};
-      listEl.innerHTML=deals.map(d=>`
-        <div class="mr" style="margin-bottom:6px">
-          <div class="mn" style="white-space:normal;line-height:1.3">${d.client||'—'}</div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-            <div class="mv" style="color:${STAGE_COLOR[d.stage]||A};font-size:11px;font-weight:700">${_fmt(d.total)} грн</div>
-            <div style="font-size:9px;color:var(--tl)">${d.stage_label}</div>
-          </div>
-        </div>`).join('');
     }
   }
 
