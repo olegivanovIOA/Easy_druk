@@ -800,24 +800,24 @@ a{color:var(--gd);text-decoration:none}
   </div>
   <div id="cf-status" style="font-size:11px;color:var(--tl);margin-bottom:8px"></div>
 
-  <div class="sec" style="font-size:11px;font-weight:600;color:var(--tl);margin-bottom:6px">📊 YTD (Січень–Липень 2026)</div>
+  <div class="sec" style="font-size:11px;font-weight:600;color:var(--tl);margin-bottom:6px">📊 YTD 2026</div>
   <div class="g6" style="margin-bottom:14px">
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка YTD</div><div class="krow-val g" id="cf-rev-ytd">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">EBITDA YTD</div><div class="krow-val g" id="cf-ebitda-ytd">—</div><div class="real-dot"></div></div>
-    <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">EBITDA % (avg)</div><div class="krow-val" id="cf-ebitda-pct">—</div><div class="real-dot"></div></div>
+    <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">EBITDA %</div><div class="krow-val" id="cf-ebitda-pct">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">CAPEX YTD</div><div class="krow-val" id="cf-capex-ytd">—</div><div class="real-dot"></div></div>
-    <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Дивіденди YTD</div><div class="krow-val" id="cf-div-ytd">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Чистий CF YTD</div><div class="krow-val" id="cf-delta-ytd">—</div><div class="real-dot"></div></div>
+    <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Залишок на рахунку</div><div class="krow-val" id="cf-balance">—</div><div class="real-dot"></div></div>
   </div>
 
-  <div class="sec" style="font-size:11px;font-weight:600;color:var(--tl);margin-bottom:6px">📍 Поточний місяць (Липень)</div>
+  <div class="sec" style="font-size:11px;font-weight:600;color:var(--tl);margin-bottom:6px">📍 Останній повний місяць: <span id="cf-last-month-label">—</span></div>
   <div class="g6" style="margin-bottom:14px">
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка</div><div class="krow-val g" id="cf-rev-last">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Валова маржа %</div><div class="krow-val" id="cf-gm-last">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">EBITDA %</div><div class="krow-val" id="cf-ebitda-last">—</div><div class="real-dot"></div></div>
-    <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Залишок на рахунку</div><div class="krow-val" id="cf-balance">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Концентрація топ-2</div><div class="krow-val r" id="cf-top2-last">—</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маркетинг / Виручка</div><div class="krow-val" id="cf-marketing-pct">—</div><div class="real-dot"></div></div>
+    <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Клієнтів</div><div class="krow-val" id="cf-clients-last">—</div><div class="real-dot"></div></div>
   </div>
 
   <div class="g2" style="margin-bottom:14px">
@@ -832,7 +832,7 @@ a{color:var(--gd);text-decoration:none}
   </div>
 
   <div class="card" style="margin-bottom:14px">
-    <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура витрат по місяцях (stacked, M грн)</div>
+    <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура витрат по місяцях (M грн)</div>
     <div class="cw ch220"><canvas id="cf-costs-chart"></canvas></div>
   </div>
 
@@ -848,7 +848,9 @@ a{color:var(--gd);text-decoration:none}
   </div>
 
   <div class="card" style="margin-bottom:14px">
-    <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Маркетинг / Виручка % <span style="font-size:10px;color:var(--tl);font-weight:400">(норма: 0.5–2%)</span></div>
+    <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">
+      Маркетинг / Виручка % <span style="font-size:10px;color:var(--tl);font-weight:400">(норма: 0.5–2%)</span>
+    </div>
     <div id="cf-mkt-list"></div>
   </div>
 
