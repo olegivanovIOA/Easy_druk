@@ -114,7 +114,7 @@ a{color:var(--gd);text-decoration:none}
   .ti{font-size:14px}.tb{padding:6px 8px;font-size:11px;letter-spacing:0}
   .nav-top{padding:0 10px;gap:4px}.lname{font-size:13px}.lcube{width:24px;height:24px}
   .card{padding:10px 12px}.sec{font-size:12px;padding:10px 0 6px}
-  .ch210{height:160px}.ch180{height:140px}.ch160{height:130px}.ch140{height:120px}.ch260{height:190px}
+  .ch210{height:160px}.ch180{height:140px}.ch160{height:130px}.ch140{height:120px}
 }
 @media(max-width:480px){.g6,.g5,.g4,.g3,.g2{grid-template-columns:1fr}.ltag,.lp span{display:none}
   .ti{display:none}.tb{padding:5px 7px;font-size:11px}
@@ -160,7 +160,7 @@ a{color:var(--gd);text-decoration:none}
 .bdg-b{background:var(--bl);color:var(--bd2);border:1px solid var(--bb)}
 .bdg-tbd{background:var(--s2);color:var(--tl);border:1px dashed var(--bd3);font-style:italic}
 .cw{position:relative}
-.ch140{height:140px}.ch160{height:160px}.ch180{height:180px}.ch210{height:210px}.ch260{height:260px}
+.ch140{height:140px}.ch160{height:160px}.ch180{height:180px}.ch210{height:210px}
 
 
 /* WATERMARKS */
@@ -346,7 +346,7 @@ a{color:var(--gd);text-decoration:none}
       <button class="tb" data-tab="qual" onclick="go('qual',this)"><span class="ti">✅</span>Якість<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="sales" onclick="go('sales',this)"><span class="ti">💼</span>Продажі<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-sales"></div></button>
       <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>CRM<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
-      <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-fin"></div></button>
+      <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
       <button class="tb" data-tab="hr" onclick="go('hr',this)"><span class="ti">👥</span>HR<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-hr"></div></button>
       <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="reg" onclick="go('reg',this)"><span class="ti">📋</span>Реєстр</button>
@@ -832,7 +832,7 @@ a{color:var(--gd);text-decoration:none}
   </div>
   <div class="card" style="margin-bottom:14px">
     <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура витрат по місяцях (M грн)</div>
-    <div class="cw ch260"><canvas id="cf-costs-chart"></canvas></div>
+    <div class="cw ch220"><canvas id="cf-costs-chart"></canvas></div>
   </div>
   <div class="g2" style="margin-bottom:14px">
     <div class="card">
@@ -845,17 +845,18 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
   <div class="card" style="margin-bottom:14px">
-    <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">
-      Маркетинг / Виручка % <span style="font-size:10px;color:var(--tl);font-weight:400">(норма: 0.5–2%)</span>
+    <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:4px">
+      Маркетинг / Виручка % по місяцях <span style="font-size:10px;color:var(--tl);font-weight:400">(норма: 0.5–2%)</span>
     </div>
+    <div style="font-size:10px;color:var(--tl);margin-bottom:8px">Скільки % виручки місяця пішло на рекламу — контроль що маркетинг не «з'їдає» прибуток</div>
     <div id="cf-mkt-list"></div>
   </div>
   <div id="w-fin-unit">
-    <div class="sec">🔢 Юніт-економіка</div>
+    <div class="sec">🔢 Юніт-економіка <span style="font-size:10px;font-weight:400;color:var(--tl)">(розраховується з CF + план виробництва)</span></div>
     <div class="g6">
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Виручка / год маш.</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Витрати / год маш.</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржа локації</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Виручка / клієнта (YTD)</div><div class="krow-val g" id="cf-rev-per-client">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Маркетинг / клієнта (YTD)</div><div class="krow-val" id="cf-mkt-per-client">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">CAPEX / локацію (YTD)</div><div class="krow-val" id="cf-capex-per-loc">—</div><div class="real-dot"></div></div>
     </div>
   </div>
 </div>
@@ -1961,18 +1962,6 @@ document.addEventListener('DOMContentLoaded',()=>{
         }).catch(function(){});
       }).catch(function(){});
       document.getElementById('hr-employees-count').dataset.loaded='1';
-    }
-    var tf=document.getElementById('tip-fin');if(tf)tf.innerHTML=tipHTML('live','CashFlow 2026','—',false);
-    // Фінанси: завантажити одразу незалежно від активної вкладки (щоб графіки були готові при рефреші на цій вкладці)
-    if(window.CashflowLoader){
-      Promise.resolve(window.CashflowLoader.load()).then(function(){
-        fetch('data/cashflow.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-          var tf2=document.getElementById('tip-fin');
-          if(tf2&&d.fetched_at)tf2.innerHTML=tipHTML('live','CashFlow 2026',fmtTs(d.fetched_at),false);
-        }).catch(function(){});
-      }).catch(function(){});
-      var pf=document.getElementById('panel-fin');
-      if(pf) pf.dataset.loaded='1';
     }
   })();
   restoreTab();
