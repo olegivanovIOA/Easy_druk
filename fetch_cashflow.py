@@ -233,7 +233,7 @@ def main():
     OUTPUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     sz = OUTPUT.stat().st_size
     print(f"[OK] {OUTPUT} — {sz:,} bytes | {len(complete)}/{n_months} повних місяців")
-    print(f"     YTD виручка: {ytd.get('revenue',0)/1e6:.1f}M | EBITDA: {ytd.get('ebitda',0)/1e6:.1f}M ({ytd.get('ebitda_pct')}%)")
+    print(f"     YTD виручка: {(ytd.get('revenue') or 0)/1e6:.1f}M | EBITDA: {(ytd.get('ebitda') or 0)/1e6:.1f}M ({ytd.get('ebitda_pct') or '—'}%)")
 
 
 if __name__ == "__main__":
