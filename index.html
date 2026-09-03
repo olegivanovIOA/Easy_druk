@@ -807,7 +807,7 @@ a{color:var(--gd);text-decoration:none}
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">EBITDA %</div><div class="krow-val" id="cf-ebitda-pct">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">CAPEX YTD</div><div class="krow-val" id="cf-capex-ytd">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Чистий CF YTD</div><div class="krow-val" id="cf-delta-ytd">—</div><div class="real-dot"></div></div>
-    <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Залишок на рахунку</div><div class="krow-val" id="cf-balance">—</div><div class="real-dot"></div></div>
+    <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Залишок на рахунку</div><div class="krow-val" id="cf-balance">—</div><div class="real-dot"></div></div>
   </div>
 
   <div class="sec" style="font-size:11px;font-weight:600;color:var(--tl);margin-bottom:6px">📍 Останній повний місяць: <span id="cf-last-month-label">—</span></div>
@@ -817,7 +817,7 @@ a{color:var(--gd);text-decoration:none}
     <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">EBITDA %</div><div class="krow-val" id="cf-ebitda-last">—</div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Концентрація топ-2</div><div class="krow-val r" id="cf-top2-last">—</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
     <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маркетинг / Виручка</div><div class="krow-val" id="cf-marketing-pct">—</div><div class="real-dot"></div></div>
-    <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Клієнтів</div><div class="krow-val" id="cf-clients-last">—</div><div class="real-dot"></div></div>
+    <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Клієнтів</div><div class="krow-val" id="cf-clients-last">—</div><div class="real-dot"></div></div>
   </div>
 
   <div class="g2" style="margin-bottom:14px">
@@ -830,12 +830,10 @@ a{color:var(--gd);text-decoration:none}
       <div class="cw ch210"><canvas id="cf-ebitda-chart"></canvas></div>
     </div>
   </div>
-
   <div class="card" style="margin-bottom:14px">
     <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура витрат по місяцях (M грн)</div>
     <div class="cw ch220"><canvas id="cf-costs-chart"></canvas></div>
   </div>
-
   <div class="g2" style="margin-bottom:14px">
     <div class="card">
       <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Залишок на рахунку + CAPEX</div>
@@ -846,14 +844,12 @@ a{color:var(--gd);text-decoration:none}
       <div class="cw ch180"><canvas id="cf-clients-chart"></canvas></div>
     </div>
   </div>
-
   <div class="card" style="margin-bottom:14px">
     <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">
       Маркетинг / Виручка % <span style="font-size:10px;color:var(--tl);font-weight:400">(норма: 0.5–2%)</span>
     </div>
     <div id="cf-mkt-list"></div>
   </div>
-
   <div id="w-fin-unit">
     <div class="sec">🔢 Юніт-економіка</div>
     <div class="g6">
