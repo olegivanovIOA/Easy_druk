@@ -6,7 +6,7 @@
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="data/static.js?v=1788422799"></script>
+<script src="data/static.js?v=1788595599"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
@@ -114,7 +114,7 @@ a{color:var(--gd);text-decoration:none}
   .ti{font-size:14px}.tb{padding:6px 8px;font-size:11px;letter-spacing:0}
   .nav-top{padding:0 10px;gap:4px}.lname{font-size:13px}.lcube{width:24px;height:24px}
   .card{padding:10px 12px}.sec{font-size:12px;padding:10px 0 6px}
-  .ch210{height:160px}.ch180{height:140px}.ch160{height:130px}.ch140{height:120px}
+  .ch240{height:180px}.ch220{height:170px}.ch210{height:160px}.ch200{height:150px}.ch180{height:140px}.ch160{height:130px}.ch140{height:120px}
 }
 @media(max-width:480px){.g6,.g5,.g4,.g3,.g2{grid-template-columns:1fr}.ltag,.lp span{display:none}
   .ti{display:none}.tb{padding:5px 7px;font-size:11px}
@@ -160,7 +160,7 @@ a{color:var(--gd);text-decoration:none}
 .bdg-b{background:var(--bl);color:var(--bd2);border:1px solid var(--bb)}
 .bdg-tbd{background:var(--s2);color:var(--tl);border:1px dashed var(--bd3);font-style:italic}
 .cw{position:relative}
-.ch140{height:140px}.ch160{height:160px}.ch180{height:180px}.ch210{height:210px}
+.ch140{height:140px}.ch160{height:160px}.ch180{height:180px}.ch200{height:200px}.ch210{height:210px}.ch220{height:220px}.ch240{height:240px}
 
 
 /* WATERMARKS */
@@ -932,14 +932,10 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Угоди в роботі</div><div class="krow-val g" id="sales-pipe-active">—</div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Win rate</div><div class="krow-val" id="sales-pipe-wr">—</div></div>
     </div>
-    <div class="g2" style="margin-bottom:14px">
+    <div style="margin-bottom:14px">
       <div class="card">
         <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Воронка угод по стадіях</div>
         <div class="cw ch200"><canvas id="sales-pipeline-chart"></canvas></div>
-      </div>
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Топ активних угод</div>
-        <div id="sales-pipeline-list" style="font-size:12px"></div>
       </div>
     </div>
   </div>
@@ -1162,7 +1158,7 @@ a{color:var(--gd);text-decoration:none}
 <!-- ═════════════ ФІНАНСИ ═════════════ -->
 <div class="panel" id="panel-fin">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-    <div class="sec" style="margin-bottom:0">💰 CashFlow 2026 — автоматичний звіт</div>
+    <div class="sec" style="margin-bottom:0">💰 CashFlow 2026 — автоматичний звіт<span class="ld" id="fin-live-dot" style="margin-left:6px"></span></div>
     <span id="cf-updated-at" style="font-size:11px;color:var(--tl)"></span>
   </div>
   <div id="cf-status" style="font-size:11px;color:var(--tl);margin-bottom:8px"></div>
@@ -1199,7 +1195,13 @@ a{color:var(--gd);text-decoration:none}
   </div>
   <div class="card" style="margin-bottom:14px">
     <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура витрат по місяцях (M грн)</div>
-    <div class="cw ch220"><canvas id="cf-costs-chart"></canvas></div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:stretch">
+      <div class="cw ch220" style="flex:1 1 320px;min-width:260px"><canvas id="cf-costs-chart"></canvas></div>
+      <div style="width:150px;flex-shrink:0;border-left:1px solid var(--bd);padding-left:14px">
+        <div style="font-size:9px;font-weight:700;color:var(--tl);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Середнє за рік</div>
+        <div id="cf-costs-avg"></div>
+      </div>
+    </div>
   </div>
   <div class="g2" style="margin-bottom:14px">
     <div class="card">
@@ -2817,6 +2819,24 @@ function restoreTab(){
       if(saved==='qual'&&!panel.dataset.loaded){
         loadQualityData();panel.dataset.loaded='1';
       }
+      if(saved==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
+        window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
+      }
+      if(saved==='crm'&&window.AdsLoader&&!panel.dataset.loaded){
+        window.AdsLoader.load();panel.dataset.loaded='1';
+        if(window.MqlLoader) window.MqlLoader.load();
+      }
+      if(saved==='sales'&&window.SalesLoader&&!panel.dataset.loaded){
+        window.SalesLoader.load();panel.dataset.loaded='1';
+      }
+      if(saved==='fin'&&window.CashflowLoader&&!panel.dataset.loaded){
+        window.CashflowLoader.load();panel.dataset.loaded='1';
+      }
+      // Панель відновлюється, поки Chart.js ще не знає її реальних розмірів
+      // (display:none → active стається до першого layout-проходу) — без
+      // примусового resize графіки лишаються 0-висоти, доки користувач сам
+      // не перемкне вкладку туди-сюди.
+      setTimeout(()=>window.dispatchEvent(new Event('resize')),120);
     }
   }catch(e){}
 }
@@ -3421,10 +3441,10 @@ window.LocLoader = (() => {
 })();
 
 </script>
-<script src="js/hr_loader.js"></script>
-<script src="js/ads_loader.js"></script>
-<script src="js/mql_loader.js"></script>
-<script src="js/sales_loader.js"></script>
-<script src="js/cashflow_loader.js"></script>
+<script src="js/hr_loader.js?v=20260903"></script>
+<script src="js/ads_loader.js?v=20260903"></script>
+<script src="js/mql_loader.js?v=20260903"></script>
+<script src="js/sales_loader.js?v=20260903"></script>
+<script src="js/cashflow_loader.js?v=20260903"></script>
 </body>
 </html>
