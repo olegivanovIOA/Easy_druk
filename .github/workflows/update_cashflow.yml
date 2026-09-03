@@ -1,0 +1,33 @@
+name: Update Cashflow Data
+
+on:
+  schedule:
+    - cron: '15 * * * *'   # кожну годину о :15
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-cf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Fetch CF data
+        env:
+          CF_SHEET_ID: ${{ secrets.CF_SHEET_ID }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: python fetch_cashflow.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/cashflow.json
+          git diff --cached --quiet || git commit -m "chore: update cashflow [skip ci]"
+          git push origin main_root
