@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-03T03:58:31Z",
+  "fetched_at": "2026-09-03T04:13:13Z",
   "date": "2026-09-02",
   "range": {
     "from": "02.09.2026",
@@ -8,17 +8,17 @@
     "basis": "date"
   },
   "totals": {
-    "batches": 101,
+    "batches": 102,
     "lots": 29
   },
   "company": {
-    "batches": 101,
+    "batches": 102,
     "lots": 29,
     "acceptedQty": 55584,
     "defectQty": 2109,
     "defectPercent": 3.79,
     "defectWeightPercent": 3.66,
-    "totalPrintTimeMinutes": 2058552.1,
+    "totalPrintTimeMinutes": 2090294.1,
     "materialCostUAH": 93780.75,
     "materialCostCoveragePercent": 100.0
   },
@@ -46,7 +46,7 @@
     },
     {
       "printerModel": "P2S",
-      "batches": 23,
+      "batches": 24,
       "acceptedQty": 0,
       "defectQty": 0,
       "defectPercent": null
@@ -199,7 +199,7 @@
     },
     {
       "baseProductCode": "31062",
-      "batches": 23,
+      "batches": 24,
       "acceptedQty": 0,
       "defectQty": 0,
       "defectPercent": null,
@@ -320,7 +320,7 @@
         },
         {
           "printerModel": "P2S",
-          "batches": 23,
+          "batches": 24,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null
@@ -337,7 +337,7 @@
         },
         {
           "baseProductCode": "31062",
-          "batches": 23,
+          "batches": 24,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
@@ -752,8 +752,8 @@
       {
         "location": "4",
         "baseProductCode": "31062",
-        "batchCount": 9,
-        "totalPrintTimeMinutes": 129682,
+        "batchCount": 10,
+        "totalPrintTimeMinutes": 161424,
         "shift": "SECOND"
       },
       {
@@ -1419,7 +1419,7 @@
     {
       "location": 4,
       "totals": {
-        "batches": 27,
+        "batches": 28,
         "lots": 4
       },
       "lots": [
@@ -1486,18 +1486,18 @@
           "printerModels": [
             "P2S"
           ],
-          "batchCount": 9,
+          "batchCount": 10,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
-          "totalPrintTimeMinutes": 129682,
-          "printTimeCoverage": 0.8889,
+          "totalPrintTimeMinutes": 161424,
+          "printTimeCoverage": 1,
           "plannedMachines": {
             "planned": 270,
             "estimated": 324
           },
-          "avgPartsPerMachine": 8.1,
-          "avgPartsPerMachineEstimated": 6.8,
+          "avgPartsPerMachine": 10.1,
+          "avgPartsPerMachineEstimated": 8.4,
           "qcDefectWeightPercent": null,
           "defectWeightCoverage": 0
         },
@@ -1666,7 +1666,7 @@
         },
         {
           "printerModel": "P2S",
-          "batchCount": 23,
+          "batchCount": 24,
           "lotCount": 2,
           "batches": [
             {
@@ -2361,7 +2361,44 @@
               "defectPercent": null,
               "qcCompleted": false,
               "unitWeightG": 32.72,
-              "printTime": null,
+              "printTime": {
+                "perPartMinutes": 59,
+                "qty": 260,
+                "totalMinutes": 15340,
+                "source": "production_plans_daily"
+              },
+              "plannedMachines": {
+                "planned": 270,
+                "estimated": 324
+              },
+              "qcDefectWeightPercent": null
+            },
+            {
+              "batchNumber": "245-N-26-04-000-31062-010",
+              "lotKey": "245-N-26-04-31062",
+              "date": "02.09.2026",
+              "shift": "SECOND",
+              "product": {
+                "code": "31062_08",
+                "baseCode": "31062",
+                "orderNumber": "8_08"
+              },
+              "material": {
+                "type": "PLA",
+                "color": "#F4EE2A",
+                "source": "gcode_files"
+              },
+              "acceptedQty": 0,
+              "defectQty": 0,
+              "defectPercent": null,
+              "qcCompleted": false,
+              "unitWeightG": 32.72,
+              "printTime": {
+                "perPartMinutes": 59,
+                "qty": 278,
+                "totalMinutes": 16402,
+                "source": "production_plans_daily"
+              },
               "plannedMachines": {
                 "planned": 270,
                 "estimated": 324
