@@ -2,7 +2,7 @@ name: Update Dashboard Data
 
 on:
   schedule:
-    - cron: '0 * * * *'   # щогодини (стратегія + MQL)
+    - cron: '0 * * * *'   # щогодини (стратегія)
     - cron: '30 5 * * *'  # щодня о 05:30 UTC (HR — після того як Ads-скрипт відпрацює о 07:00 Kyiv)
   workflow_dispatch:
 
@@ -30,15 +30,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/strategy.json data/strategy_progress_history.json
+          git add data/strategy.json
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: update strategy data [skip ci]"
           for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && exit 0
-            sleep $((i*3))
+            git pull --rebase origin main_root && git push && break || sleep $((i*3))
           done
-          echo "::error::Не вдалось запушити strategy.json після 5 спроб"
-          exit 1
 
   update-hr:
     runs-on: ubuntu-latest
@@ -100,7 +97,8 @@ jobs:
           for i in 1 2 3 4 5; do
             git pull --rebase origin main_root && git push && break || sleep $((i*3))
           done
-  update-mql:
+
+  update-cf:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -111,134 +109,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - run: pip install requests
+      - run: pip install requests cryptography
 
-      - name: Fetch MQL/SQL data
+      - name: Fetch CashFlow data
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          MQL_SHEET_ID: ${{ secrets.MQL_SHEET_ID }}
-        run: python fetch_mql.py
+          CF_SHEET_ID:                 ${{ secrets.CF_SHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python fetch_cashflow.py
 
-      - name: Commit MQL data
+      - name: Commit CF data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/mql_sql.json
+          git add data/cashflow.json
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update MQL/SQL data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
-  update-sales:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main_root
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - run: pip install requests
-
-      - name: Fetch Sales data
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          SALES_SHEET_ID: ${{ secrets.SALES_SHEET_ID }}
-        run: python fetch_sales.py
-
-      - name: Commit Sales data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/sales_planner.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update sales data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
-  update-capacity:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main_root
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - run: pip install requests
-
-      - name: Fetch Capacity data (Локації)
-        env:
-          CAPACITY_API_KEY: ${{ secrets.CAPACITY_API_KEY }}
-        run: python fetch_capacity.py
-
-      - name: Commit Capacity data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/capacity.json data/capacity_history.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update capacity data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
-  update-batches:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main_root
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - run: pip install requests
-
-      - name: Fetch Batches/Lots data (Партії)
-        env:
-          CAPACITY_API_KEY: ${{ secrets.CAPACITY_API_KEY }}
-        run: python fetch_batches.py
-
-      - name: Commit Batches data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/batches_lots.json data/batches_history.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update batches data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
-  update-crm:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main_root
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - run: pip install requests
-
-      - name: Fetch CRM deals (Bitrix24, поточний місяць)
-        env:
-          BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
-        run: python fetch_crm_deals.py
-
-      - name: Commit CRM deals data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/crm_deals.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update CRM deals data [skip ci]"
+          git commit -m "chore: update cashflow data [skip ci]"
           for i in 1 2 3 4 5; do
             git pull --rebase origin main_root && git push && break || sleep $((i*3))
           done
