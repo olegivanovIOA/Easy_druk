@@ -82,12 +82,40 @@ def get_sheet_list(token):
             for s in r.json().get("sheets", [])}
 
 
+def fetch_sheet_by_gid(gid, token):
+    """Отримуємо назву листа по gid через metadata."""
+    url = (f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}"
+           f"?fields=sheets.properties(sheetId,title)")
+    r = requests.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=15)
+    r.raise_for_status()
+    for s in r.json().get("sheets", []):
+        if str(s["properties"]["sheetId"]) == str(gid):
+            return s["properties"]["title"]
+    return None
+
+
 def fetch_csv(gid, token):
-    url = (f"https://docs.google.com/spreadsheets/d/{SHEET_ID}"
-           f"/export?format=csv&gid={gid}")
+    """
+    Sheets API v4 /values endpoint — приймає Bearer токен на відміну від CSV export.
+    Повертає list[list[str]] — аналогічно csv.reader.
+    """
+    # Спочатку знаходимо назву листа по gid
+    sheet_name = fetch_sheet_by_gid(gid, token)
+    if not sheet_name:
+        raise ValueError(f"Лист з gid={gid} не знайдено")
+
+    # Кодуємо назву листа для URL
+    import urllib.parse
+    range_name = urllib.parse.quote(f"'{sheet_name}'")
+    url = (f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}"
+           f"/values/{range_name}?valueRenderOption=FORMATTED_VALUE")
     r = requests.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=20)
     r.raise_for_status()
-    return list(csv.reader(io.StringIO(r.content.decode("utf-8-sig"))))
+    data = r.json()
+    rows = data.get("values", [])
+    # Вирівнюємо рядки до однакової довжини (Sheets API обрізає порожні хвости)
+    max_cols = max((len(row) for row in rows), default=0)
+    return [row + [""] * (max_cols - len(row)) for row in rows]
 
 
 def to_float(v):
