@@ -486,22 +486,6 @@ window.SalesLoader = (() => {
         y1:{type:'linear',position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Угод',font:{size:9}}},
       }}});
     }
-
-    // Топ активних угод
-    const listEl=document.getElementById('sales-pipeline-list');
-    if(listEl){
-      const deals=(pipe.active_deals||[]).slice(0,8);
-      if(!deals.length){listEl.innerHTML='<p style="color:var(--tl)">Немає активних угод</p>';return;}
-      const STAGE_COLOR={won:GD,active:G,test:'#b58b2a',calculation:A,waiting:'#a06e3c',slow:'#c08c39'};
-      listEl.innerHTML=deals.map(d=>`
-        <div class="mr" style="margin-bottom:6px">
-          <div class="mn" style="white-space:normal;line-height:1.3">${d.client||'—'}</div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-            <div class="mv" style="color:${STAGE_COLOR[d.stage]||A};font-size:11px;font-weight:700">${_fmt(d.total)} грн</div>
-            <div style="font-size:9px;color:var(--tl)">${d.stage_label}</div>
-          </div>
-        </div>`).join('');
-    }
   }
 
   // ── 6. Якість лідів ──────────────────────────────────────────────────────

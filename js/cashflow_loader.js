@@ -2,6 +2,8 @@
  * cashflow_loader.js — Easy 3D Print Dashboard v4.4
  * Правки: без дивідендів, неповні місяці виключені з графіків,
  * підписи значень на графіках (Chart.js datalabels).
+ * 03.09.2026: live-індикатор (#fin-live-dot) на заголовку вкладки,
+ * середні річні пропорції витрат (#cf-costs-avg) поруч з графіком.
  */
 window.CashflowLoader = (() => {
   const DATA_URL = 'data/cashflow.json';
@@ -21,13 +23,23 @@ window.CashflowLoader = (() => {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       _data = await r.json();
       render();
+      _setLiveDot('ok');
     } catch(e) {
       console.warn('[CF]', e.message);
       const el = document.getElementById('cf-status');
       if (el) el.innerHTML = `⚠ CF дані недоступні: ${e.message}.<br>
         <span style="font-size:10px">Переконайтеся що SA <code>easy3d-dashboard@ts-alpha.iam.gserviceaccount.com</code>
         має доступ Viewer до таблиці CF.</span>`;
+      _setLiveDot('err');
     }
+  }
+
+  // Живий індикатор поруч із заголовком вкладки — сірий поки не завантажено,
+  // зелений (пульсуючий) коли cashflow.json реально підтягнувся, червоний при помилці.
+  function _setLiveDot(state) {
+    const dot = document.getElementById('fin-live-dot');
+    if (!dot) return;
+    dot.className = state === 'ok' ? 'ld ok' : state === 'err' ? 'ld err' : 'ld';
   }
 
   function render() {
@@ -245,6 +257,8 @@ window.CashflowLoader = (() => {
       { key:'admin',     label:'Адмін',     color:'rgba(150,150,150,.6)'  },
     ];
 
+    _renderCostAverages(ITEMS, months);
+
     const plugins = DL ? [DL] : [];
     if (_charts.costs) { try { _charts.costs.destroy(); } catch(e){} }
     _charts.costs = new Chart(canvas, {
@@ -292,6 +306,29 @@ window.CashflowLoader = (() => {
         }
       }
     });
+  }
+
+  // ── Середні пропорції витрат за рік (бічна панель поруч з графіком) ────────
+  function _renderCostAverages(ITEMS, months) {
+    const el = document.getElementById('cf-costs-avg');
+    if (!el) return;
+    if (!months.length) { el.innerHTML = '<p style="font-size:10px;color:var(--tl)">Немає даних</p>'; return; }
+
+    const totalsByCat = ITEMS.map(it => months.reduce((s,m) => s + (m[it.key] || 0), 0));
+    const grandTotal = totalsByCat.reduce((a,b) => a+b, 0);
+
+    el.innerHTML = ITEMS.map((it, i) => {
+      const avgAbs = totalsByCat[i] / months.length;      // середньо на місяць
+      const avgPct = grandTotal ? totalsByCat[i] / grandTotal * 100 : 0;
+      return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">
+        <span style="width:8px;height:8px;border-radius:2px;background:${it.color};flex-shrink:0"></span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.label}</div>
+          <div style="font-size:9px;color:var(--tl)">${fmt(avgAbs)}/міс</div>
+        </div>
+        <div style="font-size:11px;font-weight:800;color:var(--tx)">${avgPct.toFixed(0)}%</div>
+      </div>`;
+    }).join('');
   }
 
   // ── Залишок + CAPEX ───────────────────────────────────────────────────────
