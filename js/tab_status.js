@@ -22,16 +22,16 @@ window.TabStatus = (() => {
   // ─── КОНФІГ ────────────────────────────────────────────────────────────────
   // tab: значення атрибута data-tab або id таб-кнопки
   const TAB_STATUS = [
-    { tab: 'ceo',        status: '',         source: '',                dataKey: null },
-    { tab: 'strategy',   status: 'partial',  source: 'Google Sheets',   dataKey: 'strategy' },
-    { tab: 'production', status: '',         source: '',                dataKey: null },
-    { tab: 'quality',    status: '',         source: '',                dataKey: null },
-    { tab: 'sales',      status: '',         source: '',                dataKey: null },
-    { tab: 'crm',        status: 'partial',  source: 'Google Ads',      dataKey: null },
-    { tab: 'finance',    status: '',         source: '',                dataKey: null },
-    { tab: 'hr',         status: 'live',     source: 'Google Sheets',   dataKey: 'hr' },
-    { tab: 'locations',  status: '',         source: '',                dataKey: null },
-    { tab: 'registry',   status: '',         source: '',                dataKey: null },
+    { tab: 'ceo',    status: '',         source: '',                dataKey: null },
+    { tab: 'str',    status: 'partial',  source: 'Google Sheets',   dataKey: 'strategy' },
+    { tab: 'prod',   status: '',         source: '',                dataKey: null },
+    { tab: 'qual',   status: '',         source: '',                dataKey: null },
+    { tab: 'sales',  status: '',         source: '',                dataKey: null },
+    { tab: 'crm',    status: 'partial',  source: 'Google Ads',      dataKey: null },
+    { tab: 'fin',    status: 'live',     source: 'CashFlow 2026',   dataKey: 'cashflow' },
+    { tab: 'hr',     status: 'live',     source: 'Google Sheets',   dataKey: 'hr' },
+    { tab: 'loc',    status: '',         source: '',                dataKey: null },
+    { tab: 'reg',    status: '',         source: '',                dataKey: null },
   ];
 
   const LABELS = {

@@ -252,16 +252,19 @@ window.CashflowLoader = (() => {
       data: { labels, datasets: ITEMS.map((it, idx) => ({
         label: it.label,
         data: months.map(m => m[it.key] ? +(m[it.key]/1e6).toFixed(2) : null),
-        backgroundColor: it.color, borderRadius: 3,
-        // Підпис тільки на останньому датасеті (топ стовпця)
+        backgroundColor: it.color, borderRadius: 2,
+        // Підпис % на кожному сегменті — тільки якщо сегмент помітний (≥6% від суми місяця)
         datalabels: DL ? {
-          display: idx === ITEMS.length - 1,
-          anchor: 'end', align: 'top', font: { size: 8, weight: '600' },
-          color: 'var(--tx)',
+          anchor: 'center', align: 'center',
+          font: { size: 8, weight: '700' },
+          color: '#fff',
+          textStrokeColor: 'rgba(0,0,0,.35)', textStrokeWidth: 2,
           formatter: (v, ctx) => {
+            if (!v) return '';
             const total = ITEMS.reduce((s, it2, i) =>
               s + (ctx.chart.data.datasets[i].data[ctx.dataIndex] || 0), 0);
-            return total ? fmtShort(total * 1e6) : '';
+            const pct = total ? v / total * 100 : 0;
+            return pct >= 6 ? Math.round(pct) + '%' : '';
           },
         } : { display: false },
       }))},
@@ -269,6 +272,17 @@ window.CashflowLoader = (() => {
         responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: { position: 'top', labels: { usePointStyle: true, padding: 6, font: { size: 9 } } },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const total = ITEMS.reduce((s, it2, i) =>
+                  s + (ctx.chart.data.datasets[i].data[ctx.dataIndex] || 0), 0);
+                const v = ctx.parsed.y || 0;
+                const pct = total ? Math.round(v/total*100) : 0;
+                return `${ctx.dataset.label}: ${v.toFixed(2)}M (${pct}%)`;
+              }
+            }
+          },
           datalabels: DL ? { display: true } : { display: false },
         },
         scales: {
