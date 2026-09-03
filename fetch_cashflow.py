@@ -29,6 +29,7 @@ LABEL_KEYWORDS = {
     "electro":       "РАЗОМ ЕЛЕКТРОЕНЕРГІЯ",
     "rent":          "РАЗОМ ОРЕНДА ПРИМІЩЕННЯ",
     "logistics":     "РАЗОМ ЛОГІСТИКА",
+    "taxes":         "РАЗОМ ПОДАТКИ",
     "admin":         "РАЗОМ АДМІНІСТРАТИВНІ",
     "marketing":     "РАЗОМ РЕКЛАМА",
     "capex":         "РАЗОМ КАПІТАЛЬНІ ВИТРАТИ",
@@ -133,7 +134,7 @@ def parse_cf(rows, n_months):
         rev = vals["revenue"]; opt = vals["opt_b2b"]; retail = vals["retail_b2c"]
         cogs = vals["cogs"]; salary = vals["salary"]; elec = vals["electro"]
         rent = vals["rent"]; logi = vals["logistics"]; adm = vals["admin"]
-        mkt = vals["marketing"]; capex = vals["capex"]
+        mkt = vals["marketing"]; capex = vals["capex"]; taxes = vals["taxes"]
         op_cf = vals["op_cf"]; delta = vals["delta"]
         bal_s = vals["balance_start"]; bal_e = vals["balance_end"]
 
@@ -152,6 +153,7 @@ def parse_cf(rows, n_months):
             "revenue": rev, "opt_b2b": opt, "retail_b2c": retail,
             "cogs": cogs, "salary": salary, "electro": elec, "rent": rent,
             "logistics": logi, "admin": adm, "marketing": mkt, "capex": capex,
+            "taxes": taxes,
             "op_cf": op_cf, "delta": delta,
             "balance_start": bal_s, "balance_end": bal_e,
             "total_opex":        round(opex) if opex else None,
@@ -163,6 +165,9 @@ def parse_cf(rows, n_months):
             "salary_pct":        pct(salary, rev),
             "marketing_pct":     pct(mkt, rev),
             "capex_pct":         pct(capex, rev),
+            "logistics_pct":     pct(logi, rev),
+            "taxes_pct":         pct(taxes, rev),
+            "cash_conversion_pct": pct(delta, rev),
         })
     return result
 
@@ -193,7 +198,9 @@ def calc_ytd(months):
         "revenue": rev, "opt_b2b": s("opt_b2b"), "retail_b2c": s("retail_b2c"),
         "ebitda": ebit, "ebitda_pct": round(ebit/rev*100,1) if ebit and rev else None,
         "cogs": s("cogs"), "salary": s("salary"), "marketing": s("marketing"),
-        "capex": s("capex"), "net_delta": s("delta"), "taxes": None,
+        "capex": s("capex"), "net_delta": s("delta"), "taxes": s("taxes"),
+        "logistics": s("logistics"),
+        "tax_effective_pct": round(s("taxes")/rev*100,1) if s("taxes") and rev else None,
         "months_count": len(done),
     }
 

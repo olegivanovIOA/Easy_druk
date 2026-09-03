@@ -1340,7 +1340,7 @@ a{color:var(--gd);text-decoration:none}
     <div class="sec" id="reg-header-title">📋 Покриття метрик · 174 · 12 розділів</div>
     <div class="g3" style="margin-bottom:12px">
       <div class="card"><div class="chdr"><div><div class="ct">Статус покриття</div></div></div><div class="cw ch160"><canvas id="covDon"></canvas></div></div>
-      <div class="card s2"><div class="chdr"><div><div class="ct">Покриття по розділах</div></div></div><div class="cw ch160"><canvas id="covBar"></canvas></div></div>
+      <div class="card s2"><div class="chdr"><div><div class="ct">Покриття по розділах</div></div></div><div class="cw ch240"><canvas id="covBar"></canvas></div></div>
     </div>
   </div>
   <div id="w-reg-tbl">
@@ -1429,8 +1429,50 @@ function buildStatic(){
     const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · реєстр v1.0`;
     const regTitle=document.getElementById('reg-header-title');if(regTitle)regTitle.textContent=`📋 Покриття метрик · ${total} · ${reg.length} розділів`;
   }catch(e){}
+  _renderCovByBar(reg);
+  _renderRegTable(reg);
   // CEO — підтягуємо реальні дані з JSON файлів
   _buildCeoCharts();
+}
+
+// ── Реєстр: горизонтальний stacked bar по розділах ("Покриття по розділах") ─
+function _renderCovByBar(reg){
+  const canvas=document.getElementById('covBar');
+  if(!canvas||!reg.length)return;
+  const COV_C=['#2A9D8F','#457B9D','#A8C5DA','#CBD5E0'];
+  const DL=window.ChartDataLabels;
+  safeChart('covBar',{type:'bar',plugins:DL?[DL]:[],data:{
+    labels:reg.map(r=>r.section),
+    datasets:[
+      {label:'Так',       data:reg.map(r=>r.yes),  backgroundColor:COV_C[0],stack:'s'},
+      {label:'Частково',  data:reg.map(r=>r.part), backgroundColor:COV_C[1],stack:'s'},
+      {label:'Можна',     data:reg.map(r=>r.calc), backgroundColor:COV_C[2],stack:'s'},
+      {label:'Немає',     data:reg.map(r=>r.no),   backgroundColor:COV_C[3],stack:'s'},
+    ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:9}}},
+        datalabels:DL?{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,color:'#fff',font:{size:8,weight:'700'},formatter:v=>v}:{display:false}},
+      scales:{x:{stacked:true,grid:{color:GRID}},y:{stacked:true,grid:{display:false},ticks:{font:{size:9}}}}}
+  });
+}
+
+// ── Реєстр: таблиця по розділах (regB) ───────────────────────────────────
+function _renderRegTable(reg){
+  const tb=document.getElementById('regB');
+  if(!tb||!reg.length)return;
+  tb.innerHTML=reg.map(r=>{
+    const total=r.yes+r.part+r.calc+r.no;
+    const pct=total?((r.yes+r.part)/total*100):0;
+    return `<tr>
+      <td>${r.section}</td>
+      <td style="text-align:center">${total}</td>
+      <td style="text-align:center"><span class="cov cy">${r.yes}</span></td>
+      <td style="text-align:center"><span class="cov cp">${r.part}</span></td>
+      <td style="text-align:center"><span class="cov cc">${r.calc}</span></td>
+      <td style="text-align:center"><span class="cov cn">${r.no}</span></td>
+      <td style="text-align:center;font-weight:700">${pct.toFixed(0)}%</td>
+    </tr>`;
+  }).join('');
 }
 
 async function _buildCeoCharts(){
@@ -3445,6 +3487,6 @@ window.LocLoader = (() => {
 <script src="js/ads_loader.js?v=20260903"></script>
 <script src="js/mql_loader.js?v=20260903"></script>
 <script src="js/sales_loader.js?v=20260903"></script>
-<script src="js/cashflow_loader.js?v=20260903"></script>
+<script src="js/cashflow_loader.js?v=20260903b"></script>
 </body>
 </html>
