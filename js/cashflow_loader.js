@@ -39,6 +39,7 @@ window.CashflowLoader = (() => {
     _renderCashBalance();
     _renderClientConcentration();
     _renderMarketingROI();
+    _renderUnitEconomics();
     _updateTimestamp();
   }
 
@@ -391,22 +392,36 @@ window.CashflowLoader = (() => {
     const el = document.getElementById('cf-mkt-list');
     if (!el) return;
     const months = completedMonths();
-    el.innerHTML = months.map(m => {
-      const pct = m.marketing_pct;
-      const abs = m.marketing;
-      const barW = pct ? Math.min(pct / 3 * 100, 100) : 0;
-      const color = !pct ? 'var(--tl)' : pct < 1 ? GD : pct < 2 ? A : R;
-      return `<div class="mr" style="margin-bottom:8px">
-        <div class="mn" style="min-width:60px">${m.month.substring(0,3)}</div>
-        <div style="flex:1;margin:0 10px">
-          <div style="height:6px;background:var(--bd);border-radius:3px;overflow:hidden">
-            <div style="width:${barW}%;height:100%;background:${color};border-radius:3px"></div>
-          </div>
-        </div>
-        <div class="mv" style="color:${color};font-size:11px;min-width:42px">${pct != null ? pct.toFixed(2)+'%' : '—'}</div>
-        <div style="font-size:10px;color:var(--tl);margin-left:8px;min-width:75px">${abs ? Math.round(abs/1e3)+'K грн' : ''}</div>
-      </div>`;
-    }).join('');
+    el.innerHTML = `<div style="display:flex;gap:8px;align-items:flex-end;height:70px;padding:4px 0">
+      ${months.map(m => {
+        const pct = m.marketing_pct;
+        const barH = pct ? Math.min(pct / 3 * 100, 100) : 4;
+        const color = !pct ? 'var(--bd)' : pct < 1 ? GD : pct < 2 ? A : R;
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end">
+          <div style="font-size:9px;color:${color};font-weight:700">${pct != null ? pct.toFixed(1)+'%' : '—'}</div>
+          <div style="width:100%;max-width:28px;height:${barH}%;background:${color};border-radius:3px 3px 0 0;min-height:3px" title="${m.month}: ${pct != null ? pct.toFixed(2)+'%' : '—'} (${m.marketing ? Math.round(m.marketing/1e3)+'K грн' : '—'})"></div>
+          <div style="font-size:9px;color:var(--tl)">${m.month.substring(0,3)}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  // ── Юніт-економіка: виручка/маркетинг на клієнта, CAPEX на локацію ────────
+  function _renderUnitEconomics() {
+    const ytd = _data.ytd || {};
+    const done = completedMonths();
+    // Клієнтів беремо з останнього місяця де кількість "нормальна" (>20, бо липень
+    // часто має неповні дані по клієнтах навіть якщо CF вже complete)
+    const withClients = done.filter(m => m.clients_count && m.clients_count > 20);
+    const lastClients = withClients.length ? withClients[withClients.length - 1].clients_count : null;
+
+    const revPerClient = (ytd.revenue && lastClients) ? ytd.revenue / lastClients : null;
+    const mktPerClient = (ytd.marketing && lastClients) ? ytd.marketing / lastClients : null;
+    const capexPerLoc  = ytd.capex ? ytd.capex / 5 : null; // 5 активних локацій
+
+    set('cf-rev-per-client', revPerClient != null ? fmt(revPerClient) : '—');
+    set('cf-mkt-per-client', mktPerClient != null ? fmt(mktPerClient) : '—');
+    set('cf-capex-per-loc',  capexPerLoc  != null ? fmt(capexPerLoc)  : '—');
   }
 
   function _updateTimestamp() {
