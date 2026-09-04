@@ -1,20 +1,20 @@
 {
-  "fetched_at": "2026-09-04T05:19:46Z",
+  "fetched_at": "2026-09-04T09:51:39Z",
   "month": "2026-09",
   "from": "2026-09-01",
   "to": "2026-09-04",
   "complete": false,
   "wholesale": {
-    "deals": 37,
-    "revenue": 260558.0,
-    "avgCheck": 7042.11,
+    "deals": 38,
+    "revenue": 260870.0,
+    "avgCheck": 6865.0,
     "medianCheck": 2550.0,
     "tiers": [
       {
         "tier": "small",
         "label": "Дрібні (<10К)",
-        "deals": 34,
-        "revenue": 94348.0
+        "deals": 35,
+        "revenue": 94660.0
       },
       {
         "tier": "medium",
@@ -33,7 +33,7 @@
       {
         "bucket": "b1",
         "label": "<1К",
-        "deals": 1
+        "deals": 2
       },
       {
         "bucket": "b2",
@@ -77,9 +77,9 @@
       }
     ],
     "timeToClose": {
-      "avgDays": 19.8,
-      "medianDays": 18,
-      "sampleSize": 37
+      "avgDays": 19.3,
+      "medianDays": 17.5,
+      "sampleSize": 38
     }
   },
   "retail": {
@@ -164,9 +164,9 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 37,
-      "revenue": 260558.0,
-      "avgCheck": 7042.11,
+      "deals": 38,
+      "revenue": 260870.0,
+      "avgCheck": 6865.0,
       "medianCheck": 2550.0,
       "otherCurrencyDealsSkipped": 0,
       "top5": [
@@ -197,9 +197,9 @@
         }
       ],
       "timeToClose": {
-        "avgDays": 19.8,
-        "medianDays": 18,
-        "sampleSize": 37
+        "avgDays": 19.3,
+        "medianDays": 17.5,
+        "sampleSize": 38
       }
     },
     "18": {
@@ -242,26 +242,26 @@
   "lossReasonsWholesale": [
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 29
+      "count": 33
     },
     {
       "reason": "ДОРОГО",
-      "count": 16
+      "count": 17
     },
     {
       "reason": "НЕ актуально",
       "count": 8
     },
     {
+      "reason": "НЕ устраивают сроки",
+      "count": 6
+    },
+    {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 5
+      "count": 6
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
-      "count": 3
-    },
-    {
-      "reason": "НЕ устраивают сроки",
       "count": 3
     }
   ],
@@ -274,23 +274,23 @@
   "lossReasonsScreening": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 38
+      "count": 55
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 23
-    },
-    {
-      "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 20
+      "count": 29
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 18
+      "count": 25
+    },
+    {
+      "reason": "ОШИБСЯ (запрос не по теме)",
+      "count": 23
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 4
+      "count": 9
     },
     {
       "reason": "Некорректные контакты для связи",
@@ -304,46 +304,46 @@
   "lossReasonsTotal": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 38
+      "count": 55
     },
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 29
+      "count": 33
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 23
-    },
-    {
-      "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 20
+      "count": 29
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 18
+      "count": 25
+    },
+    {
+      "reason": "ОШИБСЯ (запрос не по теме)",
+      "count": 23
     },
     {
       "reason": "ДОРОГО",
-      "count": 16
+      "count": 17
+    },
+    {
+      "reason": "ДУБЛЬ",
+      "count": 10
     },
     {
       "reason": "НЕ актуально",
       "count": 8
     },
     {
-      "reason": "Ищет в своем ГОРОДЕ",
-      "count": 5
+      "reason": "НЕ устраивают сроки",
+      "count": 6
     },
     {
-      "reason": "ДУБЛЬ",
-      "count": 5
+      "reason": "Ищет в своем ГОРОДЕ",
+      "count": 6
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
-      "count": 3
-    },
-    {
-      "reason": "НЕ устраивают сроки",
       "count": 3
     },
     {
@@ -362,31 +362,31 @@
       "reasons": [
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 29
+          "count": 33
         },
         {
           "reason": "ДОРОГО",
-          "count": 16
+          "count": 17
         },
         {
           "reason": "НЕ актуально",
           "count": 8
         },
         {
+          "reason": "НЕ устраивают сроки",
+          "count": 6
+        },
+        {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 5
+          "count": 6
         },
         {
           "reason": "НЕ отвечает (более 3-х попыток)",
           "count": 3
-        },
-        {
-          "reason": "НЕ устраивают сроки",
-          "count": 3
         }
       ],
-      "totalLost": 64,
-      "totalReviewed": 128
+      "totalLost": 73,
+      "totalReviewed": 142
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -413,23 +413,23 @@
       "reasons": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 38
+          "count": 55
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 23
-        },
-        {
-          "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 20
+          "count": 29
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 18
+          "count": 25
+        },
+        {
+          "reason": "ОШИБСЯ (запрос не по теме)",
+          "count": 23
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 4
+          "count": 9
         },
         {
           "reason": "Некорректные контакты для связи",
@@ -440,14 +440,14 @@
           "count": 1
         }
       ],
-      "totalLost": 107,
-      "totalReviewed": 110
+      "totalLost": 145,
+      "totalReviewed": 148
     }
   },
   "totalReviewed": {
-    "wholesale": 128,
+    "wholesale": 142,
     "retail": 2,
-    "screening": 110,
-    "all": 240
+    "screening": 148,
+    "all": 292
   }
 }
