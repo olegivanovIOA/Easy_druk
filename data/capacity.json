@@ -1,6 +1,6 @@
 {
-  "fetched_at": "2026-09-08T02:30:12Z",
-  "date": "2026-09-07",
+  "fetched_at": "2026-09-08T07:40:23Z",
+  "date": "2026-09-08",
   "shift": "DAY",
   "locations": [
     {
@@ -50,21 +50,136 @@
       "location": "Локація 2",
       "machines": {
         "total": 262,
-        "planned": 89,
-        "estimated": 106,
-        "free": 156,
-        "freePercent": 59.5,
-        "utilizationPercent": 40.5,
+        "planned": 0,
+        "estimated": 0,
+        "free": 262,
+        "freePercent": 100,
+        "utilizationPercent": 0,
         "byModel": [
           {
             "model": "A1 mini",
             "total": 262,
-            "planned": 89,
-            "estimated": 106,
-            "free": 156
+            "planned": 0,
+            "estimated": 0,
+            "free": 262
+          }
+        ]
+      },
+      "plan": {
+        "parts": 0,
+        "weightKg": 0,
+        "printTimeMinutes": 0
+      },
+      "batches": {
+        "count": 0,
+        "parts": 0,
+        "weightKg": 0,
+        "printTimeMinutes": 0,
+        "defectParts": 0
+      },
+      "printed": {
+        "parts": 0,
+        "weightKg": 0
+      }
+    },
+    {
+      "location": "Локація 4",
+      "machines": {
+        "total": 424,
+        "planned": 20,
+        "estimated": 24,
+        "free": 400,
+        "freePercent": 94.3,
+        "utilizationPercent": 5.7,
+        "byModel": [
+          {
+            "model": "P2S",
+            "total": 299,
+            "planned": 20,
+            "estimated": 24,
+            "free": 275
           },
           {
+            "model": "P1S",
+            "total": 125,
+            "planned": 0,
+            "estimated": 0,
+            "free": 125
+          }
+        ]
+      },
+      "plan": {
+        "parts": 6500,
+        "weightKg": 7.53,
+        "printTimeMinutes": 28229
+      },
+      "batches": {
+        "count": 1,
+        "parts": 7813,
+        "weightKg": 8.94,
+        "printTimeMinutes": 33931,
+        "defectParts": 0
+      },
+      "printed": {
+        "parts": 7813,
+        "weightKg": 8.94
+      }
+    },
+    {
+      "location": "Локація 5",
+      "machines": {
+        "total": 1132,
+        "planned": 131,
+        "estimated": 158,
+        "free": 974,
+        "freePercent": 86,
+        "utilizationPercent": 14,
+        "byModel": [
+          {
+            "model": "P1S",
+            "total": 1132,
+            "planned": 131,
+            "estimated": 158,
+            "free": 974
+          }
+        ]
+      },
+      "plan": {
+        "parts": 6000,
+        "weightKg": 66.55,
+        "printTimeMinutes": 189000
+      },
+      "batches": {
+        "count": 0,
+        "parts": 0,
+        "weightKg": 0,
+        "printTimeMinutes": 0,
+        "defectParts": 0
+      },
+      "printed": {
+        "parts": 0,
+        "weightKg": 0
+      }
+    },
+    {
+      "location": "Локація 6",
+      "machines": {
+        "total": 180,
+        "planned": 128,
+        "estimated": 154,
+        "free": 26,
+        "freePercent": 14.4,
+        "utilizationPercent": 85.6,
+        "byModel": [
+          {
             "model": "A2L",
+            "total": 180,
+            "planned": 128,
+            "estimated": 154,
+            "free": 26
+          },
+          {
+            "model": "P1S",
             "total": 0,
             "planned": 0,
             "estimated": 0,
@@ -73,162 +188,47 @@
         ]
       },
       "plan": {
-        "parts": 29400,
-        "weightKg": 35,
-        "printTimeMinutes": 127680
+        "parts": 9540,
+        "weightKg": 54.91,
+        "printTimeMinutes": 184800
       },
       "batches": {
-        "count": 1,
-        "parts": 38268,
-        "weightKg": 43.56,
-        "printTimeMinutes": 166192,
+        "count": 0,
+        "parts": 0,
+        "weightKg": 0,
+        "printTimeMinutes": 0,
         "defectParts": 0
       },
       "printed": {
-        "parts": 38268,
-        "weightKg": 43.56
-      }
-    },
-    {
-      "location": "Локація 4",
-      "machines": {
-        "total": 424,
-        "planned": 283,
-        "estimated": 341,
-        "free": 83,
-        "freePercent": 19.6,
-        "utilizationPercent": 80.4,
-        "byModel": [
-          {
-            "model": "P2S",
-            "total": 299,
-            "planned": 206,
-            "estimated": 248,
-            "free": 51
-          },
-          {
-            "model": "P1S",
-            "total": 125,
-            "planned": 77,
-            "estimated": 93,
-            "free": 32
-          }
-        ]
-      },
-      "plan": {
-        "parts": 87160,
-        "weightKg": 129.88,
-        "printTimeMinutes": 408200
-      },
-      "batches": {
-        "count": 14,
-        "parts": 59555,
-        "weightKg": 89.61,
-        "printTimeMinutes": 285357,
-        "defectParts": 0
-      },
-      "printed": {
-        "parts": 59555,
-        "weightKg": 89.61
-      }
-    },
-    {
-      "location": "Локація 5",
-      "machines": {
-        "total": 1132,
-        "planned": 467,
-        "estimated": 561,
-        "free": 571,
-        "freePercent": 50.4,
-        "utilizationPercent": 49.6,
-        "byModel": [
-          {
-            "model": "P1S",
-            "total": 1132,
-            "planned": 467,
-            "estimated": 561,
-            "free": 571
-          }
-        ]
-      },
-      "plan": {
-        "parts": 11718,
-        "weightKg": 304.96,
-        "printTimeMinutes": 672696
-      },
-      "batches": {
-        "count": 32,
-        "parts": 12676,
-        "weightKg": 350.79,
-        "printTimeMinutes": 728817,
-        "defectParts": 313
-      },
-      "printed": {
-        "parts": 12676,
-        "weightKg": 350.79
-      }
-    },
-    {
-      "location": "Локація 6",
-      "machines": {
-        "total": 180,
-        "planned": 113,
-        "estimated": 135,
-        "free": 45,
-        "freePercent": 25,
-        "utilizationPercent": 75,
-        "byModel": [
-          {
-            "model": "A2L",
-            "total": 180,
-            "planned": 113,
-            "estimated": 135,
-            "free": 45
-          }
-        ]
-      },
-      "plan": {
-        "parts": 8652,
-        "weightKg": 50.15,
-        "printTimeMinutes": 162072
-      },
-      "batches": {
-        "count": 5,
-        "parts": 10300,
-        "weightKg": 63.14,
-        "printTimeMinutes": 190125,
-        "defectParts": 0
-      },
-      "printed": {
-        "parts": 10300,
-        "weightKg": 63.14
+        "parts": 0,
+        "weightKg": 0
       }
     }
   ],
   "totals": {
     "machines": {
       "total": 2208,
-      "planned": 952,
-      "estimated": 1143,
-      "free": 1065,
-      "freePercent": 48.2,
-      "utilizationPercent": 51.8
+      "planned": 279,
+      "estimated": 336,
+      "free": 1872,
+      "freePercent": 84.8,
+      "utilizationPercent": 15.2
     },
     "plan": {
-      "parts": 136930,
-      "weightKg": 519.99,
-      "printTimeMinutes": 1370648
+      "parts": 22040,
+      "weightKg": 128.99,
+      "printTimeMinutes": 402029
     },
     "batches": {
-      "count": 52,
-      "parts": 120799,
-      "weightKg": 547.1,
-      "printTimeMinutes": 1370491,
-      "defectParts": 313
+      "count": 1,
+      "parts": 7813,
+      "weightKg": 8.94,
+      "printTimeMinutes": 33931,
+      "defectParts": 0
     },
     "printed": {
-      "parts": 120799,
-      "weightKg": 547.1
+      "parts": 7813,
+      "weightKg": 8.94
     }
   }
 }
