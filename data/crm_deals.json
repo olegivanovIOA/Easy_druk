@@ -1,14 +1,14 @@
 {
-  "fetched_at": "2026-09-08T16:59:04Z",
+  "fetched_at": "2026-09-08T19:46:20Z",
   "month": "2026-09",
   "from": "2026-09-01",
   "to": "2026-09-08",
   "complete": false,
   "wholesale": {
-    "deals": 54,
-    "revenue": 974325.0,
-    "avgCheck": 18043.06,
-    "medianCheck": 2426.0,
+    "deals": 55,
+    "revenue": 1652430.0,
+    "avgCheck": 30044.18,
+    "medianCheck": 2550.0,
     "tiers": [
       {
         "tier": "small",
@@ -25,8 +25,8 @@
       {
         "tier": "mega",
         "label": "Мега-опт (>100К)",
-        "deals": 1,
-        "revenue": 674200.0
+        "deals": 2,
+        "revenue": 1352305.0
       }
     ],
     "histogram": [
@@ -73,13 +73,13 @@
       {
         "bucket": "b9",
         "label": ">300К",
-        "deals": 1
+        "deals": 2
       }
     ],
     "timeToClose": {
-      "avgDays": 20.4,
-      "medianDays": 17.5,
-      "sampleSize": 54
+      "avgDays": 20.5,
+      "medianDays": 18,
+      "sampleSize": 55
     }
   },
   "retail": {
@@ -164,12 +164,17 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 54,
-      "revenue": 974325.0,
-      "avgCheck": 18043.06,
-      "medianCheck": 2426.0,
+      "deals": 55,
+      "revenue": 1652430.0,
+      "avgCheck": 30044.18,
+      "medianCheck": 2550.0,
       "otherCurrencyDealsSkipped": 0,
       "top5": [
+        {
+          "id": "194250",
+          "title": "Ватсап №10",
+          "amount": 678105.0
+        },
         {
           "id": "189876",
           "title": "замовлення 1",
@@ -189,17 +194,12 @@
           "id": "194346",
           "title": "Серце 10000 шт",
           "amount": 11500.0
-        },
-        {
-          "id": "193676",
-          "title": "прикраси під метал",
-          "amount": 8000.0
         }
       ],
       "timeToClose": {
-        "avgDays": 20.4,
-        "medianDays": 17.5,
-        "sampleSize": 54
+        "avgDays": 20.5,
+        "medianDays": 18,
+        "sampleSize": 55
       }
     },
     "18": {
@@ -386,7 +386,7 @@
         }
       ],
       "totalLost": 196,
-      "totalReviewed": 279
+      "totalReviewed": 280
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -445,9 +445,9 @@
     }
   },
   "totalReviewed": {
-    "wholesale": 279,
+    "wholesale": 280,
     "retail": 2,
     "screening": 307,
-    "all": 588
+    "all": 589
   }
 }
