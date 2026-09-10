@@ -1,20 +1,20 @@
 {
-  "fetched_at": "2026-09-10T12:35:44Z",
+  "fetched_at": "2026-09-10T16:50:01Z",
   "month": "2026-09",
   "from": "2026-09-01",
   "to": "2026-09-10",
   "complete": false,
   "wholesale": {
-    "deals": 78,
-    "revenue": 3250987.5,
-    "avgCheck": 41679.33,
+    "deals": 80,
+    "revenue": 3437924.5,
+    "avgCheck": 42974.06,
     "medianCheck": 2550.0,
     "tiers": [
       {
         "tier": "small",
         "label": "Дрібні (<10К)",
-        "deals": 69,
-        "revenue": 192223.0
+        "deals": 70,
+        "revenue": 199773.0
       },
       {
         "tier": "medium",
@@ -25,8 +25,8 @@
       {
         "tier": "mega",
         "label": "Мега-опт (>100К)",
-        "deals": 4,
-        "revenue": 2721374.5
+        "deals": 5,
+        "revenue": 2900761.5
       }
     ],
     "histogram": [
@@ -48,7 +48,7 @@
       {
         "bucket": "b4",
         "label": "5К–10К",
-        "deals": 7
+        "deals": 8
       },
       {
         "bucket": "b5",
@@ -68,7 +68,7 @@
       {
         "bucket": "b8",
         "label": "100К–300К",
-        "deals": 1
+        "deals": 2
       },
       {
         "bucket": "b9",
@@ -77,9 +77,9 @@
       }
     ],
     "timeToClose": {
-      "avgDays": 21.7,
+      "avgDays": 21.5,
       "medianDays": 17.5,
-      "sampleSize": 78
+      "sampleSize": 80
     }
   },
   "retail": {
@@ -164,9 +164,9 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 78,
-      "revenue": 3250987.5,
-      "avgCheck": 41679.33,
+      "deals": 80,
+      "revenue": 3437924.5,
+      "avgCheck": 42974.06,
       "medianCheck": 2550.0,
       "otherCurrencyDealsSkipped": 0,
       "top5": [
@@ -186,20 +186,20 @@
           "amount": 674200.0
         },
         {
+          "id": "194752",
+          "title": "6000 комплектів корпусів",
+          "amount": 179387.0
+        },
+        {
           "id": "195996",
           "title": "ТРІНІТІ 2",
           "amount": 153069.5
-        },
-        {
-          "id": "195032",
-          "title": "Корпуси №4",
-          "amount": 96280.0
         }
       ],
       "timeToClose": {
-        "avgDays": 21.7,
+        "avgDays": 21.5,
         "medianDays": 17.5,
-        "sampleSize": 78
+        "sampleSize": 80
       }
     },
     "18": {
@@ -242,15 +242,15 @@
   "lossReasonsWholesale": [
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 99
+      "count": 102
     },
     {
       "reason": "ДОРОГО",
-      "count": 66
+      "count": 68
     },
     {
       "reason": "НЕ актуально",
-      "count": 35
+      "count": 36
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
@@ -262,7 +262,11 @@
     },
     {
       "reason": "НЕ устраивают сроки",
-      "count": 17
+      "count": 18
+    },
+    {
+      "reason": "ДУБЛЬ",
+      "count": 1
     }
   ],
   "lossReasonsRetail": [
@@ -274,23 +278,23 @@
   "lossReasonsScreening": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 157
+      "count": 162
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 73
+      "count": 78
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 59
+      "count": 64
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 51
+      "count": 52
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 32
+      "count": 35
     },
     {
       "reason": "Некорректные контакты для связи",
@@ -304,35 +308,35 @@
   "lossReasonsTotal": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 157
+      "count": 162
     },
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 99
+      "count": 102
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 73
+      "count": 78
     },
     {
       "reason": "ДОРОГО",
-      "count": 66
+      "count": 68
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 59
+      "count": 64
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 51
-    },
-    {
-      "reason": "НЕ актуально",
-      "count": 35
+      "count": 52
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 33
+      "count": 37
+    },
+    {
+      "reason": "НЕ актуально",
+      "count": 36
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
@@ -344,7 +348,7 @@
     },
     {
       "reason": "НЕ устраивают сроки",
-      "count": 17
+      "count": 18
     },
     {
       "reason": "Некорректные контакты для связи",
@@ -362,15 +366,15 @@
       "reasons": [
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 99
+          "count": 102
         },
         {
           "reason": "ДОРОГО",
-          "count": 66
+          "count": 68
         },
         {
           "reason": "НЕ актуально",
-          "count": 35
+          "count": 36
         },
         {
           "reason": "НЕ отвечает (более 3-х попыток)",
@@ -382,11 +386,15 @@
         },
         {
           "reason": "НЕ устраивают сроки",
-          "count": 17
+          "count": 18
+        },
+        {
+          "reason": "ДУБЛЬ",
+          "count": 1
         }
       ],
-      "totalLost": 264,
-      "totalReviewed": 374
+      "totalLost": 272,
+      "totalReviewed": 381
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -413,23 +421,23 @@
       "reasons": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 157
+          "count": 162
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 73
+          "count": 78
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 59
+          "count": 64
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 51
+          "count": 52
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 32
+          "count": 35
         },
         {
           "reason": "Некорректные контакты для связи",
@@ -440,14 +448,14 @@
           "count": 4
         }
       ],
-      "totalLost": 389,
-      "totalReviewed": 398
+      "totalLost": 408,
+      "totalReviewed": 414
     }
   },
   "totalReviewed": {
-    "wholesale": 374,
+    "wholesale": 381,
     "retail": 2,
-    "screening": 398,
-    "all": 774
+    "screening": 414,
+    "all": 797
   }
 }
