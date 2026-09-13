@@ -1,20 +1,20 @@
 {
-  "fetched_at": "2026-09-13T10:54:42Z",
+  "fetched_at": "2026-09-13T14:46:18Z",
   "month": "2026-09",
   "from": "2026-09-01",
   "to": "2026-09-13",
   "complete": false,
   "wholesale": {
-    "deals": 89,
-    "revenue": 3451404.5,
-    "avgCheck": 38779.83,
-    "medianCheck": 2302.0,
+    "deals": 90,
+    "revenue": 3452904.5,
+    "avgCheck": 38365.61,
+    "medianCheck": 2252.0,
     "tiers": [
       {
         "tier": "small",
         "label": "Дрібні (<10К)",
-        "deals": 79,
-        "revenue": 213253.0
+        "deals": 80,
+        "revenue": 214753.0
       },
       {
         "tier": "medium",
@@ -38,7 +38,7 @@
       {
         "bucket": "b2",
         "label": "1К–2К",
-        "deals": 32
+        "deals": 33
       },
       {
         "bucket": "b3",
@@ -77,9 +77,9 @@
       }
     ],
     "timeToClose": {
-      "avgDays": 20.7,
-      "medianDays": 16,
-      "sampleSize": 89
+      "avgDays": 20.5,
+      "medianDays": 16.0,
+      "sampleSize": 90
     }
   },
   "retail": {
@@ -164,10 +164,10 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 89,
-      "revenue": 3451404.5,
-      "avgCheck": 38779.83,
-      "medianCheck": 2302.0,
+      "deals": 90,
+      "revenue": 3452904.5,
+      "avgCheck": 38365.61,
+      "medianCheck": 2252.0,
       "otherCurrencyDealsSkipped": 0,
       "top5": [
         {
@@ -197,9 +197,9 @@
         }
       ],
       "timeToClose": {
-        "avgDays": 20.7,
-        "medianDays": 16,
-        "sampleSize": 89
+        "avgDays": 20.5,
+        "medianDays": 16.0,
+        "sampleSize": 90
       }
     },
     "18": {
@@ -258,7 +258,7 @@
     },
     {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 20
+      "count": 21
     },
     {
       "reason": "НЕ устраивают сроки",
@@ -278,11 +278,11 @@
   "lossReasonsScreening": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 173
+      "count": 178
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 85
+      "count": 87
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
@@ -298,7 +298,7 @@
     },
     {
       "reason": "Некорректные контакты для связи",
-      "count": 13
+      "count": 14
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
@@ -308,7 +308,7 @@
   "lossReasonsTotal": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 173
+      "count": 178
     },
     {
       "reason": "НЕ можем реализовать запрос",
@@ -316,7 +316,7 @@
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 85
+      "count": 87
     },
     {
       "reason": "ДОРОГО",
@@ -344,7 +344,7 @@
     },
     {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 20
+      "count": 21
     },
     {
       "reason": "НЕ устраивают сроки",
@@ -352,7 +352,7 @@
     },
     {
       "reason": "Некорректные контакты для связи",
-      "count": 13
+      "count": 14
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
@@ -382,7 +382,7 @@
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 20
+          "count": 21
         },
         {
           "reason": "НЕ устраивают сроки",
@@ -393,8 +393,8 @@
           "count": 1
         }
       ],
-      "totalLost": 298,
-      "totalReviewed": 418
+      "totalLost": 299,
+      "totalReviewed": 422
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -421,11 +421,11 @@
       "reasons": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 173
+          "count": 178
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 85
+          "count": 87
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
@@ -441,21 +441,21 @@
         },
         {
           "reason": "Некорректные контакты для связи",
-          "count": 13
+          "count": 14
         },
         {
           "reason": "ТЕСТОВЫЙ звонок",
           "count": 5
         }
       ],
-      "totalLost": 449,
-      "totalReviewed": 451
+      "totalLost": 457,
+      "totalReviewed": 459
     }
   },
   "totalReviewed": {
-    "wholesale": 418,
+    "wholesale": 422,
     "retail": 2,
-    "screening": 451,
-    "all": 871
+    "screening": 459,
+    "all": 883
   }
 }
