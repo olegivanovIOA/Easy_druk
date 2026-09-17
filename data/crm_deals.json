@@ -1,14 +1,14 @@
 {
-  "fetched_at": "2026-09-17T05:58:34Z",
+  "fetched_at": "2026-09-17T10:17:45Z",
   "month": "2026-09",
   "from": "2026-09-01",
   "to": "2026-09-17",
   "complete": false,
   "wholesale": {
-    "deals": 126,
-    "revenue": 4527997.5,
-    "avgCheck": 35936.49,
-    "medianCheck": 2522.5,
+    "deals": 128,
+    "revenue": 5603127.5,
+    "avgCheck": 43774.43,
+    "medianCheck": 2550.0,
     "tiers": [
       {
         "tier": "small",
@@ -25,8 +25,8 @@
       {
         "tier": "mega",
         "label": "Мега-опт (>100К)",
-        "deals": 8,
-        "revenue": 3775561.5
+        "deals": 10,
+        "revenue": 4850691.5
       }
     ],
     "histogram": [
@@ -68,18 +68,18 @@
       {
         "bucket": "b8",
         "label": "100К–300К",
-        "deals": 3
+        "deals": 4
       },
       {
         "bucket": "b9",
         "label": ">300К",
-        "deals": 5
+        "deals": 6
       }
     ],
     "timeToClose": {
-      "avgDays": 23.4,
+      "avgDays": 23.3,
       "medianDays": 15.0,
-      "sampleSize": 126
+      "sampleSize": 128
     }
   },
   "retail": {
@@ -164,16 +164,21 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 126,
-      "revenue": 4527997.5,
-      "avgCheck": 35936.49,
-      "medianCheck": 2522.5,
+      "deals": 128,
+      "revenue": 5603127.5,
+      "avgCheck": 43774.43,
+      "medianCheck": 2550.0,
       "otherCurrencyDealsSkipped": 0,
       "top5": [
         {
           "id": "196212",
           "title": "Ручка 200 т ",
           "amount": 1216000.0
+        },
+        {
+          "id": "197330",
+          "title": "Корпус  1 і 2 по 50 шт 2 замовлення",
+          "amount": 832000.0
         },
         {
           "id": "194250",
@@ -189,17 +194,12 @@
           "id": "194262",
           "title": "SLS 10 (3237)",
           "amount": 470800.0
-        },
-        {
-          "id": "196454",
-          "title": "Ер Сі 8",
-          "amount": 304000.0
         }
       ],
       "timeToClose": {
-        "avgDays": 23.4,
+        "avgDays": 23.3,
         "medianDays": 15.0,
-        "sampleSize": 126
+        "sampleSize": 128
       }
     },
     "18": {
@@ -242,15 +242,15 @@
   "lossReasonsWholesale": [
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 148
+      "count": 156
     },
     {
       "reason": "ДОРОГО",
-      "count": 93
+      "count": 95
     },
     {
       "reason": "НЕ актуально",
-      "count": 52
+      "count": 53
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
@@ -258,11 +258,11 @@
     },
     {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 29
+      "count": 30
     },
     {
       "reason": "НЕ устраивают сроки",
-      "count": 24
+      "count": 27
     },
     {
       "reason": "ДУБЛЬ",
@@ -278,65 +278,65 @@
   "lossReasonsScreening": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 204
+      "count": 209
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 104
+      "count": 113
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 95
+      "count": 99
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 87
+      "count": 89
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 48
+      "count": 50
     },
     {
       "reason": "Некорректные контакты для связи",
-      "count": 19
+      "count": 20
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
-      "count": 8
+      "count": 14
     }
   ],
   "lossReasonsTotal": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 204
+      "count": 209
     },
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 148
+      "count": 156
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 104
+      "count": 113
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 95
+      "count": 99
     },
     {
       "reason": "ДОРОГО",
-      "count": 93
+      "count": 95
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 87
+      "count": 89
     },
     {
       "reason": "НЕ актуально",
-      "count": 52
+      "count": 53
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 50
+      "count": 52
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
@@ -344,19 +344,19 @@
     },
     {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 29
+      "count": 30
     },
     {
       "reason": "НЕ устраивают сроки",
-      "count": 24
+      "count": 27
     },
     {
       "reason": "Некорректные контакты для связи",
-      "count": 19
+      "count": 20
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
-      "count": 8
+      "count": 14
     }
   ],
   "lossReasonsByCategory": {
@@ -366,15 +366,15 @@
       "reasons": [
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 148
+          "count": 156
         },
         {
           "reason": "ДОРОГО",
-          "count": 93
+          "count": 95
         },
         {
           "reason": "НЕ актуально",
-          "count": 52
+          "count": 53
         },
         {
           "reason": "НЕ отвечает (более 3-х попыток)",
@@ -382,19 +382,19 @@
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 29
+          "count": 30
         },
         {
           "reason": "НЕ устраивают сроки",
-          "count": 24
+          "count": 27
         },
         {
           "reason": "ДУБЛЬ",
           "count": 1
         }
       ],
-      "totalLost": 386,
-      "totalReviewed": 565
+      "totalLost": 401,
+      "totalReviewed": 585
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -421,41 +421,41 @@
       "reasons": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 204
+          "count": 209
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 104
+          "count": 113
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 95
+          "count": 99
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 87
+          "count": 89
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 48
+          "count": 50
         },
         {
           "reason": "Некорректные контакты для связи",
-          "count": 19
+          "count": 20
         },
         {
           "reason": "ТЕСТОВЫЙ звонок",
-          "count": 8
+          "count": 14
         }
       ],
-      "totalLost": 565,
-      "totalReviewed": 569
+      "totalLost": 594,
+      "totalReviewed": 597
     }
   },
   "totalReviewed": {
-    "wholesale": 565,
+    "wholesale": 585,
     "retail": 2,
-    "screening": 569,
-    "all": 1136
+    "screening": 597,
+    "all": 1184
   }
 }
