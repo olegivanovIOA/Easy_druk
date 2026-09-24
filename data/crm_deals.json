@@ -1,7 +1,39 @@
 {
-  "fetched_at": "2026-09-24T15:41:22Z",
+  "fetched_at": "2026-09-24T19:43:48Z",
   "month": "2026-09",
   "bySource": [
+    {
+      "source": "UC_1YIH2Z",
+      "name": "Холодная продажа",
+      "reviewed": 7,
+      "won": 3,
+      "lost": 1,
+      "junk": 1,
+      "wonWholesale": 1,
+      "wonRetail": 2,
+      "revenue": 21845595.02,
+      "revenueWholesale": 21843428.02,
+      "revenueRetail": 2167.0,
+      "winRate": 75.0,
+      "junkShare": 14.3,
+      "avgCheck": 7281865.01
+    },
+    {
+      "source": "—",
+      "name": "Не вказано",
+      "reviewed": 1,
+      "won": 1,
+      "lost": 0,
+      "junk": 0,
+      "wonWholesale": 1,
+      "wonRetail": 0,
+      "revenue": 5318879.96,
+      "revenueWholesale": 5318879.96,
+      "revenueRetail": 0.0,
+      "winRate": 100.0,
+      "junkShare": 0.0,
+      "avgCheck": 5318879.96
+    },
     {
       "source": "PARTNER",
       "name": "Существующий клиент",
@@ -243,22 +275,6 @@
       "avgCheck": 3203.0
     },
     {
-      "source": "UC_1YIH2Z",
-      "name": "Холодная продажа",
-      "reviewed": 6,
-      "won": 2,
-      "lost": 1,
-      "junk": 1,
-      "wonWholesale": 0,
-      "wonRetail": 2,
-      "revenue": 2167.0,
-      "revenueWholesale": 0.0,
-      "revenueRetail": 2167.0,
-      "winRate": 66.7,
-      "junkShare": 16.7,
-      "avgCheck": 1083.5
-    },
-    {
       "source": "3|TELEGRAM",
       "name": "Telegram - Задать вопрос онлайн!",
       "reviewed": 3,
@@ -389,13 +405,13 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 1434,
-      "clean": 1340,
-      "qualified": 747,
-      "activeOrWon": 152,
-      "won": 59,
-      "wonSum": 1541602.0,
-      "expectedSumActiveWon": 37391221.11
+      "all": 1437,
+      "clean": 1343,
+      "qualified": 750,
+      "activeOrWon": 155,
+      "won": 60,
+      "wonSum": 23385030.02,
+      "expectedSumActiveWon": 25549610.43
     },
     "byStage": [
       {
@@ -440,8 +456,8 @@
       },
       {
         "stage": "Сделка УСПЕШНА",
-        "deals": 57,
-        "sum": 1539435.0
+        "deals": 58,
+        "sum": 23382863.02
       },
       {
         "stage": "НЕ отвечает (более 3-х попыток)",
@@ -504,11 +520,6 @@
         "sum": 9808.0
       },
       {
-        "stage": "НОВА угода (цільовий запит)",
-        "deals": 5,
-        "sum": 34186128.7
-      },
-      {
         "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
         "deals": 5,
         "sum": 10851.0
@@ -517,6 +528,16 @@
         "stage": "УМОВИ озвучені",
         "deals": 5,
         "sum": 0.0
+      },
+      {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 4,
+        "sum": 0.0
+      },
+      {
+        "stage": "НОВА угода (цільовий запит)",
+        "deals": 4,
+        "sum": 501090.0
       },
       {
         "stage": "Очікуємо ОРИГІНАЛ",
@@ -534,17 +555,20 @@
         "sum": 0.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 1,
-        "sum": 0.0
-      },
-      {
         "stage": "Друк АУТСОРС",
         "deals": 1,
         "sum": 12566.4
       }
     ],
     "bySource": [
+      {
+        "key": "UC_1YIH2Z",
+        "name": "Холодная продажа",
+        "deals": 8,
+        "expectedSum": 21845595.02,
+        "won": 3,
+        "wonSum": 21845595.02
+      },
       {
         "key": "PARTNER",
         "name": "Существующий клиент",
@@ -572,7 +596,7 @@
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
-        "deals": 141,
+        "deals": 142,
         "expectedSum": 403236.4,
         "won": 7,
         "wonSum": 19257.0
@@ -588,7 +612,7 @@
       {
         "key": "UC_C5YUHA",
         "name": "Электронная почта ukr3dprint@gmail.com",
-        "deals": 64,
+        "deals": 65,
         "expectedSum": 4014.0,
         "won": 1,
         "wonSum": 3664.0
@@ -616,14 +640,6 @@
         "expectedSum": 100238.0,
         "won": 1,
         "wonSum": 2495.0
-      },
-      {
-        "key": "UC_1YIH2Z",
-        "name": "Холодная продажа",
-        "deals": 8,
-        "expectedSum": 33687205.7,
-        "won": 2,
-        "wonSum": 2167.0
       },
       {
         "key": "3|VIBER",
@@ -682,17 +698,17 @@
         "wonSum": 0.0
       },
       {
-        "key": "51",
-        "name": "Facebook Ukr3DPrint",
+        "key": "42",
+        "name": "Электронная почта threedfactory7@gmail.com",
         "deals": 7,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
-        "key": "42",
-        "name": "Электронная почта threedfactory7@gmail.com",
-        "deals": 6,
+        "key": "51",
+        "name": "Facebook Ukr3DPrint",
+        "deals": 7,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -732,20 +748,20 @@
     ],
     "byCampaign": [
       {
+        "key": "— / —",
+        "name": "— / —",
+        "deals": 778,
+        "expectedSum": 24233139.02,
+        "won": 26,
+        "wonSum": 22476899.02
+      },
+      {
         "key": "google / Search_miltech",
         "name": "google / Search_miltech",
         "deals": 8,
         "expectedSum": 832001.0,
         "won": 1,
         "wonSum": 832000.0
-      },
-      {
-        "key": "— / —",
-        "name": "— / —",
-        "deals": 775,
-        "expectedSum": 36074749.7,
-        "won": 25,
-        "wonSum": 633471.0
       },
       {
         "key": "google / B2B_convers",
@@ -1037,27 +1053,27 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 1238,
+      "clientsInCohort": 1240,
       "returningClients": 166,
       "repeatBuyers": 52,
       "noClientLinked": 32,
       "returning": {
         "deals": 229,
-        "won": 31,
-        "wonSum": 1420291.0,
-        "winRate": 15.3
+        "won": 32,
+        "wonSum": 23263719.02,
+        "winRate": 15.8
       },
       "new": {
-        "deals": 1205,
+        "deals": 1208,
         "won": 28,
         "wonSum": 121311.0,
         "winRate": 2.5
       },
       "repeatPurchase": {
         "deals": 64,
-        "won": 28,
-        "wonSum": 1416741.0,
-        "winRate": 60.9
+        "won": 29,
+        "wonSum": 23260169.02,
+        "winRate": 61.7
       }
     },
     "staleBigDeals": [
@@ -1074,13 +1090,6 @@
         "stage": "Згода підтверджена",
         "amount": 27292960.0,
         "created": "2025-08-11"
-      },
-      {
-        "id": "186636",
-        "category": 24,
-        "stage": "НОВА угода (цільовий запит)",
-        "amount": 5318879.96,
-        "created": "2026-06-17"
       }
     ],
     "definitions": {
@@ -1157,10 +1166,10 @@
   "to": "2026-09-24",
   "complete": false,
   "wholesale": {
-    "deals": 168,
-    "revenue": 6058273.5,
-    "avgCheck": 36061.15,
-    "medianCheck": 2465.0,
+    "deals": 170,
+    "revenue": 33220581.48,
+    "avgCheck": 195415.19,
+    "medianCheck": 2487.5,
     "tiers": [
       {
         "tier": "small",
@@ -1177,8 +1186,8 @@
       {
         "tier": "mega",
         "label": "Мега-опт (>100К)",
-        "deals": 11,
-        "revenue": 4961919.5
+        "deals": 13,
+        "revenue": 32124227.48
       }
     ],
     "histogram": [
@@ -1225,13 +1234,13 @@
       {
         "bucket": "b9",
         "label": ">300К",
-        "deals": 6
+        "deals": 8
       }
     ],
     "timeToClose": {
-      "avgDays": 23.8,
+      "avgDays": 24.2,
       "medianDays": 15.0,
-      "sampleSize": 168
+      "sampleSize": 170
     }
   },
   "retail": {
@@ -1316,12 +1325,22 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 168,
-      "revenue": 6058273.5,
-      "avgCheck": 36061.15,
-      "medianCheck": 2465.0,
+      "deals": 170,
+      "revenue": 33220581.48,
+      "avgCheck": 195415.19,
+      "medianCheck": 2487.5,
       "otherCurrencyDealsSkipped": 0,
       "top5": [
+        {
+          "id": "197650",
+          "title": "Оптовый заказ_21",
+          "amount": 21843428.02
+        },
+        {
+          "id": "186636",
+          "title": "Флай оптик",
+          "amount": 5318879.96
+        },
         {
           "id": "196212",
           "title": "Ручка 200 т ",
@@ -1336,22 +1355,12 @@
           "id": "194250",
           "title": "Ватсап №10",
           "amount": 678105.0
-        },
-        {
-          "id": "189876",
-          "title": "замовлення 1",
-          "amount": 674200.0
-        },
-        {
-          "id": "194262",
-          "title": "SLS 10 (3237)",
-          "amount": 470800.0
         }
       ],
       "timeToClose": {
-        "avgDays": 23.8,
+        "avgDays": 24.2,
         "medianDays": 15.0,
-        "sampleSize": 168
+        "sampleSize": 170
       }
     },
     "18": {
@@ -1551,7 +1560,7 @@
         }
       ],
       "totalLost": 544,
-      "totalReviewed": 767
+      "totalReviewed": 769
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -1610,9 +1619,9 @@
     }
   },
   "totalReviewed": {
-    "wholesale": 767,
+    "wholesale": 769,
     "retail": 3,
     "screening": 825,
-    "all": 1595
+    "all": 1597
   }
 }
