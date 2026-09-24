@@ -173,6 +173,7 @@ window.MqlLoader = (() => {
 
   function _updateTimestamp() {
     const el = document.getElementById('mql-updated-at');
+    if (el && _data?.fetched_at && window.E3DFresh) { el.innerHTML = E3DFresh.html(_data.fetched_at, 'MQL'); return; }
     if (el && _data?.fetched_at) {
       try {
         const d = new Date(_data.fetched_at);

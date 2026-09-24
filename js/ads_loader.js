@@ -256,6 +256,7 @@ window.AdsLoader = (() => {
   function _updateTimestamp(){
     const el=document.getElementById('ads-updated-at');
     if(!el||!_data?.fetched_at)return;
+    if(window.E3DFresh){el.innerHTML=E3DFresh.html(_data.fetched_at,'Google Ads');return;}
     try{const d=new Date(_data.fetched_at);el.textContent='Оновлено: '+d.toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){}
   }
 

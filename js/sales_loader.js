@@ -62,8 +62,18 @@ window.SalesLoader = (() => {
   function _set(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
 
   // ── 1. KPI зведення ───────────────────────────────────────────────────────
+  // v4.5: YTD — тільки МИНУЛІ місяці (раніше сумувались і майбутні жовт./лист.,
+  // куди через зсув колонок у планувальнику потрапляли чужі цифри)
+  function _ytdPast(grp){
+    const UA=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const cur=new Date().getMonth();
+    const p=(grp?.monthly||[]).filter(m=>{const i=UA.indexOf(m.month);return i>-1&&i<cur;});
+    const f=p.reduce((s,m)=>s+(m.fact||0),0), pl=p.reduce((s,m)=>s+(m.plan||0),0);
+    return {...grp, ytd_fact:f, ytd_plan:pl, ytd_pct: pl?Math.round(f/pl*1000)/10:null};
+  }
+
   async function _renderSummary() {
-    const wh=_data.wholesale||{}, rt=_data.retail||{};
+    const wh=_ytdPast(_data.wholesale||{}), rt=_ytdPast(_data.retail||{});
     _set('sales-wh-fact', _fmt(wh.ytd_fact)+' грн');
     _set('sales-wh-pct',  (wh.ytd_pct??'—')+'%');
     _set('sales-rt-fact', _fmt(rt.ytd_fact)+' грн');
@@ -83,7 +93,8 @@ window.SalesLoader = (() => {
     if(cm) _set('sales-rt-check', _fmt(cm.fact)+' грн');
 
     // Динаміка МоМ (%) для ОПТ — (поточний факт − попередній факт) / попередній факт × 100
-    const whMonthly=(wh.monthly||[]).filter(m=>m.fact!=null);
+    const _UA=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const whMonthly=(wh.monthly||[]).filter(m=>m.fact!=null&&_UA.indexOf(m.month)>-1&&_UA.indexOf(m.month)<new Date().getMonth()); // тільки завершені місяці
     if(whMonthly.length>=2){
       const cur=whMonthly[whMonthly.length-1].fact, prev=whMonthly[whMonthly.length-2].fact;
       const momEl=document.getElementById('sales-wh-mom');
@@ -553,6 +564,22 @@ window.SalesLoader = (() => {
   function _updateTimestamp() {
     const el=document.getElementById('sales-updated-at');
     if(!el||!_data?.fetched_at) return;
+    // v4.5: на вкладці ДВА джерела — Bitrix24 (щогодини) і планувальник продажів
+    // (Google Sheets). Раніше показувався лише час планувальника → "12.09" при
+    // свіжих даних Bitrix. Тепер обидва + вік; якщо планувальник застарів —
+    // банер над блоками, що з нього будуються.
+    if(window.E3DFresh){
+      el.innerHTML=E3DFresh.html([{ts:_lrCurrent?.fetched_at,label:'Bitrix24'},{ts:_data.fetched_at,label:'Планувальник'}]);
+      const h=E3DFresh.ageHours(_data.fetched_at);
+      const ban=document.getElementById('sales-planner-stale');
+      if(ban){
+        if(h!=null&&h>48){
+          ban.style.display='';
+          ban.innerHTML=`⚠ <b>Планувальник продажів не оновлювався ${Math.floor(h/24)} дн.</b> (${E3DFresh.fmt(_data.fetched_at)}). План/факт по місяцях, пайплайн і менеджери нижче — з останнього вдалого знімка. Блоки Bitrix24 (сегменти, причини відмов, конверсія) — актуальні.`;
+        } else ban.style.display='none';
+      }
+      return;
+    }
     try{
       const d=new Date(_data.fetched_at);
       el.textContent='Оновлено: '+d.toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});

@@ -48,7 +48,10 @@ window.HRLoader = (() => {
   // ─── 1. Загальна кількість співробітників + зведені картки ────────────────
   function renderEmployeeCount() {
     const el = document.getElementById('hr-employees-count');
-    if (el) el.textContent = _data.employees_count || 0;
+    if (el) {
+      el.textContent = _data.employees_count || '—';
+      if (_data.employees_as_of) el.title = 'HR-таблиця, «Плинність кадрів»: ' + _data.employees_as_of;
+    }
 
     const vacCount = (_data.vacancies_current?.vacancies || []).length;
     const vacEl = document.getElementById('hr-open-vacancies-count');
@@ -328,6 +331,7 @@ window.HRLoader = (() => {
   function updateTimestamp() {
     const el = document.getElementById('hr-updated-at');
     if (!el || !_data?.fetched_at) return;
+    if (window.E3DFresh) { el.innerHTML = E3DFresh.html(_data.fetched_at, 'HR-таблиця'); return; }
     const d = new Date(_data.fetched_at);
     el.textContent = 'Оновлено: ' + d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', dateStyle: 'short', timeStyle: 'short' });
   }

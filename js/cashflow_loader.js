@@ -4,6 +4,9 @@
  * підписи значень на графіках (Chart.js datalabels).
  * 03.09.2026: live-індикатор (#fin-live-dot) на заголовку вкладки,
  * середні річні пропорції витрат (#cf-costs-avg) поруч з графіком.
+ * 24.09.2026 (v4.5): CF_2026 тепер містить УСІ місяці до поточного; неповні
+ * (сірий фон у таблиці → complete=false з fetch_cashflow.py) показуються на
+ * графіках СІРИМ з позначкою "*", але НЕ входять у YTD / середні / "останній місяць".
  */
 window.CashflowLoader = (() => {
   const DATA_URL = 'data/cashflow.json';
@@ -52,11 +55,43 @@ window.CashflowLoader = (() => {
     _renderClientConcentration();
     _renderMarketingROI();
     _renderUnitEconomics();
+    _renderCostRatios();
+    _renderCfBreakdown();
+    _renderIncompleteNote();
     _updateTimestamp();
   }
 
-  // Повні місяці для графіків (complete === true)
+  function _renderIncompleteNote() {
+    const el = document.getElementById('cf-status');
+    if (!el) return;
+    const inc = allMonths().filter(isInc).map(m => m.month);
+    const done = completedMonths();
+    el.innerHTML = inc.length
+      ? `<span style="display:inline-block;width:10px;height:10px;background:${GREY};border-radius:2px;vertical-align:-1px"></span>
+         Неповні місяці (сірі, позначені <b>*</b>): <b>${inc.join(', ')}</b> — показані на графіках, але <b>не входять</b> у YTD, середні та «останній місяць».
+         YTD = ${done.length ? done[0].month + ' – ' + done[done.length-1].month : '—'} (${done.length} повн. міс.).`
+      : '';
+  }
+
+  // Повні місяці (complete === true) — для KPI, YTD, середніх
   const completedMonths = () => (_data.months || []).filter(m => m.complete !== false);
+  // Усі місяці до поточного — для графіків (неповні сірим)
+  const allMonths = () => (_data.months || []);
+  const isInc = m => m.complete === false;
+  const GREY = 'rgba(158,158,158,.45)', GREY_L = '#9E9E9E';
+  const mLabel = m => m.month.substring(0,3) + (isInc(m) ? '*' : '');
+  // масив кольорів: повний місяць — свій колір, неповний — сірий
+  const byMonth = (months, color, grey = GREY) => months.map(m => isInc(m) ? grey : color);
+  // сегменти ліній, що ведуть У неповний місяць — сірий пунктир
+  const incSegment = (months, color) => ({
+    borderColor: ctx => isInc(months[ctx.p1DataIndex] || {}) ? GREY_L : (typeof color === 'function' ? color(ctx) : color),
+    borderDash: ctx => isInc(months[ctx.p1DataIndex] || {}) ? [4,4] : undefined,
+  });
+  // підказка в тултипі
+  const incTooltip = months => ({ afterTitle: items => {
+    const m = months[items[0]?.dataIndex];
+    return m && isInc(m) ? '⚠ неповний місяць (' + (m.incomplete_reason || 'дані не всі') + ') — не входить у YTD' : '';
+  }});
 
   const fmt = (n, type='grn') => {
     if (n == null) return '—';
@@ -123,6 +158,24 @@ window.CashflowLoader = (() => {
         colorPct(100-(last.top2_concentration_pct||100), 30, 10));
     set('cf-marketing-pct', last.marketing_pct != null ? last.marketing_pct.toFixed(2)+'%' : '—');
 
+    set('cf-clients-last', last.clients_count != null ? String(last.clients_count) : '—');
+
+    // ── Поглиблена структура CF ──────────────────────────────────────────
+    // (перенесено з кореневого cashflow_loader.js від 03.09 — той файл був
+    // залитий у корінь репо, а index.html підключає js/cashflow_loader.js,
+    // тому ці плитки/графіки весь час стояли порожніми)
+    set('cf-tax-eff', ytd.tax_effective_pct != null ? ytd.tax_effective_pct.toFixed(1)+'%' : '—',
+        colorPct(30 - (ytd.tax_effective_pct||30), -10, -20)); // менше = краще
+    set('cf-ccr-last', last.cash_conversion_pct != null ? last.cash_conversion_pct.toFixed(1)+'%' : '—',
+        last.cash_conversion_pct != null ? (last.cash_conversion_pct >= 0 ? GD : R) : undefined);
+    set('cf-logi-last', last.logistics_pct != null ? last.logistics_pct.toFixed(1)+'%' : '—');
+    // v4.5: дохід через ФОП — рядки 1.1.2–1.1.8 "ФОП …" у блоці доходу CF_2026
+    set('cf-fop-share', ytd.fop_share_pct != null ? ytd.fop_share_pct.toFixed(1)+'%' : '—');
+    const fopEl = document.getElementById('cf-fop-share');
+    if (fopEl && ytd.fop_income != null) fopEl.title = `ФОП: ${fmt(ytd.fop_income)} з ${fmt(ytd.revenue)} виручки YTD (повні місяці)`;
+    const utilEl = document.getElementById('cf-util-last');
+    if (utilEl && utilEl.textContent === '—') utilEl.title = 'Категорія "Утримання" відсутня в CF-таблиці — потрібно уточнити, які статті сюди входять';
+
     // Назва останнього місяця в заголовку
     const hdr = document.getElementById('cf-last-month-label');
     if (hdr && _data.last_month) hdr.textContent = _data.last_month;
@@ -132,8 +185,8 @@ window.CashflowLoader = (() => {
   function _renderRevenueTrend() {
     const canvas = document.getElementById('cf-revenue-chart');
     if (!canvas) return;
-    const months = completedMonths();
-    const labels = months.map(m => m.month.substring(0,3));
+    const months = allMonths();
+    const labels = months.map(mLabel);
 
     const plugins = DL ? [DL] : [];
     if (_charts.rev) { try { _charts.rev.destroy(); } catch(e){} }
@@ -143,17 +196,17 @@ window.CashflowLoader = (() => {
       data: { labels, datasets: [
         { label: 'ОПТ B2B',
           data: months.map(m => m.opt_b2b ? +(m.opt_b2b/1e6).toFixed(2) : null),
-          backgroundColor: 'rgba(42,157,143,.8)', borderRadius: 4, stack: 's' },
+          backgroundColor: byMonth(months, 'rgba(42,157,143,.8)'), borderRadius: 4, stack: 's' },
         { label: 'Роздріб B2C',
           data: months.map(m => m.retail_b2c ? +(m.retail_b2c/1e6).toFixed(2) : null),
-          backgroundColor: 'rgba(69,123,157,.75)', borderRadius: 4, stack: 's' },
+          backgroundColor: byMonth(months, 'rgba(69,123,157,.75)', 'rgba(158,158,158,.3)'), borderRadius: 4, stack: 's' },
         { label: 'Delta (CF)',
           data: months.map(m => m.delta ? +(m.delta/1e6).toFixed(2) : null),
           type: 'line', borderWidth: 2, tension: 0.3, fill: false,
           pointRadius: 5,
-          borderColor: months.map(m => (m.delta||0) >= 0 ? GD : R),
-          pointBackgroundColor: months.map(m => (m.delta||0) >= 0 ? GD : R),
-          segment: { borderColor: ctx => ctx.p0.parsed.y >= 0 ? GD : R },
+          borderColor: months.map(m => isInc(m) ? GREY_L : (m.delta||0) >= 0 ? GD : R),
+          pointBackgroundColor: months.map(m => isInc(m) ? GREY_L : (m.delta||0) >= 0 ? GD : R),
+          segment: incSegment(months, ctx => ctx.p0.parsed.y >= 0 ? GD : R),
           yAxisID: 'y1',
           datalabels: DL ? {
             ...dlBase, yAxisID: 'y1',
@@ -167,6 +220,7 @@ window.CashflowLoader = (() => {
         responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: { position: 'top', labels: { usePointStyle: true, padding: 10, font: { size: 10 } } },
+          tooltip: { callbacks: incTooltip(months) },
           datalabels: DL ? {
             display: ctx => ctx.datasetIndex < 2, // тільки bar datasets
             ...dlBase,
@@ -199,8 +253,8 @@ window.CashflowLoader = (() => {
   function _renderEbitdaTrend() {
     const canvas = document.getElementById('cf-ebitda-chart');
     if (!canvas) return;
-    const months = completedMonths();
-    const labels = months.map(m => m.month.substring(0,3));
+    const months = allMonths();
+    const labels = months.map(mLabel);
 
     const plugins = DL ? [DL] : [];
     if (_charts.ebitda) { try { _charts.ebitda.destroy(); } catch(e){} }
@@ -211,13 +265,15 @@ window.CashflowLoader = (() => {
         { label: 'EBITDA, M грн',
           data: months.map(m => m.ebitda ? +(m.ebitda/1e6).toFixed(2) : null),
           borderColor: G, backgroundColor: GB, borderWidth: 2.5,
-          tension: 0.3, fill: true, pointRadius: 5, pointBackgroundColor: G,
-          datalabels: DL ? { ...dlBase, color: GD, formatter: v => v ? fmtShort(v*1e6) : '' } : { display: false },
+          tension: 0.3, fill: true, pointRadius: 5, pointBackgroundColor: byMonth(months, G, GREY_L),
+          segment: incSegment(months, G),
+          datalabels: DL ? { ...dlBase, color: ctx => isInc(months[ctx.dataIndex]||{}) ? GREY_L : GD, formatter: v => v ? fmtShort(v*1e6) : '' } : { display: false },
         },
         { label: 'EBITDA %',
           data: months.map(m => m.ebitda_pct),
           borderColor: A, borderWidth: 2, borderDash: [5,3],
-          tension: 0.3, fill: false, pointRadius: 3, pointBackgroundColor: A,
+          tension: 0.3, fill: false, pointRadius: 3, pointBackgroundColor: byMonth(months, A, GREY_L),
+          segment: incSegment(months, A),
           yAxisID: 'y1',
           datalabels: DL ? { ...dlBase, color: A, formatter: v => v != null ? v.toFixed(0)+'%' : '' } : { display: false },
         },
@@ -226,6 +282,7 @@ window.CashflowLoader = (() => {
         responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: { position: 'top', labels: { usePointStyle: true, padding: 10, font: { size: 10 } } },
+          tooltip: { callbacks: incTooltip(months) },
           datalabels: DL ? { display: true } : { display: false },
         },
         scales: {
@@ -244,8 +301,8 @@ window.CashflowLoader = (() => {
   function _renderCostBreakdown() {
     const canvas = document.getElementById('cf-costs-chart');
     if (!canvas) return;
-    const months = completedMonths();
-    const labels = months.map(m => m.month.substring(0,3));
+    const months = allMonths();
+    const labels = months.map(mLabel);
 
     const ITEMS = [
       { key:'cogs',      label:'Сировина',  color:'rgba(42,157,143,.75)'  },
@@ -257,7 +314,7 @@ window.CashflowLoader = (() => {
       { key:'admin',     label:'Адмін',     color:'rgba(150,150,150,.6)'  },
     ];
 
-    _renderCostAverages(ITEMS, months);
+    _renderCostAverages(ITEMS, completedMonths()); // середні — тільки повні місяці
 
     const plugins = DL ? [DL] : [];
     if (_charts.costs) { try { _charts.costs.destroy(); } catch(e){} }
@@ -267,7 +324,10 @@ window.CashflowLoader = (() => {
       data: { labels, datasets: ITEMS.map((it, idx) => ({
         label: it.label,
         data: months.map(m => m[it.key] ? +(m[it.key]/1e6).toFixed(2) : null),
-        backgroundColor: it.color, borderRadius: 2,
+        backgroundColor: byMonth(months, it.color, it.color.replace(/[\d.]+\)$/, '.18)')),
+        borderColor: months.map(m => isInc(m) ? GREY_L : 'transparent'),
+        borderWidth: months.map(m => isInc(m) ? 1 : 0),
+        borderRadius: 2,
         // Підпис % на кожному сегменті — тільки якщо сегмент помітний (≥6% від суми місяця)
         datalabels: DL ? {
           anchor: 'center', align: 'center',
@@ -289,6 +349,7 @@ window.CashflowLoader = (() => {
           legend: { position: 'top', labels: { usePointStyle: true, padding: 6, font: { size: 9 } } },
           tooltip: {
             callbacks: {
+              ...incTooltip(months),
               label: ctx => {
                 const total = ITEMS.reduce((s, it2, i) =>
                   s + (ctx.chart.data.datasets[i].data[ctx.dataIndex] || 0), 0);
@@ -335,8 +396,8 @@ window.CashflowLoader = (() => {
   function _renderCashBalance() {
     const canvas = document.getElementById('cf-balance-chart');
     if (!canvas) return;
-    const months = completedMonths();
-    const labels = months.map(m => m.month.substring(0,3));
+    const months = allMonths(); // залишок для неповних = null (у таблиці він не перерахований)
+    const labels = months.map(mLabel);
 
     const plugins = DL ? [DL] : [];
     if (_charts.balance) { try { _charts.balance.destroy(); } catch(e){} }
@@ -353,7 +414,8 @@ window.CashflowLoader = (() => {
         { label: 'CAPEX',
           data: months.map(m => m.capex ? +(m.capex/1e6).toFixed(2) : null),
           borderColor: R, borderWidth: 2, borderDash: [5,3],
-          tension: 0.3, fill: false, pointRadius: 3, pointBackgroundColor: R,
+          tension: 0.3, fill: false, pointRadius: 3, pointBackgroundColor: byMonth(months, R, GREY_L),
+          segment: incSegment(months, R),
           datalabels: DL ? { ...dlBase, color: R, align: 'bottom', formatter: v => v ? fmtShort(v*1e6) : '' } : { display: false },
         },
       ]},
@@ -428,16 +490,16 @@ window.CashflowLoader = (() => {
   function _renderMarketingROI() {
     const el = document.getElementById('cf-mkt-list');
     if (!el) return;
-    const months = completedMonths();
+    const months = allMonths();
     el.innerHTML = `<div style="display:flex;gap:8px;align-items:flex-end;height:70px;padding:4px 0">
       ${months.map(m => {
         const pct = m.marketing_pct;
         const barH = pct ? Math.min(pct / 3 * 100, 100) : 4;
-        const color = !pct ? 'var(--bd)' : pct < 1 ? GD : pct < 2 ? A : R;
+        const color = isInc(m) ? GREY_L : !pct ? 'var(--bd)' : pct < 1 ? GD : pct < 2 ? A : R;
         return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end">
           <div style="font-size:9px;color:${color};font-weight:700">${pct != null ? pct.toFixed(1)+'%' : '—'}</div>
           <div style="width:100%;max-width:28px;height:${barH}%;background:${color};border-radius:3px 3px 0 0;min-height:3px" title="${m.month}: ${pct != null ? pct.toFixed(2)+'%' : '—'} (${m.marketing ? Math.round(m.marketing/1e3)+'K грн' : '—'})"></div>
-          <div style="font-size:9px;color:var(--tl)">${m.month.substring(0,3)}</div>
+          <div style="font-size:9px;color:var(--tl)">${mLabel(m)}</div>
         </div>`;
       }).join('')}
     </div>`;
@@ -461,9 +523,65 @@ window.CashflowLoader = (() => {
     set('cf-capex-per-loc',  capexPerLoc  != null ? fmt(capexPerLoc)  : '—');
   }
 
+  // ── Логістика / Податки — % від виручки (повні місяці) ─────────────────
+  function _renderCostRatios() {
+    const canvas = document.getElementById('cf-ratios-chart');
+    if (!canvas) return;
+    const months = completedMonths();
+    const labels = months.map(m => m.month.substring(0,3));
+    const plugins = DL ? [DL] : [];
+    if (_charts.ratios) { try { _charts.ratios.destroy(); } catch(e){} }
+    _charts.ratios = new Chart(canvas, {
+      type: 'line', plugins,
+      data: { labels, datasets: [
+        { label: 'Логістика %', data: months.map(m => m.logistics_pct),
+          borderColor: A, borderWidth: 2, tension: 0.3, fill: false, pointRadius: 4, pointBackgroundColor: A,
+          datalabels: DL ? { ...dlBase, color: A, formatter: v => v != null ? v.toFixed(1)+'%' : '' } : { display: false } },
+        { label: 'Податки %', data: months.map(m => m.taxes_pct),
+          borderColor: R, borderWidth: 2, tension: 0.3, fill: false, pointRadius: 4, pointBackgroundColor: R,
+          datalabels: DL ? { ...dlBase, color: R, align: 'bottom', formatter: v => v != null ? v.toFixed(1)+'%' : '' } : { display: false } },
+      ]},
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 10, font: { size: 10 } } },
+          datalabels: DL ? { display: true } : { display: false } },
+        scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID }, ticks: { callback: v => v+'%' } } } }
+    });
+  }
+
+  // ── Операційний / Інвестиційний / Фінансовий CF ─────────────────────────
+  // v4.5: у CF_2026 з'явились рядки "ІНВЕСТИЦІЙНИЙ ГРОШОВИЙ ПОТІК" і
+  // "ФІНАНСОВИЙ ГРОШОВИЙ ПОТІК" (дивіденди + кредит) — графік тепер реальний.
+  function _renderCfBreakdown() {
+    const canvas = document.getElementById('cf-breakdown-chart');
+    if (!canvas) return;
+    const months = allMonths();
+    if (!months.some(m => m.inv_cf != null || m.fin_cf != null)) {
+      if (canvas.parentElement) canvas.parentElement.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;text-align:center;padding:0 10px">
+        <p style="font-size:11px;color:var(--tl);line-height:1.5">Дані з'являться після наступного оновлення CF<br>(fetch_cashflow.py v4.5 читає рядки «ІНВЕСТИЦІЙНИЙ» / «ФІНАНСОВИЙ ГРОШОВИЙ ПОТІК»).</p></div>`;
+      return;
+    }
+    const labels = months.map(mLabel);
+    const M = v => v != null ? +(v/1e6).toFixed(2) : null;
+    if (_charts.cfbd) { try { _charts.cfbd.destroy(); } catch(e){} }
+    _charts.cfbd = new Chart(canvas, {
+      type: 'bar',
+      data: { labels, datasets: [
+        { label: 'Операційний', data: months.map(m => M(m.op_cf)), backgroundColor: byMonth(months, 'rgba(42,157,143,.75)'), borderRadius: 3 },
+        { label: 'Інвестиційний (CAPEX)', data: months.map(m => M(m.inv_cf)), backgroundColor: byMonth(months, 'rgba(69,123,157,.75)', 'rgba(158,158,158,.3)'), borderRadius: 3 },
+        { label: 'Фінансовий (дивіденди + кредит)', data: months.map(m => M(m.fin_cf)), backgroundColor: byMonth(months, 'rgba(192,57,43,.6)', 'rgba(158,158,158,.2)'), borderRadius: 3 },
+      ]},
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 9 } } },
+          tooltip: { callbacks: { ...incTooltip(months), label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}M` } },
+          datalabels: { display: false } },
+        scales: { x: { grid: { display: false } }, y: { grid: { color: GRID }, ticks: { callback: v => v+'M' } } } }
+    });
+  }
+
   function _updateTimestamp() {
     const el = document.getElementById('cf-updated-at');
     if (!el || !_data?.fetched_at) return;
+    if (window.E3DFresh) { el.innerHTML = E3DFresh.html(_data.fetched_at, 'CashFlow'); return; }
     try {
       const d = new Date(_data.fetched_at);
       el.textContent = 'CF: ' + d.toLocaleString('uk-UA', {
