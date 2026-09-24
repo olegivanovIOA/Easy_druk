@@ -11,6 +11,7 @@
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
 <script src="js/data_layer.js"></script>
+<script src="js/freshness.js?v=20260924"></script>
 <script src="js/widgets.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -337,7 +338,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.4</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.5</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -345,7 +346,7 @@ a{color:var(--gd);text-decoration:none}
       <button class="tb" data-tab="prod" onclick="go('prod',this)"><span class="ti">🏭</span>Виробництво<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="qual" onclick="go('qual',this)"><span class="ti">✅</span>Якість<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
       <button class="tb" data-tab="sales" onclick="go('sales',this)"><span class="ti">💼</span>Продажі<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-sales"></div></button>
-      <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>CRM<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
+      <button class="tb" data-tab="crm" onclick="go('crm',this)"><span class="ti">📣</span>Маркетинг<span class="e3d-dot" style="background:#BA7517"></span><div class="e3d-tooltip" id="tip-crm"></div></button>
       <button class="tb" data-tab="fin" onclick="go('fin',this)"><span class="ti">💰</span>Фінанси</button>
       <button class="tb" data-tab="hr" onclick="go('hr',this)"><span class="ti">👥</span>HR<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span><div class="e3d-tooltip" id="tip-hr"></div></button>
       <button class="tb" data-tab="loc" onclick="go('loc',this)"><span class="ti">📍</span>Локації<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -388,11 +389,11 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ % плану</div><div class="krow-val g" id="ceo-wh-pct">—</div><div class="krow-tgt">vs план</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Роздріб факт YTD</div><div class="krow-val a" id="ceo-rt-fact">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Роздріб % плану</div><div class="krow-val r" id="ceo-rt-pct">—</div><div class="krow-tgt">Ціль: <b>90%+</b></div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Загальна виручка YTD</div><div class="krow-val g" id="ceo-total-fact">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Сума надходжень з CashFlow (банк) за ПОВНІ місяці — неповні (сірі в CF) не враховуються">Виручка YTD (CF, повні міс.)</div><div class="krow-val g" id="ceo-total-fact">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Пайплайн активний</div><div class="krow-val" id="ceo-pipeline">—</div><div class="real-dot"></div></div>
     </div>
     <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Виручка ОПТ + Роздріб по місяцях 2026</div>
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Виручка ОПТ + Роздріб по місяцях 2026 <span style="font-weight:500;color:var(--tl);font-size:10px">· CashFlow (банк) · сірі * — неповні місяці</span></div>
       <div class="cw ch180"><canvas id="ceo-rev-chart"></canvas></div>
     </div>
   </div>
@@ -401,16 +402,16 @@ a{color:var(--gd);text-decoration:none}
   <div id="w-ceo-sales">
     <div class="sec">📦 Продажі — ключові сигнали</div>
     <div class="g6" style="margin-bottom:14px">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Активних B2B-клієнтів</div><div class="krow-val g">20</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">ТОП-2 клієнти / виручка</div><div class="krow-val r">94.7%</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Кількість клієнтів-платників за останній повний місяць (CashFlow, _Клієнти_Місячно)">Клієнтів (ост. повн. міс.)</div><div class="krow-val g" id="ceo-clients">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Частка ТОП-2 клієнтів у виручці за останній повний місяць (CashFlow)">ТОП-2 клієнти / виручка</div><div class="krow-val r" id="ceo-top2">—</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Угод у пайплайні</div><div class="krow-val g" id="ceo-pipeline-sum">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Ліди / міс (останній)</div><div class="krow-val" id="ceo-leads">—</div><div class="real-dot"></div></div>
-      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">Lead time замовлень</div><div class="krow-val r">~22 дні</div><div class="krow-tgt">Ціль: <b>&lt;5</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Усі угоди/звернення в Bitrix24 (воронки 0+24+18+32), закриті в поточному місяці">Звернень у Bitrix (міс.)</div><div class="krow-val" id="ceo-leads">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Медіана днів від створення до WON, ОПТ (воронка 24), поточний місяць">Цикл угоди ОПТ (медіана)</div><div class="krow-val r" id="ceo-ttc">—</div><div class="krow-tgt">Ціль: <b>&lt;5</b></div><div class="real-dot"></div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Повторні замовлення</div><div class="krow-val x">TBD %</div><div class="krow-tgt">Ціль: <b>50%+</b></div><div class="tbd-lbl">TBD</div></div>
     </div>
     <div class="g2" style="margin-bottom:14px">
       <div class="card">
-        <div class="chdr"><div><div class="ct">Концентрація ОПТ-клієнтів</div><div class="cs">ТОП-2 = 94.7% — критичний ризик</div></div><span class="bdg bdg-r">РИЗИК</span></div>
+        <div class="chdr"><div><div class="ct">Концентрація клієнтів (CF)</div><div class="cs" id="ceo-conc-sub">—</div></div><span class="bdg bdg-r" id="ceo-conc-badge">РИЗИК</span></div>
         <div class="cw ch160"><canvas id="clientConc"></canvas></div>
       </div>
       <div class="card">
@@ -445,14 +446,14 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (парк)</div><div class="krow-val g" id="ceo-fleet-total">—</div><div class="krow-tgt">Ціль: <b>10 000</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Активних локацій</div><div class="krow-val" id="ceo-loc-count">—</div><div class="real-dot"></div></div>
       <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">OEE / Ефективність</div><div class="krow-val r">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
-      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">% Браку</div><div class="krow-val r">~12%</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="demo-lbl">ДЕМО</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржинальність</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Брак ОТК з початку поточного місяця: браковані / прийняті деталі (batches_history, щоденно)">% Браку (міс., ОТК)</div><div class="krow-val r" id="ceo-defect">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="EBITDA / Виручка за повні місяці YTD (CashFlow)">EBITDA-маржа YTD (CF)</div><div class="krow-val" id="ceo-ebitda-pct">—</div><div class="real-dot"></div></div>
     </div>
     <div class="g2">
       <div class="card">
         <div class="ct" style="margin-bottom:10px">Прогрес стратегічних цілей 2026</div>
         <div class="pr"><div class="pn">Виручка 2026 (ціль 650M)</div><div class="pbw"><div class="pb" style="width:18%;background:var(--g)" id="ceo-rev-bar"></div></div><div class="pv g" id="ceo-rev-val">—</div></div>
-        <div class="pr"><div class="pn">Диверсифікація ТОП-2 ≤70%</div><div class="pbw"><div class="pb" style="width:8%;background:var(--red)"></div></div><div class="pv r">94.7%</div></div>
+        <div class="pr"><div class="pn">Диверсифікація ТОП-2 ≤70%</div><div class="pbw"><div class="pb" style="width:0%;background:var(--red)" id="ceo-div-bar"></div></div><div class="pv r" id="ceo-div-val">—</div></div>
         <div class="pr"><div class="pn">Штат → 200 осіб</div><div class="pbw"><div class="pb" style="width:67%;background:var(--amb)" id="ceo-staff-bar"></div></div><div class="pv" id="ceo-staff-val">—</div></div>
         <div class="pr"><div class="pn">Парк принтерів → 10K</div><div class="pbw"><div class="pb" style="width:0%;background:var(--b)" id="ceo-fleet-bar"></div></div><div class="pv b" id="ceo-fleet-val">—</div></div>
         <div class="pr"><div class="pn">OEE → 80%+</div><div class="pbw"><div class="pb" style="width:30%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">~30%</div></div>
@@ -858,6 +859,7 @@ a{color:var(--gd);text-decoration:none}
       <div class="sec" style="margin-bottom:9px">📊 Зведені показники продажів — реальні дані</div>
       <span id="sales-updated-at" style="font-size:11px;color:var(--tl)"></span>
     </div>
+    <div id="sales-planner-stale" class="al al-a" style="display:none;font-size:11px;margin-bottom:10px"></div>
     <div class="g6" style="margin-bottom:14px">
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ YTD факт</div><div class="krow-val g" id="sales-wh-fact">—</div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ YTD %</div><div class="krow-val g" id="sales-wh-pct">—</div></div>
@@ -1061,7 +1063,7 @@ a{color:var(--gd);text-decoration:none}
   </div>
 </div>
 
-<!-- ═════════════ CRM ═════════════ -->
+<!-- ═════════════ МАРКЕТИНГ (id=crm залишено для сумісності з localStorage/віджетами) ═════════════ -->
 <div class="panel" id="panel-crm">
   <div id="w-crm-funnel">
 
@@ -1153,6 +1155,35 @@ a{color:var(--gd);text-decoration:none}
       </div>
     </div>
   </div>
+
+  <!-- ═══ v4.5: КАНАЛИ ЗАЛУЧЕННЯ (Bitrix24 SOURCE_ID / UTM) ═══ -->
+  <div id="w-mkt-channels">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
+      <div class="sec" style="margin-bottom:0">📡 Канали залучення — Bitrix24 <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Усі угоди 4 воронок (0 ЛИДЫ + 24 ОПТ + 18/32 Роздріб), закриті в періоді, згруповані за полем «Джерело» (SOURCE_ID). Продаж = WON у 24/18/32. Win-rate = WON / (WON + відмови). Сміття = відмови зі стадій СПАМ/МУСОР/ДУБЛЬ/ПОМИЛКА. Виручка — тільки WON 24/18/32 (без задвоєння з воронкою 0).">ⓘ</span></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <select id="mkt-channels-period" style="font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px"></select>
+        <span id="mkt-channels-note" style="font-size:10px;color:var(--tl)"></span>
+        <span id="mkt-channels-updated"></span>
+      </div>
+    </div>
+    <div id="mkt-channels-root">
+      <div class="card" style="margin-bottom:12px"><div id="mkt-channels-insights" style="font-size:11px;color:var(--tx)">Завантаження…</div></div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="card">
+          <div class="ct" style="margin-bottom:8px">Звернення → продажі → виручка по каналах</div>
+          <div class="cw" style="height:300px"><canvas id="mkt-channels-bars"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct" style="margin-bottom:8px">Таблиця каналів</div>
+          <div class="tw"><table class="tbl"><thead><tr><th>Канал</th><th style="text-align:right">Звернень</th><th style="text-align:right">WON</th><th style="text-align:right" title="WON / (WON + відмови)">Win-rate</th><th style="text-align:right" title="Спам/мусор/дублі/помилки від усіх звернень">Сміття</th><th style="text-align:right">Виручка</th><th style="text-align:right">Сер. чек</th><th style="text-align:right">Частка</th></tr></thead><tbody id="mkt-channels-table"></tbody></table></div>
+        </div>
+      </div>
+      <div class="card" id="mkt-channels-trend-wrap" style="display:none;margin-bottom:12px">
+        <div class="ct" style="margin-bottom:8px">Win-rate по місяцях — ТОП-5 каналів за виручкою <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
+        <div class="cw" style="height:200px"><canvas id="mkt-channels-trend"></canvas></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ═════════════ ФІНАНСИ ═════════════ -->
@@ -1229,11 +1260,11 @@ a{color:var(--gd);text-decoration:none}
 
   <div class="g2" style="margin-bottom:14px">
     <div class="card">
-      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Логістика / Утримання / Податки — % від виручки</div>
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Логістика / Податки — % від виручки</div>
       <div class="cw ch180"><canvas id="cf-ratios-chart"></canvas></div>
     </div>
     <div class="card">
-      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Investment CF vs Financial CF</div>
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Грошовий потік: операційний / інвестиційний / фінансовий</div>
       <div class="cw ch180"><canvas id="cf-breakdown-chart"></canvas></div>
     </div>
   </div>
@@ -1403,7 +1434,7 @@ function buildSales(){const{l,d}=fd(RAW.opt);safeChart('sTrend',{type:'line',dat
 function refreshCharts(){buildRev();buildDef();buildLead();buildSales();}
 
 function buildStatic(){
-  safeChart('clientConc',{type:'doughnut',data:{labels:['ТОП-1 ~62%','ТОП-2 ~33%','Решта 18 кл.'],datasets:[{data:[62,32.7,5.3],backgroundColor:[R,A,G],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
+  // clientConc — тепер з реальних даних CashFlow (_buildCeoCharts), не статичні 62/32.7/5.3
   const DL=window.ChartDataLabels;
   safeChart('cRisk',{type:'bar',plugins:DL?[DL]:[],data:{labels:['Кл.1','Кл.2','Кл.3','Кл.4','Кл.5','Інші'],datasets:[{data:[62,32.7,1.8,.9,.7,1.9],backgroundColor:[R,A,G,G,G,G],borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',formatter:v=>v+'%',font:{size:9,weight:'600'},color:'#445243'}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
   safeChart('outCh',{type:'bar',data:{labels:['Лок.1','Лок.2','Лок.4','Лок.5'],datasets:[{data:[850,720,410,280],backgroundColor:[GB,GB,AB,RB],borderColor:[G,G,A,R],borderWidth:1.5,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID}}}}});
@@ -1479,39 +1510,106 @@ async function _buildCeoCharts(){
   const fmt=n=>n==null?'—':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(0)+'K':String(Math.round(n));
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
 
-  // Дані продажів
+  // ── CashFlow (банк) — факт виручки, клієнти, концентрація, EBITDA ──
+  // v4.5: факт виручки на CEO береться з CF (повні місяці), а не з планувальника
+  // (sales_planner.json не оновлюється з 12.09 і має зсув колонок з серпня).
+  let cf=null;
+  try{
+    cf=await fetch('data/cashflow.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+  }catch(e){console.warn('[CEO cf]',e.message);}
+  window._ceoCfRevenueYtd=null;
+  if(cf){
+    const ytd=cf.ytd||{}, months=cf.months||[];
+    const done=months.filter(m=>m.complete!==false);
+    const last=done[done.length-1]||{};
+    const period=done.length?`${done[0].month.slice(0,3)}–${last.month.slice(0,3)}`:'';
+    set('ceo-total-fact', fmt(ytd.revenue)+' грн');
+    const tf=document.getElementById('ceo-total-fact'); if(tf) tf.title='CashFlow, повні місяці: '+period+(cf.incomplete_months&&cf.incomplete_months.length?' · не враховано (неповні): '+cf.incomplete_months.join(', '):'');
+    window._ceoCfRevenueYtd=ytd.revenue||null;
+    const revBar=document.getElementById('ceo-rev-bar');
+    if(revBar&&ytd.revenue){revBar.style.width=Math.min(Math.round(ytd.revenue/650e6*100),100)+'%';}
+    set('ceo-rev-val', fmt(ytd.revenue)+' грн');
+    // EBITDA-маржа YTD
+    const ep=document.getElementById('ceo-ebitda-pct');
+    if(ep&&ytd.ebitda_pct!=null){ep.textContent=ytd.ebitda_pct.toFixed(1)+'%';ep.style.color=ytd.ebitda_pct>=40?G:ytd.ebitda_pct>=20?A:R;}
+    // Клієнти + ТОП-2 — останній повний місяць з "нормальною" к-стю клієнтів (>20, як у Фінансах)
+    const wc=done.filter(m=>m.top2_concentration_pct!=null&&(m.clients_count==null||m.clients_count>20));
+    const lc=wc[wc.length-1];
+    if(lc){
+      set('ceo-clients', (lc.clients_count??'—')+' · '+lc.month.slice(0,3));
+      const t2=lc.top2_concentration_pct;
+      const t2el=document.getElementById('ceo-top2'); if(t2el){t2el.textContent=t2.toFixed(1)+'%';t2el.style.color=t2>70?R:G;}
+      set('ceo-div-val', t2.toFixed(1)+'%');
+      const db=document.getElementById('ceo-div-bar'); if(db){db.style.width=Math.max(0,Math.min(100,(100-t2)/30*100)).toFixed(0)+'%';db.style.background=t2>70?'var(--red)':'var(--g)';}
+      set('ceo-conc-sub', `ТОП-2 = ${t2.toFixed(1)}% виручки · ${lc.month} · ${lc.clients_count||'—'} клієнтів`);
+      const bd=document.getElementById('ceo-conc-badge'); if(bd){bd.textContent=t2>70?'РИЗИК':'OK';bd.className='bdg '+(t2>70?'bdg-r':'bdg-g');}
+      const rest=Math.max(0,100-t2);
+      safeChart('clientConc',{type:'doughnut',data:{labels:[`ТОП-2 ${t2.toFixed(1)}%`,`Решта ${lc.clients_count?lc.clients_count-2+' кл. ':''}${rest.toFixed(1)}%`],datasets:[{data:[+t2.toFixed(1),+rest.toFixed(1)],backgroundColor:[R,G],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,usePointStyle:true}}}}});
+    }
+    // Графік виручки по місяцях — CF, неповні місяці сірим
+    const inc=m=>m.complete===false;
+    const lbls=months.map(m=>m.month.substring(0,3)+(inc(m)?'*':''));
+    safeChart('ceo-rev-chart',{type:'bar',data:{labels:lbls,datasets:[
+      {label:'ОПТ (B2B)',data:months.map(m=>m.opt_b2b?m.opt_b2b/1e6:null),backgroundColor:months.map(m=>inc(m)?'rgba(158,158,158,.45)':'rgba(61,126,166,.75)'),borderRadius:4,stack:'s'},
+      {label:'Роздріб (B2C)',data:months.map(m=>m.retail_b2c?m.retail_b2c/1e6:null),backgroundColor:months.map(m=>inc(m)?'rgba(158,158,158,.25)':'rgba(201,138,43,.75)'),borderRadius:4,stack:'s'},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}},tooltip:{callbacks:{afterTitle:it=>{const m=months[it[0]?.dataIndex];return m&&inc(m)?'⚠ неповний місяць — не входить у YTD':'';}}}},scales:{x:{stacked:true,grid:{color:GRID}},y:{stacked:true,grid:{color:GRID},ticks:{callback:v=>v.toFixed(0)+'M'}}}}});
+  }
+
+  // ── Планувальник продажів — план/факт ОПТ/Роздріб + пайплайн ──
+  // YTD рахуємо тільки по МИНУЛИХ місяцях (раніше сумувались і майбутні
+  // жовтень/листопад, де через зсув колонок стояли чужі цифри).
   try{
     const sd=await fetch('data/sales_planner.json?t='+Date.now()).then(r=>r.json());
-    const wf=sd.wholesale?.ytd_fact||0, rf=sd.retail?.ytd_fact||0;
-    set('ceo-wh-fact', fmt(wf)+' грн');
-    set('ceo-wh-pct',  (sd.wholesale?.ytd_pct||0)+'%');
-    set('ceo-rt-fact', fmt(rf)+' грн');
-    set('ceo-rt-pct',  (sd.retail?.ytd_pct||0)+'%');
-    set('ceo-total-fact', fmt(wf+rf)+' грн');
+    const curIdx=new Date().getMonth(); // 0-based; беремо місяці з індексом < поточного
+    const UA=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const past=arr=>(arr||[]).filter(m=>UA.indexOf(m.month)>-1&&UA.indexOf(m.month)<curIdx);
+    const ytdOf=arr=>{const p=past(arr);const f=p.reduce((s,m)=>s+(m.fact||0),0),pl=p.reduce((s,m)=>s+(m.plan||0),0);return{f,pct:pl?Math.round(f/pl*1000)/10:null};};
+    const wh=ytdOf(sd.wholesale?.monthly), rt=ytdOf(sd.retail?.monthly);
+    const staleH=window.E3DFresh?E3DFresh.ageHours(sd.fetched_at):null;
+    const staleMark=staleH!=null&&staleH>48?' ⚠':'';
+    const staleTip=staleH!=null&&staleH>48?`Планувальник продажів не оновлювався ${Math.floor(staleH/24)} дн. (${E3DFresh.fmt(sd.fetched_at)})`:'Джерело: планувальник продажів (Google Sheets)';
+    const setT=(id,v)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.title=staleTip;}};
+    setT('ceo-wh-fact', fmt(wh.f)+' грн'+staleMark);
+    setT('ceo-wh-pct',  (wh.pct??'—')+'%'+staleMark);
+    setT('ceo-rt-fact', fmt(rt.f)+' грн'+staleMark);
+    setT('ceo-rt-pct',  (rt.pct??'—')+'%'+staleMark);
     const pipe=sd.pipeline||{};
-    set('ceo-pipeline',     fmt(pipe.total_active_sum)+' грн');
-    set('ceo-pipeline-sum', fmt(pipe.total_active_sum)+' грн');
-    const lastLead=(sd.leads_conversion?.monthly||[]).filter(m=>m.leads).slice(-1)[0];
-    if(lastLead) set('ceo-leads', Math.round(lastLead.leads));
-    // Прогрес-бар виручки (ціль 650M)
-    const revBar=document.getElementById('ceo-rev-bar');
-    if(revBar){const pct=Math.min(Math.round((wf+rf)/650e6*100),100);revBar.style.width=pct+'%';}
-    set('ceo-rev-val', fmt(wf+rf)+' грн');
-    // Пайплайн по стадіях
+    setT('ceo-pipeline',     fmt(pipe.total_active_sum)+' грн'+staleMark);
+    setT('ceo-pipeline-sum', fmt(pipe.total_active_sum)+' грн'+staleMark);
     const pEl=document.getElementById('ceo-pipeline-summary');
     if(pEl&&pipe.stages){
       const C={won:G,active:G,test:'#b58b2a',calculation:A,waiting:A,slow:'#c08c39',lost:'#aaa'};
-      pEl.innerHTML=(pipe.stages||[]).filter(s=>s.sum>0).map(s=>`<div class="mr"><div class="mn">${s.label}</div><div style="display:flex;gap:8px"><div class="mv" style="color:${C[s.stage]||A};font-size:11px">${fmt(s.sum)} грн</div><div style="font-size:10px;color:var(--tl)">${s.count} угод</div></div></div>`).join('');
+      pEl.innerHTML=(staleMark?`<div style="font-size:10px;color:#C0392B;margin-bottom:6px">⚠ ${staleTip}</div>`:'')+(pipe.stages||[]).filter(s=>s.sum>0).map(s=>`<div class="mr"><div class="mn">${s.label}</div><div style="display:flex;gap:8px"><div class="mv" style="color:${C[s.stage]||A};font-size:11px">${fmt(s.sum)} грн</div><div style="font-size:10px;color:var(--tl)">${s.count} угод</div></div></div>`).join('');
     }
-    // Графік виручки
-    const wm=sd.wholesale?.monthly||[], rm=sd.retail?.monthly||[];
-    const lbls=(wm.length?wm:rm).filter(m=>m.plan).map(m=>m.month.substring(0,3));
-    safeChart('ceo-rev-chart',{type:'bar',data:{labels:lbls,datasets:[
-      {label:'ОПТ план',data:wm.filter(m=>m.plan).map(m=>(m.plan||0)/1e6),backgroundColor:'rgba(42,157,143,.12)',borderRadius:4,borderWidth:1,borderColor:G},
-      {label:'ОПТ факт',data:wm.filter(m=>m.plan).map(m=>(m.fact||0)/1e6),backgroundColor:'rgba(42,157,143,.7)',borderRadius:4},
-      {label:'Роздріб факт',data:rm.filter(m=>m.plan).map(m=>(m.fact||0)/1e6),backgroundColor:'rgba(69,123,157,.7)',borderRadius:4},
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v.toFixed(1)+'M'}}}}});
+    if(!cf){ // фолбек, якщо CF недоступний
+      set('ceo-total-fact', fmt(wh.f+rt.f)+' грн'); set('ceo-rev-val', fmt(wh.f+rt.f)+' грн');
+    }
   }catch(e){console.warn('[CEO sales]',e.message);}
+
+  // ── Bitrix24 — звернення за місяць + цикл угоди ОПТ ──
+  try{
+    const crm=await fetch('data/crm_deals.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+    if(crm){
+      const tr=crm.totalReviewed||{};
+      if(tr.all!=null) set('ceo-leads', tr.all.toLocaleString('uk-UA')+' · '+(crm.month||''));
+      const ttc=crm.wholesale?.timeToClose;
+      const el=document.getElementById('ceo-ttc');
+      if(el&&ttc&&ttc.medianDays!=null){el.textContent=ttc.medianDays+' дн';el.title=`Середнє ${ttc.avgDays} дн · ${ttc.sampleSize} WON-угод · ${crm.month}`;el.style.color=ttc.medianDays<=5?G:R;}
+    }
+  }catch(e){console.warn('[CEO crm]',e.message);}
+
+  // ── Брак ОТК з початку місяця (batches_history — щоденні знімки) ──
+  try{
+    const bh=await fetch('data/batches_history.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+    const days=(bh&&bh.days)||[];
+    if(days.length){
+      const lastMonth=days[days.length-1].date.slice(0,7);
+      let acc=0,def=0,n=0;
+      days.filter(d=>d.date.startsWith(lastMonth)).forEach(d=>{n++;Object.values(d.locations||{}).forEach(l=>{acc+=l.acceptedQty||0;def+=l.defectQty||0;});});
+      const el=document.getElementById('ceo-defect');
+      if(el&&acc){const p=def/acc*100;el.textContent=p.toFixed(2)+'%';el.style.color=p<9?G:R;el.title=`${def.toLocaleString('uk-UA')} браку / ${acc.toLocaleString('uk-UA')} прийнято · ${lastMonth}, ${n} дн.`;}
+    }
+  }catch(e){console.warn('[CEO defect]',e.message);}
 
   // Дані HR
   try{
@@ -1536,12 +1634,9 @@ async function _buildCeoCharts(){
     // Стажери
     const lastI=(hd.interns_by_month||[]).slice(-1)[0];
     if(lastI) set('ceo-interns', (lastI.count??lastI.interns??'—')+' осіб');
-    // Виручка / staff
-    const revEl=document.getElementById('ceo-total-fact');
-    if(revEl&&staff>0){
-      const rev=parseFloat((revEl.textContent||'0').replace('M',''))*1e6;
-      if(rev>0) set('ceo-rev-per-staff', fmt(rev/staff)+' грн');
-    }
+    // Виручка / staff — CF YTD (повні місяці) / поточний штат
+    if(staff>0&&window._ceoCfRevenueYtd) set('ceo-rev-per-staff', fmt(window._ceoCfRevenueYtd/staff)+' грн');
+    if(hd.employees_as_of){const se=document.getElementById('ceo-staff');if(se)se.title='HR-таблиця, «Плинність кадрів»: '+hd.employees_as_of;}
     // Прогрес-бар штату
     const sb=document.getElementById('ceo-staff-bar');
     if(sb&&staff){sb.style.width=Math.min(staff/200*100,100)+'%';}
@@ -1554,7 +1649,10 @@ async function _buildCeoCharts(){
       safeChart('ceo-hr-chart',{type:'line',data:{labels:mLbls,datasets:[
         {label:'Плинність %',data:turnData,borderColor:R,backgroundColor:RB,borderWidth:2,tension:.3,fill:true,pointRadius:5,pointBackgroundColor:turnData.map(v=>v>targetPct?R:G)},
         {label:`Ціль ${targetPct}%`,data:mLbls.map(()=>targetPct),borderColor:'#9CA3AF',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false},
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
+        ...((hd.headcount_by_month||[]).length?[{label:'Штат (кінець міс.)',type:'bar',yAxisID:'y1',order:5,
+          data:turnSorted.map(e=>{const h=(hd.headcount_by_month||[]).find(x=>x.month===e.month);return h?(h.end??h.start):null;}),
+          backgroundColor:'rgba(61,126,166,.18)',borderColor:'rgba(61,126,166,.6)',borderWidth:1,borderRadius:3}]:[]),
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:GRID},ticks:{callback:v=>v+'%'}},y1:{display:(hd.headcount_by_month||[]).length>0,position:'right',beginAtZero:true,grid:{drawOnChartArea:false},ticks:{callback:v=>v+' ос.'}}}}});
     }
   }catch(e){console.warn('[CEO hr]',e.message);}
 
@@ -2396,6 +2494,35 @@ async function _loadAndRenderSprints(){
   }
   _renderActiveSprint();
   _renderTransfersChart(sprints);
+  _renderNextSprintNote(sprints);
+}
+
+// v4.5: поточний спринт — скільки днів лишилось + прев'ю наступного спринту,
+// якщо в таблиці вже є його вкладка (напр. у день мітингу по Спринту 11
+// формується Спринт 12). Все з strategy.json, нічого не хардкодимо.
+function _renderNextSprintNote(sprints){
+  const h=document.getElementById('s2-header-title'); if(!h) return;
+  let el=document.getElementById('s2-next-note');
+  if(!el){el=document.createElement('div');el.id='s2-next-note';el.style.cssText='font-size:11px;color:var(--tm);margin:-4px 0 10px;display:flex;gap:14px;flex-wrap:wrap';h.parentNode.insertBefore(el,h.nextSibling);}
+  const parseDM=s=>{const m=(s||'').match(/(\d{1,2})\.(\d{1,2})/);return m?new Date(2026,parseInt(m[2])-1,parseInt(m[1])):null;};
+  const rng=sp=>{const p=(sp.dates||'').split(/[–-]/);return{start:parseDM(p[0]),end:parseDM(p[1])};};
+  const t0=new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate());
+  const cur=sprints.find(sp=>_sprintContainsToday(sp.dates));
+  const parts=[];
+  if(cur){
+    const {end}=rng(cur);
+    const left=end?Math.round((end-t0)/864e5):null;
+    const tasks=Object.values(cur.projects||{}).reduce((s,p)=>s+(p.total||0),0);
+    const done=Object.values(cur.projects||{}).reduce((s,p)=>s+(p.done||0),0);
+    parts.push(`📅 <b>Спринт ${cur.num}</b> (${cur.dates}): ${left===0?'<b style="color:var(--red)">останній день — мітинг/ретро</b>':left!=null?'лишилось <b>'+left+' дн.</b>':''} · виконано ${done}/${tasks}`);
+  }
+  const next=sprints.filter(sp=>{const {start}=rng(sp);return start&&start>t0;}).sort((a,b)=>a.num-b.num)[0];
+  if(next){
+    const projs=Object.values(next.projects||{});
+    const tasks=projs.reduce((s,p)=>s+(p.total||0),0);
+    parts.push(`🗓 <b>Спринт ${next.num}</b> (${next.dates}) формується: <b>${tasks}</b> задач у <b>${projs.length}</b> проект${projs.length===1?'і':'ах'}${projs.length?' — '+projs.map(p=>p.name).slice(0,4).join(', ')+(projs.length>4?'…':''):''} · <a href="#" onclick="_switchSprint(${next.num});return false" style="color:var(--b)">переглянути</a>`);
+  }
+  el.innerHTML=parts.map(p=>`<span>${p}</span>`).join('');
 }
 
 function _switchSprint(num){
@@ -2427,7 +2554,7 @@ function _renderActiveSprint(){
   const dp=total>0?Math.round(done/total*100):0;
   const mp=total>0?Math.round(moved/total*100):0;
   const title=document.getElementById('sprint-title');
-  if(title) title.textContent=`⚡ ${spLbl} (${spDt})`;
+  if(title) title.textContent=(spLbl&&/\(/.test(spLbl))?`⚡ ${spLbl}`:`⚡ ${spLbl} (${spDt})`; // v4.5: name вже містить дати → без дубля
   const sprintNumLbl = num==='all' ? 'Всі спринти' : `Спринт ${num}`;
   const h2=document.getElementById('s2-header-title'); if(h2) h2.textContent=`⚡ Поточний спринт (${sprintNumLbl}: ${spDt})`;
   const pt=document.getElementById('s2-progress-title'); if(pt) pt.textContent=`Прогрес ${sprintNumLbl}`;
@@ -2776,13 +2903,13 @@ const WCAT=[
   {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
-  {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},
+  {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},{id:'mkt-channels',tab:'crm',label:'Канали залучення (Bitrix24)'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
   {id:'hr-kpi',tab:'hr',label:'HR показники'},
   {id:'loc-tbl',tab:'loc',label:'Зведена таблиця локацій'},{id:'loc-cards',tab:'loc',label:'Картки локацій'},{id:'loc-trends',tab:'loc',label:'Динаміка по локаціях'},
   {id:'reg-ch',tab:'reg',label:'Графіки покриття'},{id:'reg-tbl',tab:'reg',label:'Таблиця реєстру'},
 ];
-const TNMS={ceo:'🏢 CEO',str:'🎯 Стратегія',prod:'🏭 Виробництво',qual:'✅ Якість',sales:'💼 Продажі',crm:'📣 CRM',fin:'💰 Фінанси',hr:'👥 HR',loc:'📍 Локації',reg:'📋 Реєстр'};
+const TNMS={ceo:'🏢 CEO',str:'🎯 Стратегія',prod:'🏭 Виробництво',qual:'✅ Якість',sales:'💼 Продажі',crm:'📣 Маркетинг',fin:'💰 Фінанси',hr:'👥 HR',loc:'📍 Локації',reg:'📋 Реєстр'};
 function loadPrefs(){try{return JSON.parse(localStorage.getItem(WKEY)||'{}');}catch(e){return{};}}
 function savePrefs(p){try{localStorage.setItem(WKEY,JSON.stringify(p));}catch(e){}}
 function isVis(id){const p=loadPrefs();return p[id]!==undefined?p[id]:true;}
@@ -2825,6 +2952,7 @@ function go(id,btn){
     window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
     if(window.MqlLoader) window.MqlLoader.load();
   }
+  if(id==='crm'&&window.ChannelsLoader&&!window._chLoaded){window._chLoaded=1;window.ChannelsLoader.load();}
   if(id==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
     window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
   }
@@ -2868,6 +2996,7 @@ function restoreTab(){
         window.AdsLoader.load();panel.dataset.loaded='1';
         if(window.MqlLoader) window.MqlLoader.load();
       }
+      if(saved==='crm'&&window.ChannelsLoader&&!window._chLoaded){window._chLoaded=1;window.ChannelsLoader.load();}
       if(saved==='sales'&&window.SalesLoader&&!panel.dataset.loaded){
         window.SalesLoader.load();panel.dataset.loaded='1';
       }
@@ -3483,10 +3612,11 @@ window.LocLoader = (() => {
 })();
 
 </script>
-<script src="js/hr_loader.js?v=20260903"></script>
-<script src="js/ads_loader.js?v=20260903"></script>
-<script src="js/mql_loader.js?v=20260903"></script>
-<script src="js/sales_loader.js?v=20260903"></script>
-<script src="js/cashflow_loader.js?v=20260903b"></script>
+<script src="js/hr_loader.js?v=20260924"></script>
+<script src="js/ads_loader.js?v=20260924"></script>
+<script src="js/mql_loader.js?v=20260924"></script>
+<script src="js/sales_loader.js?v=20260924"></script>
+<script src="js/cashflow_loader.js?v=20260924"></script>
+<script src="js/channels_loader.js?v=20260924"></script>
 </body>
 </html>

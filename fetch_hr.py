@@ -125,6 +125,75 @@ def parse_employees_from_turnover(rows):
     return 0
 
 
+def parse_headcount_from_turnover(rows):
+    """
+    v1.3 (24.09.2026) — реальна структура листа 'Плинність кадрів':
+      ["",                 "Березень", "",        "Квітень", "", ...]      ← рядок місяців (merged по 2 колонки)
+      ["Плинність кадрів", "Факт на початок періода", "Факт на кінець періода", ...]  ← підписи в КОЛОНКАХ, не в col A
+      ["",                 "128", "126", "126", "128", ...]                 ← числа (col A порожня через merge)
+    Попередній фолбек шукав 'факт на кінець' у колонці A → завжди 0.
+    Беремо ПЕРШИЙ такий блок (другий такий самий блок нижче — це стажери).
+    Повертає (employees_count, headcount_by_month, as_of_label).
+    """
+    for i, row in enumerate(rows):
+        cells = [str(c).strip().lower() for c in row]
+        if not any("факт на кінець" in c for c in cells):
+            continue
+        # рядок місяців — найближчий вище, де є назви місяців
+        months_row = None
+        for j in range(i - 1, max(-1, i - 4), -1):
+            if any(str(c).strip() in UA_MONTHS for c in rows[j]):
+                months_row = rows[j]
+                break
+        # рядок з числами — найближчий нижче, де є хоч одне число
+        nums_row = None
+        for j in range(i + 1, min(len(rows), i + 4)):
+            if any(str(c).strip().replace(" ", "").replace("\xa0", "").isdigit() for c in rows[j][1:]):
+                nums_row = rows[j]
+                break
+        if not nums_row:
+            continue
+
+        def num(idx):
+            if idx >= len(nums_row):
+                return None
+            s = str(nums_row[idx]).strip().replace(" ", "").replace("\xa0", "")
+            return int(s) if s.isdigit() else None
+
+        # місяць для кожної колонки: merged-клітинка має значення тільки в першій колонці
+        month_of_col, cur = {}, None
+        if months_row:
+            for c in range(1, len(row)):
+                v = str(months_row[c]).strip() if c < len(months_row) else ""
+                if v in UA_MONTHS:
+                    cur = v
+                elif v:
+                    cur = None  # 'Середнє' тощо
+                month_of_col[c] = cur
+
+        by_month, last_val, last_label = {}, 0, None
+        for c in range(1, len(row)):
+            kind = cells[c] if c < len(cells) else ""
+            val = num(c)
+            if val is None:
+                continue
+            m = month_of_col.get(c)
+            if not m:
+                continue
+            e = by_month.setdefault(m, {"month": m, "start": None, "end": None})
+            if "початок" in kind:
+                e["start"] = val
+                last_val, last_label = val, f"{m} (на початок)"
+            elif "кінець" in kind:
+                e["end"] = val
+                last_val, last_label = val, f"{m} (на кінець)"
+        series = sorted(by_month.values(), key=lambda e: UA_MONTHS.index(e["month"]))
+        print(f"[HR] headcount з '{SHEET_TURNOVER}': {last_val} ({last_label}), місяців: {len(series)}")
+        return last_val, series, last_label
+    print("[HR] ⚠ headcount: блок 'Факт на кінець періода' не знайдено")
+    return 0, [], None
+
+
 def parse_interns(rows):
     result, current_month, current_count = [], None, 0
     for row in rows:
@@ -315,7 +384,12 @@ def main():
               f"(перший контигентний список у колонці A)")
     elif SHEET_TURNOVER in sheet_names:
         rows = sheets_get(token, f"{SHEET_TURNOVER}!A:Z")
-        result["employees_count"] = parse_employees_from_turnover(rows)
+        cnt, series, as_of = parse_headcount_from_turnover(rows)
+        if not cnt:
+            cnt = parse_employees_from_turnover(rows)  # старий фолбек (підпис у колонці A)
+        result["employees_count"] = cnt
+        result["employees_as_of"] = as_of
+        result["headcount_by_month"] = series
         print(f"[HR] ✓ employees_count з '{SHEET_TURNOVER}': {result['employees_count']}")
     else:
         print(f"[HR] ⚠ Немає джерела для employees_count. Шукали серед листів: {SHEET_EMPLOYEES_CANDIDATES} "

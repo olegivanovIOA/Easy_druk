@@ -96,7 +96,7 @@ def fetch_won_deals(category_id, date_from, date_to):
             "filter[STAGE_ID]": _stage_filter_value(category_id, "WON"),
             "filter[>=CLOSEDATE]": date_from.isoformat(),
             "filter[<=CLOSEDATE]": date_to.isoformat(),
-            "select[]": ["ID", "TITLE", "OPPORTUNITY", "CURRENCY_ID", "CLOSEDATE", "DATE_CREATE"],
+            "select[]": ["ID", "TITLE", "OPPORTUNITY", "CURRENCY_ID", "CLOSEDATE", "DATE_CREATE", "SOURCE_ID", "UTM_SOURCE"],
             "order[CLOSEDATE]": "DESC",
             "start": start,
         }
@@ -278,7 +278,7 @@ def fetch_all_deals_for_month(category_id, date_from, date_to):
             "filter[CATEGORY_ID]": category_id,
             "filter[>=CLOSEDATE]": date_from.isoformat(),
             "filter[<=CLOSEDATE]": date_to.isoformat(),
-            "select[]": ["ID", "STAGE_ID"],
+            "select[]": ["ID", "STAGE_ID", "SOURCE_ID", "UTM_SOURCE"],  # SOURCE/UTM — v4.5, канали залучення
             "start": start,
         }
         r = requests.get(WEBHOOK_URL + "crm.deal.list", params=params, timeout=30)
@@ -294,6 +294,122 @@ def fetch_all_deals_for_month(category_id, date_from, date_to):
         start = nxt
         time.sleep(0.5)
     return deals
+
+
+# ── v4.5: Канали залучення (SOURCE_ID / UTM_SOURCE) ────────────────────────
+# Тільки агрегати по каналу — жодних контактів/компаній (та сама умова
+# "без персональних даних", що й для тірів).
+JUNK_MARKERS = ("спам", "мусор", "дубл", "ошибк", "помилк")
+
+
+def fetch_source_names():
+    """STATUS_ID → назва джерела (crm.status.list, ENTITY_ID=SOURCE). Помилка → {}."""
+    try:
+        r = requests.get(WEBHOOK_URL + "crm.status.list", params={"filter[ENTITY_ID]": "SOURCE"}, timeout=30)
+        r.raise_for_status()
+        payload = r.json()
+        return {s["STATUS_ID"]: s.get("NAME") or s["STATUS_ID"] for s in payload.get("result", [])}
+    except Exception as e:
+        print(f"[CRM] ⚠ Довідник джерел недоступний: {e}")
+        return {}
+
+
+def rollup_sources(all_by_cat, stages_by_cat, won_by_cat, source_names):
+    """Воронка по каналу за місяць (угоди, закриті в місяці — той самий фільтр
+    CLOSEDATE, що й у причинах відмов):
+      reviewed  — усі закриті угоди каналу (воронки 0+24+18+32)
+      won       — WON у 24/18/32 (WON категорії 0 = пройшов скринінг і
+                  переїхав у продажну воронку — НЕ рахуємо як продаж)
+      lost      — провальні стадії (SEMANTICS=F) у всіх 4 воронках
+      junk      — з них спам/мусор/дублі/помилки (сміттєвий трафік каналу)
+      revenue   — сума WON (UAH) з 24/18/32, окремо ОПТ/Роздріб
+      winRate   — won / (won + lost), % — "з закритих звернень скільки стали продажем"
+      junkShare — junk / reviewed, %
+    """
+    out = {}
+
+    def row(src_id):
+        key = src_id or "—"
+        if key not in out:
+            out[key] = {"source": key, "name": source_names.get(src_id, src_id) if src_id else "Не вказано",
+                        "reviewed": 0, "won": 0, "lost": 0, "junk": 0,
+                        "wonWholesale": 0, "wonRetail": 0,
+                        "revenue": 0.0, "revenueWholesale": 0.0, "revenueRetail": 0.0}
+        return out[key]
+
+    for cat_key, deals in all_by_cat.items():
+        cat_id = int(cat_key)
+        stage_list = stages_by_cat.get(cat_key, [])
+        sem = {s["STATUS_ID"]: s.get("SEMANTICS") for s in stage_list}
+        names = {s["STATUS_ID"]: (s.get("NAME") or "").lower() for s in stage_list}
+        for d in deals:
+            r = row(d.get("SOURCE_ID"))
+            r["reviewed"] += 1
+            st = d.get("STAGE_ID")
+            if sem.get(st) == "F":
+                r["lost"] += 1
+                if any(m in names.get(st, "") for m in JUNK_MARKERS):
+                    r["junk"] += 1
+            elif sem.get(st) == "S" and cat_id != 0:
+                r["won"] += 1
+
+    for cat_key, deals in won_by_cat.items():
+        group = CATEGORIES.get(int(cat_key), ("", ""))[1]
+        for d in deals:
+            if d.get("CURRENCY_ID") != "UAH":
+                continue
+            try:
+                amt = float(d.get("OPPORTUNITY") or 0)
+            except (TypeError, ValueError):
+                continue
+            r = row(d.get("SOURCE_ID"))
+            r["revenue"] += amt
+            if group == "wholesale":
+                r["revenueWholesale"] += amt
+                r["wonWholesale"] += 1
+            elif group == "retail":
+                r["revenueRetail"] += amt
+                r["wonRetail"] += 1
+
+    rows = []
+    for r in out.values():
+        closed = r["won"] + r["lost"]
+        r["winRate"] = round(r["won"] / closed * 100, 1) if closed else None
+        r["junkShare"] = round(r["junk"] / r["reviewed"] * 100, 1) if r["reviewed"] else None
+        n_won_uah = r["wonWholesale"] + r["wonRetail"]
+        r["avgCheck"] = round(r["revenue"] / n_won_uah, 2) if n_won_uah else None
+        for k in ("revenue", "revenueWholesale", "revenueRetail"):
+            r[k] = round(r[k], 2)
+        rows.append(r)
+    rows.sort(key=lambda x: (-x["revenue"], -x["reviewed"]))
+    return rows
+
+
+def rollup_utm(all_by_cat, won_by_cat, top_n=15):
+    """Те саме, але по UTM_SOURCE (якщо заповнюється) — топ-N за к-стю звернень."""
+    agg = {}
+    for deals in all_by_cat.values():
+        for d in deals:
+            u = (d.get("UTM_SOURCE") or "").strip()
+            if not u:
+                continue
+            a = agg.setdefault(u, {"utm": u, "reviewed": 0, "won": 0, "revenue": 0.0})
+            a["reviewed"] += 1
+    for deals in won_by_cat.values():
+        for d in deals:
+            u = (d.get("UTM_SOURCE") or "").strip()
+            if not u or d.get("CURRENCY_ID") != "UAH":
+                continue
+            a = agg.setdefault(u, {"utm": u, "reviewed": 0, "won": 0, "revenue": 0.0})
+            a["won"] += 1
+            try:
+                a["revenue"] += float(d.get("OPPORTUNITY") or 0)
+            except (TypeError, ValueError):
+                pass
+    rows = sorted(agg.values(), key=lambda x: -x["reviewed"])[:top_n]
+    for r in rows:
+        r["revenue"] = round(r["revenue"], 2)
+    return rows
 
 
 def rollup_loss_reasons(deals, stage_list):
@@ -355,11 +471,14 @@ def process_month(month_start, month_end, month_key, complete):
     # (первинний скринінг) — саме там основний обсяг відмов, вона НЕ бере
     # участі в розрахунку виручки/тірів вище. ──
     loss_reasons_by_cat = {}
+    _all_by_cat, _stages_by_cat = {}, {}
     for cat_id, (label, group) in {**CATEGORIES, **SCREENING_CATEGORIES}.items():
         print(f"[CRM] Причини відмов, воронка {cat_id} ({label})…")
         stage_list = fetch_stage_list(cat_id)
         time.sleep(0.3)
         all_deals = fetch_all_deals_for_month(cat_id, month_start, month_end)
+        _all_by_cat[str(cat_id)] = all_deals
+        _stages_by_cat[str(cat_id)] = stage_list
         reasons = rollup_loss_reasons(all_deals, stage_list)
         total_lost = sum(r["count"] for r in reasons)
         # totalReviewed = усі угоди воронки за місяць (WON+LOSE+у роботі) —
@@ -406,9 +525,22 @@ def process_month(month_start, month_end, month_key, complete):
             (c for c in loss_reasons_by_cat.values() if c["group"] == group_name)
         return sum(c.get("totalReviewed", 0) for c in cats)
 
+    # ── v4.5: канали залучення ──
+    try:
+        source_names = fetch_source_names()
+        won_by_cat = {k: v["_deals"] for k, v in by_category.items()}
+        by_source = rollup_sources(_all_by_cat, _stages_by_cat, won_by_cat, source_names)
+        by_utm = rollup_utm(_all_by_cat, won_by_cat)
+        print(f"[CRM] ✓ Канали: {len(by_source)} джерел, UTM: {len(by_utm)}")
+    except Exception as e:
+        print(f"[CRM] ⚠ Канали не пораховано: {e}")
+        by_source, by_utm = [], []
+
     return {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "month": month_key,
+        "bySource": by_source,
+        "byUtm": by_utm,
         "from": month_start.isoformat(),
         "to": month_end.isoformat(),
         "complete": complete,
@@ -429,6 +561,44 @@ def process_month(month_start, month_end, month_key, complete):
     }
 
 
+HISTORY = Path(__file__).parent / "data" / "crm_monthly_history.json"
+
+
+def update_monthly_history(current, today):
+    """v4.5 (24.09.2026): раніше crm_monthly_history.json наповнювався ТІЛЬКИ
+    ручним бекфілом (останній — 25.08), тому всі тренди Bitrix закінчувались
+    на неповному серпні, а вересня не було взагалі. Тепер щогодини:
+      1) поточний місяць (вже порахований) → upsert в історію;
+      2) будь-який МИНУЛИЙ місяць з complete=false (напр. серпень, знятий
+         25.08) → перераховуємо за повний місяць один раз і фіксуємо."""
+    history = {"months": []}
+    if HISTORY.exists():
+        try:
+            history = json.loads(HISTORY.read_text(encoding="utf-8"))
+        except Exception:
+            history = {"months": []}
+    months = {m["month"]: m for m in history.get("months", [])}
+    months[current["month"]] = current
+
+    for key, m in sorted(months.items()):
+        if key == current["month"] or m.get("complete") is not False:
+            continue
+        y, mo = int(key[:4]), int(key[5:7])
+        start, end = month_bounds(y, mo)  # повний місяць
+        if end >= today:
+            continue
+        print(f"[CRM] Дофіналізую неповний місяць в історії: {key} ({start} → {end})")
+        try:
+            months[key] = process_month(start, end, key, True)
+        except Exception as e:
+            print(f"[CRM] ⚠ Не вдалось дофіналізувати {key}: {e}")
+
+    history["months"] = sorted(months.values(), key=lambda m: m["month"])
+    history["updated_at"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    HISTORY.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[CRM] ✓ Історія: {[m['month'] for m in history['months']]}")
+
+
 def main():
     if not WEBHOOK_URL or WEBHOOK_URL == "/":
         raise ValueError("BITRIX_WEBHOOK_URL не встановлено")
@@ -444,6 +614,8 @@ def main():
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[CRM] ✓ Записано {OUTPUT}")
+
+    update_monthly_history(result, today)
     print(f"[CRM] ОПТ: deals={result['wholesale']['deals']} avg={result['wholesale']['avgCheck']} median={result['wholesale']['medianCheck']}")
     print(f"[CRM] Роздріб: deals={result['retail']['deals']} avg={result['retail']['avgCheck']} median={result['retail']['medianCheck']}")
 

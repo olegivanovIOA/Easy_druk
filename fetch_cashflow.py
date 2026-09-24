@@ -1,8 +1,21 @@
 #!/usr/bin/env python3
 """
-fetch_cashflow.py — Easy 3D Print Dashboard v4.4.1
+fetch_cashflow.py — Easy 3D Print Dashboard v4.5
 Пошук рядків за текстовою міткою (стійко до зсуву структури листа).
 UNFORMATTED_VALUE — уникаємо проблем з парсингом чисел/локалі.
+
+v4.5 (24.09.2026): лист CF_2026 тепер містить УСІ місяці до поточного, а
+неповні місяці позначені сірим фоном заголовка + текстом "⚠ неповні"
+(напр. "Липень ⚠ неповні"). Раніше:
+  - місяць рахувався тільки при ТОЧНОМУ збігу назви → "Липень ⚠ неповні"
+    випадав, і n_months обрізалось;
+  - complete визначалось лише за календарем (липень = повний), що
+    суперечить позначці в таблиці.
+Тепер: назва місяця — за префіксом, complete = НЕ сірий фон І НЕ "неповн"
+у тексті І місяць уже минув. YTD/"останній місяць"/залишок — тільки з
+повних місяців; неповні віддаються з complete=false (дашборд малює сірим).
+Для неповних місяців balance_end у таблиці = balance_start (формула O5=O4),
+тому віддаємо balance_end=None, щоб не малювати фальшивий "плоский" залишок.
 """
 
 import json, os, time, base64
@@ -34,9 +47,12 @@ LABEL_KEYWORDS = {
     "marketing":     "РАЗОМ РЕКЛАМА",
     "capex":         "РАЗОМ КАПІТАЛЬНІ ВИТРАТИ",
     "op_cf":         "ОПЕРАЦІЙНИЙ ГРОШОВИЙ ПОТІК",
+    "inv_cf":        "ІНВЕСТИЦІЙНИЙ ГРОШОВИЙ ПОТІК",   # v4.5 — рядки з'явились у CF_2026
+    "fin_cf":        "ФІНАНСОВИЙ ГРОШОВИЙ ПОТІК",
+    "dividends":     "РАЗОМ ДИВІДЕНДИ",
     "delta":         "Дельта місяця",
 }
-SCALAR_KEYS = {"balance_start","balance_end","revenue","opt_b2b","retail_b2c","op_cf","delta"}
+SCALAR_KEYS = {"balance_start","balance_end","revenue","opt_b2b","retail_b2c","op_cf","inv_cf","fin_cf","delta"}
 
 
 def get_token():
@@ -87,6 +103,42 @@ def fetch_by_title(title, token, unformatted=True):
     return [row + [None] * (max_c - len(row)) for row in rows]
 
 
+def month_of(label):
+    """'Липень ⚠ неповні' → 'Липень'; None якщо не місяць (напр. 'РАЗОМ рік')."""
+    s = str(label or "").strip()
+    for m in MONTHS_UA:
+        if s.startswith(m):
+            return m
+    return None
+
+
+def is_incomplete_label(label):
+    return "неповн" in str(label or "").lower()
+
+
+def fetch_header_greys(token, n_cols=40):
+    """Фон клітинок рядка 2 (заголовки місяців) CF_2026 → {col_idx: True якщо сірий}.
+    Сірий = R≈G≈B (нейтральний) і не білий. Будь-яка помилка → {} (фолбек на текст)."""
+    try:
+        import urllib.parse
+        rng = urllib.parse.quote("'CF_2026'!A2:AZ2", safe="")
+        url = (f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}?ranges={rng}"
+               f"&fields=sheets.data.rowData.values.effectiveFormat.backgroundColor")
+        r = requests.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=20)
+        r.raise_for_status()
+        vals = r.json()["sheets"][0]["data"][0]["rowData"][0].get("values", [])
+        out = {}
+        for i, v in enumerate(vals):
+            bg = (v.get("effectiveFormat") or {}).get("backgroundColor") or {}
+            rr, gg, bb = bg.get("red", 0), bg.get("green", 0), bg.get("blue", 0)
+            grey = max(rr, gg, bb) - min(rr, gg, bb) < 0.04 and 0.35 < rr < 0.95
+            out[i] = grey
+        return out
+    except Exception as e:
+        print(f"[CF] ⚠ Не вдалось прочитати кольори заголовків ({e}) — визначаю неповні місяці за текстом")
+        return {}
+
+
 def to_float(v):
     if v is None or v == "": return None
     if isinstance(v, (int, float)): return float(v)
@@ -117,18 +169,25 @@ def get_val(rows, row_idx, mi, key):
     return to_float(row[ec]) if ec < len(row) else None
 
 
-def parse_cf(rows, n_months):
+def parse_cf(rows, n_months, greys=None):
     # Знаходимо всі рядки за мітками ОДИН РАЗ
     row_idx = {key: find_row_by_label(rows, kw) for key, kw in LABEL_KEYWORDS.items()}
     print("[CF] Знайдені рядки:")
     for k, v in row_idx.items():
         print(f"     {k:15} → row {v}" + ("  ⚠ НЕ ЗНАЙДЕНО" if v is None else ""))
 
+    # v4.5: дохід через ФОП — рядки 1.1.x з міткою "ФОП ..." у блоці доходу
+    fop_rows = [i for i, r in enumerate(rows)
+                if len(r) > 1 and str(r[0] or "").startswith("1.1") and str(r[1] or "").strip().startswith("ФОП")]
+    print(f"[CF] Рядків доходу ФОП: {len(fop_rows)}")
+
     today = datetime.utcnow()
     result = []
     for mi in range(n_months):
         ic = 2 + mi * 2
-        month_name = str(rows[1][ic]).strip() if len(rows) > 1 and ic < len(rows[1]) and rows[1][ic] else f"М{mi+1}"
+        raw_label = str(rows[1][ic]).strip() if len(rows) > 1 and ic < len(rows[1]) and rows[1][ic] else ""
+        month_name = month_of(raw_label) or f"М{mi+1}"
+        marked_incomplete = is_incomplete_label(raw_label) or bool((greys or {}).get(ic))
 
         vals = {key: get_val(rows, ri, mi, key) for key, ri in row_idx.items()}
         rev = vals["revenue"]; opt = vals["opt_b2b"]; retail = vals["retail_b2c"]
@@ -136,6 +195,8 @@ def parse_cf(rows, n_months):
         rent = vals["rent"]; logi = vals["logistics"]; adm = vals["admin"]
         mkt = vals["marketing"]; capex = vals["capex"]; taxes = vals["taxes"]
         op_cf = vals["op_cf"]; delta = vals["delta"]
+        inv_cf = vals.get("inv_cf"); fin_cf = vals.get("fin_cf"); divs = vals.get("dividends")
+        fop_income = sum((to_float(rows[i][ic]) or 0) for i in fop_rows if ic < len(rows[i])) if fop_rows else None
         bal_s = vals["balance_start"]; bal_e = vals["balance_end"]
 
         opex = sum(x for x in [cogs,salary,elec,rent,logi,adm,mkt] if x)
@@ -146,15 +207,22 @@ def parse_cf(rows, n_months):
 
         try:    mi_ua = MONTHS_UA.index(month_name)
         except: mi_ua = mi
-        complete = (mi_ua + 1) < today.month if today.year == 2026 else True
+        calendar_done = (mi_ua + 1) < today.month if today.year == 2026 else True
+        complete = calendar_done and not marked_incomplete
+        if not complete:
+            bal_e = None  # у таблиці для неповних місяців кінець = початок (заглушка), не реальний залишок
 
         result.append({
-            "month": month_name, "month_idx": mi+1, "complete": complete,
+            "month": month_name, "month_idx": mi_ua+1, "complete": complete,
+            "incomplete_reason": None if complete else ("позначено в CF як неповний" if marked_incomplete else "місяць триває"),
             "revenue": rev, "opt_b2b": opt, "retail_b2c": retail,
             "cogs": cogs, "salary": salary, "electro": elec, "rent": rent,
             "logistics": logi, "admin": adm, "marketing": mkt, "capex": capex,
             "taxes": taxes,
             "op_cf": op_cf, "delta": delta,
+            "inv_cf": inv_cf, "fin_cf": fin_cf, "dividends": divs,
+            "fop_income": round(fop_income, 2) if fop_income is not None else None,
+            "fop_share_pct": pct(fop_income, rev),
             "balance_start": bal_s, "balance_end": bal_e,
             "total_opex":        round(opex) if opex else None,
             "gross_profit":      round(gp)   if gp   else None,
@@ -200,6 +268,9 @@ def calc_ytd(months):
         "cogs": s("cogs"), "salary": s("salary"), "marketing": s("marketing"),
         "capex": s("capex"), "net_delta": s("delta"), "taxes": s("taxes"),
         "logistics": s("logistics"),
+        "fop_income": s("fop_income"),
+        "fop_share_pct": round(s("fop_income")/rev*100,1) if s("fop_income") and rev else None,
+        "inv_cf": s("inv_cf"), "fin_cf": s("fin_cf"), "op_cf": s("op_cf"),
         "tax_effective_pct": round(s("taxes")/rev*100,1) if s("taxes") and rev else None,
         "months_count": len(done),
     }
@@ -220,10 +291,13 @@ def main():
     print(f"[CF] CF_2026: {len(rows)} рядків, {len(rows[0]) if rows else 0} колонок")
 
     months_row = rows[1] if len(rows) > 1 else []
-    n_months = sum(1 for v in months_row if v and str(v).strip() in MONTHS_UA)
-    print(f"[CF] Місяців: {n_months}")
+    n_months = sum(1 for v in months_row if month_of(v))
+    print(f"[CF] Місяців: {n_months} · заголовки: {[v for v in months_row if v]}")
 
-    months = parse_cf(rows, n_months)
+    greys = fetch_header_greys(token)
+    months = parse_cf(rows, n_months, greys)
+    print(f"[CF] Повні: {[m['month'] for m in months if m['complete']]} | "
+          f"неповні: {[m['month'] for m in months if not m['complete']]}")
 
     if "_Клієнти_Топ2" in sheets:
         try:
@@ -243,6 +317,7 @@ def main():
         "ytd":          ytd,
         "last_balance": last.get("balance_end"),
         "last_month":   last.get("month", ""),
+        "incomplete_months": [m["month"] for m in months if not m.get("complete")],
     }
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)

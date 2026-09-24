@@ -435,6 +435,53 @@ def main():
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[Batches] ✓ Записано {HISTORY_FILE} (днів у історії: {len(history['days'])})")
 
+    # v4.5: місячна історія (Якість → тренди по місяцях) раніше наповнювалась
+    # тільки ручним бекфілом (останній — 25.08), тож серпень лишався неповним,
+    # а вересня не було. Тепер щогодини оновлюємо поточний місяць (1-ше → вчора)
+    # і один раз дофіналізовуємо минулі місяці з complete=false. Помилка тут не
+    # валить основний (денний) збір.
+    try:
+        update_monthly_history(target_date)
+    except Exception as e:
+        print(f"[Batches] ⚠ Місячна історія не оновлена: {e}")
+
+
+def update_monthly_history(target_date_str):
+    import time
+    from datetime import date as _date
+    from calendar import monthrange
+    from backfill_batches_monthly import fetch_month, rollup_month, month_bounds, OUTPUT as MONTHLY_FILE
+
+    y = datetime.strptime(target_date_str, "%Y-%m-%d").date()  # "вчора" за Києвом
+    hist = {"months": []}
+    if MONTHLY_FILE.exists():
+        try:
+            hist = json.loads(MONTHLY_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            hist = {"months": []}
+    months = {m["month"]: m for m in hist.get("months", [])}
+
+    todo = [(y.year, y.month)]
+    for key, m in months.items():
+        yy, mm = int(key[:4]), int(key[5:7])
+        if m.get("complete") is False and (yy, mm) != (y.year, y.month):
+            todo.append((yy, mm))
+
+    for yy, mm in sorted(set(todo)):
+        start, end = month_bounds(yy, mm, cap_to=y)
+        key = f"{yy:04d}-{mm:02d}"
+        payload = fetch_month(start, end)
+        complete = end == _date(yy, mm, monthrange(yy, mm)[1])
+        months[key] = {"month": key, "from": start.isoformat(), "to": end.isoformat(),
+                       "complete": complete, **rollup_month(payload)}
+        print(f"[Batches] ✓ Місяць {key}: {start} → {end}, повний: {complete}")
+        time.sleep(1.5)
+
+    hist["months"] = sorted(months.values(), key=lambda m: m["month"])
+    hist["updated_at"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    MONTHLY_FILE.write_text(json.dumps(hist, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[Batches] ✓ Записано {MONTHLY_FILE} (місяців: {len(hist['months'])})")
+
 
 if __name__ == "__main__":
     main()

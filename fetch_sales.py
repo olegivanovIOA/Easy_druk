@@ -39,6 +39,8 @@ MONTHS_2026 = [
     ("Грудень",  88, 89),
 ]
 
+UA_MONTHS_ORDER = [m[0] for m in MONTHS_2026]
+
 # Статуси пайплайну — групуємо в стадії воронки
 PIPELINE_STAGES = {
     "Угода успішна":       "won",
@@ -402,6 +404,10 @@ def main():
 
     # ── YTD зведення ─────────────────────────────────────────────────────
     def ytd(monthly):
+        # v4.5: тільки минулі місяці — майбутні (де план є, а "факт" = сміття
+        # через зсув колонок) не повинні потрапляти в YTD
+        cur = datetime.utcnow().month
+        monthly = [m for m in monthly if m.get("month") in UA_MONTHS_ORDER and UA_MONTHS_ORDER.index(m["month"]) + 1 < cur]
         plan_s = sum(m["plan"] for m in monthly if m["plan"])
         fact_s = sum(m["fact"] for m in monthly if m["fact"])
         pct    = round(fact_s / plan_s * 100, 1) if plan_s else 0
