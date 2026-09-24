@@ -311,22 +311,70 @@ def main():
     done = [m for m in months if m.get("complete")]
     last = done[-1] if done else {}
 
+    # ── v4.7: ПУБЛІЧНИЙ формат ─────────────────────────────────────────────
+    # Репозиторій публічний, тому в data/cashflow.json НЕ пишемо сум у гривнях
+    # (виручка, витрати, ЗП, податки, залишок). Лише:
+    #   - статус звітів CF / P&L / Баланс по місяцях (для матриці на вкладці Фінанси);
+    #   - відносні показники для CEO (%).
+    # Повні суми лишаються тільки в Google Sheets (доступ за запитом).
+    def rel(m):
+        rev = m.get("revenue") or 0
+        opt, ret = m.get("opt_b2b") or 0, m.get("retail_b2c") or 0
+        return {
+            "month": m["month"], "month_idx": m["month_idx"], "complete": m.get("complete"),
+            "opt_share_pct": round(opt / (opt + ret) * 100, 1) if (opt + ret) else None,
+            "retail_share_pct": round(ret / (opt + ret) * 100, 1) if (opt + ret) else None,
+            "ebitda_pct": m.get("ebitda_pct") if m.get("complete") else None,
+            "top2_concentration_pct": m.get("top2_concentration_pct"),
+            "clients_count": m.get("clients_count"),
+        }
+
+    cf_status = {m["month"]: ("complete" if m.get("complete") else "incomplete") for m in months}
+    reports = {
+        "cf": {"title": "Cash Flow (CF)", "source": "CF_2026",
+               "months": [{"month": mu, "status": cf_status.get(mu, "none")} for mu in MONTHS_UA]},
+        "pnl": {"title": "P&L", "source": None, "months": []},
+        "balance": {"title": "Баланс", "source": None, "months": []},
+    }
+    # P&L / Баланс — якщо в тій самій книзі з'являться листи з такими назвами
+    # (рядок 2 = місяці, як у CF_2026), статус підхопиться автоматично.
+    for key, names in (("pnl", ("PnL_2026", "P&L_2026", "PL_2026")), ("balance", ("Баланс_2026", "Balance_2026"))):
+        title = next((n for n in names if n in sheets), None)
+        if not title:
+            reports[key]["months"] = [{"month": mu, "status": "none"} for mu in MONTHS_UA]
+            continue
+        try:
+            hdr = (fetch_by_title(title, token, unformatted=True) or [[], []])[1]
+            st = {}
+            for v in hdr:
+                mu = month_of(v)
+                if mu:
+                    st[mu] = "incomplete" if is_incomplete_label(v) else "complete"
+            reports[key]["source"] = title
+            reports[key]["months"] = [{"month": mu, "status": st.get(mu, "none")} for mu in MONTHS_UA]
+        except Exception as e:
+            print(f"[WARN] {title}: {e}")
+            reports[key]["months"] = [{"month": mu, "status": "none"} for mu in MONTHS_UA]
+
+    goal = float(os.environ.get("REVENUE_GOAL_2026", "650000000"))
     out = {
         "fetched_at":   datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "months":       months,
-        "ytd":          ytd,
-        "last_balance": last.get("balance_end"),
+        "year":         2026,
+        "public":       True,
+        "reports":      reports,
         "last_month":   last.get("month", ""),
         "incomplete_months": [m["month"] for m in months if not m.get("complete")],
+        "ratios": {
+            "ytd_ebitda_pct":   ytd.get("ebitda_pct"),
+            "ytd_months":       ytd.get("months_count"),
+            "revenue_goal_pct": round(ytd["revenue"] / goal * 100, 1) if ytd.get("revenue") and goal else None,
+            "months":           [rel(m) for m in months],
+        },
     }
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
-    sz = OUTPUT.stat().st_size
-    rev_ytd = ytd.get("revenue") or 0
-    ebit_ytd = ytd.get("ebitda") or 0
-    print(f"[OK] {OUTPUT} — {sz:,} bytes | {len(done)}/{n_months} повних місяців")
-    print(f"     YTD виручка: {rev_ytd/1e6:.1f}M | EBITDA: {ebit_ytd/1e6:.1f}M ({ytd.get('ebitda_pct') or '—'}%)")
+    print(f"[OK] {OUTPUT} — {OUTPUT.stat().st_size:,} bytes | {len(done)}/{n_months} повних місяців (публічний формат, без сум)")
 
 
 if __name__ == "__main__":
