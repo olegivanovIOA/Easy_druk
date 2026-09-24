@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-24T08:45:00Z",
+  "fetched_at": "2026-09-24T09:36:16Z",
   "month": "2026-09",
   "bySource": [
     {
@@ -37,17 +37,17 @@
     {
       "source": "CALL",
       "name": "Звонок",
-      "reviewed": 758,
+      "reviewed": 760,
       "won": 62,
-      "lost": 664,
-      "junk": 54,
+      "lost": 668,
+      "junk": 55,
       "wonWholesale": 62,
       "wonRetail": 0,
       "revenue": 224514.0,
       "revenueWholesale": 224514.0,
       "revenueRetail": 0.0,
       "winRate": 8.5,
-      "junkShare": 7.1,
+      "junkShare": 7.2,
       "avgCheck": 3621.19
     },
     {
@@ -149,7 +149,7 @@
     {
       "source": "50",
       "name": "Задать вопрос онлайн",
-      "reviewed": 159,
+      "reviewed": 160,
       "won": 11,
       "lost": 145,
       "junk": 6,
@@ -371,10 +371,691 @@
       "avgCheck": null
     }
   ],
+  "cohort": {
+    "funnel": {
+      "all": 1423,
+      "clean": 1330,
+      "qualified": 739,
+      "activeOrWon": 147,
+      "won": 54,
+      "wonSum": 1421174.0,
+      "expectedSumActiveWon": 37367530.71
+    },
+    "byStage": [
+      {
+        "stage": "Не берет / не отвечает (более 3 попыток)",
+        "deals": 256,
+        "sum": 1.01
+      },
+      {
+        "stage": "НЕ можем реализовать запрос",
+        "deals": 192,
+        "sum": 0.02
+      },
+      {
+        "stage": "СПАМ / МУСОР",
+        "deals": 159,
+        "sum": 0.0
+      },
+      {
+        "stage": "Уже НЕ актуально (не озвучил запрос)",
+        "deals": 137,
+        "sum": 0.0
+      },
+      {
+        "stage": "ДОРОГО",
+        "deals": 124,
+        "sum": 0.0
+      },
+      {
+        "stage": "ОШИБСЯ (запрос не по теме)",
+        "deals": 112,
+        "sum": 0.0
+      },
+      {
+        "stage": "ДУБЛЬ",
+        "deals": 72,
+        "sum": 1815.2
+      },
+      {
+        "stage": "НЕ актуально",
+        "deals": 69,
+        "sum": 3650.01
+      },
+      {
+        "stage": "Сделка УСПЕШНА",
+        "deals": 52,
+        "sum": 1419007.0
+      },
+      {
+        "stage": "НЕ отвечает (более 3-х попыток)",
+        "deals": 41,
+        "sum": 1000.0
+      },
+      {
+        "stage": "Ищет в своем ГОРОДЕ",
+        "deals": 37,
+        "sum": 0.0
+      },
+      {
+        "stage": "НЕ устраивают сроки",
+        "deals": 33,
+        "sum": 0.0
+      },
+      {
+        "stage": "Некорректные контакты для связи",
+        "deals": 23,
+        "sum": 0.0
+      },
+      {
+        "stage": "НЕ завершили первинний контакт",
+        "deals": 21,
+        "sum": 0.0
+      },
+      {
+        "stage": "ТЕСТОВЫЙ звонок",
+        "deals": 21,
+        "sum": 0.0
+      },
+      {
+        "stage": "Потрібно більше часу для прийняття рішення",
+        "deals": 12,
+        "sum": 3801.0
+      },
+      {
+        "stage": "Іде РОЗРАХУНОК",
+        "deals": 10,
+        "sum": 111228.0
+      },
+      {
+        "stage": "Виробництво  ЗАВЕРШЕНО",
+        "deals": 9,
+        "sum": 21996.01
+      },
+      {
+        "stage": "Згода підтверджена",
+        "deals": 9,
+        "sum": 1596785.0
+      },
+      {
+        "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
+        "deals": 8,
+        "sum": 0.0
+      },
+      {
+        "stage": "3D Модель готова",
+        "deals": 6,
+        "sum": 4817.0
+      },
+      {
+        "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
+        "deals": 6,
+        "sum": 15551.0
+      },
+      {
+        "stage": "НОВА угода (цільовий запит)",
+        "deals": 5,
+        "sum": 34186128.7
+      },
+      {
+        "stage": "УМОВИ озвучені",
+        "deals": 4,
+        "sum": 0.0
+      },
+      {
+        "stage": "Очікуємо ОРИГІНАЛ",
+        "deals": 3,
+        "sum": 6050.0
+      },
+      {
+        "stage": "Угода УСПІШНА",
+        "deals": 2,
+        "sum": 2167.0
+      }
+    ],
+    "bySource": [
+      {
+        "key": "PARTNER",
+        "name": "Существующий клиент",
+        "deals": 24,
+        "expectedSum": 1813480.0,
+        "won": 12,
+        "wonSum": 1190776.0
+      },
+      {
+        "key": "CALL",
+        "name": "Звонок",
+        "deals": 702,
+        "expectedSum": 1019069.01,
+        "won": 18,
+        "wonSum": 111906.0
+      },
+      {
+        "key": "RECOMMENDATION",
+        "name": "По рекомендации",
+        "deals": 2,
+        "expectedSum": 72200.0,
+        "won": 1,
+        "wonSum": 72200.0
+      },
+      {
+        "key": "24",
+        "name": "Сайт easy3dprint.com.ua",
+        "deals": 140,
+        "expectedSum": 390670.0,
+        "won": 7,
+        "wonSum": 19257.0
+      },
+      {
+        "key": "50",
+        "name": "Задать вопрос онлайн",
+        "deals": 145,
+        "expectedSum": 12909.0,
+        "won": 5,
+        "wonSum": 9559.0
+      },
+      {
+        "key": "UC_C5YUHA",
+        "name": "Электронная почта ukr3dprint@gmail.com",
+        "deals": 63,
+        "expectedSum": 4014.0,
+        "won": 1,
+        "wonSum": 3664.0
+      },
+      {
+        "key": "WEBFORM",
+        "name": "CRM-форма",
+        "deals": 28,
+        "expectedSum": 3000.0,
+        "won": 2,
+        "wonSum": 3000.0
+      },
+      {
+        "key": "UC_LJ05D6",
+        "name": "Электронная почта sales@easy3dprint.com.ua",
+        "deals": 69,
+        "expectedSum": 100238.0,
+        "won": 1,
+        "wonSum": 2495.0
+      },
+      {
+        "key": "UC_1YIH2Z",
+        "name": "Холодная продажа",
+        "deals": 7,
+        "expectedSum": 33687205.7,
+        "won": 2,
+        "wonSum": 2167.0
+      },
+      {
+        "key": "3|VIBER",
+        "name": "Viber - Задать вопрос онлайн!",
+        "deals": 2,
+        "expectedSum": 3750.0,
+        "won": 1,
+        "wonSum": 1550.0
+      },
+      {
+        "key": "37",
+        "name": "Электронная почта Easy3dprint.ua@gmail.com",
+        "deals": 31,
+        "expectedSum": 1500.0,
+        "won": 1,
+        "wonSum": 1500.0
+      },
+      {
+        "key": "47",
+        "name": "B2B site form",
+        "deals": 82,
+        "expectedSum": 1100.0,
+        "won": 1,
+        "wonSum": 1100.0
+      },
+      {
+        "key": "43",
+        "name": "Instagram реклама ОПТ ФДМ",
+        "deals": 40,
+        "expectedSum": 1000.0,
+        "won": 1,
+        "wonSum": 1000.0
+      },
+      {
+        "key": "3|TELEGRAM",
+        "name": "Telegram - Задать вопрос онлайн!",
+        "deals": 2,
+        "expectedSum": 257395.0,
+        "won": 1,
+        "wonSum": 1000.0
+      },
+      {
+        "key": "44",
+        "name": "Facebook реклама ОПТ ФДМ",
+        "deals": 49,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "UC_V2N0RN",
+        "name": "Электронная почта shop@easy3dprint.com.ua",
+        "deals": 8,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "51",
+        "name": "Facebook Ukr3DPrint",
+        "deals": 7,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "UC_DRU189",
+        "name": "Электронная почта b2b@easy3dprint.com.ua",
+        "deals": 6,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "42",
+        "name": "Электронная почта threedfactory7@gmail.com",
+        "deals": 6,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "45",
+        "name": "Коментарі Instagram реклама ОПТ ФДМ",
+        "deals": 4,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "REPEAT_SALE",
+        "name": "Повторні продажі",
+        "deals": 3,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "3|OLX",
+        "name": "OLX.UA",
+        "deals": 3,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      }
+    ],
+    "byCampaign": [
+      {
+        "key": "google / Search_miltech",
+        "name": "google / Search_miltech",
+        "deals": 8,
+        "expectedSum": 832001.0,
+        "won": 1,
+        "wonSum": 832000.0
+      },
+      {
+        "key": "— / —",
+        "name": "— / —",
+        "deals": 769,
+        "expectedSum": 36071166.7,
+        "won": 24,
+        "wonSum": 522243.0
+      },
+      {
+        "key": "google / B2B_convers",
+        "name": "google / B2B_convers",
+        "deals": 166,
+        "expectedSum": 23990.0,
+        "won": 7,
+        "wonSum": 22540.0
+      },
+      {
+        "key": "google / Search_new_ukr",
+        "name": "google / Search_new_ukr",
+        "deals": 29,
+        "expectedSum": 11983.0,
+        "won": 5,
+        "wonSum": 8390.0
+      },
+      {
+        "key": "google / Pmax_old_new",
+        "name": "google / Pmax_old_new",
+        "deals": 77,
+        "expectedSum": 10102.0,
+        "won": 1,
+        "wonSum": 7602.0
+      },
+      {
+        "key": "google / 3D_print_Kyiv_UA",
+        "name": "google / 3D_print_Kyiv_UA",
+        "deals": 1,
+        "expectedSum": 6500.0,
+        "won": 1,
+        "wonSum": 6500.0
+      },
+      {
+        "key": "google / 3D_print_Kyiv_General",
+        "name": "google / 3D_print_Kyiv_General",
+        "deals": 26,
+        "expectedSum": 371318.0,
+        "won": 2,
+        "wonSum": 4968.0
+      },
+      {
+        "key": "google / General_KW_RU_Cities_UA_broad",
+        "name": "google / General_KW_RU_Cities_UA_broad",
+        "deals": 31,
+        "expectedSum": 4500.0,
+        "won": 3,
+        "wonSum": 4500.0
+      },
+      {
+        "key": "google / General_KW_UA_Cities_UA_broad",
+        "name": "google / General_KW_UA_Cities_UA_broad",
+        "deals": 34,
+        "expectedSum": 3675.0,
+        "won": 2,
+        "wonSum": 3675.0
+      },
+      {
+        "key": "google / (not set)",
+        "name": "google / (not set)",
+        "deals": 74,
+        "expectedSum": 9651.0,
+        "won": 3,
+        "wonSum": 3190.0
+      },
+      {
+        "key": "google / Kyiv_ukr",
+        "name": "google / Kyiv_ukr",
+        "deals": 14,
+        "expectedSum": 6704.0,
+        "won": 1,
+        "wonSum": 1350.0
+      },
+      {
+        "key": "direct / (not set)",
+        "name": "direct / (not set)",
+        "deals": 19,
+        "expectedSum": 6166.01,
+        "won": 1,
+        "wonSum": 1166.0
+      },
+      {
+        "key": "google / Pmax_fid",
+        "name": "google / Pmax_fid",
+        "deals": 2,
+        "expectedSum": 1150.0,
+        "won": 1,
+        "wonSum": 1150.0
+      },
+      {
+        "key": "google / DSA_RU_UA",
+        "name": "google / DSA_RU_UA",
+        "deals": 4,
+        "expectedSum": 1000.0,
+        "won": 1,
+        "wonSum": 1000.0
+      },
+      {
+        "key": "google / DSA_UA_UA_NEW",
+        "name": "google / DSA_UA_UA_NEW",
+        "deals": 47,
+        "expectedSum": 7624.0,
+        "won": 1,
+        "wonSum": 900.0
+      },
+      {
+        "key": "google / industry_v1_UA",
+        "name": "google / industry_v1_UA",
+        "deals": 30,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "facebook / TOF_Lead_Fb_Inst_lead_form_B2B_2508",
+        "name": "facebook / TOF_Lead_Fb_Inst_lead_form_B2B_2508",
+        "deals": 17,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / Remarketing_b2b",
+        "name": "google / Remarketing_b2b",
+        "deals": 11,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / Brand_UA_new",
+        "name": "google / Brand_UA_new",
+        "deals": 11,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "facebook / TOF_Lead-form_Fb_Inst_agro_0309",
+        "name": "facebook / TOF_Lead-form_Fb_Inst_agro_0309",
+        "deals": 10,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / 3D_print_Kharkiv_new",
+        "name": "google / 3D_print_Kharkiv_new",
+        "deals": 9,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "facebook / TOF_Lead-form_Fb_Inst_B2B_0209",
+        "name": "facebook / TOF_Lead-form_Fb_Inst_B2B_0209",
+        "deals": 8,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "facebook / TOF_Lead-form_Fb_Inst_electro_0309",
+        "name": "facebook / TOF_Lead-form_Fb_Inst_electro_0309",
+        "deals": 5,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "1605370304530563 / —",
+        "name": "1605370304530563 / —",
+        "deals": 3,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "1605370304530563 / TOF_Leads_miltech_1809",
+        "name": "1605370304530563 / TOF_Leads_miltech_1809",
+        "deals": 3,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "bing / (not set)",
+        "name": "bing / (not set)",
+        "deals": 2,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / gmb_harkov",
+        "name": "google / gmb_harkov",
+        "deals": 2,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / 3D_print_Kyiv_new",
+        "name": "google / 3D_print_Kyiv_new",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / 22673959838",
+        "name": "google / 22673959838",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "chatgpt.com / —",
+        "name": "chatgpt.com / —",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "(not set) / (not set)",
+        "name": "(not set) / (not set)",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / 19631804538",
+        "name": "google / 19631804538",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "gemini / —",
+        "name": "gemini / —",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "chatgpt.com / (not set)",
+        "name": "chatgpt.com / (not set)",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "chatgpt.com / gmb_harkov",
+        "name": "chatgpt.com / gmb_harkov",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / Brand_UA",
+        "name": "google / Brand_UA",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / DSA_RU_UA_NEW",
+        "name": "google / DSA_RU_UA_NEW",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / gmb_kyiv",
+        "name": "google / gmb_kyiv",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      }
+    ],
+    "retention": {
+      "clientsInCohort": 1229,
+      "returningClients": 163,
+      "repeatBuyers": 49,
+      "noClientLinked": 32,
+      "returning": {
+        "deals": 225,
+        "won": 29,
+        "wonSum": 1304063.0,
+        "winRate": 14.6
+      },
+      "new": {
+        "deals": 1198,
+        "won": 25,
+        "wonSum": 117111.0,
+        "winRate": 2.2
+      },
+      "repeatPurchase": {
+        "deals": 61,
+        "won": 26,
+        "wonSum": 1300513.0,
+        "winRate": 60.5
+      }
+    },
+    "staleBigDeals": [
+      {
+        "id": "153984",
+        "category": 24,
+        "stage": "Згода підтверджена",
+        "amount": 50668000.0,
+        "created": "2025-10-24"
+      },
+      {
+        "id": "144900",
+        "category": 24,
+        "stage": "Згода підтверджена",
+        "amount": 27292960.0,
+        "created": "2025-08-11"
+      },
+      {
+        "id": "186636",
+        "category": 24,
+        "stage": "НОВА угода (цільовий запит)",
+        "amount": 5318879.96,
+        "created": "2026-06-17"
+      }
+    ],
+    "definitions": {
+      "clean": "без стадій ДУБЛЬ / ТЕСТОВИЙ",
+      "qualified": "clean мінус відмови: спам/мусор, помилкові, некоректні контакти, недодзвон, не завершили перв. контакт",
+      "won": "WON у воронках 24/18/32 (WON воронки 0 — лише пройдений скринінг)",
+      "returning": "у клієнта (компанія або контакт) є угоди, створені раніше",
+      "repeatPurchase": "у клієнта раніше вже була УСПІШНА угода"
+    }
+  },
   "byUtm": [
     {
       "utm": "google",
-      "reviewed": 636,
+      "reviewed": 638,
       "won": 70,
       "revenue": 3258035.5
     },
@@ -715,15 +1396,15 @@
   "lossReasonsScreening": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 278
+      "count": 280
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 160
+      "count": 161
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 148
+      "count": 149
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
@@ -745,7 +1426,7 @@
   "lossReasonsTotal": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 278
+      "count": 280
     },
     {
       "reason": "НЕ можем реализовать запрос",
@@ -753,11 +1434,11 @@
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 160
+      "count": 161
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 148
+      "count": 149
     },
     {
       "reason": "ДОРОГО",
@@ -831,7 +1512,7 @@
         }
       ],
       "totalLost": 540,
-      "totalReviewed": 755
+      "totalReviewed": 754
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -858,15 +1539,15 @@
       "reasons": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 278
+          "count": 280
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 160
+          "count": 161
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 148
+          "count": 149
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
@@ -885,14 +1566,14 @@
           "count": 21
         }
       ],
-      "totalLost": 815,
-      "totalReviewed": 818
+      "totalLost": 819,
+      "totalReviewed": 822
     }
   },
   "totalReviewed": {
-    "wholesale": 755,
+    "wholesale": 754,
     "retail": 3,
-    "screening": 818,
-    "all": 1576
+    "screening": 822,
+    "all": 1579
   }
 }
