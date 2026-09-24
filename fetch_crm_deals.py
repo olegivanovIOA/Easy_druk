@@ -749,7 +749,9 @@ def process_month(month_start, month_end, month_key, complete):
 
     # ── v4.6: когорта створених у місяці угод (воронка, UTM, retention) ──
     try:
+        _t = time.time()
         cohort = process_created_cohort(month_start, month_end, source_names)
+        print(f"[CRM] ⏱ когорта {month_key}: {time.time() - _t:.0f} с")
     except Exception as e:
         print(f"[CRM] ⚠ Когорта не порахована: {e}")
         cohort = None

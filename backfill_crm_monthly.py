@@ -17,7 +17,7 @@ backfill_batches_monthly.py. Для великих воронок (24 — тис
   - або локально: BITRIX_WEBHOOK_URL=https://... python backfill_crm_monthly.py
 """
 
-import json
+import json, os, time
 from datetime import date, datetime, timedelta
 from calendar import monthrange
 from pathlib import Path
@@ -45,18 +45,28 @@ def main():
             history = {"months": []}
     months_out = {m["month"]: m for m in history.get("months", [])}
 
+    # v4.6: інкрементально — повні місяці, які вже пораховані з актуальними
+    # полями (cohort/bySource), НЕ перераховуємо (повний прогін = ~20 хв).
+    # FORCE=1 (input workflow) — перерахувати все.
+    force = os.environ.get("FORCE", "").strip() in ("1", "true", "yes")
     today = date.today()
     cur_year, cur_month = YEAR_START.year, YEAR_START.month
     while date(cur_year, cur_month, 1) <= today:
         month_start, month_end = month_bounds(cur_year, cur_month, cap_to=today)
         month_key = f"{cur_year:04d}-{cur_month:02d}"
         complete = month_end == date(cur_year, cur_month, monthrange(cur_year, cur_month)[1])
+        prev = months_out.get(month_key)
+        if not force and prev and prev.get("complete") and prev.get("cohort") and prev.get("bySource") is not None:
+            print(f"[Backfill CRM] ⏭ {month_key}: вже пораховано (повний місяць) — пропускаю")
+            cur_year, cur_month = (cur_year + 1, 1) if cur_month == 12 else (cur_year, cur_month + 1)
+            continue
+        t0 = time.time()
         print(f"[Backfill CRM] ══ Місяць {month_key}: {month_start} → {month_end} ══")
         try:
             result = process_month(month_start, month_end, month_key, complete)
             months_out[month_key] = result
             print(f"[Backfill CRM] ✓ {month_key}: ОПТ {result['wholesale']['deals']} угод, "
-                  f"Роздріб {result['retail']['deals']} угод")
+                  f"Роздріб {result['retail']['deals']} угод · {time.time() - t0:.0f} с")
         except Exception as e:
             print(f"[Backfill CRM] ✗ Помилка за {month_key}: {e}")
 
