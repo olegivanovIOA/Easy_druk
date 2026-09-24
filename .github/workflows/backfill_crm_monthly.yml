@@ -2,10 +2,16 @@ name: Backfill CRM Monthly History
 
 on:
   workflow_dispatch:
+    inputs:
+      force:
+        description: 'Перерахувати ВСІ місяці (інакше — тільки відсутні/неповні, це швидко)'
+        type: boolean
+        default: false
 
 jobs:
   backfill-crm-monthly:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,6 +26,7 @@ jobs:
       - name: Backfill CRM monthly history (2026)
         env:
           BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
+          FORCE: ${{ inputs.force }}
         run: python backfill_crm_monthly.py
 
       - name: Commit CRM monthly history
