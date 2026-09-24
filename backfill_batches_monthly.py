@@ -69,7 +69,9 @@ def fetch_month(start, end):
 def rollup_month(payload):
     locations = payload.get("locations", [])
     by_product = rollup_by_product(locations)
+    all_products = rollup_by_product(locations, top_n=10**9)  # v4.6: усі деталі — для повної вартості браку за місяць
     return {
+        "defectCostTotalUAH": round(sum(p.get("defectCostUAH") or 0 for p in all_products), 2),  # тільки сировина
         "totals": payload.get("totals"),
         "company": rollup_company(locations),
         "byPrinterModel": rollup_by_printer_model(locations),

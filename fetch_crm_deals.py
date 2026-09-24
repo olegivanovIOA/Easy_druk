@@ -431,6 +431,217 @@ def rollup_loss_reasons(deals, stage_list):
     return out
 
 
+# ══ v4.6: Когорта угод, СТВОРЕНИХ у місяці (DATE_CREATE) ═══════════════════
+# Те саме, що рахує Looker Studio-звіт маркетингу, але автоматично і без
+# ручних фільтрів: воронка кваліфікації лідів, джерела/кампанії (UTM) з
+# очікуваною та фактичною сумою, retention (клієнти, що повернулись), і
+# "завислі" великі угоди, що спотворюють пайплайн.
+# Персональні дані НЕ зберігаються: COMPANY_ID/CONTACT_ID використовуються
+# лише в пам'яті, щоб перевірити "чи були в клієнта угоди раніше"; у JSON
+# ідуть тільки агрегати.
+COHORT_CATEGORIES = [0, 24, 18, 32]
+DUP_TEST_MARKERS = ("дубл", "тестов")
+NOT_QUALIFIED_MARKERS = ("спам", "мусор", "ошиб", "некоррект", "не берет", "не бере", "не отвечает",
+                         "не відповідає", "не завершили")
+
+
+def _num(v):
+    try:
+        return float(v or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def fetch_created_deals(category_id, date_from, date_to):
+    deals, start = [], 0
+    while True:
+        params = {
+            "filter[CATEGORY_ID]": category_id,
+            "filter[>=DATE_CREATE]": date_from.isoformat(),
+            "filter[<DATE_CREATE]": (date_to + timedelta(days=1)).isoformat(),
+            "select[]": ["ID", "STAGE_ID", "STAGE_SEMANTIC_ID", "OPPORTUNITY", "CURRENCY_ID", "DATE_CREATE",
+                         "SOURCE_ID", "UTM_SOURCE", "UTM_CAMPAIGN", "COMPANY_ID", "CONTACT_ID"],
+            "start": start,
+        }
+        r = requests.get(WEBHOOK_URL + "crm.deal.list", params=params, timeout=30)
+        r.raise_for_status()
+        payload = r.json()
+        if "error" in payload:
+            raise RuntimeError(f"Bitrix24 error: {payload.get('error_description', payload['error'])}")
+        batch = payload.get("result", [])
+        deals.extend(batch)
+        nxt = payload.get("next")
+        if nxt is None or not batch:
+            break
+        start = nxt
+        time.sleep(0.5)
+    return deals
+
+
+def _client_key(d):
+    comp = str(d.get("COMPANY_ID") or "0")
+    if comp not in ("0", ""):
+        return ("COMPANY_ID", comp)
+    cont = str(d.get("CONTACT_ID") or "0")
+    if cont not in ("0", ""):
+        return ("CONTACT_ID", cont)
+    return None
+
+
+def check_returning_clients(clients):
+    """clients: {(field, id): earliest DATE_CREATE у когорті}. Через Bitrix
+    `batch` (до 50 команд за запит) питаємо, чи були в клієнта угоди, створені
+    РАНІШЕ. Повертає {(field,id): {"hadDeal": bool, "hadWon": bool}}."""
+    out, items = {}, list(clients.items())
+    for i in range(0, len(items), 50):
+        chunk = items[i:i + 50]
+        cmd = {}
+        for j, ((field, cid), first_dt) in enumerate(chunk):
+            cmd[f"c{j}"] = (f"crm.deal.list?filter[{field}]={cid}&filter[<DATE_CREATE]={first_dt}"
+                            f"&select[]=ID&select[]=STAGE_SEMANTIC_ID&start=-1")
+        try:
+            r = requests.post(WEBHOOK_URL + "batch", json={"halt": 0, "cmd": cmd}, timeout=60)
+            r.raise_for_status()
+            res = (r.json().get("result") or {}).get("result") or {}
+        except Exception as e:
+            print(f"[CRM] ⚠ batch retention: {e}")
+            res = {}
+        for j, (key, _) in enumerate(chunk):
+            rows = res.get(f"c{j}") or []
+            if isinstance(rows, dict):
+                rows = list(rows.values())
+            out[key] = {"hadDeal": bool(rows), "hadWon": any(x.get("STAGE_SEMANTIC_ID") == "S" for x in rows)}
+        time.sleep(0.5)
+    return out
+
+
+def process_created_cohort(month_start, month_end, source_names=None, stale_days=90, stale_min=1_000_000):
+    source_names = source_names or {}
+    deals, stage_names = [], {}
+    for cat in COHORT_CATEGORIES:
+        try:
+            for s in fetch_stage_list(cat):
+                stage_names[s["STATUS_ID"]] = (s.get("NAME") or "", s.get("SEMANTICS"))
+            time.sleep(0.3)
+            ds = fetch_created_deals(cat, month_start, month_end)
+            for d in ds:
+                d["_cat"] = cat
+            deals.extend(ds)
+            print(f"[CRM] Когорта (створені): воронка {cat} → {len(ds)}")
+        except Exception as e:
+            print(f"[CRM] ⚠ Когорта, воронка {cat}: {e}")
+        time.sleep(0.3)
+
+    def sem(d):
+        return d.get("STAGE_SEMANTIC_ID") or stage_names.get(d.get("STAGE_ID"), ("", None))[1] or "P"
+
+    def sname(d):
+        return stage_names.get(d.get("STAGE_ID"), (d.get("STAGE_ID") or "", None))[0]
+
+    def is_won(d):
+        return sem(d) == "S" and d["_cat"] != 0  # WON воронки 0 = пройшов скринінг, не продаж
+
+    # ── 1. Воронка кваліфікації ──
+    total = len(deals)
+    clean = [d for d in deals if not any(m in sname(d).lower() for m in DUP_TEST_MARKERS)]
+    qualified = [d for d in clean if not (sem(d) == "F" and any(m in sname(d).lower() for m in NOT_QUALIFIED_MARKERS))]
+    active_won = [d for d in qualified if sem(d) != "F"]
+    won = [d for d in active_won if is_won(d)]
+    funnel = {"all": total, "clean": len(clean), "qualified": len(qualified),
+              "activeOrWon": len(active_won), "won": len(won),
+              "wonSum": round(sum(_num(d.get("OPPORTUNITY")) for d in won), 2),
+              "expectedSumActiveWon": round(sum(_num(d.get("OPPORTUNITY")) for d in active_won), 2)}
+
+    # ── 2. Стадії (як таблиця "Все сделки по статусу") ──
+    st = {}
+    for d in deals:
+        n = sname(d) or "?"
+        a = st.setdefault(n, {"stage": n, "deals": 0, "sum": 0.0})
+        a["deals"] += 1
+        a["sum"] += _num(d.get("OPPORTUNITY"))
+    by_stage = sorted(({**v, "sum": round(v["sum"], 2)} for v in st.values()), key=lambda x: -x["deals"])
+
+    # ── 3. Джерела і UTM-кампанії (очікувана/фактична сума) ──
+    def agg(keyf, namef):
+        m = {}
+        for d in deals:
+            k = keyf(d)
+            a = m.setdefault(k, {"key": k, "name": namef(k), "deals": 0, "expectedSum": 0.0, "won": 0, "wonSum": 0.0})
+            a["deals"] += 1
+            if sem(d) != "F":
+                a["expectedSum"] += _num(d.get("OPPORTUNITY"))
+            if is_won(d):
+                a["won"] += 1
+                a["wonSum"] += _num(d.get("OPPORTUNITY"))
+        rows = []
+        for a in m.values():
+            a["expectedSum"] = round(a["expectedSum"], 2)
+            a["wonSum"] = round(a["wonSum"], 2)
+            rows.append(a)
+        return sorted(rows, key=lambda x: (-x["wonSum"], -x["deals"]))
+
+    by_source = agg(lambda d: d.get("SOURCE_ID") or "—",
+                    lambda k: "Не вказано" if k == "—" else source_names.get(k, k))
+    by_campaign = agg(lambda d: ((d.get("UTM_SOURCE") or "").strip() or "—") + " / " + ((d.get("UTM_CAMPAIGN") or "").strip() or "—"),
+                      lambda k: k)
+
+    # ── 4. Retention: клієнти, у яких були угоди до цього місяця ──
+    first_dt = {}
+    for d in deals:
+        k = _client_key(d)
+        if not k:
+            continue
+        dt = (d.get("DATE_CREATE") or "")[:19]
+        if k not in first_dt or dt < first_dt[k]:
+            first_dt[k] = dt
+    ret = check_returning_clients(first_dt) if first_dt else {}
+
+    def seg(pred):
+        ds = [d for d in deals if pred(d)]
+        w = [d for d in ds if is_won(d)]
+        closed = [d for d in ds if sem(d) in ("S", "F")]
+        return {"deals": len(ds), "won": len(w), "wonSum": round(sum(_num(d.get("OPPORTUNITY")) for d in w), 2),
+                "winRate": round(len(w) / len(closed) * 100, 1) if closed else None}
+
+    retention = {
+        "clientsInCohort": len(first_dt),
+        "returningClients": sum(1 for v in ret.values() if v["hadDeal"]),
+        "repeatBuyers": sum(1 for v in ret.values() if v["hadWon"]),
+        "noClientLinked": sum(1 for d in deals if not _client_key(d)),
+        "returning": seg(lambda d: (_client_key(d) in ret) and ret[_client_key(d)]["hadDeal"]),
+        "new": seg(lambda d: not ((_client_key(d) in ret) and ret[_client_key(d)]["hadDeal"])),
+        "repeatPurchase": seg(lambda d: (_client_key(d) in ret) and ret[_client_key(d)]["hadWon"]),
+    }
+
+    # ── 5. "Завислі" великі угоди (тільки ID/сума/стадія/дата — без назв) ──
+    stale = []
+    try:
+        cutoff = (month_end - timedelta(days=stale_days)).isoformat()
+        for cat in (24, 18, 32):
+            r = requests.get(WEBHOOK_URL + "crm.deal.list", params={
+                "filter[CATEGORY_ID]": cat, "filter[STAGE_SEMANTIC_ID]": "P",
+                "filter[<DATE_CREATE]": cutoff, "filter[>=OPPORTUNITY]": stale_min,
+                "select[]": ["ID", "STAGE_ID", "OPPORTUNITY", "DATE_CREATE"], "order[OPPORTUNITY]": "DESC"}, timeout=30)
+            r.raise_for_status()
+            for d in (r.json().get("result") or [])[:10]:
+                stale.append({"id": d.get("ID"), "category": cat, "stage": stage_names.get(d.get("STAGE_ID"), (d.get("STAGE_ID"), None))[0],
+                              "amount": _num(d.get("OPPORTUNITY")), "created": (d.get("DATE_CREATE") or "")[:10]})
+            time.sleep(0.3)
+        stale.sort(key=lambda x: -x["amount"])
+    except Exception as e:
+        print(f"[CRM] ⚠ stale deals: {e}")
+
+    print(f"[CRM] ✓ Когорта: {funnel} | retention: {retention['returningClients']}/{retention['clientsInCohort']} клієнтів повернулись")
+    return {"funnel": funnel, "byStage": by_stage, "bySource": by_source, "byCampaign": by_campaign,
+            "retention": retention, "staleBigDeals": stale[:10],
+            "definitions": {
+                "clean": "без стадій ДУБЛЬ / ТЕСТОВИЙ",
+                "qualified": "clean мінус відмови: спам/мусор, помилкові, некоректні контакти, недодзвон, не завершили перв. контакт",
+                "won": "WON у воронках 24/18/32 (WON воронки 0 — лише пройдений скринінг)",
+                "returning": "у клієнта (компанія або контакт) є угоди, створені раніше",
+                "repeatPurchase": "у клієнта раніше вже була УСПІШНА угода"}}
+
+
 def process_month(month_start, month_end, month_key, complete):
     """Все, що рахується для ОДНОГО місяця (WON-угоди + причини відмов) —
     винесено з main() окремою функцією, щоб backfill-скрипт для минулих
@@ -534,12 +745,20 @@ def process_month(month_start, month_end, month_key, complete):
         print(f"[CRM] ✓ Канали: {len(by_source)} джерел, UTM: {len(by_utm)}")
     except Exception as e:
         print(f"[CRM] ⚠ Канали не пораховано: {e}")
-        by_source, by_utm = [], []
+        by_source, by_utm, source_names = [], [], {}
+
+    # ── v4.6: когорта створених у місяці угод (воронка, UTM, retention) ──
+    try:
+        cohort = process_created_cohort(month_start, month_end, source_names)
+    except Exception as e:
+        print(f"[CRM] ⚠ Когорта не порахована: {e}")
+        cohort = None
 
     return {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "month": month_key,
         "bySource": by_source,
+        "cohort": cohort,
         "byUtm": by_utm,
         "from": month_start.isoformat(),
         "to": month_end.isoformat(),

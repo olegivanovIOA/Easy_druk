@@ -407,7 +407,7 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Угод у пайплайні</div><div class="krow-val g" id="ceo-pipeline-sum">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Усі угоди/звернення в Bitrix24 (воронки 0+24+18+32), закриті в поточному місяці">Звернень у Bitrix (міс.)</div><div class="krow-val" id="ceo-leads">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Медіана днів від створення до WON, ОПТ (воронка 24), поточний місяць">Цикл угоди ОПТ (медіана)</div><div class="krow-val r" id="ceo-ttc">—</div><div class="krow-tgt">Ціль: <b>&lt;5</b></div><div class="real-dot"></div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Повторні замовлення</div><div class="krow-val x">TBD %</div><div class="krow-tgt">Ціль: <b>50%+</b></div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Частка WON-виручки місяця від клієнтів, у яких раніше вже була успішна угода (Bitrix24, угоди створені в місяці)">Повторні замовлення (виручка)</div><div class="krow-val" id="ceo-repeat">—</div><div class="krow-tgt">Ціль: <b>50%+</b></div><div class="real-dot"></div></div>
     </div>
     <div class="g2" style="margin-bottom:14px">
       <div class="card">
@@ -684,7 +684,7 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow" id="qual-worst-loc-row"><div class="krow-bar kb-a"></div><div class="krow-lbl">Найгірша локація</div><div class="krow-val a" id="qual-worst-loc">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% браку (компанія, вчора · фінально)</div><div class="krow-val g" id="qual-defect-pct-y">—</div><div class="krow-tgt">з ОТК, не проміжно</div><div class="real-dot"></div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">% браку по оператору</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
-      <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вартість браку / міс</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Вартість сировини бракованих деталей з початку місяця (batches_monthly_history). Без маш-часу.">Вартість браку / міс (сировина)</div><div class="krow-val r" id="qual-defect-cost-month">—</div><div class="real-dot"></div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">ТОП-5 причин (Парето)</div><div class="krow-val x">TBD</div><div class="tbd-lbl">TBD</div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Вихідний контроль</div><div class="krow-val x">TBD %</div><div class="tbd-lbl">TBD</div></div>
     </div>
@@ -1113,7 +1113,9 @@ a{color:var(--gd);text-decoration:none}
   </div>
 
   <!-- ═══ MQL→SQL АНАЛІТИКА ═══ -->
-  <div id="w-crm-mql">
+  <!-- v4.6: MQL→SQL блок читав разову таблицю-аналіз за березень 2026 (не оновлюється з 03.08,
+       колонки з'їхали: конверсія 32113%). Замінено воронкою кваліфікації з Bitrix24 вище. Код лишається. -->
+  <div id="w-crm-mql" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
       <div class="sec" style="margin-bottom:0">🎯 MQL→SQL Аналітика</div>
       <div style="display:flex;align-items:center;gap:10px">
@@ -1152,6 +1154,33 @@ a{color:var(--gd);text-decoration:none}
       <div class="card">
         <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Менеджери — лідів / угод / виручка</div>
         <div id="mql-managers-table"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ v4.6: ЛІДОГЕНЕРАЦІЯ, ROI КАМПАНІЙ, RETENTION (замість ручного Looker Studio) ═══ -->
+  <div id="w-mkt-leadgen">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
+      <div class="sec" style="margin-bottom:0">🎯 Лідогенерація, ROI кампаній та retention <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Угоди 4 воронок Bitrix24 (0 ЛИДЫ, 24 ОПТ, 18/32 Роздріб), СТВОРЕНІ в обраному місяці. Вартість — Google Ads. Ті самі показники, що в Looker Studio-звіті маркетингу, але автоматично.">ⓘ</span></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <select id="mkt-leadgen-period" style="font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px"></select>
+        <span id="mkt-leadgen-updated"></span>
+      </div>
+    </div>
+    <div id="mkt-leadgen-root">
+      <div class="ct" style="margin:6px 0">Воронка кваліфікації лідів</div>
+      <div id="mkt-leadgen-funnel" style="margin-bottom:12px">Завантаження…</div>
+      <div class="ct" style="margin:6px 0">Retention — клієнти, що повертаються</div>
+      <div id="mkt-leadgen-retention" style="margin-bottom:12px"></div>
+      <div id="mkt-leadgen-stale" style="display:none;font-size:11px;margin-bottom:12px;padding:8px 12px;border:1px solid var(--bd);border-left:3px solid #C0392B;border-radius:8px;background:#FDF1EF"></div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="ct" style="margin-bottom:4px">ROI кампаній: вартість → угоди → виручка (UTM)</div>
+        <div id="mkt-leadgen-roi-note" style="font-size:10px;color:var(--tl);margin-bottom:8px"></div>
+        <div class="tw" id="mkt-leadgen-roi"><table class="tbl"><thead><tr><th>Кампанія (utm_campaign)</th><th style="text-align:right">Вартість</th><th style="text-align:right">Нових угод</th><th style="text-align:right" title="Вартість / нові угоди">CPL</th><th style="text-align:right" title="Сума угод у роботі + успішних">Очік. сума</th><th style="text-align:right">WON</th><th style="text-align:right">WON сума</th><th style="text-align:right" title="Вартість / WON">CAC</th><th style="text-align:right" title="WON сума / вартість">ROAS</th></tr></thead><tbody id="mkt-leadgen-roi-table"></tbody></table></div>
+      </div>
+      <div class="card" id="mkt-leadgen-trend-wrap" style="display:none;margin-bottom:12px">
+        <div class="ct" style="margin-bottom:8px">Динаміка: звернення → кваліфіковані → WON, частка виручки від повторних покупців <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
+        <div class="cw" style="height:220px"><canvas id="mkt-leadgen-trend"></canvas></div>
       </div>
     </div>
   </div>
@@ -1593,6 +1622,9 @@ async function _buildCeoCharts(){
     if(crm){
       const tr=crm.totalReviewed||{};
       if(tr.all!=null) set('ceo-leads', tr.all.toLocaleString('uk-UA')+' · '+(crm.month||''));
+      const rp=crm.cohort&&crm.cohort.retention&&crm.cohort.funnel&&crm.cohort.funnel.wonSum?crm.cohort.retention.repeatPurchase.wonSum/crm.cohort.funnel.wonSum*100:null;
+      const rpe=document.getElementById('ceo-repeat');
+      if(rpe&&rp!=null){rpe.textContent=rp.toFixed(1)+'%';rpe.style.color=rp>=50?G:A;rpe.title=`${crm.month}: повторні покупці дали ${fmt(crm.cohort.retention.repeatPurchase.wonSum)} з ${fmt(crm.cohort.funnel.wonSum)} грн WON`;}
       const ttc=crm.wholesale?.timeToClose;
       const el=document.getElementById('ceo-ttc');
       if(el&&ttc&&ttc.medianDays!=null){el.textContent=ttc.medianDays+' дн';el.title=`Середнє ${ttc.avgDays} дн · ${ttc.sampleSize} WON-угод · ${crm.month}`;el.style.color=ttc.medianDays<=5?G:R;}
@@ -2904,7 +2936,7 @@ const WCAT=[
   {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
   {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
-  {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},{id:'mkt-channels',tab:'crm',label:'Канали залучення (Bitrix24)'},
+  {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},{id:'mkt-leadgen',tab:'crm',label:'Лідогенерація, ROI, retention'},{id:'mkt-channels',tab:'crm',label:'Канали залучення (Bitrix24)'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
   {id:'hr-kpi',tab:'hr',label:'HR показники'},
   {id:'loc-tbl',tab:'loc',label:'Зведена таблиця локацій'},{id:'loc-cards',tab:'loc',label:'Картки локацій'},{id:'loc-trends',tab:'loc',label:'Динаміка по локаціях'},
@@ -2953,7 +2985,7 @@ function go(id,btn){
     window.AdsLoader.load();document.getElementById('panel-crm').dataset.loaded='1';
     if(window.MqlLoader) window.MqlLoader.load();
   }
-  if(id==='crm'&&window.ChannelsLoader&&!window._chLoaded){window._chLoaded=1;window.ChannelsLoader.load();}
+  if(id==='crm'&&window.ChannelsLoader&&!window._chLoaded){window._chLoaded=1;window.ChannelsLoader.load();if(window.LeadgenLoader)window.LeadgenLoader.load();}
   if(id==='sales'&&window.SalesLoader&&!document.getElementById('panel-sales').dataset.loaded){
     window.SalesLoader.load();document.getElementById('panel-sales').dataset.loaded='1';
   }
@@ -2997,7 +3029,7 @@ function restoreTab(){
         window.AdsLoader.load();panel.dataset.loaded='1';
         if(window.MqlLoader) window.MqlLoader.load();
       }
-      if(saved==='crm'&&window.ChannelsLoader&&!window._chLoaded){window._chLoaded=1;window.ChannelsLoader.load();}
+      if(saved==='crm'&&window.ChannelsLoader&&!window._chLoaded){window._chLoaded=1;window.ChannelsLoader.load();if(window.LeadgenLoader)window.LeadgenLoader.load();}
       if(saved==='sales'&&window.SalesLoader&&!panel.dataset.loaded){
         window.SalesLoader.load();panel.dataset.loaded='1';
       }
@@ -3130,7 +3162,20 @@ window.LocLoader = (() => {
     '4': { line: R, bg: RB },
     '5': { line: B, bg: BB },
     '6': { line: O, bg: OB },
+    '101': { line: '#6B4E9B', bg: 'rgba(107,78,155,.12)' },  // v4.5: нова локація з 23.09
   };
+  // v4.5: серії будуємо з усіх локацій, що траплялись в історії (а не з
+  // хардкоду LOC_META) — інакше нова Лок.101 не малювалась, а ті, що зникли
+  // з API (Лок.1/2 після 22.09), виглядали як поточні.
+  function _trendLocKeys(days){
+    const seen={}, last={};
+    days.forEach(d=>Object.keys(d.locations||{}).forEach(k=>{seen[k]=1;last[k]=d.date;}));
+    return Object.keys(seen).sort((a,b)=>(+a)-(+b)).map(k=>({num:k,lastSeen:last[k]}));
+  }
+  function _trendLocLabel(num,lastSeen,days){
+    const end=days.length?days[days.length-1].date:null;
+    return 'Локація '+num+((end&&lastSeen&&lastSeen<end)?' (до '+lastSeen.slice(8,10)+'.'+lastSeen.slice(5,7)+')':'');
+  }
   const UA_MONTHS_FULL = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 
   let _data = null;
@@ -3459,7 +3504,7 @@ window.LocLoader = (() => {
     const labels = days.map(d => d.date.slice(5)); // MM-DD
     const datasets = [];
 
-    Object.keys(LOC_META).forEach(num => {
+    _trendLocKeys(days).forEach(({num, lastSeen}) => {
       const colors = LOC_COLORS[num] || { line: A, bg: AB };
       const data = days.map(d => {
         const loc = d.locations && d.locations[num];
@@ -3486,7 +3531,7 @@ window.LocLoader = (() => {
       }
 
       const ds = {
-        label: 'Локація ' + num,
+        label: _trendLocLabel(num, lastSeen, days),
         data,
         borderColor: colors.line,
         backgroundColor: colors.bg,
@@ -3619,11 +3664,27 @@ window.LocLoader = (() => {
 <script src="js/sales_loader.js?v=20260924b"></script>
 <script src="js/cashflow_loader.js?v=20260924"></script>
 <script src="js/channels_loader.js?v=20260924"></script>
+<script src="js/leadgen_loader.js?v=20260924"></script>
 <script>
 // v4.5: зміна складу локацій у /api/capacity. Дашборд нічого не фільтрує —
 // показує те, що віддає API. Якщо набір локацій змінився (напр. 23.09: зникли
 // Лок.1 / Лок.2, з'явилась Лок.101) — пояснюємо це прямо над таблицею, щоб
 // "4 локації" не виглядали як помилка дашборду.
+// v4.6: вартість браку з початку місяця (Якість)
+(async function defectCostMonth(){
+  try{
+    const h=await fetch('data/batches_monthly_history.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+    const ms=((h&&h.months)||[]).slice().sort((a,b)=>a.month.localeCompare(b.month));
+    const m=ms[ms.length-1]; const el=document.getElementById('qual-defect-cost-month'); if(!m||!el) return;
+    const c=m.company||{};
+    let v=m.defectCostTotalUAH, approx=false;
+    if(v==null&&c.materialCostUAH!=null&&c.defectWeightPercent!=null){v=c.materialCostUAH*c.defectWeightPercent/100;approx=true;}
+    if(v==null) return;
+    const f=v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':Math.round(v);
+    el.textContent=(approx?'≈':'')+f+' грн';
+    el.title=`${m.month}${m.complete===false?' (з 1-го числа по '+m.to+')':''} · ${approx?'оцінка: вартість сировини × % браку за вагою':'сума по всіх деталях'} · брак ${c.defectPercent}%`;
+  }catch(e){console.warn('[defect cost]',e.message);}
+})();
 (async function locChangesNote(){
   try{
     const h=await fetch('data/capacity_history.json?t='+Date.now()).then(r=>r.ok?r.json():null);
