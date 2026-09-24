@@ -77,8 +77,8 @@ window.E3DFresh = (() => {
     ceo:  [{ url: 'data/cashflow.json', label: 'CF' }, { url: 'data/crm_deals.json', label: 'Bitrix' },
            { url: 'data/hr.json', label: 'HR' }, { url: 'data/capacity.json', label: 'Парк' }],
     str:  [{ url: 'data/strategy.json', label: 'Спринти', key: 'ts' }],
-    prod: [{ url: 'data/capacity.json', label: 'Парк' }, { url: 'data/batches_lots.json', label: 'Партії' },
-           { url: 'data/plan_week.json', label: 'План тижня (ручний експорт)', key: 'generated_at' }],
+    // plan_week.json (ручний експорт) свідомо НЕ показуємо — планування скоро підключиться через API
+    prod: [{ url: 'data/capacity.json', label: 'Парк' }, { url: 'data/batches_lots.json', label: 'Партії' }],
     qual: [{ url: 'data/batches_lots.json', label: 'Партії/ОТК' }, { url: 'data/crm_deals.json', label: 'Bitrix' }],
     loc:  [{ url: 'data/capacity.json', label: 'Парк' }],
   };
