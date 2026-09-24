@@ -1,22 +1,22 @@
 {
-  "fetched_at": "2026-09-24T11:41:04Z",
+  "fetched_at": "2026-09-24T15:41:22Z",
   "month": "2026-09",
   "bySource": [
     {
       "source": "PARTNER",
       "name": "Существующий клиент",
       "reviewed": 48,
-      "won": 41,
+      "won": 42,
       "lost": 2,
       "junk": 1,
-      "wonWholesale": 41,
+      "wonWholesale": 42,
       "wonRetail": 0,
-      "revenue": 4396107.5,
-      "revenueWholesale": 4396107.5,
+      "revenue": 4507335.5,
+      "revenueWholesale": 4507335.5,
       "revenueRetail": 0.0,
-      "winRate": 95.3,
+      "winRate": 95.5,
       "junkShare": 2.1,
-      "avgCheck": 107222.13
+      "avgCheck": 107317.51
     },
     {
       "source": "UC_YEKRMN",
@@ -37,7 +37,7 @@
     {
       "source": "CALL",
       "name": "Звонок",
-      "reviewed": 763,
+      "reviewed": 765,
       "won": 66,
       "lost": 670,
       "junk": 55,
@@ -69,7 +69,7 @@
     {
       "source": "REPEAT_SALE",
       "name": "Повторні продажі",
-      "reviewed": 5,
+      "reviewed": 6,
       "won": 2,
       "lost": 3,
       "junk": 3,
@@ -79,7 +79,7 @@
       "revenueWholesale": 103660.0,
       "revenueRetail": 0.0,
       "winRate": 40.0,
-      "junkShare": 60.0,
+      "junkShare": 50.0,
       "avgCheck": 51830.0
     },
     {
@@ -245,7 +245,7 @@
     {
       "source": "UC_1YIH2Z",
       "name": "Холодная продажа",
-      "reviewed": 5,
+      "reviewed": 6,
       "won": 2,
       "lost": 1,
       "junk": 1,
@@ -255,7 +255,7 @@
       "revenueWholesale": 0.0,
       "revenueRetail": 2167.0,
       "winRate": 66.7,
-      "junkShare": 20.0,
+      "junkShare": 16.7,
       "avgCheck": 1083.5
     },
     {
@@ -369,17 +369,33 @@
       "winRate": 0.0,
       "junkShare": 0.0,
       "avgCheck": null
+    },
+    {
+      "source": "UC_RSZV89",
+      "name": "Viber рассылка",
+      "reviewed": 1,
+      "won": 0,
+      "lost": 0,
+      "junk": 0,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": null,
+      "junkShare": 0.0,
+      "avgCheck": null
     }
   ],
   "cohort": {
     "funnel": {
-      "all": 1428,
-      "clean": 1334,
-      "qualified": 741,
-      "activeOrWon": 146,
-      "won": 58,
-      "wonSum": 1430374.0,
-      "expectedSumActiveWon": 37383280.11
+      "all": 1434,
+      "clean": 1340,
+      "qualified": 747,
+      "activeOrWon": 152,
+      "won": 59,
+      "wonSum": 1541602.0,
+      "expectedSumActiveWon": 37391221.11
     },
     "byStage": [
       {
@@ -424,8 +440,8 @@
       },
       {
         "stage": "Сделка УСПЕШНА",
-        "deals": 56,
-        "sum": 1428207.0
+        "deals": 57,
+        "sum": 1539435.0
       },
       {
         "stage": "НЕ отвечает (более 3-х попыток)",
@@ -454,7 +470,7 @@
       },
       {
         "stage": "НЕ завершили первинний контакт",
-        "deals": 19,
+        "deals": 18,
         "sum": 0.0
       },
       {
@@ -468,14 +484,14 @@
         "sum": 23629.01
       },
       {
+        "stage": "Іде РОЗРАХУНОК",
+        "deals": 9,
+        "sum": 0.0
+      },
+      {
         "stage": "Згода підтверджена",
         "deals": 9,
         "sum": 1596785.0
-      },
-      {
-        "stage": "Іде РОЗРАХУНОК",
-        "deals": 8,
-        "sum": 111228.0
       },
       {
         "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
@@ -484,8 +500,8 @@
       },
       {
         "stage": "3D Модель готова",
-        "deals": 6,
-        "sum": 4817.0
+        "deals": 7,
+        "sum": 9808.0
       },
       {
         "stage": "НОВА угода (цільовий запит)",
@@ -493,14 +509,14 @@
         "sum": 34186128.7
       },
       {
+        "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
+        "deals": 5,
+        "sum": 10851.0
+      },
+      {
         "stage": "УМОВИ озвучені",
         "deals": 5,
         "sum": 0.0
-      },
-      {
-        "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
-        "deals": 3,
-        "sum": 7901.0
       },
       {
         "stage": "Очікуємо ОРИГІНАЛ",
@@ -511,6 +527,16 @@
         "stage": "Угода УСПІШНА",
         "deals": 2,
         "sum": 2167.0
+      },
+      {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 1,
+        "sum": 0.0
+      },
+      {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 1,
+        "sum": 0.0
       },
       {
         "stage": "Друк АУТСОРС",
@@ -524,14 +550,14 @@
         "name": "Существующий клиент",
         "deals": 24,
         "expectedSum": 1813480.0,
-        "won": 13,
-        "wonSum": 1191776.0
+        "won": 14,
+        "wonSum": 1303004.0
       },
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 701,
-        "expectedSum": 1019069.01,
+        "deals": 703,
+        "expectedSum": 1025060.01,
         "won": 20,
         "wonSum": 118556.0
       },
@@ -594,7 +620,7 @@
       {
         "key": "UC_1YIH2Z",
         "name": "Холодная продажа",
-        "deals": 7,
+        "deals": 8,
         "expectedSum": 33687205.7,
         "won": 2,
         "wonSum": 2167.0
@@ -634,7 +660,7 @@
       {
         "key": "44",
         "name": "Facebook реклама ОПТ ФДМ",
-        "deals": 49,
+        "deals": 50,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -648,17 +674,17 @@
         "wonSum": 0.0
       },
       {
-        "key": "51",
-        "name": "Facebook Ukr3DPrint",
+        "key": "UC_DRU189",
+        "name": "Электронная почта b2b@easy3dprint.com.ua",
         "deals": 7,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
-        "key": "UC_DRU189",
-        "name": "Электронная почта b2b@easy3dprint.com.ua",
-        "deals": 6,
+        "key": "51",
+        "name": "Facebook Ukr3DPrint",
+        "deals": 7,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -694,6 +720,14 @@
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
+      },
+      {
+        "key": "UC_RSZV89",
+        "name": "Viber рассылка",
+        "deals": 1,
+        "expectedSum": 1950.0,
+        "won": 0,
+        "wonSum": 0.0
       }
     ],
     "byCampaign": [
@@ -708,10 +742,10 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 771,
-        "expectedSum": 36072799.7,
-        "won": 24,
-        "wonSum": 522243.0
+        "deals": 775,
+        "expectedSum": 36074749.7,
+        "won": 25,
+        "wonSum": 633471.0
       },
       {
         "key": "google / B2B_convers",
@@ -772,8 +806,8 @@
       {
         "key": "google / General_KW_UA_Cities_UA_broad",
         "name": "google / General_KW_UA_Cities_UA_broad",
-        "deals": 34,
-        "expectedSum": 3675.0,
+        "deals": 35,
+        "expectedSum": 4675.0,
         "won": 2,
         "wonSum": 3675.0
       },
@@ -834,18 +868,18 @@
         "wonSum": 0.0
       },
       {
-        "key": "google / Brand_UA_new",
-        "name": "google / Brand_UA_new",
+        "key": "google / Remarketing_b2b",
+        "name": "google / Remarketing_b2b",
         "deals": 12,
-        "expectedSum": 12566.4,
+        "expectedSum": 4991.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
-        "key": "google / Remarketing_b2b",
-        "name": "google / Remarketing_b2b",
-        "deals": 11,
-        "expectedSum": 0.0,
+        "key": "google / Brand_UA_new",
+        "name": "google / Brand_UA_new",
+        "deals": 12,
+        "expectedSum": 12566.4,
         "won": 0,
         "wonSum": 0.0
       },
@@ -1003,27 +1037,27 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 1233,
-      "returningClients": 165,
-      "repeatBuyers": 51,
+      "clientsInCohort": 1238,
+      "returningClients": 166,
+      "repeatBuyers": 52,
       "noClientLinked": 32,
       "returning": {
-        "deals": 227,
-        "won": 30,
-        "wonSum": 1309063.0,
-        "winRate": 14.9
+        "deals": 229,
+        "won": 31,
+        "wonSum": 1420291.0,
+        "winRate": 15.3
       },
       "new": {
-        "deals": 1201,
+        "deals": 1205,
         "won": 28,
         "wonSum": 121311.0,
         "winRate": 2.5
       },
       "repeatPurchase": {
-        "deals": 63,
-        "won": 27,
-        "wonSum": 1305513.0,
-        "winRate": 60.0
+        "deals": 64,
+        "won": 28,
+        "wonSum": 1416741.0,
+        "winRate": 60.9
       }
     },
     "staleBigDeals": [
@@ -1060,7 +1094,7 @@
   "byUtm": [
     {
       "utm": "google",
-      "reviewed": 643,
+      "reviewed": 645,
       "won": 75,
       "revenue": 3266265.5
     },
@@ -1123,10 +1157,10 @@
   "to": "2026-09-24",
   "complete": false,
   "wholesale": {
-    "deals": 167,
-    "revenue": 5947045.5,
-    "avgCheck": 35611.05,
-    "medianCheck": 2450.0,
+    "deals": 168,
+    "revenue": 6058273.5,
+    "avgCheck": 36061.15,
+    "medianCheck": 2465.0,
     "tiers": [
       {
         "tier": "small",
@@ -1143,8 +1177,8 @@
       {
         "tier": "mega",
         "label": "Мега-опт (>100К)",
-        "deals": 10,
-        "revenue": 4850691.5
+        "deals": 11,
+        "revenue": 4961919.5
       }
     ],
     "histogram": [
@@ -1186,7 +1220,7 @@
       {
         "bucket": "b8",
         "label": "100К–300К",
-        "deals": 4
+        "deals": 5
       },
       {
         "bucket": "b9",
@@ -1195,9 +1229,9 @@
       }
     ],
     "timeToClose": {
-      "avgDays": 23.9,
-      "medianDays": 15,
-      "sampleSize": 167
+      "avgDays": 23.8,
+      "medianDays": 15.0,
+      "sampleSize": 168
     }
   },
   "retail": {
@@ -1282,10 +1316,10 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 167,
-      "revenue": 5947045.5,
-      "avgCheck": 35611.05,
-      "medianCheck": 2450.0,
+      "deals": 168,
+      "revenue": 6058273.5,
+      "avgCheck": 36061.15,
+      "medianCheck": 2465.0,
       "otherCurrencyDealsSkipped": 0,
       "top5": [
         {
@@ -1315,9 +1349,9 @@
         }
       ],
       "timeToClose": {
-        "avgDays": 23.9,
-        "medianDays": 15,
-        "sampleSize": 167
+        "avgDays": 23.8,
+        "medianDays": 15.0,
+        "sampleSize": 168
       }
     },
     "18": {
@@ -1517,7 +1551,7 @@
         }
       ],
       "totalLost": 544,
-      "totalReviewed": 762
+      "totalReviewed": 767
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -1576,9 +1610,9 @@
     }
   },
   "totalReviewed": {
-    "wholesale": 762,
+    "wholesale": 767,
     "retail": 3,
     "screening": 825,
-    "all": 1590
+    "all": 1595
   }
 }
