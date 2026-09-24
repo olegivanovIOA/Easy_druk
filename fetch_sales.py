@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 """
-fetch_sales.py — Easy 3D Print Dashboard v1.2
+fetch_sales.py — Easy 3D Print Dashboard v1.3
+
+v1.3 (24.09.2026): джоба не оновлювала sales_planner.json з 12.09 — таблиця
+більше не відкривається анонімно (export CSV → 401), а старий код читав її
+саме так (API key + публічний CSV). Тепер:
+  - основний шлях — Service Account (той самий GOOGLE_SERVICE_ACCOUNT_JSON, що
+    й HR/CF): таблицю треба розшарити на SA як Viewer, публічний доступ НЕ
+    потрібен (у файлі є лист із ЗП менеджерів — відкривати на весь світ не варто);
+  - фолбек — старий анонімний шлях (якщо SA не задано);
+  - зрозуміла помилка в лозі, якщо доступу немає;
+  - колонки місяців шукаються за заголовками (Січень…Грудень + План/Факт);
+    якщо знайти не вдалось — старі фіксовані індекси, і в лозі видно, які саме
+    колонки використано (з серпня фіксовані індекси з'їхали).
 Читає Google Sheets Планувальника і витягує:
 - Роздріб/Опт план-факт по місяцях 2026 (правильні індекси колонок)
 - Пайплайн оптових угод (статуси, суми)
@@ -15,6 +27,8 @@ import requests
 
 SHEET_ID = os.environ.get("SALES_SHEET_ID", "1M4daThbhYfnLjXTGEjLloFiwcYFumGgF-zt0ZgKQDw0")
 API_KEY  = os.environ.get("GOOGLE_API_KEY", "")
+SA_JSON  = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
+_TOKEN   = None
 OUTPUT   = Path(__file__).parent / "data" / "sales_planner.json"
 
 PLANNING_SHEET  = "Планування на 2026 рік "
@@ -63,20 +77,102 @@ PIPELINE_STAGE_LABELS = {
 }
 
 
-def get_sheet_list():
-    url = (f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}"
-           f"?fields=sheets.properties(sheetId,title)&key={API_KEY}")
-    r = requests.get(url, timeout=15)
+def get_sa_token():
+    """JWT → access token для Service Account (як у fetch_hr.py / fetch_cashflow.py)."""
+    import base64, time
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import padding
+    sa = json.loads(SA_JSON)
+    now = int(time.time())
+    b64 = lambda b: base64.urlsafe_b64encode(b).rstrip(b"=")
+    header = b64(json.dumps({"alg": "RS256", "typ": "JWT"}).encode())
+    claims = b64(json.dumps({"iss": sa["client_email"],
+                             "scope": "https://www.googleapis.com/auth/spreadsheets.readonly",
+                             "aud": "https://oauth2.googleapis.com/token",
+                             "exp": now + 3600, "iat": now}).encode())
+    key = serialization.load_pem_private_key(sa["private_key"].encode(), password=None)
+    sig = b64(key.sign(header + b"." + claims, padding.PKCS1v15(), hashes.SHA256()))
+    r = requests.post("https://oauth2.googleapis.com/token", timeout=15, data={
+        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        "assertion": (header + b"." + claims + b"." + sig).decode()})
     r.raise_for_status()
+    print(f"[SALES] Service Account: {sa['client_email']}")
+    return r.json()["access_token"]
+
+
+def _access_error(r, how):
+    if r.status_code in (401, 403, 404):
+        raise SystemExit(
+            f"[ERROR] Немає доступу до таблиці планувальника ({how}, HTTP {r.status_code}). "
+            f"Розшарте таблицю {SHEET_ID} на service account (Viewer) — email у лозі вище — "
+            f"або перевірте, що SALES_SHEET_ID вказує на актуальний файл.")
+    r.raise_for_status()
+
+
+def get_sheet_list():
+    if _TOKEN:
+        url = f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}?fields=sheets.properties(sheetId,title)"
+        r = requests.get(url, headers={"Authorization": f"Bearer {_TOKEN}"}, timeout=15)
+        _access_error(r, "Service Account")
+    else:
+        url = (f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}"
+               f"?fields=sheets.properties(sheetId,title)&key={API_KEY}")
+        r = requests.get(url, timeout=15)
+        _access_error(r, "API key / публічний доступ")
     return [{"gid": str(s["properties"]["sheetId"]), "title": s["properties"]["title"]}
             for s in r.json().get("sheets", [])]
 
 
-def fetch_csv(gid):
+def fetch_csv(gid, title=None):
+    """Рядки листа як list[list[str]] — через SA (values API, FORMATTED_VALUE,
+    тобто ті самі рядки, що й у CSV) або старим анонімним CSV-експортом."""
+    if _TOKEN and title:
+        import urllib.parse
+        rng = urllib.parse.quote(f"'{title}'", safe="")
+        url = (f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}/values/{rng}"
+               f"?valueRenderOption=FORMATTED_VALUE")
+        r = requests.get(url, headers={"Authorization": f"Bearer {_TOKEN}"}, timeout=30)
+        _access_error(r, "Service Account")
+        rows = r.json().get("values", [])
+        w = max((len(x) for x in rows), default=0)
+        return [[str(c) for c in x] + [""] * (w - len(x)) for x in rows]
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={gid}"
     r = requests.get(url, timeout=20)
-    r.raise_for_status()
+    _access_error(r, "публічний CSV-експорт")
     return list(csv.reader(io.StringIO(r.content.decode("utf-8-sig"))))
+
+
+def detect_month_columns(rows, max_scan=15):
+    """Шукає рядок-заголовок з назвами місяців і під ним План/Факт.
+    Повертає [(місяць, plan_col, fact_col)] або None, якщо впевнено не знайшли."""
+    names = [m[0] for m in MONTHS_2026]
+    for i, row in enumerate(rows[:max_scan]):
+        hits = [(c, str(v).strip()) for c, v in enumerate(row)
+                if any(str(v).strip().lower().startswith(n.lower()) for n in names)]
+        if len(hits) < 6:
+            continue
+        out = []
+        for c, label in hits:
+            month = next(n for n in names if label.lower().startswith(n.lower()))
+            if month.lower().startswith("січень") and "2025" in label:
+                continue
+            plan_col = fact_col = None
+            for j in range(i + 1, min(i + 4, len(rows))):
+                for cc in range(c, min(c + 10, len(rows[j]))):
+                    v = str(rows[j][cc]).strip().lower()
+                    if plan_col is None and v.startswith("план"):
+                        plan_col = cc
+                    if fact_col is None and v.startswith("факт"):
+                        fact_col = cc
+            if plan_col is not None and fact_col is not None:
+                out.append((month, plan_col, fact_col))
+        # беремо ОСТАННЄ входження кожного місяця (у листі може бути 2025 зліва, 2026 справа)
+        last = {}
+        for m, p, f in out:
+            last[m] = (m, p, f)
+        if len(last) >= 6:
+            return [last[n] for n in names if n in last]
+    return None
 
 
 def cell(row, idx):
@@ -335,9 +431,12 @@ def parse_manager_efficiency(zp_rows, pipeline):
 
 
 def main():
+    global _TOKEN
     print(f"[SALES] Sheet ID: {SHEET_ID}")
-    if not API_KEY:
-        raise SystemExit("[ERROR] GOOGLE_API_KEY не встановлено")
+    if SA_JSON:
+        _TOKEN = get_sa_token()
+    elif not API_KEY:
+        raise SystemExit("[ERROR] Немає ні GOOGLE_SERVICE_ACCOUNT_JSON, ні GOOGLE_API_KEY")
 
     all_sheets = get_sheet_list()
     print(f"[SALES] Листи: {[s['title'] for s in all_sheets]}")
@@ -351,22 +450,31 @@ def main():
     # ── Планування (Роздріб/Опт) ─────────────────────────────────────────
     planning = get_sheet(PLANNING_SHEET)
     retail_monthly, wholesale_monthly = [], []
+    mapping_info = None
     check_monthly, leads_conv = [], []
 
     if planning:
-        rows = fetch_csv(planning["gid"])
+        rows = fetch_csv(planning["gid"], planning["title"])
         retail_idx    = find_row(rows, "Виручка загальна (роздріб)")
         wholesale_idx = find_row(rows, "по FDM (ОПТ)")
         check_idx     = find_row(rows, "Cр. чек продажу", "Ср. чек продажу")
         leads_idx     = find_row(rows, "К-сть лідів")
         deals_idx     = find_row(rows, "Успішні угоди")
 
-        retail_monthly    = parse_by_month_index(rows, retail_idx,    MONTHS_2026) if retail_idx    >= 0 else []
-        wholesale_monthly = parse_by_month_index(rows, wholesale_idx, MONTHS_2026) if wholesale_idx >= 0 else []
-        check_monthly     = parse_by_month_index(rows, check_idx,     MONTHS_2026) if check_idx     >= 0 else []
+        # Діагностика структури + автопошук колонок місяців
+        for i, r in enumerate(rows[:6]):
+            print(f"[SALES] hdr{i}: {[(c, v) for c, v in enumerate(r) if str(v).strip()][:40]}")
+        detected = detect_month_columns(rows)
+        months_map = detected or MONTHS_2026
+        print(f"[SALES] Колонки місяців ({'знайдено за заголовками' if detected else 'ФІКСОВАНІ індекси — заголовки не розпізнано'}): {months_map}")
+        mapping_info = {"mode": "detected" if detected else "fixed", "columns": months_map}
 
-        leads_data  = parse_by_month_index(rows, leads_idx,  MONTHS_2026) if leads_idx  >= 0 else []
-        deals_data  = parse_by_month_index(rows, deals_idx,  MONTHS_2026) if deals_idx  >= 0 else []
+        retail_monthly    = parse_by_month_index(rows, retail_idx,    months_map) if retail_idx    >= 0 else []
+        wholesale_monthly = parse_by_month_index(rows, wholesale_idx, months_map) if wholesale_idx >= 0 else []
+        check_monthly     = parse_by_month_index(rows, check_idx,     months_map) if check_idx     >= 0 else []
+
+        leads_data  = parse_by_month_index(rows, leads_idx,  months_map) if leads_idx  >= 0 else []
+        deals_data  = parse_by_month_index(rows, deals_idx,  months_map) if deals_idx  >= 0 else []
         for i, lm in enumerate(leads_data):
             df = deals_data[i]["fact"] if i < len(deals_data) else None
             lf = lm["fact"]
@@ -382,7 +490,7 @@ def main():
     leads_sheet = get_sheet(LEADS_SHEET)
     leads_quality = []
     if leads_sheet:
-        rows = fetch_csv(leads_sheet["gid"])
+        rows = fetch_csv(leads_sheet["gid"], leads_sheet["title"])
         leads_quality = parse_leads_quality(rows)
         print(f"[SALES] Якість лідів: {len(leads_quality)} місяців")
 
@@ -390,7 +498,7 @@ def main():
     pipeline_sheet = get_sheet(PIPELINE_SHEET)
     pipeline = {"stages": [], "total_active_sum": 0, "won_sum": 0, "win_rate_pct": 0, "active_deals": []}
     if pipeline_sheet:
-        rows = fetch_csv(pipeline_sheet["gid"])
+        rows = fetch_csv(pipeline_sheet["gid"], pipeline_sheet["title"])
         pipeline = parse_pipeline(rows)
         print(f"[SALES] Пайплайн: {len(pipeline['active_deals'])} активних угод, {pipeline['total_active_sum']:,} грн")
 
@@ -398,7 +506,7 @@ def main():
     mgr_sheet = get_sheet(MANAGERS_SHEET)
     manager_efficiency = []
     if mgr_sheet:
-        rows = fetch_csv(mgr_sheet["gid"])
+        rows = fetch_csv(mgr_sheet["gid"], mgr_sheet["title"])
         manager_efficiency = parse_manager_efficiency(rows, pipeline)
         print(f"[SALES] Менеджери: {len(manager_efficiency)} осіб")
 
@@ -418,6 +526,7 @@ def main():
 
     output = {
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "source": {"auth": "service_account" if _TOKEN else "api_key_public", "months_mapping": mapping_info},
         "retail": {
             "monthly": retail_monthly,
             "ytd_plan": rp, "ytd_fact": rf, "ytd_pct": rp_pct,

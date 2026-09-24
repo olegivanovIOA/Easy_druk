@@ -11,7 +11,7 @@
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
 <script src="js/data_layer.js"></script>
-<script src="js/freshness.js?v=20260924"></script>
+<script src="js/freshness.js?v=20260924b"></script>
 <script src="js/widgets.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -1332,6 +1332,7 @@ a{color:var(--gd);text-decoration:none}
     <div class="card-flat" style="margin-bottom:8px"><div class="tw"><table class="tbl"><thead><tr><th>Локація</th><th>Коеф.</th><th>Завант.</th><th>% Якості</th><th>Виконання</th><th>Невикор. ресурс</th></tr></thead><tbody id="loc-tbl-body">
       <tr><td colspan="6" style="text-align:center;color:var(--tl)">Завантаження…</td></tr>
     </tbody></table></div></div>
+    <div id="loc-changes-note" style="display:none;font-size:11px;margin-bottom:8px;padding:8px 12px;border:1px solid var(--bd);border-left:3px solid #BA7517;border-radius:8px;background:#FFF8EC;color:var(--tx)"></div>
   </div>
   <div id="w-loc-cards">
     <div class="sec" style="justify-content:space-between;margin:8px 0 6px">
@@ -3615,8 +3616,36 @@ window.LocLoader = (() => {
 <script src="js/hr_loader.js?v=20260924"></script>
 <script src="js/ads_loader.js?v=20260924"></script>
 <script src="js/mql_loader.js?v=20260924"></script>
-<script src="js/sales_loader.js?v=20260924"></script>
+<script src="js/sales_loader.js?v=20260924b"></script>
 <script src="js/cashflow_loader.js?v=20260924"></script>
 <script src="js/channels_loader.js?v=20260924"></script>
+<script>
+// v4.5: зміна складу локацій у /api/capacity. Дашборд нічого не фільтрує —
+// показує те, що віддає API. Якщо набір локацій змінився (напр. 23.09: зникли
+// Лок.1 / Лок.2, з'явилась Лок.101) — пояснюємо це прямо над таблицею, щоб
+// "4 локації" не виглядали як помилка дашборду.
+(async function locChangesNote(){
+  try{
+    const h=await fetch('data/capacity_history.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+    const days=((h&&h.days)||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+    if(days.length<2) return;
+    const last=days[days.length-1], cur=new Set(Object.keys(last.locations||{}));
+    const lastSeen={}, firstSeen={}, names={};
+    days.forEach(d=>Object.entries(d.locations||{}).forEach(([k,v])=>{lastSeen[k]=d.date;if(!firstSeen[k])firstSeen[k]=d.date;names[k]=v.name||('Локація '+k);}));
+    const t=new Date(last.date), ago=n=>{const d=new Date(t);d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);};
+    const gone=Object.keys(lastSeen).filter(k=>!cur.has(k)&&lastSeen[k]>=ago(30));
+    const fresh=[...cur].filter(k=>firstSeen[k]>=ago(30)&&firstSeen[k]>days[0].date);
+    if(!gone.length&&!fresh.length) return;
+    const fmt=d=>d.slice(8,10)+'.'+d.slice(5,7);
+    const el=document.getElementById('loc-changes-note'); if(!el) return;
+    el.style.display='';
+    el.innerHTML='ℹ Склад локацій в API змінився: '+
+      (gone.length?'<b>більше не приходять</b> '+gone.map(k=>`${names[k]} (ост. ${fmt(lastSeen[k])})`).join(', '):'')+
+      (gone.length&&fresh.length?' · ':'')+
+      (fresh.length?'<b>нові</b> '+fresh.map(k=>`${names[k]} (з ${fmt(firstSeen[k])})`).join(', '):'')+
+      '. Дашборд показує рівно те, що повертає /api/capacity — якщо локацій має бути більше, це питання до API/ERP.';
+  }catch(e){console.warn('[loc changes]',e.message);}
+})();
+</script>
 </body>
 </html>
