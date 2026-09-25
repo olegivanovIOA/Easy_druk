@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-25T01:06:59Z",
+  "fetched_at": "2026-09-25T06:59:58Z",
   "month": "2026-09",
   "bySource": [
     {
@@ -37,7 +37,7 @@
     {
       "source": "PARTNER",
       "name": "Существующий клиент",
-      "reviewed": 48,
+      "reviewed": 46,
       "won": 42,
       "lost": 2,
       "junk": 1,
@@ -47,7 +47,7 @@
       "revenueWholesale": 4507335.5,
       "revenueRetail": 0.0,
       "winRate": 95.5,
-      "junkShare": 2.1,
+      "junkShare": 2.2,
       "avgCheck": 107317.51
     },
     {
@@ -117,17 +117,17 @@
     {
       "source": "UC_C5YUHA",
       "name": "Электронная почта ukr3dprint@gmail.com",
-      "reviewed": 67,
+      "reviewed": 69,
       "won": 3,
-      "lost": 63,
-      "junk": 46,
+      "lost": 65,
+      "junk": 48,
       "wonWholesale": 3,
       "wonRetail": 0,
       "revenue": 84501.0,
       "revenueWholesale": 84501.0,
       "revenueRetail": 0.0,
-      "winRate": 4.5,
-      "junkShare": 68.7,
+      "winRate": 4.4,
+      "junkShare": 69.6,
       "avgCheck": 28167.0
     },
     {
@@ -213,17 +213,17 @@
     {
       "source": "UC_LJ05D6",
       "name": "Электронная почта sales@easy3dprint.com.ua",
-      "reviewed": 78,
+      "reviewed": 79,
       "won": 4,
-      "lost": 71,
-      "junk": 50,
+      "lost": 72,
+      "junk": 51,
       "wonWholesale": 4,
       "wonRetail": 0,
       "revenue": 12805.0,
       "revenueWholesale": 12805.0,
       "revenueRetail": 0.0,
       "winRate": 5.3,
-      "junkShare": 64.1,
+      "junkShare": 64.6,
       "avgCheck": 3201.25
     },
     {
@@ -323,6 +323,22 @@
       "avgCheck": null
     },
     {
+      "source": "UC_DRU189",
+      "name": "Электронная почта b2b@easy3dprint.com.ua",
+      "reviewed": 7,
+      "won": 0,
+      "lost": 7,
+      "junk": 7,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": 0.0,
+      "junkShare": 100.0,
+      "avgCheck": null
+    },
+    {
       "source": "51",
       "name": "Facebook Ukr3DPrint",
       "reviewed": 7,
@@ -336,22 +352,6 @@
       "revenueRetail": 0.0,
       "winRate": 0.0,
       "junkShare": 0.0,
-      "avgCheck": null
-    },
-    {
-      "source": "UC_DRU189",
-      "name": "Электронная почта b2b@easy3dprint.com.ua",
-      "reviewed": 6,
-      "won": 0,
-      "lost": 6,
-      "junk": 6,
-      "wonWholesale": 0,
-      "wonRetail": 0,
-      "revenue": 0.0,
-      "revenueWholesale": 0.0,
-      "revenueRetail": 0.0,
-      "winRate": 0.0,
-      "junkShare": 100.0,
       "avgCheck": null
     },
     {
@@ -405,13 +405,13 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 1439,
-      "clean": 1345,
-      "qualified": 752,
-      "activeOrWon": 157,
+      "all": 1438,
+      "clean": 1344,
+      "qualified": 747,
+      "activeOrWon": 152,
       "won": 60,
       "wonSum": 23385030.02,
-      "expectedSumActiveWon": 25549610.43
+      "expectedSumActiveWon": 25546295.43
     },
     "byStage": [
       {
@@ -426,7 +426,7 @@
       },
       {
         "stage": "СПАМ / МУСОР",
-        "deals": 160,
+        "deals": 164,
         "sum": 0.0
       },
       {
@@ -480,13 +480,13 @@
         "sum": 0.0
       },
       {
-        "stage": "ТЕСТОВЫЙ звонок",
-        "deals": 21,
+        "stage": "НЕ завершили первинний контакт",
+        "deals": 22,
         "sum": 0.0
       },
       {
-        "stage": "НЕ завершили первинний контакт",
-        "deals": 18,
+        "stage": "ТЕСТОВЫЙ звонок",
+        "deals": 21,
         "sum": 0.0
       },
       {
@@ -505,11 +505,6 @@
         "sum": 0.0
       },
       {
-        "stage": "Згода підтверджена",
-        "deals": 9,
-        "sum": 1596785.0
-      },
-      {
         "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
         "deals": 8,
         "sum": 0.0
@@ -520,9 +515,9 @@
         "sum": 9808.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 6,
-        "sum": 0.0
+        "stage": "Згода підтверджена",
+        "deals": 7,
+        "sum": 1593470.0
       },
       {
         "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
@@ -530,14 +525,14 @@
         "sum": 10851.0
       },
       {
-        "stage": "УМОВИ озвучені",
-        "deals": 5,
-        "sum": 0.0
-      },
-      {
         "stage": "НОВА угода (цільовий запит)",
         "deals": 4,
         "sum": 501090.0
+      },
+      {
+        "stage": "УМОВИ озвучені",
+        "deals": 4,
+        "sum": 0.0
       },
       {
         "stage": "Очікуємо ОРИГІНАЛ",
@@ -550,7 +545,7 @@
         "sum": 2167.0
       },
       {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "stage": "НОВИЙ лід ( не оброблений )",
         "deals": 1,
         "sum": 0.0
       },
@@ -572,8 +567,8 @@
       {
         "key": "PARTNER",
         "name": "Существующий клиент",
-        "deals": 24,
-        "expectedSum": 1813480.0,
+        "deals": 21,
+        "expectedSum": 1809565.0,
         "won": 14,
         "wonSum": 1303004.0
       },
@@ -605,14 +600,14 @@
         "key": "50",
         "name": "Задать вопрос онлайн",
         "deals": 147,
-        "expectedSum": 12909.0,
+        "expectedSum": 13509.0,
         "won": 5,
         "wonSum": 9559.0
       },
       {
         "key": "UC_C5YUHA",
         "name": "Электронная почта ukr3dprint@gmail.com",
-        "deals": 65,
+        "deals": 66,
         "expectedSum": 4014.0,
         "won": 1,
         "wonSum": 3664.0
@@ -636,7 +631,7 @@
       {
         "key": "UC_LJ05D6",
         "name": "Электронная почта sales@easy3dprint.com.ua",
-        "deals": 69,
+        "deals": 71,
         "expectedSum": 100238.0,
         "won": 1,
         "wonSum": 2495.0
@@ -708,7 +703,7 @@
       {
         "key": "42",
         "name": "Электронная почта threedfactory7@gmail.com",
-        "deals": 7,
+        "deals": 6,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -750,8 +745,8 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 779,
-        "expectedSum": 24233139.02,
+        "deals": 778,
+        "expectedSum": 24229824.02,
         "won": 26,
         "wonSum": 22476899.02
       },
@@ -1053,15 +1048,15 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 1242,
-      "returningClients": 166,
-      "repeatBuyers": 52,
+      "clientsInCohort": 1241,
+      "returningClients": 165,
+      "repeatBuyers": 51,
       "noClientLinked": 32,
       "returning": {
-        "deals": 229,
+        "deals": 228,
         "won": 32,
         "wonSum": 23263719.02,
-        "winRate": 15.8
+        "winRate": 15.5
       },
       "new": {
         "deals": 1210,
@@ -1070,7 +1065,7 @@
         "winRate": 2.5
       },
       "repeatPurchase": {
-        "deals": 64,
+        "deals": 61,
         "won": 29,
         "wonSum": 23260169.02,
         "winRate": 61.7
@@ -1448,7 +1443,7 @@
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 162
+      "count": 166
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -1482,7 +1477,7 @@
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 162
+      "count": 166
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -1560,7 +1555,7 @@
         }
       ],
       "totalLost": 544,
-      "totalReviewed": 769
+      "totalReviewed": 767
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -1591,7 +1586,7 @@
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 162
+          "count": 166
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -1614,14 +1609,14 @@
           "count": 21
         }
       ],
-      "totalLost": 822,
-      "totalReviewed": 825
+      "totalLost": 826,
+      "totalReviewed": 829
     }
   },
   "totalReviewed": {
-    "wholesale": 769,
+    "wholesale": 767,
     "retail": 3,
-    "screening": 825,
-    "all": 1597
+    "screening": 829,
+    "all": 1599
   }
 }
