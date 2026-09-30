@@ -55,7 +55,12 @@ window.HRLoader = (() => {
 
     const vacCount = (_data.vacancies_current?.vacancies || []).length;
     const vacEl = document.getElementById('hr-open-vacancies-count');
-    if (vacEl) vacEl.textContent = vacCount || '—';
+    if (vacEl) {
+      // v4.8: однаково з CEO — "вакансій · позицій" (раніше тут 16, а на CEO 24)
+      const vacQty = (_data.vacancies_current?.vacancies || []).reduce((a, v) => a + (parseInt(v.qty, 10) || 1), 0);
+      vacEl.textContent = vacCount ? vacCount + ' вак. · ' + vacQty + ' поз.' : '—';
+      vacEl.title = 'HR-таблиця, блок «' + (_data.vacancies_current?.month || '—') + '»';
+    }
 
     const staff = _data.turnover?.staff || [];
     if (staff.length) {

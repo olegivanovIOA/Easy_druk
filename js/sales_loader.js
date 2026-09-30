@@ -30,26 +30,41 @@ window.SalesLoader = (() => {
     return `rgb(${mix(r)},${mix(g)},${mix(b)})`;
   }
 
+  // v4.8: основне джерело вкладки — Bitrix24 (crm_deals.json + crm_monthly_history.json).
+  // Google-планувальник (sales_planner.json) не оновлюється з 12.09 — план з'явиться з API планування.
+  let _crmCur = null, _crmHist = null;
   async function load() {
     try {
-      const r = await fetch(DATA_URL + '?t=' + Date.now());
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      _data = await r.json();
+      const [plan, cur, hist] = await Promise.all([
+        fetch(DATA_URL + '?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('data/crm_deals.json?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('data/crm_monthly_history.json?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]);
+      _data = plan || {};
+      _crmCur = cur; _crmHist = hist;
       render();
     } catch (e) {
       console.warn('[SALES]', e);
     }
   }
 
+  // Місяці року з Bitrix: історія + поточний (поточний — свіжіший за історію)
+  function _bxMonths() {
+    const map = {};
+    ((_crmHist && _crmHist.months) || []).forEach(m => { map[m.month] = m; });
+    if (_crmCur && _crmCur.month) map[_crmCur.month] = _crmCur;
+    const y = String(new Date().getFullYear());
+    return Object.values(map).filter(m => m.month.startsWith(y)).sort((a, b) => a.month.localeCompare(b.month));
+  }
+  const _UAM = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+  const _mName = k => _UAM[parseInt(k.slice(5, 7), 10) - 1] || k;
+
   async function render() {
-    if (!_data) return;
     await _renderSummary();
     _renderCombinedChart();
     _renderRetail();
     _renderWholesale();
     _renderPipeline();
-    _renderLeadsQuality();
-    _renderManagerEfficiency();
     _updateTimestamp();
   }
 
@@ -73,28 +88,41 @@ window.SalesLoader = (() => {
   }
 
   async function _renderSummary() {
+    // ── v4.8: факт — Bitrix24 WON (за датою закриття), план — після API ──
+    const ms=_bxMonths();
+    const ytdW=ms.reduce((a,m)=>a+(m.wholesale?.revenue||0),0), ytdR=ms.reduce((a,m)=>a+(m.retail?.revenue||0),0);
+    _set('sales-wh-fact', _fmt(ytdW)+' грн'); _set('sales-rt-fact', _fmt(ytdR)+' грн');
+    _set('sales-wh-fact-zone', _fmt(ytdW)+' грн'); _set('sales-rt-fact-zone', _fmt(ytdR)+' грн');
+    ['sales-wh-pct','sales-rt-pct'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='очікує API';el.style.color='var(--tl)';el.style.fontSize='11px';el.title='План продажів підключається через API планування';}});
+    const cf=_crmCur&&_crmCur.cohort&&_crmCur.cohort.funnel;
+    if(cf){
+      _set('sales-leads', cf.all.toLocaleString('uk-UA'));
+      const ce=document.getElementById('sales-conv');
+      if(ce&&cf.all){const v=cf.won/cf.all*100;ce.textContent=v.toFixed(1)+'%';ce.style.color=v>=15?GD:R;ce.title=`${cf.won} WON з ${cf.all} звернень · ${_crmCur.month}`;}
+    }
+    _set('sales-rt-check', _crmCur&&_crmCur.retail?String(_crmCur.retail.deals):'—');
+    // MoM — останній ПОВНИЙ місяць vs попередній
+    const full=ms.filter(m=>m.complete!==false);
+    const momEl=document.getElementById('sales-wh-mom');
+    if(momEl&&full.length>=2){
+      const cur=full[full.length-1].wholesale?.revenue, prev=full[full.length-2].wholesale?.revenue;
+      if(prev){const mom=(cur-prev)/prev*100;momEl.textContent=(mom>=0?'+':'')+mom.toFixed(1)+'%';momEl.style.color=mom>=0?GD:R;momEl.title=`${_mName(full[full.length-1].month)} vs ${_mName(full[full.length-2].month)} (Bitrix WON)`;}
+    }
+    if(false){ // старий код (планувальник) — лишено для довідки
     const wh=_ytdPast(_data.wholesale||{}), rt=_ytdPast(_data.retail||{});
-    _set('sales-wh-fact', _fmt(wh.ytd_fact)+' грн');
-    _set('sales-wh-pct',  (wh.ytd_pct??'—')+'%');
-    _set('sales-rt-fact', _fmt(rt.ytd_fact)+' грн');
-    _set('sales-rt-pct',  (rt.ytd_pct??'—')+'%');
-    // Ті самі YTD-цифри, продубльовані в картках ОПТ/Роздріб зон (замість
-    // старих статичних "Виручка 2025", які були просто текстом, не даними)
-    _set('sales-wh-fact-zone', _fmt(wh.ytd_fact)+' грн');
-    _set('sales-rt-fact-zone', _fmt(rt.ytd_fact)+' грн');
 
-    const lm = (_data.leads_conversion?.monthly||[]).filter(m=>m.leads).slice(-1)[0];
+    } // /if(false)
+    const lm = null && (_data.leads_conversion?.monthly||[]).filter(m=>m.leads).slice(-1)[0];
     if (lm) {
       _set('sales-leads', lm.leads ? Math.round(lm.leads) : '—');
       const ce=document.getElementById('sales-conv');
       if(ce){ ce.textContent=(lm.conv_pct??'—')+'%'; ce.style.color=(lm.conv_pct>=15)?GD:R; }
     }
-    const cm=(_data.avg_check?.monthly||[]).filter(m=>m.fact).slice(-1)[0];
-    if(cm) _set('sales-rt-check', _fmt(cm.fact)+' грн');
+    const cm=null;
 
     // Динаміка МоМ (%) для ОПТ — (поточний факт − попередній факт) / попередній факт × 100
     const _UA=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
-    const whMonthly=(wh.monthly||[]).filter(m=>m.fact!=null&&_UA.indexOf(m.month)>-1&&_UA.indexOf(m.month)<new Date().getMonth()); // тільки завершені місяці
+    const whMonthly=[]; // v4.8: MoM рахується вище з Bitrix
     if(whMonthly.length>=2){
       const cur=whMonthly[whMonthly.length-1].fact, prev=whMonthly[whMonthly.length-2].fact;
       const momEl=document.getElementById('sales-wh-mom');
@@ -105,12 +133,7 @@ window.SalesLoader = (() => {
       }
     }
 
-    // Пайплайн KPI
-    const pipe=_data.pipeline||{};
-    _set('sales-pipe-total',  _fmt(pipe.total_active_sum)+' грн');
-    const active = (pipe.stages||[]).filter(s=>['active','test','calculation','waiting'].includes(s.stage)).reduce((s,x)=>s+x.sum,0);
-    _set('sales-pipe-active', _fmt(active)+' грн');
-    _set('sales-pipe-wr',     (pipe.win_rate_pct??'—')+'%');
+    // Пайплайн KPI — v4.8: рахується в _renderPipeline() з Bitrix
 
     // ── Реальний середній чек/медіана з Bitrix24 CRM (WON-угоди поточного місяця) ──
     try{
@@ -370,6 +393,39 @@ window.SalesLoader = (() => {
     };
     buildChart('tiers-wh-chart', whTiers);
     buildChart('tiers-rt-chart', rtTiers);
+    renderDealLists();
+  }
+
+  // ── v4.8: списки ID WON-угод по сегментах (точковий аналіз разом з відділом продажів) ──
+  const BX_DEAL='https://easy3dprint.bitrix24.eu/crm/deal/details/';
+  let _dlSel={group:'wholesale',tier:'mega'};
+  window._salesDealList=function(group,tier){_dlSel={group,tier};renderDealLists();};
+  function _dealListMonth(){
+    const sel=document.getElementById('tiers-period');
+    const period=sel?sel.value:'all';
+    const all=[...((_lrHistory&&_lrHistory.months)||[])];
+    if(_lrCurrent&&!all.some(m=>m.month===_lrCurrent.month)) all.push(_lrCurrent);
+    const withLists=all.filter(m=>m.dealLists).sort((a,b)=>a.month.localeCompare(b.month));
+    if(period!=='all'){const m=withLists.find(x=>x.month===period)||(_lrCurrent&&_lrCurrent.month===period&&_lrCurrent.dealLists?_lrCurrent:null);return m;}
+    return (_lrCurrent&&_lrCurrent.dealLists)?_lrCurrent:withLists[withLists.length-1];
+  }
+  function renderDealLists(){
+    const btns=document.getElementById('tiers-deal-buttons'), box=document.getElementById('tiers-deal-table');
+    if(!btns||!box) return;
+    const m=_dealListMonth();
+    if(!m||!m.dealLists){btns.innerHTML='';box.innerHTML='Списки ID з\'являться після наступного оновлення CRM (для минулих місяців — після запуску Backfill CRM Monthly History).';return;}
+    const G=[['wholesale','ОПТ',WH],['retail','Роздріб',RT]];
+    btns.innerHTML=G.map(([g,gl,c])=>TIER_KEYS.map((t,i)=>{
+      const n=(m.dealLists[g]&&m.dealLists[g][t]||[]).length; const on=_dlSel.group===g&&_dlSel.tier===t;
+      return `<button onclick="_salesDealList('${g}','${t}')" style="font-size:10px;padding:3px 8px;border-radius:12px;border:1px solid ${c};cursor:pointer;background:${on?c:'#fff'};color:${on?'#fff':c}">${gl}: ${TIER_LABELS[i].split(' ')[0]} · ${n}</button>`;
+    }).join('')).join('');
+    const list=(m.dealLists[_dlSel.group]&&m.dealLists[_dlSel.group][_dlSel.tier])||[];
+    const ti=TIER_KEYS.indexOf(_dlSel.tier);
+    const head=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:var(--tx)"><span><b>${_dlSel.group==='wholesale'?'ОПТ':'Роздріб'} · ${TIER_LABELS[ti]}</b> · ${m.month}${m.complete===false?' (триває)':''} · ${list.length} угод</span>
+      ${list.length?`<button onclick="navigator.clipboard&&navigator.clipboard.writeText('${list.map(d=>d.id).join(', ')}');this.textContent='✓ скопійовано'" style="font-size:10px;padding:3px 8px;border:1px solid var(--bd);border-radius:6px;background:#fff;cursor:pointer">📋 Копіювати всі ID</button>`:''}</div>`;
+    if(!list.length){box.innerHTML=head+'<div>Немає угод у цьому сегменті за місяць.</div>';return;}
+    box.innerHTML=head+`<div class="tw" style="max-height:260px;overflow:auto"><table class="tbl"><thead><tr><th>ID угоди</th><th>Закрита</th><th>Воронка</th><th style="text-align:right">Діапазон суми</th></tr></thead><tbody>`+
+      list.map(d=>`<tr><td><a href="${BX_DEAL}${d.id}/" target="_blank" rel="noopener" style="color:var(--b);font-weight:700">#${d.id}</a></td><td>${d.closed}</td><td>${d.category===24?'24 Виробництво':d.category===18?'18 Товарка':d.category===32?'32 Магазин':d.category}</td><td style="text-align:right">${d.bucket}</td></tr>`).join('')+'</tbody></table></div>';
   }
 
   // Локальний кеш чартів для причин відмов/тірів (окремо від _charts, щоб
@@ -415,8 +471,9 @@ window.SalesLoader = (() => {
   // ── 2. Комбінований графік ОПТ + Роздріб ──────────────────────────────────
   function _renderCombinedChart() {
     const canvas=document.getElementById('sales-combined-chart');if(!canvas)return;
-    const wm=_data.wholesale?.monthly||[], rm=_data.retail?.monthly||[];
-    const labels=(wm.length?wm:rm).map(m=>m.month.substring(0,3));
+    const ms=_bxMonths();
+    const wm=ms.map(m=>({fact:m.wholesale?.revenue||null})), rm=ms.map(m=>({fact:m.retail?.revenue||null}));
+    const labels=ms.map(m=>_mName(m.month).substring(0,3)+(m.complete===false?'*':''));
     if(_charts.combined){try{_charts.combined.destroy();}catch(e){}}
     const DL=window.ChartDataLabels;
     _charts.combined=new Chart(canvas,{type:'bar',plugins:DL?[DL]:[],data:{labels,datasets:[
@@ -431,73 +488,72 @@ window.SalesLoader = (() => {
 
   // ── 3. Роздріб: графік + таблиця ──────────────────────────────────────────
   function _renderRetail() {
-    const data=_data.retail?.monthly||[];
+    // v4.8: факт по місяцях з Bitrix24 (WON), без плану — план після API
+    const ms=_bxMonths();
     const canvas=document.getElementById('sales-retail-chart');
-    if(canvas&&data.length){
+    if(canvas&&ms.length){
       if(_charts.retail){try{_charts.retail.destroy();}catch(e){}}
       const DL=window.ChartDataLabels;
-      _charts.retail=new Chart(canvas,{type:'bar',plugins:DL?[DL]:[],data:{labels:data.map(m=>m.month.substring(0,3)),datasets:[
-        {label:'План',data:data.map(m=>m.plan),backgroundColor:'rgba(150,168,144,.25)',borderRadius:4},
-        {label:'Факт',data:data.map(m=>m.fact),backgroundColor:RTB,borderColor:RT,borderWidth:1.5,borderRadius:4},
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}},datalabels:{anchor:'end',align:'end',offset:2,font:{size:8,weight:'700'},color:(ctx)=>ctx.datasetIndex===0?'#96a890':RT,formatter:v=>v?_fmt(v):''}},layout:{padding:{top:14}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
+      _charts.retail=new Chart(canvas,{type:'bar',plugins:DL?[DL]:[],data:{labels:ms.map(m=>_mName(m.month).substring(0,3)+(m.complete===false?'*':'')),datasets:[
+        {label:'Факт (WON)',data:ms.map(m=>m.retail?.revenue||0),backgroundColor:ms.map(m=>m.complete===false?'rgba(158,158,158,.3)':RTB),borderColor:RT,borderWidth:1.5,borderRadius:4},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:2,font:{size:8,weight:'700'},color:RT,formatter:v=>v?_fmt(v):''}},layout:{padding:{top:14}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
     }
     const tbody=document.getElementById('sales-retail-table');
-    if(tbody) tbody.innerHTML=data.map(m=>{
-      const pc=m.pct==null?'var(--tl)':m.pct>=90?GD:m.pct>=60?A:R;
-      const isCurrentMonth=!m.fact&&m.plan;
-      return `<tr style="${isCurrentMonth?'opacity:.6':''}"><td>${m.month}</td><td style="text-align:right">${_fmt(m.plan)}</td><td style="text-align:right">${m.fact?_fmt(m.fact):'очікується'}</td><td style="text-align:right;font-weight:700;color:${pc}">${m.pct!=null?m.pct+'%':'—'}</td></tr>`;
+    if(tbody) tbody.innerHTML=ms.slice().reverse().map(m=>{
+      const g=m.retail||{};
+      return `<tr style="${m.complete===false?'opacity:.7':''}"><td>${_mName(m.month)}${m.complete===false?' <span style="color:var(--tl);font-size:9px">(триває)</span>':''}</td><td style="text-align:right">${g.deals??'—'}</td><td style="text-align:right;font-weight:700">${_fmt(g.revenue)}</td><td style="text-align:right">${g.medianCheck!=null?_fmt(g.medianCheck):'—'}</td></tr>`;
     }).join('');
   }
+
 
   // ── 4. Опт: графік + таблиця ──────────────────────────────────────────────
   function _renderWholesale() {
-    const data=_data.wholesale?.monthly||[];
+    // v4.8: факт по місяцях з Bitrix24 (WON), без плану — план після API
+    const ms=_bxMonths();
     const canvas=document.getElementById('sales-wholesale-chart');
-    if(canvas&&data.length){
+    if(canvas&&ms.length){
       if(_charts.wh){try{_charts.wh.destroy();}catch(e){}}
       const DL=window.ChartDataLabels;
-      _charts.wh=new Chart(canvas,{type:'bar',plugins:DL?[DL]:[],data:{labels:data.map(m=>m.month.substring(0,3)),datasets:[
-        {label:'План',data:data.map(m=>m.plan),backgroundColor:'rgba(150,168,144,.25)',borderRadius:4},
-        {label:'Факт',data:data.map(m=>m.fact),backgroundColor:WHB,borderColor:WH,borderWidth:1.5,borderRadius:4},
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}},datalabels:{anchor:'end',align:'end',offset:2,font:{size:8,weight:'700'},color:(ctx)=>ctx.datasetIndex===0?'#96a890':WH,formatter:v=>v?_fmt(v):''}},layout:{padding:{top:14}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
+      _charts.wh=new Chart(canvas,{type:'bar',plugins:DL?[DL]:[],data:{labels:ms.map(m=>_mName(m.month).substring(0,3)+(m.complete===false?'*':'')),datasets:[
+        {label:'Факт (WON)',data:ms.map(m=>m.wholesale?.revenue||0),backgroundColor:ms.map(m=>m.complete===false?'rgba(158,158,158,.3)':WHB),borderColor:WH,borderWidth:1.5,borderRadius:4},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',offset:2,font:{size:8,weight:'700'},color:WH,formatter:v=>v?_fmt(v):''}},layout:{padding:{top:14}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)}}}}});
     }
     const tbody=document.getElementById('sales-wholesale-table');
-    if(tbody) tbody.innerHTML=data.map(m=>{
-      const pc=m.pct==null?'var(--tl)':m.pct>=100?GD:m.pct>=70?A:R;
-      const isCurrentMonth=!m.fact&&m.plan;
-      return `<tr style="${isCurrentMonth?'opacity:.6':''}"><td>${m.month}</td><td style="text-align:right">${m.plan?_fmt(m.plan):'—'}</td><td style="text-align:right">${m.fact?_fmt(m.fact):'очікується'}</td><td style="text-align:right;font-weight:700;color:${pc}">${m.pct!=null?m.pct+'%':'—'}</td></tr>`;
+    if(tbody) tbody.innerHTML=ms.slice().reverse().map(m=>{
+      const g=m.wholesale||{};
+      return `<tr style="${m.complete===false?'opacity:.7':''}"><td>${_mName(m.month)}${m.complete===false?' <span style="color:var(--tl);font-size:9px">(триває)</span>':''}</td><td style="text-align:right">${g.deals??'—'}</td><td style="text-align:right;font-weight:700">${_fmt(g.revenue)}</td><td style="text-align:right">${g.medianCheck!=null?_fmt(g.medianCheck):'—'}</td></tr>`;
     }).join('');
   }
 
+
   // ── 5. Пайплайн оптових угод ──────────────────────────────────────────────
   function _renderPipeline() {
-    const pipe=_data.pipeline||{};
-    const stages=pipe.stages||[];
-
-    // Воронка — bar chart по стадіях
+    // v4.8: відкриті угоди воронки 24 ЗАРАЗ (crm_deals.json → pipeline), замість планувальника
+    const p=_crmCur&&_crmCur.pipeline, g=p&&p.groups&&p.groups.wholesale;
+    const asof=document.getElementById('sales-pipe-asof');
+    if(!g){ if(asof) asof.textContent='· з\'явиться після наступного оновлення CRM'; return; }
+    if(asof&&window.E3DFresh) asof.textContent='· '+E3DFresh.fmt(p.asOf);
+    _set('sales-pipe-total', _fmt(g.sum)+' грн');
+    _set('sales-pipe-active', String(g.deals));
+    const st=document.getElementById('sales-pipe-stale');
+    if(st){st.textContent=`${g.stale} · ${_fmt(g.staleSum)} грн`;st.title=`Відкриті угоди, створені понад ${p.staleDays} днів тому`;}
+    const lost=_crmCur.lossReasonsByCategory&&_crmCur.lossReasonsByCategory['24']?_crmCur.lossReasonsByCategory['24'].totalLost:null;
+    const won=_crmCur.wholesale?.deals;
+    _set('sales-pipe-wr', (lost!=null&&won!=null&&(won+lost))?(won/(won+lost)*100).toFixed(1)+'%':'—');
     const canvas=document.getElementById('sales-pipeline-chart');
-    if(canvas&&stages.length){
-      const STAGE_COLORS={
-        won:'rgba(42,157,143,.85)', active:'rgba(69,123,157,.8)',
-        test:'rgba(183,142,42,.75)', calculation:'rgba(130,130,180,.7)',
-        waiting:'rgba(160,110,60,.65)', slow:'rgba(192,140,57,.6)',
-        lost:'rgba(192,57,43,.5)', other:'rgba(150,150,150,.5)',
-      };
+    if(canvas&&g.stages.length){
       if(_charts.pipeline){try{_charts.pipeline.destroy();}catch(e){}}
-      const nonLost=stages.filter(s=>s.stage!=='lost');
-      _charts.pipeline=new Chart(canvas,{type:'bar',data:{
-        labels:nonLost.map(s=>s.label),
-        datasets:[
-          {label:'Сума угод, грн',data:nonLost.map(s=>s.sum),backgroundColor:nonLost.map(s=>STAGE_COLORS[s.stage]||'rgba(150,150,150,.5)'),borderRadius:4,yAxisID:'y'},
-          {label:'К-сть угод',data:nonLost.map(s=>s.count),backgroundColor:'rgba(0,0,0,.08)',borderRadius:4,yAxisID:'y1'},
-        ]
-      },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{
+      _charts.pipeline=new Chart(canvas,{type:'bar',data:{labels:g.stages.map(x=>x.stage),datasets:[
+        {label:'Сума, грн',data:g.stages.map(x=>x.sum),backgroundColor:'rgba(61,126,166,.7)',borderRadius:4,yAxisID:'y'},
+        {label:'К-сть угод',data:g.stages.map(x=>x.deals),backgroundColor:'rgba(0,0,0,.12)',borderRadius:4,yAxisID:'y1'},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},scales:{
         x:{grid:{display:false},ticks:{font:{size:9},maxRotation:30}},
         y:{type:'linear',position:'left',grid:{color:GRID},ticks:{callback:v=>_fmt(v)},title:{display:true,text:'Сума',font:{size:9},color:GD}},
         y1:{type:'linear',position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Угод',font:{size:9}}},
       }}});
     }
   }
+
 
   // ── 6. Якість лідів ──────────────────────────────────────────────────────
   function _renderLeadsQuality() {
@@ -563,21 +619,23 @@ window.SalesLoader = (() => {
 
   function _updateTimestamp() {
     const el=document.getElementById('sales-updated-at');
-    if(!el||!_data?.fetched_at) return;
+    if(!el) return;
     // v4.5: на вкладці ДВА джерела — Bitrix24 (щогодини) і планувальник продажів
     // (Google Sheets). Раніше показувався лише час планувальника → "12.09" при
     // свіжих даних Bitrix. Тепер обидва + вік; якщо планувальник застарів —
     // банер над блоками, що з нього будуються.
     if(window.E3DFresh){
-      el.innerHTML=E3DFresh.html([{ts:_lrCurrent?.fetched_at,label:'Bitrix24'},{ts:_data.fetched_at,label:'Планувальник'}]);
-      const h=E3DFresh.ageHours(_data.fetched_at);
+      el.innerHTML=E3DFresh.html([{ts:(_crmCur||_lrCurrent)?.fetched_at,label:'Bitrix24'}]);
+      const h=null; // v4.8: планувальник більше не використовується на вкладці
+      const ban0=document.getElementById('sales-planner-stale');
+      if(ban0){ban0.style.display='';ban0.className='';ban0.style.cssText='font-size:11px;margin-bottom:10px;padding:8px 12px;border:1px solid var(--bd);border-left:3px solid #3D7EA6;border-radius:8px;background:#F3F8FB;color:var(--tx)';ban0.innerHTML='<div>ℹ Усі блоки вкладки — з Bitrix24 (факт WON, пайплайн, сегменти, відмови). <b>План продажів</b> з\'явиться після підключення API планування (~2 тижні); до того колонки «% плану» порожні.</div>';}
       const ban=document.getElementById('sales-planner-stale');
       if(ban){
         if(h!=null&&h>48){
           ban.style.display='';
           ban.innerHTML=`<div>⚠ <b>Планувальник продажів не оновлювався ${Math.floor(h/24)} дн.</b> (${E3DFresh.fmt(_data.fetched_at)}). План/факт по місяцях, пайплайн і менеджери нижче — з останнього вдалого знімка. Блоки Bitrix24 (сегменти, причини відмов, конверсія) — актуальні.
             <br><span style="color:var(--tm)">Планування продажів переводиться на API (як локації та партії) — орієнтовно 2 тижні. До того тут показується останній знімок Google-таблиці.</span></div>`;
-        } else ban.style.display='none';
+        }
       }
       return;
     }
