@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-09-30T16:38:35Z",
+  "fetched_at": "2026-09-30T21:12:21Z",
   "month": "2026-09",
   "bySource": [
     {
       "source": "UC_1YIH2Z",
       "name": "Холодная продажа",
-      "reviewed": 12,
+      "reviewed": 13,
       "won": 3,
       "lost": 1,
       "junk": 1,
@@ -15,7 +15,7 @@
       "revenueWholesale": 21843428.02,
       "revenueRetail": 2167.0,
       "winRate": 75.0,
-      "junkShare": 8.3,
+      "junkShare": 7.7,
       "avgCheck": 7281865.01
     },
     {
@@ -421,13 +421,13 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 1601,
-      "clean": 1500,
-      "qualified": 821,
-      "activeOrWon": 176,
+      "all": 1606,
+      "clean": 1505,
+      "qualified": 826,
+      "activeOrWon": 181,
       "won": 92,
       "wonSum": 25265262.02,
-      "expectedSumActiveWon": 38873579.11
+      "expectedSumActiveWon": 44224453.25
     },
     "byStage": [
       {
@@ -511,14 +511,14 @@
         "sum": 949650.0
       },
       {
+        "stage": "НОВА угода (цільовий запит)",
+        "deals": 9,
+        "sum": 17356528.82
+      },
+      {
         "stage": "Потрібно більше часу для прийняття рішення",
         "deals": 9,
         "sum": 1.0
-      },
-      {
-        "stage": "НОВА угода (цільовий запит)",
-        "deals": 8,
-        "sum": 12005654.68
       },
       {
         "stage": "УМОВИ озвучені",
@@ -529,6 +529,11 @@
         "stage": "3D Модель готова",
         "deals": 6,
         "sum": 11793.0
+      },
+      {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 5,
+        "sum": 0.0
       },
       {
         "stage": "Згода підтверджена",
@@ -561,11 +566,6 @@
         "sum": 2167.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 1,
-        "sum": 0.0
-      },
-      {
         "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
         "deals": 1,
         "sum": 3150.0
@@ -575,8 +575,8 @@
       {
         "key": "UC_1YIH2Z",
         "name": "Холодная продажа",
-        "deals": 11,
-        "expectedSum": 34645795.7,
+        "deals": 12,
+        "expectedSum": 39996669.84,
         "won": 3,
         "wonSum": 21845595.02
       },
@@ -599,7 +599,7 @@
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
-        "deals": 161,
+        "deals": 162,
         "expectedSum": 405456.4,
         "won": 11,
         "wonSum": 392890.0
@@ -655,7 +655,7 @@
       {
         "key": "37",
         "name": "Электронная почта Easy3dprint.ua@gmail.com",
-        "deals": 41,
+        "deals": 42,
         "expectedSum": 3133.0,
         "won": 2,
         "wonSum": 3133.0
@@ -703,7 +703,7 @@
       {
         "key": "43",
         "name": "Instagram реклама ОПТ ФДМ",
-        "deals": 46,
+        "deals": 47,
         "expectedSum": 1000.0,
         "won": 1,
         "wonSum": 1000.0
@@ -743,7 +743,7 @@
       {
         "key": "42",
         "name": "Электронная почта threedfactory7@gmail.com",
-        "deals": 6,
+        "deals": 7,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -769,8 +769,8 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 877,
-        "expectedSum": 37374654.7,
+        "deals": 882,
+        "expectedSum": 42725528.84,
         "won": 45,
         "wonSum": 23840427.02
       },
@@ -1096,24 +1096,24 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 1375,
+      "clientsInCohort": 1379,
       "returningClients": 185,
       "repeatBuyers": 60,
       "noClientLinked": 34,
       "returning": {
-        "deals": 269,
+        "deals": 270,
         "won": 44,
         "wonSum": 24743635.02,
         "winRate": 17.7
       },
       "new": {
-        "deals": 1332,
+        "deals": 1336,
         "won": 48,
         "wonSum": 521627.0,
         "winRate": 3.8
       },
       "repeatPurchase": {
-        "deals": 75,
+        "deals": 76,
         "won": 40,
         "wonSum": 23865085.02,
         "winRate": 65.6
@@ -1139,7 +1139,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 913,
+        "total": 917,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -1148,9 +1148,9 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 1,
+            "count": 5,
             "sum": 0.0,
-            "reached": 913,
+            "reached": 917,
             "lostHere": 878
           },
           {
@@ -1233,7 +1233,7 @@
       {
         "id": 24,
         "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-        "total": 690,
+        "total": 691,
         "method": "history",
         "v": 2,
         "wonDirect": 88,
@@ -1242,9 +1242,9 @@
             "id": "C24:NEW",
             "name": "НОВА угода (цільовий запит)",
             "sem": "P",
-            "count": 8,
-            "sum": 12005654.68,
-            "reached": 690,
+            "count": 9,
+            "sum": 17356528.82,
+            "reached": 691,
             "lostHere": 540
           },
           {
@@ -3679,7 +3679,7 @@
         }
       ],
       "totalLost": 586,
-      "totalReviewed": 849
+      "totalReviewed": 850
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -3738,25 +3738,25 @@
     }
   },
   "totalReviewed": {
-    "wholesale": 849,
+    "wholesale": 850,
     "retail": 3,
     "screening": 928,
-    "all": 1780
+    "all": 1781
   },
   "pipeline": {
-    "asOf": "2026-09-30T16:38:40Z",
+    "asOf": "2026-09-30T21:12:27Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
-        "deals": 101,
-        "sum": 124434141.26,
+        "deals": 102,
+        "sum": 129785015.4,
         "stale": 29,
         "staleSum": 78656101.02,
         "stages": [
           {
             "stage": "НОВА угода (цільовий запит)",
-            "deals": 12,
-            "sum": 42302699.83
+            "deals": 13,
+            "sum": 47653573.97
           },
           {
             "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
