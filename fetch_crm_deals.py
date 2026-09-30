@@ -519,27 +519,120 @@ PIPELINE_TITLES = {0: "ЛИДЫ (первинний скринінг)", 24: "О�
                    18: "ОТДЕЛ ПРОДАЖ ТОВАРКА (Роздріб)", 32: "ОТДЕЛ ПРОДАЖ МАГАЗИН (Роздріб)"}
 
 
-def build_pipelines(deals, stage_lists):
+def fetch_stage_history(category_id, date_from):
+    """v4.9.1: усі переходи між стадіями воронки з date_from (crm.stagehistory.list).
+    Пагінація паралельно через batch (50 сторінок × 50 записів за запит).
+    Повертає [{OWNER_ID, STAGE_ID, CATEGORY_ID}] або None, якщо метод недоступний."""
+    base = {"entityTypeId": 2, "filter[CATEGORY_ID]": category_id,
+            "filter[>=CREATED_TIME]": date_from.isoformat() + "T00:00:00",
+            "order[ID]": "ASC", "select[]": ["OWNER_ID", "STAGE_ID", "CATEGORY_ID"]}
+    try:
+        r = requests.get(WEBHOOK_URL + "crm.stagehistory.list", params=dict(base, start=0), timeout=30)
+        r.raise_for_status()
+        p = r.json()
+        if "error" in p:
+            raise RuntimeError(p.get("error_description", p["error"]))
+    except Exception as e:
+        print(f"[CRM] ⚠ stagehistory {category_id}: {e} — воронка без історії переходів")
+        return None
+    res = p.get("result") or {}
+    rows = list(res.get("items") if isinstance(res, dict) else res or [])
+    total = int(p.get("total") or len(rows))
+    starts = list(range(PAGE_SIZE, total, PAGE_SIZE))
+    q = "&".join(f"{k}={v}" for k, v in base.items() if k != "select[]") + "&select[]=OWNER_ID&select[]=STAGE_ID&select[]=CATEGORY_ID"
+    for i in range(0, len(starts), 50):
+        cmd = {f"s{st}": f"crm.stagehistory.list?{q}&start={st}" for st in starts[i:i + 50]}
+        for attempt in range(3):
+            try:
+                rb = requests.post(WEBHOOK_URL + "batch", json={"halt": 0, "cmd": cmd}, timeout=90)
+                rb.raise_for_status()
+                out = (rb.json().get("result") or {}).get("result") or {}
+                break
+            except Exception as e:
+                print(f"[CRM] ⚠ stagehistory batch {category_id} (спроба {attempt + 1}): {e}")
+                out = None
+                time.sleep(2)
+        if out is None:
+            return None
+        for k in cmd:
+            v = out.get(k) or {}
+            rows.extend(v.get("items", []) if isinstance(v, dict) else v)
+        time.sleep(0.5)
+    print(f"[CRM] Історія стадій воронки {category_id} з {date_from}: {len(rows)} переходів (total {total})")
+    return rows
+
+
+def build_pipelines(deals, stage_lists, history=None):
     """v4.9: воронки по стадіях для угод, СТВОРЕНИХ у періоді.
     stage_lists: {cat: [stage dicts з crm.status.list]} — порядок стадій за SORT.
-    Повертає [{id, title, total, stages:[{id,name,sem,count,sum}]}]."""
+    history: {cat: [переходи]} або None. v4.9.1: якщо є історія — для кожної угоди
+    беремо НАЙДАЛЬШУ робочу стадію, до якої вона дійшла (з історії + поточна), тож
+    reached = скільки угод реально дійшли до стадії, lostHere = скільки відмовились
+    саме після неї. Воронка 0: угоди, що переїхали в 24/18/32, = «передано у продажі».
+    Повертає [{id, title, total, method, stages:[{id,name,sem,count,sum,reached?,lostHere?}]}]."""
+    history = history or {}
+    by_owner = {}
+    for cat, rows in history.items():
+        if rows is None:
+            continue
+        for h in rows:
+            by_owner.setdefault(str(h.get("OWNER_ID")), []).append((int(h.get("CATEGORY_ID") or cat), h.get("STAGE_ID")))
     out = []
     for cat in COHORT_CATEGORIES:
         sl = sorted(stage_lists.get(cat, []), key=lambda x: int(x.get("SORT") or 0))
+        sem_of = {x["STATUS_ID"]: (x.get("SEMANTICS") or "P") for x in sl}
+        p_ids = [x["STATUS_ID"] for x in sl if (x.get("SEMANTICS") or "P") not in ("S", "F")]
+        p_idx = {sid: i for i, sid in enumerate(p_ids)}
         cnt = {x["STATUS_ID"]: [0, 0.0] for x in sl}
-        n = 0
-        for d in deals:
-            if d.get("_cat") != cat:
-                continue
-            n += 1
+        mine = [d for d in deals if d.get("_cat") == cat]
+        for d in mine:
             a = cnt.setdefault(d.get("STAGE_ID"), [0, 0.0])
             a[0] += 1
             a[1] += _num(d.get("OPPORTUNITY"))
-        stages = [{"id": x["STATUS_ID"], "name": x.get("NAME") or x["STATUS_ID"],
-                   "sem": x.get("SEMANTICS") or "P", "count": cnt[x["STATUS_ID"]][0],
-                   "sum": round(cnt[x["STATUS_ID"]][1], 2)} for x in sl]
-        out.append({"id": cat, "title": PIPELINE_TITLES.get(cat, str(cat)), "total": n, "stages": stages})
+        has_hist = history.get(cat) is not None
+        reached = [0] * len(p_ids)
+        lost_here = [0] * len(p_ids)
+        handed = 0
+        if has_hist:
+            for d in mine:
+                visits = [st for c, st in by_owner.get(str(d.get("ID")), []) if c == cat]
+                visits.append(d.get("STAGE_ID"))
+                sm = sem_of.get(d.get("STAGE_ID"), "P")
+                mx = max([p_idx[v] for v in visits if v in p_idx] or [0])
+                for i in range(mx + 1):
+                    reached[i] += 1
+                if sm == "F" and p_ids:
+                    lost_here[mx] += 1
+            if cat == 0:
+                # звернення, що пройшли скринінг і переїхали в продажні воронки
+                moved = {str(d.get("ID")) for d in deals if d.get("_cat") != 0
+                         and any(c == 0 for c, _ in by_owner.get(str(d.get("ID")), []))}
+                handed = len(moved)
+                for i in range(len(p_ids)):
+                    reached[i] += handed
+        stages = []
+        for x in sl:
+            sid = x["STATUS_ID"]
+            row = {"id": sid, "name": x.get("NAME") or sid, "sem": x.get("SEMANTICS") or "P",
+                   "count": cnt[sid][0], "sum": round(cnt[sid][1], 2)}
+            if has_hist and sid in p_idx:
+                row["reached"] = reached[p_idx[sid]]
+                row["lostHere"] = lost_here[p_idx[sid]]
+            if has_hist and cat == 0 and row["sem"] == "S":
+                row["count"] += handed
+                row["handedOver"] = handed
+            stages.append(row)
+        out.append({"id": cat, "title": PIPELINE_TITLES.get(cat, str(cat)), "total": len(mine) + handed,
+                    "method": "history" if has_hist else "current", "stages": stages})
     return out
+
+
+def fetch_histories(month_start):
+    hist = {}
+    for cat in COHORT_CATEGORIES:
+        hist[cat] = fetch_stage_history(cat, month_start)
+        time.sleep(0.3)
+    return hist
 
 
 def compute_pipelines(month_start, month_end):
@@ -553,7 +646,7 @@ def compute_pipelines(month_start, month_end):
             d["_cat"] = cat
         deals.extend(ds)
         time.sleep(0.3)
-    return build_pipelines(deals, lists)
+    return build_pipelines(deals, lists, fetch_histories(month_start))
 
 
 def process_created_cohort(month_start, month_end, source_names=None, stale_days=90, stale_min=1_000_000):
@@ -676,7 +769,7 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
     print(f"[CRM] ✓ Когорта: {funnel} | retention: {retention['returningClients']}/{retention['clientsInCohort']} клієнтів повернулись")
     return {"funnel": funnel, "byStage": by_stage, "bySource": by_source, "byCampaign": by_campaign,
             "retention": retention, "staleBigDeals": stale[:10],
-            "pipelines": build_pipelines(deals, stage_lists),
+            "pipelines": build_pipelines(deals, stage_lists, fetch_histories(month_start)),
             "definitions": {
                 "clean": "без стадій ДУБЛЬ / ТЕСТОВИЙ",
                 "qualified": "clean мінус відмови: спам/мусор, помилкові, некоректні контакти, недодзвон, не завершили перв. контакт",

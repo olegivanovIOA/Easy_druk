@@ -48,6 +48,10 @@ def main():
     # v4.6: інкрементально — повні місяці, які вже пораховані з актуальними
     # полями (cohort/bySource), НЕ перераховуємо (повний прогін = ~20 хв).
     # FORCE=1 (input workflow) — перерахувати все.
+    # v4.9.1: воронки мають бути пораховані з історією переходів (method=history)
+    def _pipes_ok(c):
+        ps = c.get("pipelines") or []
+        return bool(ps) and all(p.get("method") == "history" for p in ps)
     force = os.environ.get("FORCE", "").strip() in ("1", "true", "yes")
     today = date.today()
     cur_year, cur_month = YEAR_START.year, YEAR_START.month
@@ -67,7 +71,7 @@ def main():
                     print(f"[Backfill CRM] ＋ {month_key}: додано списки ID угод")
                 except Exception as e:
                     print(f"[Backfill CRM] ⚠ {month_key}: списки ID не додано: {e}")
-            if prev.get("cohort") is not None and "pipelines" not in prev["cohort"]:
+            if prev.get("cohort") is not None and not _pipes_ok(prev["cohort"]):
                 # v4.9: воронки по стадіях — дешевий доповнювальний прохід (~20 с/міс)
                 try:
                     from fetch_crm_deals import compute_pipelines
@@ -75,7 +79,7 @@ def main():
                     print(f"[Backfill CRM] ＋ {month_key}: додано воронки по стадіях")
                 except Exception as e:
                     print(f"[Backfill CRM] ⚠ {month_key}: воронки не додано: {e}")
-            if prev.get("dealLists") is not None and "pipelines" in (prev.get("cohort") or {}):
+            if prev.get("dealLists") is not None and _pipes_ok(prev.get("cohort") or {}):
                 print(f"[Backfill CRM] ⏭ {month_key}: вже пораховано (повний місяць) — пропускаю")
             cur_year, cur_month = (cur_year + 1, 1) if cur_month == 12 else (cur_year, cur_month + 1)
             continue
