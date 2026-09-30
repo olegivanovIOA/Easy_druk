@@ -593,12 +593,20 @@ def build_pipelines(deals, stage_lists, history=None):
         reached = [0] * len(p_ids)
         lost_here = [0] * len(p_ids)
         handed = 0
+        won_direct = 0
         if has_hist:
             for d in mine:
                 visits = [st for c, st in by_owner.get(str(d.get("ID")), []) if c == cat]
                 visits.append(d.get("STAGE_ID"))
                 sm = sem_of.get(d.get("STAGE_ID"), "P")
                 mx = max([p_idx[v] for v in visits if v in p_idx] or [0])
+                if sm == "S":
+                    # v4.9.2: менеджери часто переводять угоду в WON одразу з перших стадій.
+                    # Класична воронка: успішна угода вважається такою, що пройшла ВСІ стадії;
+                    # скільки з них «перестрибнули» — окремий показник wonDirect.
+                    if mx == 0 and len(p_ids) > 1:
+                        won_direct += 1
+                    mx = len(p_ids) - 1
                 for i in range(mx + 1):
                     reached[i] += 1
                 if sm == "F" and p_ids:
@@ -623,7 +631,8 @@ def build_pipelines(deals, stage_lists, history=None):
                 row["handedOver"] = handed
             stages.append(row)
         out.append({"id": cat, "title": PIPELINE_TITLES.get(cat, str(cat)), "total": len(mine) + handed,
-                    "method": "history" if has_hist else "current", "stages": stages})
+                    "method": "history" if has_hist else "current", "v": 2,
+                    "wonDirect": won_direct if has_hist else None, "stages": stages})
     return out
 
 

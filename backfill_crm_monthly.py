@@ -51,7 +51,7 @@ def main():
     # v4.9.1: воронки мають бути пораховані з історією переходів (method=history)
     def _pipes_ok(c):
         ps = c.get("pipelines") or []
-        return bool(ps) and all(p.get("method") == "history" for p in ps)
+        return bool(ps) and all(p.get("method") == "history" and p.get("v", 1) >= 2 for p in ps)
     force = os.environ.get("FORCE", "").strip() in ("1", "true", "yes")
     today = date.today()
     cur_year, cur_month = YEAR_START.year, YEAR_START.month
