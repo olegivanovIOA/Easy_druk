@@ -642,6 +642,71 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
                 "repeatPurchase": "у клієнта раніше вже була УСПІШНА угода"}}
 
 
+# ══ v4.8: списки ID угод по сегментах (для точкового аналізу) ══════════════
+PORTAL_DEAL_URL = "https://easy3dprint.bitrix24.eu/crm/deal/details/{id}/"
+
+
+def build_deal_lists(by_category):
+    """WON-угоди місяця по групах (ОПТ/Роздріб) і тірах. Лише ID, дата закриття,
+    воронка і бакет суми (напр. '10К–25К') — БЕЗ точних сум і назв/клієнтів."""
+    out = {"wholesale": {k[0]: [] for k in TIERS}, "retail": {k[0]: [] for k in TIERS}}
+    for cat_key, c in by_category.items():
+        group = c.get("group")
+        if group not in out:
+            continue
+        for d in c.get("_deals", []):
+            if d.get("CURRENCY_ID") != "UAH":
+                continue
+            amt = _num(d.get("OPPORTUNITY"))
+            tier, _ = classify_tier(amt)
+            bucket = next((lbl for _, lbl, lo, hi in HISTOGRAM_BUCKETS if lo <= amt < hi), HISTOGRAM_BUCKETS[-1][1])
+            out[group][tier].append({"id": str(d.get("ID")), "closed": (d.get("CLOSEDATE") or "")[:10],
+                                     "category": int(cat_key), "bucket": bucket})
+    for g in out.values():
+        for lst in g.values():
+            lst.sort(key=lambda x: x["closed"], reverse=True)
+    return out
+
+
+# ══ v4.8: поточний відкритий пайплайн (замість застарілого планувальника) ═══
+def fetch_open_pipeline(stale_days=90):
+    """Відкриті (SEMANTIC=P) угоди продажних воронок 24/18/32 зараз: к-сть і сума
+    по стадіях + скільки з них "висять" довше stale_days."""
+    from datetime import date as _d
+    cutoff = (_d.today() - timedelta(days=stale_days)).isoformat()
+    groups = {}
+    for cat_id, (label, group) in CATEGORIES.items():
+        stages = {s["STATUS_ID"]: s.get("NAME") or s["STATUS_ID"] for s in fetch_stage_list(cat_id)}
+        order = {sid: i for i, sid in enumerate(stages)}
+        start, rows = 0, []
+        while True:
+            r = requests.get(WEBHOOK_URL + "crm.deal.list", params={
+                "filter[CATEGORY_ID]": cat_id, "filter[STAGE_SEMANTIC_ID]": "P",
+                "select[]": ["ID", "STAGE_ID", "OPPORTUNITY", "CURRENCY_ID", "DATE_CREATE"], "start": start}, timeout=30)
+            r.raise_for_status()
+            p = r.json()
+            rows += p.get("result", [])
+            if p.get("next") is None or not p.get("result"):
+                break
+            start = p["next"]
+            time.sleep(0.5)
+        g = groups.setdefault(group, {"deals": 0, "sum": 0.0, "stale": 0, "staleSum": 0.0, "stages": {}})
+        for d in rows:
+            amt = _num(d.get("OPPORTUNITY")) if d.get("CURRENCY_ID") in ("UAH", None, "") else 0.0
+            st = stages.get(d.get("STAGE_ID"), d.get("STAGE_ID"))
+            a = g["stages"].setdefault(st, {"stage": st, "deals": 0, "sum": 0.0, "_o": order.get(d.get("STAGE_ID"), 99)})
+            a["deals"] += 1; a["sum"] += amt
+            g["deals"] += 1; g["sum"] += amt
+            if (d.get("DATE_CREATE") or "")[:10] < cutoff:
+                g["stale"] += 1; g["staleSum"] += amt
+        time.sleep(0.3)
+    for g in groups.values():
+        g["stages"] = [{k: (round(v, 2) if isinstance(v, float) else v) for k, v in a.items() if k != "_o"}
+                       for a in sorted(g["stages"].values(), key=lambda x: x["_o"])]
+        g["sum"] = round(g["sum"], 2); g["staleSum"] = round(g["staleSum"], 2)
+    return {"asOf": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "staleDays": stale_days, "groups": groups}
+
+
 def process_month(month_start, month_end, month_key, complete):
     """Все, що рахується для ОДНОГО місяця (WON-угоди + причини відмов) —
     винесено з main() окремою функцією, щоб backfill-скрипт для минулих
@@ -767,6 +832,7 @@ def process_month(month_start, month_end, month_key, complete):
         "complete": complete,
         "wholesale": merge_group("wholesale"),
         "retail": merge_group("retail"),
+        "dealLists": build_deal_lists(by_category),
         "byCategory": {k: {kk: vv for kk, vv in v.items() if kk not in ("_amounts", "_deals")} for k, v in by_category.items()},
         "lossReasonsWholesale": merge_reasons("wholesale"),
         "lossReasonsRetail": merge_reasons("retail"),
@@ -799,7 +865,7 @@ def update_monthly_history(current, today):
         except Exception:
             history = {"months": []}
     months = {m["month"]: m for m in history.get("months", [])}
-    months[current["month"]] = current
+    months[current["month"]] = {k: v for k, v in current.items() if k != "pipeline"}
 
     for key, m in sorted(months.items()):
         if key == current["month"] or m.get("complete") is not False:
@@ -831,6 +897,11 @@ def main():
     print(f"[CRM] Місяць {month_key}: {month_start} → {month_end}")
 
     result = process_month(month_start, month_end, month_key, complete)
+    try:
+        result["pipeline"] = fetch_open_pipeline()
+        print(f"[CRM] ✓ Відкритий пайплайн: { {k: v['deals'] for k, v in result['pipeline']['groups'].items()} }")
+    except Exception as e:
+        print(f"[CRM] ⚠ Пайплайн не отримано: {e}")
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")

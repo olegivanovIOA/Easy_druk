@@ -390,7 +390,7 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Частка Роздрібу (B2C) у надходженнях, повні місяці CF">Частка Роздрібу</div><div class="krow-val a" id="ceo-rt-fact">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Роздріб % плану</div><div class="krow-val r" id="ceo-rt-pct">—</div><div class="krow-tgt">Ціль: <b>90%+</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Виручка за повні місяці CF у % від річної цілі. Суми не публікуються.">Виручка YTD — % річної цілі</div><div class="krow-val g" id="ceo-total-fact">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Угод у пайплайні (активних)</div><div class="krow-val" id="ceo-pipeline">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Відкриті угоди воронки 24 (Bitrix24) зараз">Відкритих угод ОПТ</div><div class="krow-val" id="ceo-pipeline">—</div><div class="real-dot"></div></div>
     </div>
     <div class="card" style="margin-bottom:14px">
       <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура виручки: ОПТ vs Роздріб, % по місяцях <span style="font-weight:500;color:var(--tl);font-size:10px">· CashFlow · сірі * — неповні місяці · суми не публікуються</span></div>
@@ -404,7 +404,7 @@ a{color:var(--gd);text-decoration:none}
     <div class="g6" style="margin-bottom:14px">
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Кількість клієнтів-платників за останній повний місяць (CashFlow, _Клієнти_Місячно)">Клієнтів (ост. повн. міс.)</div><div class="krow-val g" id="ceo-clients">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Частка ТОП-2 клієнтів у виручці за останній повний місяць (CashFlow)">ТОП-2 клієнти / виручка</div><div class="krow-val r" id="ceo-top2">—</div><div class="krow-tgt">Ціль: <b>≤70%</b></div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Угод у пайплайні (всього)</div><div class="krow-val g" id="ceo-pipeline-sum">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Відкриті угоди, створені понад 90 днів тому">Завислі угоди &gt;90 дн.</div><div class="krow-val g" id="ceo-pipeline-sum">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Усі угоди/звернення в Bitrix24 (воронки 0+24+18+32), закриті в поточному місяці">Звернень у Bitrix (міс.)</div><div class="krow-val" id="ceo-leads">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Медіана днів від створення до WON, ОПТ (воронка 24), поточний місяць">Цикл угоди ОПТ (медіана)</div><div class="krow-val r" id="ceo-ttc">—</div><div class="krow-tgt">Ціль: <b>&lt;5</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Частка WON-виручки місяця від клієнтів, у яких раніше вже була успішна угода (Bitrix24, угоди створені в місяці)">Повторні замовлення (виручка)</div><div class="krow-val" id="ceo-repeat">—</div><div class="krow-tgt">Ціль: <b>50%+</b></div><div class="real-dot"></div></div>
@@ -415,7 +415,7 @@ a{color:var(--gd);text-decoration:none}
         <div class="cw ch160"><canvas id="clientConc"></canvas></div>
       </div>
       <div class="card">
-        <div class="ct" style="margin-bottom:9px">Пайплайн по стадіях</div>
+        <div class="ct" style="margin-bottom:9px">Пайплайн ОПТ по стадіях — зараз</div>
         <div id="ceo-pipeline-summary"><p style="font-size:12px;color:var(--tl)">Завантаження…</p></div>
       </div>
     </div>
@@ -445,7 +445,7 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% виконання стратегії</div><div class="krow-val g" id="ceo-pp">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (парк)</div><div class="krow-val g" id="ceo-fleet-total">—</div><div class="krow-tgt">Ціль: <b>10 000</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Активних локацій</div><div class="krow-val" id="ceo-loc-count">—</div><div class="real-dot"></div></div>
-      <div class="krow demo"><div class="krow-bar kb-r"></div><div class="krow-lbl">OEE / Ефективність</div><div class="krow-val r">~30%</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="demo-lbl">ДЕМО</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Спрощений OEE = завантаженість парку × (1 − % браку), сьогодні. Без Availability/Performance — журналу простоїв немає">OEE спрощ. (сьогодні)</div><div class="krow-val r" id="ceo-oee">—</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Брак ОТК з початку поточного місяця: браковані / прийняті деталі (batches_history, щоденно)">% Браку (міс., ОТК)</div><div class="krow-val r" id="ceo-defect">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="EBITDA / Виручка за повні місяці YTD (CashFlow)">EBITDA-маржа YTD (CF)</div><div class="krow-val" id="ceo-ebitda-pct">—</div><div class="real-dot"></div></div>
     </div>
@@ -456,7 +456,7 @@ a{color:var(--gd);text-decoration:none}
         <div class="pr"><div class="pn">Диверсифікація ТОП-2 ≤70%</div><div class="pbw"><div class="pb" style="width:0%;background:var(--red)" id="ceo-div-bar"></div></div><div class="pv r" id="ceo-div-val">—</div></div>
         <div class="pr"><div class="pn">Штат → 200 осіб</div><div class="pbw"><div class="pb" style="width:67%;background:var(--amb)" id="ceo-staff-bar"></div></div><div class="pv" id="ceo-staff-val">—</div></div>
         <div class="pr"><div class="pn">Парк принтерів → 10K</div><div class="pbw"><div class="pb" style="width:0%;background:var(--b)" id="ceo-fleet-bar"></div></div><div class="pv b" id="ceo-fleet-val">—</div></div>
-        <div class="pr"><div class="pn">OEE → 80%+</div><div class="pbw"><div class="pb" style="width:30%;background:var(--amb)"></div></div><div class="pv" style="color:var(--amb)">~30%</div></div>
+        <div class="pr"><div class="pn">OEE спрощ. → 80%+</div><div class="pbw"><div class="pb" style="width:0%;background:var(--amb)" id="ceo-oee-bar"></div></div><div class="pv" style="color:var(--amb)" id="ceo-oee-val">—</div></div>
         <div class="pr"><div class="pn">Плинність → &lt;5%</div><div class="pbw"><div class="pb" style="width:36%;background:var(--red)" id="ceo-turn-bar"></div></div><div class="pv r" id="ceo-turn-val">—</div></div>
       </div>
       <div class="card">
@@ -617,7 +617,7 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% Браку (сьогодні)</div><div class="krow-val g" id="prod-fleet-defect">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Теор. потужність (год/добу)</div><div class="krow-val" id="prod-fleet-theor">—</div><div class="krow-tgt">К-сть принтерів × 24</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">OEE спрощ. (Завант.×Якість)</div><div class="krow-val a" id="prod-fleet-oee">—</div><div class="krow-tgt">без Availability/Perf</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Виручка/принтер, міс. (компанія)</div><div class="krow-val" id="prod-fleet-rpp">—</div><div class="krow-tgt">останній місяць з фактом</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Машино-години друку за вчора (партії ОТК) / к-сть принтерів. Виручку на принтер не показуємо — суми не публікуються">Друк-годин / принтер (вчора)</div><div class="krow-val" id="prod-fleet-rpp">—</div><div class="krow-tgt">з 24 можливих</div><div class="real-dot"></div></div>
       <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">MTBF / MTTR</div><div class="krow-val x">TBD год</div><div class="tbd-lbl">TBD — потрібні дані простоїв</div></div>
     </div>
   </div>
@@ -861,12 +861,12 @@ a{color:var(--gd);text-decoration:none}
     </div>
     <div id="sales-planner-stale" class="al al-a" style="display:none;font-size:11px;margin-bottom:10px"></div>
     <div class="g6" style="margin-bottom:14px">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ YTD факт</div><div class="krow-val g" id="sales-wh-fact">—</div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">ОПТ YTD %</div><div class="krow-val g" id="sales-wh-pct">—</div></div>
-      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Роздріб YTD факт</div><div class="krow-val a" id="sales-rt-fact">—</div></div>
-      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Роздріб YTD %</div><div class="krow-val a" id="sales-rt-pct">—</div></div>
-      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Лідів / міс (останній)</div><div class="krow-val" id="sales-leads">—</div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Конверсія лідів</div><div class="krow-val" id="sales-conv">—</div><div class="krow-tgt">Ціль: <b>15%</b></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Сума WON-угод воронки 24 з 1 січня (Bitrix24, за датою закриття)">ОПТ факт YTD (Bitrix)</div><div class="krow-val g" id="sales-wh-fact">—</div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="План з'явиться після підключення API планування">ОПТ % плану</div><div class="krow-val g" id="sales-wh-pct">—</div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Сума WON-угод воронок 18/32 з 1 січня (Bitrix24). Роздріб майже не ведеться в Bitrix — див. частку в CF на CEO">Роздріб факт YTD (Bitrix)</div><div class="krow-val a" id="sales-rt-fact">—</div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="План з'явиться після підключення API планування">Роздріб % плану</div><div class="krow-val a" id="sales-rt-pct">—</div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Усі угоди 4 воронок Bitrix24, створені в поточному місяці">Звернень / міс (поточний)</div><div class="krow-val" id="sales-leads">—</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="WON / усі звернення, створені в поточному місяці (Bitrix24)">Конверсія звернень → WON</div><div class="krow-val" id="sales-conv">—</div><div class="krow-tgt">Ціль: <b>15%</b></div></div>
     </div>
     <div class="card">
       <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Виручка ОПТ + Роздріб, факт по місяцях</div>
@@ -885,18 +885,18 @@ a{color:var(--gd);text-decoration:none}
       </div>
       <div class="sales-zone-body">
         <div class="g2" style="margin-bottom:12px">
-          <div class="krow krow-wh" title="Факт з початку 2026 року — те саме джерело, що й зведений показник YTD вище"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2026 YTD</div><div class="krow-val" id="sales-wh-fact-zone">—</div><div class="real-dot"></div></div>
+          <div class="krow krow-wh" title="Факт з початку 2026 року — те саме джерело, що й зведений показник YTD вище"><div class="krow-bar"></div><div class="krow-lbl">Факт 2026 YTD (Bitrix)</div><div class="krow-val" id="sales-wh-fact-zone">—</div><div class="real-dot"></div></div>
           <div class="krow" style="border-left:3px solid var(--red)"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Частка ТОП-2 клієнтів у виручці, останній повний місяць CashFlow">ТОП-2 клієнти</div><div class="krow-val r" id="sales-top2">—</div><div class="real-dot"></div></div>
           <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Динаміка МоМ</div><div class="krow-val" id="sales-wh-mom">—</div><div class="real-dot"></div></div>
           <div class="krow krow-wh" title="З Bitrix24, WON-угоди поточного місяця, воронка «Виробництво»"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек з CRM (міс.)</div><div class="krow-val" id="crm-wh-avg">—</div><div class="real-dot"></div></div>
           <div class="krow krow-wh" title="Медіана надійніша за середнє — кілька угод-«китів» на мільйони спотворюють середнє"><div class="krow-bar"></div><div class="krow-lbl">Медіана чека з CRM</div><div class="krow-val" id="crm-wh-median">—</div><div class="real-dot"></div></div>
         </div>
         <div class="card" style="margin-bottom:12px;border-color:var(--wh-bd)">
-          <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">План/факт по місяцях</div>
+          <div style="font-size:12px;font-weight:700;color:var(--wh-cd);margin-bottom:10px">Факт по місяцях — WON, Bitrix24 <span style="font-weight:500;color:var(--tl);font-size:10px">· план — після API планування</span></div>
           <div class="cw ch180"><canvas id="sales-wholesale-chart"></canvas></div>
         </div>
         <div class="card-flat" style="border-color:var(--wh-bd)">
-          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">%</th></tr></thead><tbody id="sales-wholesale-table"></tbody></table></div>
+          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">Угод WON</th><th style="text-align:right">Факт</th><th style="text-align:right">Медіана чека</th></tr></thead><tbody id="sales-wholesale-table"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -910,17 +910,17 @@ a{color:var(--gd);text-decoration:none}
       <div style="font-size:10px;color:#8a6a2b;background:#FFF8EC;border:1px solid #f0dfbf;border-radius:6px;padding:5px 8px;margin:4px 0 8px">ℹ Роздріб майже не ведеться в Bitrix24 (воронки 18/32: 3 і 0 угод за вересень). Показники Роздрібу з Bitrix — <b>не повна картина</b> роздрібних продажів; реальна частка Роздрібу у виручці — з CashFlow (вкладка CEO).</div>
       <div class="sales-zone-body">
         <div class="g2" style="margin-bottom:12px">
-          <div class="krow krow-retail" title="Факт з початку 2026 року — те саме джерело, що й зведений показник YTD вище"><div class="krow-bar"></div><div class="krow-lbl">Виручка 2026 YTD</div><div class="krow-val" id="sales-rt-fact-zone">—</div><div class="real-dot"></div></div>
-          <div class="krow krow-retail"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек (останній міс.)</div><div class="krow-val" id="sales-rt-check">—</div></div>
+          <div class="krow krow-retail" title="Факт з початку 2026 року — те саме джерело, що й зведений показник YTD вище"><div class="krow-bar"></div><div class="krow-lbl">Факт 2026 YTD (Bitrix)</div><div class="krow-val" id="sales-rt-fact-zone">—</div><div class="real-dot"></div></div>
+          <div class="krow krow-retail"><div class="krow-bar"></div><div class="krow-lbl">Угод WON (поточний міс.)</div><div class="krow-val" id="sales-rt-check">—</div></div>
           <div class="krow krow-retail" title="З Bitrix24, WON-угоди поточного місяця, воронки «Товарка»+«Магазин»"><div class="krow-bar"></div><div class="krow-lbl">Сер. чек з CRM (міс.)</div><div class="krow-val" id="crm-rt-avg">—</div></div>
           <div class="krow krow-retail" title="Медіана надійніша за середнє при наявності викидів"><div class="krow-bar"></div><div class="krow-lbl">Медіана чека з CRM</div><div class="krow-val" id="crm-rt-median">—</div></div>
         </div>
         <div class="card" style="margin-bottom:12px;border-color:var(--retail-bd)">
-          <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">План/факт по місяцях</div>
+          <div style="font-size:12px;font-weight:700;color:var(--retail-cd);margin-bottom:10px">Факт по місяцях — WON, Bitrix24 <span style="font-weight:500;color:var(--tl);font-size:10px">· план — після API планування</span></div>
           <div class="cw ch180"><canvas id="sales-retail-chart"></canvas></div>
         </div>
         <div class="card-flat" style="border-color:var(--retail-bd)">
-          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">%</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
+          <div class="tw"><table class="tbl"><thead><tr><th>Місяць</th><th style="text-align:right">Угод WON</th><th style="text-align:right">Факт</th><th style="text-align:right">Медіана чека</th></tr></thead><tbody id="sales-retail-table"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -929,22 +929,24 @@ a{color:var(--gd);text-decoration:none}
 
   <!-- ═══ ПАЙПЛАЙН ОПТОВИХ УГОД (Bitrix24) ═══ -->
   <div style="margin-top:20px">
-    <div class="sec">🔀 Пайплайн оптових угод — реальний стан</div>
-    <div class="g3" style="margin-bottom:14px">
-      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Загальний пайплайн</div><div class="krow-val" id="sales-pipe-total">—</div></div>
-      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Угоди в роботі</div><div class="krow-val g" id="sales-pipe-active">—</div></div>
-      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Win rate</div><div class="krow-val" id="sales-pipe-wr">—</div></div>
+    <div class="sec">🔀 Пайплайн оптових угод — зараз (Bitrix24, воронка 24) <span id="sales-pipe-asof" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></div>
+    <div class="g4" style="margin-bottom:14px">
+      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl" title="Сума відкритих угод (у роботі) воронки 24">Сума відкритих угод</div><div class="krow-val" id="sales-pipe-total">—</div></div>
+      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Відкритих угод</div><div class="krow-val g" id="sales-pipe-active">—</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Відкриті угоди, створені понад 90 днів тому — кандидати на закриття/актуалізацію">Завислі &gt;90 днів</div><div class="krow-val r" id="sales-pipe-stale">—</div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="WON / (WON + відмови), угоди воронки 24, закриті в поточному місяці">Win rate (міс.)</div><div class="krow-val" id="sales-pipe-wr">—</div></div>
     </div>
     <div style="margin-bottom:14px">
       <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Воронка угод по стадіях</div>
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Відкриті угоди по стадіях — зараз</div>
         <div class="cw ch200"><canvas id="sales-pipeline-chart"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- ═══ ЯКІСТЬ ЛІДІВ (Bitrix24) ═══ -->
-  <div style="margin-top:20px">
+  <!-- ═══ ЯКІСТЬ ЛІДІВ — v4.8: приховано (джерело — Google-планувальник, не оновлюється з 12.09).
+       Актуальна воронка кваліфікації лідів — на вкладці «Маркетинг». ═══ -->
+  <div style="margin-top:20px;display:none">
     <div class="sec">🎯 Якість лідів по місяцях (Bitrix24)</div>
     <div class="card" style="margin-bottom:14px">
       <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура лідів: цільові / спам / не завершили контакт</div>
@@ -952,8 +954,9 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
-  <!-- ═══ ЕФЕКТИВНІСТЬ МЕНЕДЖЕРІВ ═══ -->
-  <div style="margin-top:20px">
+  <!-- ═══ ЕФЕКТИВНІСТЬ МЕНЕДЖЕРІВ — v4.8: тимчасово приховано (джерело — Google-планувальник,
+       не оновлюється з 12.09); повернеться з API планування. ═══ -->
+  <div style="margin-top:20px;display:none">
     <div class="sec">👤 Ефективність менеджерів продажів</div>
     <div class="card" style="margin-bottom:14px">
       <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:6px">Частка в пайплайні та угоди/тиждень</div>
@@ -984,6 +987,14 @@ a{color:var(--gd);text-decoration:none}
         <div style="font-size:9px;color:#8a6a2b;margin:-6px 0 4px">⚠ Bitrix: роздріб майже не заводиться в CRM — вибірка мала</div>
         <div class="cw ch210"><canvas id="tiers-rt-chart"></canvas></div>
       </div>
+    </div>
+    <!-- v4.8: списки ID угод по сегментах для точкового аналізу -->
+    <div class="card" id="tiers-deal-lists" style="margin-top:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:700;color:var(--tx)">🔎 ID угод для точкового аналізу <span style="font-weight:500;color:var(--tl);font-size:10px">· WON за обраний у фільтрі місяць · відкриваються в Bitrix24</span></div>
+        <div id="tiers-deal-buttons" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div id="tiers-deal-table" style="font-size:11px;color:var(--tl)">Оберіть сегмент ↑</div>
     </div>
     <div class="g2" style="margin-top:10px" id="tiers-trend-wrap">
       <div class="card" style="border-color:var(--wh-bd)">
@@ -1502,34 +1513,20 @@ async function _buildCeoCharts(){
     ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(1)+'%':'—'),afterTitle:it=>{const m=months[it[0]?.dataIndex];return m&&inc(m)?'⚠ неповний місяць — не входить у YTD':'';}}}},scales:{x:{stacked:true,grid:{color:GRID}},y:{stacked:true,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
   }
 
-  // ── Планувальник продажів — план/факт ОПТ/Роздріб + пайплайн ──
-  // YTD рахуємо тільки по МИНУЛИХ місяцях (раніше сумувались і майбутні
-  // жовтень/листопад, де через зсув колонок стояли чужі цифри).
+  // ── v4.8: план — після API планування; пайплайн — Bitrix24 (відкриті угоди воронки 24 зараз) ──
+  ['ceo-wh-pct','ceo-rt-pct'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='очікує API';el.style.color='var(--tl)';el.style.fontSize='11px';el.title='План продажів підключається через API планування (~2 тижні)';}});
   try{
-    const sd=await fetch('data/sales_planner.json?t='+Date.now()).then(r=>r.json());
-    const curIdx=new Date().getMonth(); // 0-based; беремо місяці з індексом < поточного
-    const UA=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
-    const past=arr=>(arr||[]).filter(m=>UA.indexOf(m.month)>-1&&UA.indexOf(m.month)<curIdx);
-    const ytdOf=arr=>{const p=past(arr);const f=p.reduce((s,m)=>s+(m.fact||0),0),pl=p.reduce((s,m)=>s+(m.plan||0),0);return{f,pct:pl?Math.round(f/pl*1000)/10:null};};
-    const wh=ytdOf(sd.wholesale?.monthly), rt=ytdOf(sd.retail?.monthly);
-    const staleH=window.E3DFresh?E3DFresh.ageHours(sd.fetched_at):null;
-    const staleMark=staleH!=null&&staleH>48?' ⚠':'';
-    const staleTip=staleH!=null&&staleH>48?`Планувальник продажів не оновлювався ${Math.floor(staleH/24)} дн. (${E3DFresh.fmt(sd.fetched_at)})`:'Джерело: планувальник продажів (Google Sheets)';
-    const setT=(id,v)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.title=staleTip;}};
-    setT('ceo-wh-pct',  (wh.pct??'—')+'%'+staleMark);
-    setT('ceo-rt-pct',  (rt.pct??'—')+'%'+staleMark);
-    const pipe=sd.pipeline||{};
-    const stg=pipe.stages||[];
-    const activeCnt=stg.filter(s=>['active','test','calculation','waiting'].includes(s.stage)).reduce((a,s)=>a+(s.count||0),0);
-    const allCnt=stg.filter(s=>s.stage!=='lost').reduce((a,s)=>a+(s.count||0),0);
-    setT('ceo-pipeline',     activeCnt+' угод'+staleMark);
-    setT('ceo-pipeline-sum', allCnt+' угод'+staleMark);
-    const pEl=document.getElementById('ceo-pipeline-summary');
-    if(pEl&&pipe.stages){
-      const C={won:G,active:G,test:'#b58b2a',calculation:A,waiting:A,slow:'#c08c39',lost:'#aaa'};
-      pEl.innerHTML=(staleMark?`<div style="font-size:10px;color:#C0392B;margin-bottom:6px">⚠ ${staleTip}</div>`:'')+(pipe.stages||[]).filter(s=>s.count>0).map(s=>`<div class="mr"><div class="mn">${s.label}</div><div style="display:flex;gap:8px"><div class="mv" style="color:${C[s.stage]||A};font-size:11px">${s.count} угод</div><div style="font-size:10px;color:var(--tl)"></div></div></div>`).join('');
+    const cr=await fetch('data/crm_deals.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+    const g=cr&&cr.pipeline&&cr.pipeline.groups&&cr.pipeline.groups.wholesale;
+    if(g){
+      set('ceo-pipeline', g.deals+' угод');
+      const pe=document.getElementById('ceo-pipeline'); if(pe) pe.title=`Відкриті угоди воронки 24 зараз · з них >${cr.pipeline.staleDays} днів: ${g.stale}`;
+      set('ceo-pipeline-sum', g.stale+' завислих');
+      const ps=document.getElementById('ceo-pipeline-sum'); if(ps){ps.title=`Відкриті угоди, створені понад ${cr.pipeline.staleDays} днів тому`;ps.style.color=g.stale?R:G;}
+      const pEl=document.getElementById('ceo-pipeline-summary');
+      if(pEl) pEl.innerHTML=`<div style="font-size:10px;color:var(--tl);margin-bottom:6px">Bitrix24 · воронка 24 · відкриті угоди зараз</div>`+g.stages.map(x=>`<div class="mr"><div class="mn">${x.stage}</div><div class="mv" style="color:${A};font-size:11px">${x.deals} угод</div></div>`).join('');
     }
-  }catch(e){console.warn('[CEO sales]',e.message);}
+  }catch(e){console.warn('[CEO pipeline]',e.message);}
 
   // ── Bitrix24 — звернення за місяць + цикл угоди ОПТ ──
   try{
@@ -1571,14 +1568,16 @@ async function _buildCeoCharts(){
     const lastEntry=turnSorted[turnSorted.length-1];
     if(lastEntry&&lastEntry.turnover_pct!=null){
       const tp=parseFloat(lastEntry.turnover_pct);
-      set('ceo-turnover', tp.toFixed(1)+'%');
+      set('ceo-turnover', tp.toFixed(1)+'% · '+lastEntry.month.slice(0,3));
       const tb=document.getElementById('ceo-turn-bar');
       if(tb){tb.style.width=Math.min(tp/10*100,100)+'%';tb.style.background=tp>5?R:G;}
       set('ceo-turn-val', tp.toFixed(1)+'%');
     }
     // Вакансії
     const vacTotal=(hd.vacancies_current?.vacancies||[]).reduce((s,v)=>s+(parseInt(v.qty,10)||1),0);
-    set('ceo-vacancies', vacTotal+' позицій');
+    const vacRows=(hd.vacancies_current?.vacancies||[]).length;
+    set('ceo-vacancies', vacRows+' вак. · '+vacTotal+' поз.');
+    {const ve=document.getElementById('ceo-vacancies'); if(ve) ve.title=`${vacRows} вакансій на ${vacTotal} позицій (HR-таблиця, блок «${hd.vacancies_current?.month||'—'}»)`;}
     // Стажери
     const lastI=(hd.interns_by_month||[]).slice(-1)[0];
     if(lastI) set('ceo-interns', (lastI.count??lastI.interns??'—')+' осіб');
@@ -1619,6 +1618,12 @@ async function syncFleetStats(){
   const fleetBar=document.getElementById('ceo-fleet-bar');
   if(fleetBar){const pct=Math.min(totalMachines/10000*100,100);fleetBar.style.width=pct.toFixed(1)+'%';}
   set('ceo-fleet-val', totalMachines.toLocaleString('uk-UA'));
+  // v4.8: спрощений OEE на CEO (раніше статичне ДЕМО ~30%)
+  {const util=totalMachines?locs.reduce((s,l)=>s+(l.machines?.total||0)*(l.machines?.utilizationPercent||0),0)/totalMachines:null;
+   const bp=locs.reduce((s,l)=>s+(l.batches?.parts||0),0), bd=locs.reduce((s,l)=>s+(l.batches?.defectParts||0),0);
+   const oee=(util!=null)?util*(1-(bp?bd/bp:0)):null;
+   if(oee!=null){set('ceo-oee',oee.toFixed(1)+'%');set('ceo-oee-val',oee.toFixed(1)+'%');const b=document.getElementById('ceo-oee-bar');if(b)b.style.width=Math.min(oee/80*100,100)+'%';
+     const e=document.getElementById('ceo-oee');if(e)e.style.color=oee>=80?G:oee>=60?A:R;}}
   const g1note=document.getElementById('ceo-g1-note');
   if(g1note) g1note.textContent=`~${totalMachines.toLocaleString('uk-UA')} з 5 000 принтерів · ${locs.length} локацій`;
   return {totalMachines, locCount:locs.length};
@@ -1679,6 +1684,16 @@ async function loadProdData(){
     set('prod-fleet-util', weightedUtil!=null?weightedUtil.toFixed(1)+'%':'—');
     set('prod-fleet-free', totalFree.toLocaleString('uk-UA'));
     set('prod-fleet-defect', defectPct!=null?defectPct.toFixed(1)+'%':'—');
+    // v4.8: три плитки, які раніше ніхто не заповнював
+    set('prod-fleet-theor', (totalMachines*24).toLocaleString('uk-UA'));
+    const oeeS=(weightedUtil!=null&&defectPct!=null)?weightedUtil*(1-defectPct/100):null;
+    set('prod-fleet-oee', oeeS!=null?oeeS.toFixed(1)+'%':'—');
+    window._oeeSimple=oeeS;
+    try{
+      const bl=await fetch('data/batches_lots.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+      const mins=bl&&bl.company&&bl.company.totalPrintTimeMinutes;
+      if(mins&&totalMachines){const e=document.getElementById('prod-fleet-rpp');if(e){e.textContent=(mins/60/totalMachines).toFixed(1)+' год';e.title=`${Math.round(mins/60).toLocaleString('uk-UA')} машино-годин друку за ${bl.date} / ${totalMachines} принтерів`;}}
+    }catch(e){}
 
     // ── Виконання плану по локаціях (сьогодні) ──
     const planLabels=locs.map(l=>l.location.replace('Локація ','Лок.'));
@@ -3573,10 +3588,10 @@ window.LocLoader = (() => {
 })();
 
 </script>
-<script src="js/hr_loader.js?v=20260924"></script>
+<script src="js/hr_loader.js?v=20260930"></script>
 <script src="js/ads_loader.js?v=20260924"></script>
 <script src="js/mql_loader.js?v=20260924"></script>
-<script src="js/sales_loader.js?v=20260924c"></script>
+<script src="js/sales_loader.js?v=20260930"></script>
 <script src="js/finance_status.js?v=20260924"></script>
 <script src="js/channels_loader.js?v=20260924"></script>
 <script src="js/leadgen_loader.js?v=20260924"></script>

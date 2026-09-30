@@ -57,7 +57,18 @@ def main():
         complete = month_end == date(cur_year, cur_month, monthrange(cur_year, cur_month)[1])
         prev = months_out.get(month_key)
         if not force and prev and prev.get("complete") and prev.get("cohort") and prev.get("bySource") is not None:
-            print(f"[Backfill CRM] ⏭ {month_key}: вже пораховано (повний місяць) — пропускаю")
+            if prev.get("dealLists") is None:
+                # v4.8: дешевий доповнювальний прохід — лише WON-угоди для списків ID (секунди, не хвилини)
+                try:
+                    from fetch_crm_deals import CATEGORIES, fetch_won_deals, build_deal_lists
+                    by_cat = {str(c): {"group": g, "_deals": fetch_won_deals(c, month_start, month_end)}
+                              for c, (_, g) in CATEGORIES.items()}
+                    prev["dealLists"] = build_deal_lists(by_cat)
+                    print(f"[Backfill CRM] ＋ {month_key}: додано списки ID угод")
+                except Exception as e:
+                    print(f"[Backfill CRM] ⚠ {month_key}: списки ID не додано: {e}")
+            else:
+                print(f"[Backfill CRM] ⏭ {month_key}: вже пораховано (повний місяць) — пропускаю")
             cur_year, cur_month = (cur_year + 1, 1) if cur_month == 12 else (cur_year, cur_month + 1)
             continue
         t0 = time.time()
