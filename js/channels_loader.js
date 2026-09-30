@@ -123,7 +123,21 @@ window.ChannelsLoader = (() => {
 
   function renderTable(rows) {
     const tb = document.getElementById('mkt-channels-table'); if (!tb) return;
-    tb.innerHTML = rows.map(r => {
+    // v4.9: показуємо топ-15 каналів, решту згортаємо в один рядок «Інші канали (N)»
+    const CAP = 15;
+    let shown = rows;
+    if (rows.length > CAP + 1) {
+      shown = rows.slice(0, CAP);
+      const rest = rows.slice(CAP);
+      const o = { name: `<span style="color:var(--tl)">Інші канали (${rest.length})</span>`, reviewed: 0, won: 0, lost: 0, junk: 0, revenue: 0, wonUah: 0, trafficShare: 0, revShare: 0 };
+      rest.forEach(r => { o.reviewed += r.reviewed; o.won += r.won; o.lost += r.lost; o.junk += r.junk; o.revenue += r.revenue; o.wonUah += r.wonUah; o.trafficShare += r.trafficShare || 0; o.revShare += r.revShare || 0; });
+      const cl = o.won + o.lost;
+      o.winRate = cl ? o.won / cl * 100 : null;
+      o.junkShare = o.reviewed ? o.junk / o.reviewed * 100 : null;
+      o.avgCheck = o.wonUah ? o.revenue / o.wonUah : null;
+      shown = shown.concat([o]);
+    }
+    tb.innerHTML = shown.map(r => {
       const wc = r.winRate == null ? 'var(--tl)' : r.winRate >= 30 ? G : r.winRate >= 10 ? WH : R;
       const jc = r.junkShare == null ? 'var(--tl)' : r.junkShare >= 30 ? R : r.junkShare >= 15 ? RT : 'var(--tx)';
       return `<tr>

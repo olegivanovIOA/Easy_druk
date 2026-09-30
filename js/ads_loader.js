@@ -81,9 +81,31 @@ window.AdsLoader = (() => {
     _renderCtrChart();
   }
 
+  // v4.9: скрипт Ads (Вадим) пише cost_uah у ТИСЯЧАХ, а ROAS рахує як конверсії/витрати
+  // (conv_value = к-сть конверсій) — обидва неправдоподібні. Поки скрипт не виправлено:
+  // вартість ×1000 (≈, округлено до тис.), ROAS/CPL зі скрипта не показуємо.
+  let _costScaled = false;
+  function _normalizeCosts() {
+    const a = _data && _data.analytics; if (!a || a._normalized) return;
+    const all = a.all || a.active || [];
+    const clicks = all.reduce((s, c) => s + (c.clicks || 0), 0), cost = all.reduce((s, c) => s + (c.cost_uah || 0), 0);
+    if (clicks > 500 && cost / clicks < 0.5) {
+      _costScaled = true;
+      const seen = new Set();
+      ['all', 'active', 'green', 'red'].forEach(k => (a[k] || []).forEach(c => { if (seen.has(c)) return; seen.add(c); c.cost_uah = (c.cost_uah || 0) * 1000; c.roas = 'N/A'; c.cpl = c.conversions ? String(Math.round(c.cost_uah / c.conversions)) : 'N/A'; }));
+      if (a.summary) { a.summary.total_cost_uah = (a.summary.total_cost_uah || 0) * 1000; a.summary.avg_roas = null; }
+    }
+    a._normalized = true;
+  }
+
   function render() {
     if (!_data) return;
+    _normalizeCosts();
     _renderSummary();
+    if (_costScaled) {
+      const st = document.getElementById('ads-status');
+      if (st) st.innerHTML = '⚠ Скрипт Google Ads пише вартість у тисячах грн — показано ×1000 (≈, округлення до тис.). ROAS зі скрипта некоректний (цінність конверсії = їх кількість) — не показується; реальний ROAS кампаній — у блоці «ROI кампаній» (виручка з Bitrix за UTM).';
+    }
     _renderAlertRed();
     _renderRecommendations();
     _renderFunnelChart();

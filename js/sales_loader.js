@@ -66,6 +66,7 @@ window.SalesLoader = (() => {
     _renderWholesale();
     _renderPipeline();
     _updateTimestamp();
+    if(window.FunnelsLoader) window.FunnelsLoader.load();
   }
 
   function _fmt(n) {
