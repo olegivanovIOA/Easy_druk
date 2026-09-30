@@ -12,7 +12,7 @@
 window.FunnelsLoader = (() => {
   const PAL = ['#1f5f8b', '#2b73a3', '#3d86b8', '#529ac9', '#6aaed6', '#86c0e0', '#a3d0e8', '#bfdeee', '#d6e9f3'];
   const WON_C = '#2A9D8F', LOST_C = '#C0392B';
-  let _cur = null, _hist = null, _sel = null, _collapse = false;
+  let _cur = null, _hist = null, _sel = null, _collapse = true;
 
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = n => n == null ? '—' : Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : Math.abs(n) >= 1e3 ? (n / 1e3).toFixed(0) + 'K' : String(Math.round(n));
@@ -119,7 +119,10 @@ window.FunnelsLoader = (() => {
         else out.push({ ...r, names: [...r.names] });
       });
     }
-    return { out, side: [], wonN, wonSum: won.reduce((a, s) => a + s.sum, 0), wonName: won.map(s => s.name).join(' / ') || 'Успішні', hist };
+    // Хвостові стадії з тією ж к-стю, що й WON, — той самий крок (зливаємо у фінальний шар)
+    const wonAlso = [];
+    if (_collapse && wonN) while (out.length > 1 && out[out.length - 1].reached === wonN) wonAlso.unshift(...out.pop().names);
+    return { out, side: [], wonAlso, wonN, wonSum: won.reduce((a, s) => a + s.sum, 0), wonName: won.map(s => s.name).join(' / ') || 'Успішні', hist };
   }
 
   // Колір шару: від темно-синього (вхід) до світло-блакитного (глибокі стадії)
@@ -136,7 +139,7 @@ window.FunnelsLoader = (() => {
     const L = layers(p);
     const isLeads = p.id === 0;
     const finalName = isLeads ? 'Цільові → передано у продажі (24/18/32)' : L.wonName;
-    const all = L.out.concat([{ names: [finalName], now: isLeads ? 0 : L.wonN, sum: isLeads ? 0 : L.wonSum, reached: L.wonN, lost: null, won: true }]);
+    const all = L.out.concat([{ names: [finalName, ...L.wonAlso], now: isLeads ? 0 : L.wonN, sum: isLeads ? 0 : L.wonSum, reached: L.wonN, lost: null, won: true }]);
     const inWork = L.out.concat(L.side).reduce((a, r) => a + r.now, 0);
     const MINW = 7;
     const width = r => MINW + (100 - MINW) * Math.min(1, (r.reached || 0) / entry);
@@ -148,14 +151,15 @@ window.FunnelsLoader = (() => {
       const col = r.won ? WON_C : layerColor(i, nP);
       const dark = !r.won && i / Math.max(1, nP) > 0.55;
       const tc = t < 16 ? '#12303f' : dark ? '#12303f' : '#fff';
+      // Злитий шар: усі варіанти назв стадій з однаковою к-стю — як одна стадія
       const name = r.names.length > 1
-        ? `${esc(r.names[r.names.length - 1])} <span style="color:var(--tl);font-weight:400">(+${r.names.length - 1})</span>`
+        ? r.names.map(esc).join(' <span style="color:var(--tl);font-weight:400">/</span> ')
         : esc(r.names[0]);
       const tip = esc(r.names.join(' → ')) + `&#10;Дійшли: ${r.reached} (${ce != null ? ce.toFixed(1) : '—'}% від входу)` + (i ? `&#10;Конверсія з попереднього шару: ${cp != null ? cp.toFixed(1) + '%' : '—'}` : '') + `&#10;Зараз на стадії: ${r.now}` + (r.lost != null ? `&#10;Відмовились після цієї стадії: ${r.lost}` : '');
       const poly = `polygon(${50 - t / 2}% 0, ${50 + t / 2}% 0, ${50 + nb / 2}% 100%, ${50 - nb / 2}% 100%)`;
-      return `<div title="${tip}" style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:12px;align-items:center;height:30px">
-        <div style="font-size:10.5px;font-weight:${r.won ? 800 : 600};color:${r.won ? WON_C : 'var(--tx)'};text-align:right;line-height:1.15;overflow:hidden;max-height:30px">${name}</div>
-        <div style="position:relative;height:30px">
+      return `<div title="${tip}" style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:12px;align-items:stretch;min-height:32px">
+        <div style="font-size:10.5px;font-weight:${r.won ? 800 : 600};color:${r.won ? WON_C : 'var(--tx)'};text-align:right;line-height:1.25;display:flex;align-items:center;justify-content:flex-end;padding:4px 0"><span>${name}</span></div>
+        <div style="position:relative;min-height:32px">
           <div style="position:absolute;inset:0 0 1px 0;background:${col};clip-path:${poly}"></div>
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:${tc};text-shadow:${tc === '#fff' ? '0 1px 1px rgba(0,0,0,.25)' : 'none'}">${r.reached.toLocaleString('uk-UA')}<span style="font-weight:500;font-size:10px;margin-left:6px">${ce != null ? ce.toFixed(1) + '%' : ''}</span></div>
         </div>
@@ -173,7 +177,7 @@ window.FunnelsLoader = (() => {
     </div>`;
     const kpi = (l, v, c) => `<div style="flex:1;min-width:120px"><div style="font-size:10px;color:var(--tl)">${l}</div><div style="font-size:16px;font-weight:800;color:${c || 'var(--tx)'}">${v}</div></div>`;
     const methodNote = L.hist
-      ? 'Кожна угода рахується до <b>найдальшої стадії, до якої вона реально дійшла</b> (історія переходів Bitrix). Успішні угоди рахуються як такі, що пройшли всі стадії. Наведіть на шар — конверсія з попереднього шару, відмови після стадії, скільки угод зараз на ній.'
+      ? 'Кожна угода рахується до <b>найдальшої стадії, до якої вона реально дійшла</b> (історія переходів Bitrix). Успішні угоди рахуються як такі, що пройшли всі стадії. Стадії з однаковою кількістю угод (різне формулювання одного кроку) показано одним шаром. Наведіть на шар — конверсія з попереднього шару, відмови після стадії, скільки угод зараз на ній.'
       : '⚠ Для цього періоду ще немає історії переходів — «дійшли» рахується лише за поточною стадією, відмови по кроках не розкладено. Запустіть Backfill CRM Monthly History.';
     const sideNote = L.side.length ? `<div style="font-size:9.5px;color:var(--tl);margin-top:3px">Поза основним шляхом до WON: ${L.side.map(r => esc(r.names.join(', ')) + ` (дійшли ${r.reached}${r.now ? ', зараз ' + r.now : ''})`).join('; ')}.</div>` : '';
     const note0 = isLeads && !L.hist ? '<div style="font-size:10px;color:#8a6a2b;margin-top:6px">ℹ Цільові звернення переїжджають у воронки 24/18/32 — без історії переходів їх тут не видно.</div>' : '';
@@ -187,7 +191,7 @@ window.FunnelsLoader = (() => {
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
         <div>${leakHTML}${directHTML}</div>
-        <label style="font-size:10.5px;color:var(--tl);cursor:pointer;white-space:nowrap"><input type="checkbox" ${_collapse ? 'checked' : ''} onchange="FunnelsLoader.collapse(this.checked)" style="vertical-align:middle"> згорнути стадії без змін</label>
+        <label style="font-size:10.5px;color:var(--tl);cursor:pointer;white-space:nowrap"><input type="checkbox" ${_collapse ? 'checked' : ''} onchange="FunnelsLoader.collapse(this.checked)" style="vertical-align:middle"> об'єднати стадії з однаковою к-стю</label>
       </div>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:14px;align-items:start">
         <div>${all.map(bar).join('')}<div style="font-size:9.5px;color:var(--tl);margin-top:6px;line-height:1.4">${methodNote}</div>${sideNote}${note0}</div>
