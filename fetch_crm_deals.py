@@ -515,12 +515,54 @@ def check_returning_clients(clients):
     return out
 
 
+PIPELINE_TITLES = {0: "ЛИДЫ (первинний скринінг)", 24: "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
+                   18: "ОТДЕЛ ПРОДАЖ ТОВАРКА (Роздріб)", 32: "ОТДЕЛ ПРОДАЖ МАГАЗИН (Роздріб)"}
+
+
+def build_pipelines(deals, stage_lists):
+    """v4.9: воронки по стадіях для угод, СТВОРЕНИХ у періоді.
+    stage_lists: {cat: [stage dicts з crm.status.list]} — порядок стадій за SORT.
+    Повертає [{id, title, total, stages:[{id,name,sem,count,sum}]}]."""
+    out = []
+    for cat in COHORT_CATEGORIES:
+        sl = sorted(stage_lists.get(cat, []), key=lambda x: int(x.get("SORT") or 0))
+        cnt = {x["STATUS_ID"]: [0, 0.0] for x in sl}
+        n = 0
+        for d in deals:
+            if d.get("_cat") != cat:
+                continue
+            n += 1
+            a = cnt.setdefault(d.get("STAGE_ID"), [0, 0.0])
+            a[0] += 1
+            a[1] += _num(d.get("OPPORTUNITY"))
+        stages = [{"id": x["STATUS_ID"], "name": x.get("NAME") or x["STATUS_ID"],
+                   "sem": x.get("SEMANTICS") or "P", "count": cnt[x["STATUS_ID"]][0],
+                   "sum": round(cnt[x["STATUS_ID"]][1], 2)} for x in sl]
+        out.append({"id": cat, "title": PIPELINE_TITLES.get(cat, str(cat)), "total": n, "stages": stages})
+    return out
+
+
+def compute_pipelines(month_start, month_end):
+    """Окремий дешевий прохід (для бекфілу місяців, де когорта вже є)."""
+    deals, lists = [], {}
+    for cat in COHORT_CATEGORIES:
+        lists[cat] = fetch_stage_list(cat)
+        time.sleep(0.3)
+        ds = fetch_created_deals(cat, month_start, month_end)
+        for d in ds:
+            d["_cat"] = cat
+        deals.extend(ds)
+        time.sleep(0.3)
+    return build_pipelines(deals, lists)
+
+
 def process_created_cohort(month_start, month_end, source_names=None, stale_days=90, stale_min=1_000_000):
     source_names = source_names or {}
-    deals, stage_names = [], {}
+    deals, stage_names, stage_lists = [], {}, {}
     for cat in COHORT_CATEGORIES:
         try:
-            for s in fetch_stage_list(cat):
+            stage_lists[cat] = fetch_stage_list(cat)
+            for s in stage_lists[cat]:
                 stage_names[s["STATUS_ID"]] = (s.get("NAME") or "", s.get("SEMANTICS"))
             time.sleep(0.3)
             ds = fetch_created_deals(cat, month_start, month_end)
@@ -634,6 +676,7 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
     print(f"[CRM] ✓ Когорта: {funnel} | retention: {retention['returningClients']}/{retention['clientsInCohort']} клієнтів повернулись")
     return {"funnel": funnel, "byStage": by_stage, "bySource": by_source, "byCampaign": by_campaign,
             "retention": retention, "staleBigDeals": stale[:10],
+            "pipelines": build_pipelines(deals, stage_lists),
             "definitions": {
                 "clean": "без стадій ДУБЛЬ / ТЕСТОВИЙ",
                 "qualified": "clean мінус відмови: спам/мусор, помилкові, некоректні контакти, недодзвон, не завершили перв. контакт",

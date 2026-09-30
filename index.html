@@ -338,7 +338,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.8</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.9</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -875,6 +875,36 @@ a{color:var(--gd);text-decoration:none}
   </div>
 
   <!-- ═══ РОЗДРІБ + ОПТ ═══ -->
+  <!-- ═══ v4.9: ВОРОНКИ CRM ПО СТАДІЯХ ═══ -->
+  <div id="w-sales-funnels" style="margin-top:18px">
+    <div class="sec" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>🧭 Воронки CRM по стадіях <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Угоди, СТВОРЕНІ в обраному періоді, по стадіях кожної воронки Bitrix24. «Дійшли до стадії» = зараз на ній або далі + успішні (Bitrix не віддає історію переходів).">ⓘ</span></span>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <select id="sales-funnels-period" style="font-size:10px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff"></select>
+        <span id="sales-funnels-note" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span>
+      </div>
+    </div>
+    <div id="sales-funnels-root" style="font-size:11px;color:var(--tl)">Завантаження…</div>
+  </div>
+
+  <!-- ═══ ПАЙПЛАЙН ОПТОВИХ УГОД (Bitrix24) ═══ -->
+  <div style="margin-top:20px">
+    <div class="sec">🔀 Пайплайн оптових угод — зараз (Bitrix24, воронка 24) <span id="sales-pipe-asof" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></div>
+    <div class="g4" style="margin-bottom:14px">
+      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl" title="Сума відкритих угод (у роботі) воронки 24">Сума відкритих угод</div><div class="krow-val" id="sales-pipe-total">—</div></div>
+      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Відкритих угод</div><div class="krow-val g" id="sales-pipe-active">—</div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Відкриті угоди, створені понад 90 днів тому — кандидати на закриття/актуалізацію">Завислі &gt;90 днів</div><div class="krow-val r" id="sales-pipe-stale">—</div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="WON / (WON + відмови), угоди воронки 24, закриті в поточному місяці">Win rate (міс.)</div><div class="krow-val" id="sales-pipe-wr">—</div></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Відкриті угоди по стадіях — зараз</div>
+        <div class="cw ch200"><canvas id="sales-pipeline-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="g2" style="margin-top:18px;align-items:start">
 
     <!-- ОПТ -->
@@ -925,23 +955,6 @@ a{color:var(--gd);text-decoration:none}
       </div>
     </div>
 
-  </div>
-
-  <!-- ═══ ПАЙПЛАЙН ОПТОВИХ УГОД (Bitrix24) ═══ -->
-  <div style="margin-top:20px">
-    <div class="sec">🔀 Пайплайн оптових угод — зараз (Bitrix24, воронка 24) <span id="sales-pipe-asof" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></div>
-    <div class="g4" style="margin-bottom:14px">
-      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl" title="Сума відкритих угод (у роботі) воронки 24">Сума відкритих угод</div><div class="krow-val" id="sales-pipe-total">—</div></div>
-      <div class="krow krow-wh"><div class="krow-bar"></div><div class="krow-lbl">Відкритих угод</div><div class="krow-val g" id="sales-pipe-active">—</div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Відкриті угоди, створені понад 90 днів тому — кандидати на закриття/актуалізацію">Завислі &gt;90 днів</div><div class="krow-val r" id="sales-pipe-stale">—</div></div>
-      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="WON / (WON + відмови), угоди воронки 24, закриті в поточному місяці">Win rate (міс.)</div><div class="krow-val" id="sales-pipe-wr">—</div></div>
-    </div>
-    <div style="margin-bottom:14px">
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Відкриті угоди по стадіях — зараз</div>
-        <div class="cw ch200"><canvas id="sales-pipeline-chart"></canvas></div>
-      </div>
-    </div>
   </div>
 
   <!-- ═══ ЯКІСТЬ ЛІДІВ — v4.8: приховано (джерело — Google-планувальник, не оновлюється з 12.09).
@@ -1078,6 +1091,63 @@ a{color:var(--gd);text-decoration:none}
 
 <!-- ═════════════ МАРКЕТИНГ (id=crm залишено для сумісності з localStorage/віджетами) ═════════════ -->
 <div class="panel" id="panel-crm">
+  <!-- ═══ v4.6: ЛІДОГЕНЕРАЦІЯ, ROI КАМПАНІЙ, RETENTION (замість ручного Looker Studio) ═══ -->
+  <div id="w-mkt-leadgen" style="margin-top:-14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
+      <div class="sec" style="margin-bottom:0">🎯 Лідогенерація, ROI кампаній та retention <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Угоди 4 воронок Bitrix24 (0 ЛИДЫ, 24 ОПТ, 18/32 Роздріб), СТВОРЕНІ в обраному місяці. Вартість — Google Ads. Ті самі показники, що в Looker Studio-звіті маркетингу, але автоматично.">ⓘ</span></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <select id="mkt-leadgen-period" style="font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px"></select>
+        <span id="mkt-leadgen-updated"></span>
+      </div>
+    </div>
+    <div id="mkt-leadgen-root">
+      <div class="ct" style="margin:6px 0">Воронка кваліфікації лідів</div>
+      <div id="mkt-leadgen-funnel" style="margin-bottom:12px">Завантаження…</div>
+      <div class="ct" style="margin:6px 0">Retention — клієнти, що повертаються</div>
+      <div id="mkt-leadgen-retention" style="margin-bottom:12px"></div>
+      <div id="mkt-leadgen-stale" style="display:none;font-size:11px;margin-bottom:12px;padding:8px 12px;border:1px solid var(--bd);border-left:3px solid #C0392B;border-radius:8px;background:#FDF1EF"></div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="ct" style="margin-bottom:4px">ROI кампаній: вартість → угоди → виручка (UTM)</div>
+        <div id="mkt-leadgen-roi-note" style="font-size:10px;color:var(--tl);margin-bottom:8px"></div>
+        <div class="tw" id="mkt-leadgen-roi"><table class="tbl"><thead><tr><th>Кампанія (utm_campaign)</th><th style="text-align:right">Вартість</th><th style="text-align:right">Нових угод</th><th style="text-align:right" title="Вартість / нові угоди">CPL</th><th style="text-align:right" title="Сума угод у роботі + успішних">Очік. сума</th><th style="text-align:right">WON</th><th style="text-align:right">WON сума</th><th style="text-align:right" title="Вартість / WON">CAC</th><th style="text-align:right" title="WON сума / вартість">ROAS</th></tr></thead><tbody id="mkt-leadgen-roi-table"></tbody></table></div>
+      </div>
+      <div class="card" id="mkt-leadgen-trend-wrap" style="display:none;margin-bottom:12px">
+        <div class="ct" style="margin-bottom:8px">Динаміка: звернення → кваліфіковані → WON, частка виручки від повторних покупців <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
+        <div class="cw" style="height:220px"><canvas id="mkt-leadgen-trend"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ v4.5: КАНАЛИ ЗАЛУЧЕННЯ (Bitrix24 SOURCE_ID / UTM) ═══ -->
+  <div id="w-mkt-channels">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
+      <div class="sec" style="margin-bottom:0">📡 Канали залучення — Bitrix24 <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Усі угоди 4 воронок (0 ЛИДЫ + 24 ОПТ + 18/32 Роздріб), закриті в періоді, згруповані за полем «Джерело» (SOURCE_ID). Продаж = WON у 24/18/32. Win-rate = WON / (WON + відмови). Сміття = відмови зі стадій СПАМ/МУСОР/ДУБЛЬ/ПОМИЛКА. Виручка — тільки WON 24/18/32 (без задвоєння з воронкою 0).">ⓘ</span></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <select id="mkt-channels-period" style="font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px"></select>
+        <span id="mkt-channels-note" style="font-size:10px;color:var(--tl)"></span>
+        <span id="mkt-channels-updated"></span>
+      </div>
+    </div>
+    <div id="mkt-channels-root">
+      <div class="card" style="margin-bottom:12px"><div id="mkt-channels-insights" style="font-size:11px;color:var(--tx)">Завантаження…</div></div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="card">
+          <div class="ct" style="margin-bottom:8px">Звернення → продажі → виручка по каналах</div>
+          <div class="cw" style="height:300px"><canvas id="mkt-channels-bars"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct" style="margin-bottom:8px">Таблиця каналів</div>
+          <div class="tw"><table class="tbl"><thead><tr><th>Канал</th><th style="text-align:right">Звернень</th><th style="text-align:right">WON</th><th style="text-align:right" title="WON / (WON + відмови)">Win-rate</th><th style="text-align:right" title="Спам/мусор/дублі/помилки від усіх звернень">Сміття</th><th style="text-align:right">Виручка</th><th style="text-align:right">Сер. чек</th><th style="text-align:right">Частка</th></tr></thead><tbody id="mkt-channels-table"></tbody></table></div>
+        </div>
+      </div>
+      <div class="card" id="mkt-channels-trend-wrap" style="display:none;margin-bottom:12px">
+        <div class="ct" style="margin-bottom:8px">Win-rate по місяцях — ТОП-5 каналів за виручкою <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
+        <div class="cw" style="height:200px"><canvas id="mkt-channels-trend"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Google Ads (сирі дані скрипта) — нижче, бо вартість у скрипті некоректна ═══ -->
   <div id="w-crm-funnel">
 
     <!-- Заголовок -->
@@ -1171,61 +1241,6 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
-  <!-- ═══ v4.6: ЛІДОГЕНЕРАЦІЯ, ROI КАМПАНІЙ, RETENTION (замість ручного Looker Studio) ═══ -->
-  <div id="w-mkt-leadgen">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
-      <div class="sec" style="margin-bottom:0">🎯 Лідогенерація, ROI кампаній та retention <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Угоди 4 воронок Bitrix24 (0 ЛИДЫ, 24 ОПТ, 18/32 Роздріб), СТВОРЕНІ в обраному місяці. Вартість — Google Ads. Ті самі показники, що в Looker Studio-звіті маркетингу, але автоматично.">ⓘ</span></div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <select id="mkt-leadgen-period" style="font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px"></select>
-        <span id="mkt-leadgen-updated"></span>
-      </div>
-    </div>
-    <div id="mkt-leadgen-root">
-      <div class="ct" style="margin:6px 0">Воронка кваліфікації лідів</div>
-      <div id="mkt-leadgen-funnel" style="margin-bottom:12px">Завантаження…</div>
-      <div class="ct" style="margin:6px 0">Retention — клієнти, що повертаються</div>
-      <div id="mkt-leadgen-retention" style="margin-bottom:12px"></div>
-      <div id="mkt-leadgen-stale" style="display:none;font-size:11px;margin-bottom:12px;padding:8px 12px;border:1px solid var(--bd);border-left:3px solid #C0392B;border-radius:8px;background:#FDF1EF"></div>
-      <div class="card" style="margin-bottom:12px">
-        <div class="ct" style="margin-bottom:4px">ROI кампаній: вартість → угоди → виручка (UTM)</div>
-        <div id="mkt-leadgen-roi-note" style="font-size:10px;color:var(--tl);margin-bottom:8px"></div>
-        <div class="tw" id="mkt-leadgen-roi"><table class="tbl"><thead><tr><th>Кампанія (utm_campaign)</th><th style="text-align:right">Вартість</th><th style="text-align:right">Нових угод</th><th style="text-align:right" title="Вартість / нові угоди">CPL</th><th style="text-align:right" title="Сума угод у роботі + успішних">Очік. сума</th><th style="text-align:right">WON</th><th style="text-align:right">WON сума</th><th style="text-align:right" title="Вартість / WON">CAC</th><th style="text-align:right" title="WON сума / вартість">ROAS</th></tr></thead><tbody id="mkt-leadgen-roi-table"></tbody></table></div>
-      </div>
-      <div class="card" id="mkt-leadgen-trend-wrap" style="display:none;margin-bottom:12px">
-        <div class="ct" style="margin-bottom:8px">Динаміка: звернення → кваліфіковані → WON, частка виручки від повторних покупців <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
-        <div class="cw" style="height:220px"><canvas id="mkt-leadgen-trend"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ v4.5: КАНАЛИ ЗАЛУЧЕННЯ (Bitrix24 SOURCE_ID / UTM) ═══ -->
-  <div id="w-mkt-channels">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
-      <div class="sec" style="margin-bottom:0">📡 Канали залучення — Bitrix24 <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="Усі угоди 4 воронок (0 ЛИДЫ + 24 ОПТ + 18/32 Роздріб), закриті в періоді, згруповані за полем «Джерело» (SOURCE_ID). Продаж = WON у 24/18/32. Win-rate = WON / (WON + відмови). Сміття = відмови зі стадій СПАМ/МУСОР/ДУБЛЬ/ПОМИЛКА. Виручка — тільки WON 24/18/32 (без задвоєння з воронкою 0).">ⓘ</span></div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <select id="mkt-channels-period" style="font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px"></select>
-        <span id="mkt-channels-note" style="font-size:10px;color:var(--tl)"></span>
-        <span id="mkt-channels-updated"></span>
-      </div>
-    </div>
-    <div id="mkt-channels-root">
-      <div class="card" style="margin-bottom:12px"><div id="mkt-channels-insights" style="font-size:11px;color:var(--tx)">Завантаження…</div></div>
-      <div class="g2" style="margin-bottom:12px">
-        <div class="card">
-          <div class="ct" style="margin-bottom:8px">Звернення → продажі → виручка по каналах</div>
-          <div class="cw" style="height:300px"><canvas id="mkt-channels-bars"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="ct" style="margin-bottom:8px">Таблиця каналів</div>
-          <div class="tw"><table class="tbl"><thead><tr><th>Канал</th><th style="text-align:right">Звернень</th><th style="text-align:right">WON</th><th style="text-align:right" title="WON / (WON + відмови)">Win-rate</th><th style="text-align:right" title="Спам/мусор/дублі/помилки від усіх звернень">Сміття</th><th style="text-align:right">Виручка</th><th style="text-align:right">Сер. чек</th><th style="text-align:right">Частка</th></tr></thead><tbody id="mkt-channels-table"></tbody></table></div>
-        </div>
-      </div>
-      <div class="card" id="mkt-channels-trend-wrap" style="display:none;margin-bottom:12px">
-        <div class="ct" style="margin-bottom:8px">Win-rate по місяцях — ТОП-5 каналів за виручкою <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
-        <div class="cw" style="height:200px"><canvas id="mkt-channels-trend"></canvas></div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ═════════════ ФІНАНСИ ═════════════ -->
@@ -2865,7 +2880,7 @@ const WCAT=[
   {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
   {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
-  {id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
+  {id:'sales-funnels',tab:'sales',label:'Воронки CRM по стадіях'},{id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
   {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},{id:'mkt-leadgen',tab:'crm',label:'Лідогенерація, ROI, retention'},{id:'mkt-channels',tab:'crm',label:'Канали залучення (Bitrix24)'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
   {id:'hr-kpi',tab:'hr',label:'HR показники'},
@@ -3589,11 +3604,12 @@ window.LocLoader = (() => {
 
 </script>
 <script src="js/hr_loader.js?v=20260930"></script>
-<script src="js/ads_loader.js?v=20260924"></script>
+<script src="js/ads_loader.js?v=20260930"></script>
 <script src="js/mql_loader.js?v=20260924"></script>
-<script src="js/sales_loader.js?v=20260930"></script>
+<script src="js/sales_loader.js?v=20260930b"></script>
+<script src="js/funnels_loader.js?v=20260930"></script>
 <script src="js/finance_status.js?v=20260924"></script>
-<script src="js/channels_loader.js?v=20260924"></script>
+<script src="js/channels_loader.js?v=20260930"></script>
 <script src="js/leadgen_loader.js?v=20260924"></script>
 <script>
 // v4.5: зміна складу локацій у /api/capacity. Дашборд нічого не фільтрує —
