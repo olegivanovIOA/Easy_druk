@@ -74,7 +74,7 @@ window.E3DFresh = (() => {
 
   // ── Автоматичний рядок для вкладок без власного таймстемпа ───────────────
   const SOURCES = {
-    ceo:  [{ url: 'data/cashflow.json', label: 'CF' }, { url: 'data/crm_deals.json', label: 'Bitrix' },
+    ceo:  [{ url: 'data/cashflow.json', label: 'CF' }, { url: 'data/pnl.json', label: 'P&L' }, { url: 'data/crm_deals.json', label: 'Bitrix' },
            { url: 'data/hr.json', label: 'HR' }, { url: 'data/capacity.json', label: 'Парк' }],
     str:  [{ url: 'data/strategy.json', label: 'Спринти', key: 'ts' }],
     // plan_week.json (ручний експорт) свідомо НЕ показуємо — планування скоро підключиться через API
