@@ -6,12 +6,12 @@
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="data/static.js?v=1788595599"></script>
+<script src="data/static.js?v=20261001b"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
 <script src="js/data_layer.js"></script>
-<script src="js/freshness.js?v=20260924b"></script>
+<script src="js/freshness.js?v=20261001"></script>
 <script src="js/widgets.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -338,7 +338,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.9.2</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.10</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -391,6 +391,15 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Роздріб % плану</div><div class="krow-val r" id="ceo-rt-pct">—</div><div class="krow-tgt">Ціль: <b>90%+</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Виручка за повні місяці CF у % від річної цілі. Суми не публікуються.">Виручка YTD — % річної цілі</div><div class="krow-val g" id="ceo-total-fact">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Відкриті угоди воронки 24 (Bitrix24) зараз">Відкритих угод ОПТ</div><div class="krow-val" id="ceo-pipeline">—</div><div class="real-dot"></div></div>
+    </div>
+    <!-- v4.10: P&L YTD (перше наближення) — тільки %, з data/pnl.json -->
+    <div class="g6" style="margin-bottom:14px" id="ceo-pnl-row">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="P&L Easy v1: (Дохід − Собівартість) / Дохід, повні місяці YTD">Валова маржа YTD (P&amp;L)</div><div class="krow-val" id="ceo-pnl-gm">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="P&L Easy v1: EBIT + амортизація, % доходу, повні місяці YTD. Орієнтир: 30%+">EBITDA YTD (P&amp;L)</div><div class="krow-val" id="ceo-pnl-ebitda">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="P&L Easy v1: після податків ФОП, відсотків і прогнозу податку на прибуток 18%">Чиста маржа YTD (P&amp;L)</div><div class="krow-val" id="ceo-pnl-net">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Чистий прибуток мінус фактично сплачений ПДВ (касовий метод), % доходу">Чиста маржа після ПДВ</div><div class="krow-val" id="ceo-pnl-net-vat">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Операційні витрати разом, % доходу (P&L)">OpEx / дохід (P&amp;L)</div><div class="krow-val" id="ceo-pnl-opex">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Прибуткових місяців серед повних місяців YTD (P&L)">Прибуткових місяців</div><div class="krow-val" id="ceo-pnl-pm">—</div><div class="real-dot"></div></div>
     </div>
     <div class="card" style="margin-bottom:14px">
       <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px">Структура виручки: ОПТ vs Роздріб, % по місяцях <span style="font-weight:500;color:var(--tl);font-size:10px">· CashFlow · сірі * — неповні місяці · суми не публікуються</span></div>
@@ -447,8 +456,9 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Активних локацій</div><div class="krow-val" id="ceo-loc-count">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Спрощений OEE = завантаженість парку × (1 − % браку), сьогодні. Без Availability/Performance — журналу простоїв немає">OEE спрощ. (сьогодні)</div><div class="krow-val r" id="ceo-oee">—</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Брак ОТК з початку поточного місяця: браковані / прийняті деталі (batches_history, щоденно)">% Браку (міс., ОТК)</div><div class="krow-val r" id="ceo-defect">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="EBITDA / Виручка за повні місяці YTD (CashFlow)">EBITDA-маржа YTD (CF)</div><div class="krow-val" id="ceo-ebitda-pct">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" id="ceo-ebitda-lbl" title="EBITDA / Дохід за повні місяці YTD — з P&L Easy v1 (фолбек: CashFlow)">EBITDA-маржа YTD</div><div class="krow-val" id="ceo-ebitda-pct">—</div><div class="real-dot"></div></div>
     </div>
+    <div id="ceo-sprint-note" style="font-size:11px;color:var(--tm);margin:-4px 0 12px;display:flex;gap:14px;flex-wrap:wrap"></div>
     <div class="g2">
       <div class="card">
         <div class="ct" style="margin-bottom:10px">Прогрес стратегічних цілей 2026</div>
@@ -1253,9 +1263,47 @@ a{color:var(--gd);text-decoration:none}
     <div class="tw"><table class="tbl" id="fin-status-table"><thead><tr><th>Звіт</th></tr></thead><tbody><tr><td style="color:var(--tl)">Завантаження…</td></tr></tbody></table></div>
     <div id="fin-status-legend" style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--tm);margin-top:10px"></div>
   </div>
+  <!-- ═══ v4.10: P&L Easy — перше наближення, ТІЛЬКИ відносні показники (data/pnl.json, публічний формат) ═══ -->
+  <div id="fin-pnl" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:4px 0 9px">
+      <div class="sec" style="margin-bottom:0">📊 P&amp;L Easy 2026 — перше наближення <span class="bdg bdg-b" style="margin-left:6px;font-size:9px">v1</span></div>
+      <span style="font-size:11px;color:var(--tl)"><span id="pnl-period"></span> · <span id="pnl-built"></span></span>
+    </div>
+    <div class="al al-a" style="margin-bottom:12px;font-size:11px;line-height:1.5">
+      <span class="ic">ℹ</span><span>P&amp;L будується з CashFlow (кожна гривня CF розкладена по статтях P&amp;L і звірена). Це <b>перше наближення</b>: собівартість — за оплатами сировини, а не за фактичним списанням, тому місяці великих закупівель (напр. лютий) виглядають збитковими. Наступний крок (Спринт 13) — собівартість за витраченими кг.</span>
+    </div>
+    <div class="g6" style="margin-bottom:9px">
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="(Дохід − Собівартість) / Дохід, повні місяці YTD">Валова маржа YTD</div><div class="krow-val" id="pnl-gm">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="EBIT + амортизація, % доходу">EBITDA-маржа YTD</div><div class="krow-val" id="pnl-ebitda">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Операційний прибуток, % доходу">EBIT-маржа YTD</div><div class="krow-val" id="pnl-ebit">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Після податків ФОП, відсотків і прогнозу податку на прибуток (18%)">Чиста маржа YTD</div><div class="krow-val" id="pnl-net">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Чистий прибуток мінус фактично сплачений ПДВ (касовий метод), % доходу">Чиста маржа після ПДВ</div><div class="krow-val" id="pnl-net-vat">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Прибуткових місяців серед повних місяців YTD">Прибуткових місяців</div><div class="krow-val" id="pnl-profit-months">—</div><div class="real-dot"></div></div>
+    </div>
+    <div class="g6" style="margin-bottom:12px">
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Собівартість (матеріали, сировина, аутсорс), % доходу">Собівартість / дохід</div><div class="krow-val" id="pnl-cogs">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Операційні витрати разом (персонал + виробничі + комерційні/адмін), % доходу">OpEx / дохід</div><div class="krow-val" id="pnl-opex">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="ЗП + податки на ЗП + податки ФОП зарплатного транзиту, % доходу">ФОП (персонал) / дохід</div><div class="krow-val" id="pnl-personnel">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Єдиний податок + ВЗ + ЄСВ ФОП-продавців + прогноз податку на прибуток, % доходу (без ПДВ)">Податкове навантаження</div><div class="krow-val" id="pnl-tax">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Оплачені капвитрати (обладнання, принтери, вентиляція), % доходу. У P&L — лише через амортизацію">CAPEX / дохід (каса)</div><div class="krow-val" id="pnl-capex">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Нерозпізн. / OpEx (ціль &lt;5%)</div><div class="krow-val" id="pnl-unclass">—</div><div class="real-dot"></div></div>
+    </div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="card"><div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:4px">Маржинальність по місяцях, % доходу</div><div style="font-size:10px;color:var(--tl);margin-bottom:8px">* — неповний місяць CF, значення не показуються</div><div class="cw ch220"><canvas id="pnl-margin-chart" role="img" aria-label="Валова, EBITDA і чиста маржа по місяцях"></canvas></div></div>
+      <div class="card"><div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:4px">Структура витрат, % доходу</div><div style="font-size:10px;color:var(--tl);margin-bottom:8px">Повні місяці · решта до 100% — EBIT</div><div class="cw ch220"><canvas id="pnl-cost-chart" role="img" aria-label="Структура витрат у відсотках доходу по місяцях"></canvas></div></div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:700;color:var(--tx)">P&amp;L по місяцях — відносні показники</div>
+        <div style="font-size:11px">Звірка з CashFlow: <b id="pnl-recon">—</b></div>
+      </div>
+      <div class="tw"><table class="tbl" id="pnl-table"><tbody><tr><td style="color:var(--tl)">Завантаження…</td></tr></tbody></table></div>
+      <div id="pnl-method" style="font-size:10px;color:var(--tl);margin-top:8px;line-height:1.5"></div>
+    </div>
+  </div>
   <div style="font-size:11px;color:var(--tl);line-height:1.6">
-    Суми (виручка, витрати, EBITDA, залишки) на дашборді <b>не публікуються</b> — дашборд і його дані доступні публічно.
-    Детальні звіти — у Google Sheets за окремим доступом. Відносні показники (EBITDA-маржа, концентрація ТОП-2, % цілі) — на вкладці CEO.
+    Суми (виручка, витрати, прибуток, залишки) на дашборді <b>не публікуються</b> — дашборд і його дані доступні публічно.
+    Детальні звіти (CashFlow, P&amp;L) — у Google Sheets за окремим доступом. Тут і на вкладці CEO — лише відносні показники (маржі, частки, % цілі).
   </div>
 <!-- v4.7: попередній детальний CF-дашборд (графіки у гривнях) прибрано; js/cashflow_loader.js більше не підключається -->
 </div>
@@ -1432,7 +1480,7 @@ function buildStatic(){
     setT('cc-c',calc+' можна');
     setT('cc-n',no+' немає');
     const bar=document.getElementById('cv-bar');if(bar)bar.style.width=pct.toFixed(1)+'%';
-    const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · реєстр v1.0`;
+    const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · звірено з реєстром 01.10.2026`;
     const regTitle=document.getElementById('reg-header-title');if(regTitle)regTitle.textContent=`📋 Покриття метрик · ${total} · ${reg.length} розділів`;
   }catch(e){}
   _renderCovByBar(reg);
@@ -1527,6 +1575,55 @@ async function _buildCeoCharts(){
       {label:'Роздріб (B2C), %',data:months.map(m=>m.retail_share_pct),backgroundColor:months.map(m=>inc(m)?'rgba(158,158,158,.25)':'rgba(201,138,43,.75)'),borderRadius:4,stack:'s'},
     ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(1)+'%':'—'),afterTitle:it=>{const m=months[it[0]?.dataIndex];return m&&inc(m)?'⚠ неповний місяць — не входить у YTD':'';}}}},scales:{x:{stacked:true,grid:{color:GRID}},y:{stacked:true,max:100,grid:{color:GRID},ticks:{callback:v=>v+'%'}}}}});
   }
+
+  // ── v4.10: P&L Easy (перше наближення) — тільки % з data/pnl.json; EBITDA-плитка Стратегії тепер з P&L ──
+  try{
+    const pl=await fetch('data/pnl.json?t='+Date.now()).then(r=>r.ok?r.json():null);
+    const y=pl&&pl.ytd;
+    if(y&&y.months_count){
+      const fp=v=>v==null?'—':v.toFixed(1)+'%';
+      const col=(v,good,ok)=>v==null?'var(--tl)':v>=good?G:v>=ok?A:R;
+      const put=(id,v,c,t)=>{const el=document.getElementById(id);if(!el)return;el.textContent=v;if(c)el.style.color=c;if(t)el.title=t;};
+      const tip=`P&L Easy v1 · YTD ${y.period} (${y.months_count} повн. міс.) · звірка з CF: ${y.recon_ok_all?'0 розбіжностей':'є розбіжності'}`;
+      put('ceo-pnl-gm',fp(y.gross_margin_pct),col(y.gross_margin_pct,60,40),tip);
+      put('ceo-pnl-ebitda',fp(y.ebitda_pct),col(y.ebitda_pct,30,15),tip);
+      put('ceo-pnl-net',fp(y.net_pct),col(y.net_pct,20,10),tip);
+      put('ceo-pnl-net-vat',fp(y.net_after_vat_pct),col(y.net_after_vat_pct,20,10),tip);
+      put('ceo-pnl-opex',fp(y.opex_pct),y.opex_pct==null?null:y.opex_pct<=30?G:y.opex_pct<=40?A:R,tip);
+      put('ceo-pnl-pm',`${y.profitable_months} з ${y.months_count}`,y.profitable_months===y.months_count?G:A,tip);
+      put('ceo-ebitda-pct',fp(y.ebitda_pct),col(y.ebitda_pct,30,15),tip);
+      const lb=document.getElementById('ceo-ebitda-lbl'); if(lb) lb.textContent='EBITDA-маржа YTD (P&L)';
+    }
+  }catch(e){console.warn('[CEO pnl]',e.message);}
+
+  // ── v4.10: Стратегія — статус поточного/щойно закритого спринту + скорінг цілей (strategy.json + історія) ──
+  try{
+    const [st,hist]=await Promise.all([fetch('data/strategy.json?t='+Date.now()).then(r=>r.ok?r.json():null),
+      fetch('data/strategy_progress_history.json?t='+Date.now()).then(r=>r.ok?r.json():null)]);
+    const el=document.getElementById('ceo-sprint-note');
+    const sps=((st&&st.sprints)||[]).slice().sort((a,b)=>a.num-b.num);
+    if(el&&sps.length){
+      const dm=t=>{const m=(t||'').match(/(\d{1,2})\.(\d{1,2})/);return m?new Date(2026,+m[2]-1,+m[1]):null;};
+      const rng=sp=>{const p=(sp.dates||'').split(/[–-]/);return{a:dm(p[0]),b:dm(p[1])};};
+      const _n=new Date(),t0=new Date(_n.getFullYear(),_n.getMonth(),_n.getDate());
+      const cur=sps.find(sp=>{const r=rng(sp);return r.a&&r.b&&r.a<=t0&&t0<=r.b;})||sps.filter(sp=>{const r=rng(sp);return r.a&&r.a<=t0;}).pop();
+      const parts=[];
+      if(cur){
+        const ps=Object.values(cur.projects||{});
+        const tot=ps.reduce((a,p)=>a+(p.total||0),0), dn=ps.reduce((a,p)=>a+(p.done||0),0);
+        const left=rng(cur).b?Math.round((rng(cur).b-t0)/864e5):null;
+        const full=ps.filter(p=>p.total&&p.done===p.total).map(p=>p.name);
+        parts.push(`📅 <b>Спринт ${cur.num}</b> (${cur.dates}): виконано <b>${dn}/${tot}</b> (${tot?Math.round(dn/tot*100):0}%)${left===0?' · <b style="color:var(--red)">останній день — мітинг/ретро</b>':left>0?' · лишилось '+left+' дн.':''}${full.length?' · закрито повністю: '+full.slice(0,3).join(', '):''}`);
+      }
+      const days=(hist&&hist.days)||[]; const last=days[days.length-1], prev=days.length>1?days[days.length-2]:null;
+      if(last){
+        const d=prev&&last.goal_scoring_pct!=null&&prev.goal_scoring_pct!=null?(last.goal_scoring_pct-prev.goal_scoring_pct):null;
+        parts.push(`🎯 Скорінг цілей 2026: <b>${last.goal_scoring_pct}%</b>${d?` <span style="color:${d>0?G:R}">${d>0?'▲':'▼'} ${Math.abs(d).toFixed(1)} п.п.</span>`:''} · задач ${last.done}/${last.total}`);
+      }
+      parts.push(`📊 Спринт 12: запущено <b>P&L Easy v1</b> — маржі на вкладці <a href="#" onclick="go('fin',document.querySelector('[data-tab=fin]'));return false" style="color:var(--b)">Фінанси</a>`);
+      el.innerHTML=parts.map(x=>`<span>${x}</span>`).join('');
+    }
+  }catch(e){console.warn('[CEO sprint]',e.message);}
 
   // ── v4.8: план — після API планування; пайплайн — Bitrix24 (відкриті угоди воронки 24 зараз) ──
   ['ceo-wh-pct','ceo-rt-pct'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='очікує API';el.style.color='var(--tl)';el.style.fontSize='11px';el.title='План продажів підключається через API планування (~2 тижні)';}});
@@ -3608,7 +3705,7 @@ window.LocLoader = (() => {
 <script src="js/mql_loader.js?v=20260924"></script>
 <script src="js/sales_loader.js?v=20260930b"></script>
 <script src="js/funnels_loader.js?v=20260930e"></script>
-<script src="js/finance_status.js?v=20260924"></script>
+<script src="js/finance_status.js?v=20261001"></script>
 <script src="js/channels_loader.js?v=20260930"></script>
 <script src="js/leadgen_loader.js?v=20260924"></script>
 <script>
