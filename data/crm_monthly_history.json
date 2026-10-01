@@ -33754,7 +33754,7 @@
       }
     },
     {
-      "fetched_at": "2026-10-01T06:37:01Z",
+      "fetched_at": "2026-10-01T06:47:39Z",
       "month": "2026-10",
       "bySource": [
         {
@@ -33808,10 +33808,10 @@
       ],
       "cohort": {
         "funnel": {
-          "all": 6,
-          "clean": 6,
-          "qualified": 3,
-          "activeOrWon": 3,
+          "all": 7,
+          "clean": 7,
+          "qualified": 4,
+          "activeOrWon": 4,
           "won": 0,
           "wonSum": 0,
           "expectedSumActiveWon": 0.0
@@ -33831,9 +33831,22 @@
             "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
             "deals": 1,
             "sum": 0.0
+          },
+          {
+            "stage": "НОВИЙ лід ( не оброблений )",
+            "deals": 1,
+            "sum": 0.0
           }
         ],
         "bySource": [
+          {
+            "key": "CALL",
+            "name": "Звонок",
+            "deals": 2,
+            "expectedSum": 0.0,
+            "won": 0,
+            "wonSum": 0.0
+          },
           {
             "key": "UC_LJ05D6",
             "name": "Электронная почта sales@easy3dprint.com.ua",
@@ -33859,14 +33872,6 @@
             "wonSum": 0.0
           },
           {
-            "key": "CALL",
-            "name": "Звонок",
-            "deals": 1,
-            "expectedSum": 0.0,
-            "won": 0,
-            "wonSum": 0.0
-          },
-          {
             "key": "UC_C5YUHA",
             "name": "Электронная почта ukr3dprint@gmail.com",
             "deals": 1,
@@ -33879,7 +33884,7 @@
           {
             "key": "— / —",
             "name": "— / —",
-            "deals": 5,
+            "deals": 6,
             "expectedSum": 0.0,
             "won": 0,
             "wonSum": 0.0
@@ -33894,7 +33899,7 @@
           }
         ],
         "retention": {
-          "clientsInCohort": 6,
+          "clientsInCohort": 7,
           "returningClients": 3,
           "repeatBuyers": 0,
           "noClientLinked": 0,
@@ -33905,7 +33910,7 @@
             "winRate": 0.0
           },
           "new": {
-            "deals": 3,
+            "deals": 4,
             "won": 0,
             "wonSum": 0,
             "winRate": null
@@ -33937,7 +33942,7 @@
           {
             "id": 0,
             "title": "ЛИДЫ (первинний скринінг)",
-            "total": 6,
+            "total": 7,
             "method": "history",
             "v": 2,
             "wonDirect": 0,
@@ -33946,9 +33951,9 @@
                 "id": "NEW",
                 "name": "НОВИЙ лід ( не оброблений )",
                 "sem": "P",
-                "count": 0,
+                "count": 1,
                 "sum": 0.0,
-                "reached": 6,
+                "reached": 7,
                 "lostHere": 3
               },
               {
@@ -34989,5 +34994,5 @@
       }
     }
   ],
-  "updated_at": "2026-10-01T06:37:07Z"
+  "updated_at": "2026-10-01T06:47:44Z"
 }
