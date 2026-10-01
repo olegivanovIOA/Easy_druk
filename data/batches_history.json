@@ -7099,13 +7099,13 @@
           "name": "Локація 4",
           "batches": 73,
           "lots": 2,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectWeightPercent": null,
+          "acceptedQty": 567,
+          "defectQty": 3,
+          "defectPercent": 0.53,
+          "defectWeightPercent": 0.53,
           "totalPrintTimeMinutes": 216897,
-          "materialCostUAH": null,
-          "materialCostCoveragePercent": null
+          "materialCostUAH": 38922.38,
+          "materialCostCoveragePercent": 100.0
         },
         "5": {
           "name": "Локація 5",
@@ -7114,7 +7114,7 @@
           "acceptedQty": 57962,
           "defectQty": 4088,
           "defectPercent": 7.05,
-          "defectWeightPercent": 6.58,
+          "defectWeightPercent": 6.43,
           "totalPrintTimeMinutes": 782236.0,
           "materialCostUAH": 129224.83,
           "materialCostCoveragePercent": 100.0
@@ -7135,15 +7135,33 @@
       "company": {
         "batches": 118,
         "lots": 11,
-        "acceptedQty": 57983,
-        "defectQty": 4088,
-        "defectPercent": 7.05,
-        "defectWeightPercent": 6.58,
+        "acceptedQty": 58550,
+        "defectQty": 4091,
+        "defectPercent": 6.99,
+        "defectWeightPercent": 6.37,
         "totalPrintTimeMinutes": 1013056.0,
-        "materialCostUAH": 130534.6,
+        "materialCostUAH": 169456.98,
         "materialCostCoveragePercent": 100.0
       },
       "lots": [
+        {
+          "location": "4",
+          "acceptedQty": 279,
+          "batchCount": 36,
+          "defectPercent": 1.08,
+          "printerModels": [
+            "P2S"
+          ]
+        },
+        {
+          "location": "4",
+          "acceptedQty": 288,
+          "batchCount": 37,
+          "defectPercent": 0,
+          "printerModels": [
+            "P2S"
+          ]
+        },
         {
           "location": "5",
           "acceptedQty": 715,
@@ -7228,5 +7246,5 @@
       ]
     }
   ],
-  "updated_at": "2026-10-01T07:01:18Z"
+  "updated_at": "2026-10-01T11:44:56Z"
 }
