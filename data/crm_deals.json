@@ -1,28 +1,119 @@
 {
-  "fetched_at": "2026-10-01T00:59:37Z",
+  "fetched_at": "2026-10-01T06:37:01Z",
   "month": "2026-10",
-  "bySource": [],
+  "bySource": [
+    {
+      "source": "UC_LJ05D6",
+      "name": "Электронная почта sales@easy3dprint.com.ua",
+      "reviewed": 2,
+      "won": 0,
+      "lost": 2,
+      "junk": 2,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": 0.0,
+      "junkShare": 100.0,
+      "avgCheck": null
+    },
+    {
+      "source": "43",
+      "name": "Instagram реклама ОПТ ФДМ",
+      "reviewed": 1,
+      "won": 0,
+      "lost": 1,
+      "junk": 0,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": 0.0,
+      "junkShare": 0.0,
+      "avgCheck": null
+    },
+    {
+      "source": "UC_C5YUHA",
+      "name": "Электронная почта ukr3dprint@gmail.com",
+      "reviewed": 1,
+      "won": 0,
+      "lost": 1,
+      "junk": 1,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": 0.0,
+      "junkShare": 100.0,
+      "avgCheck": null
+    }
+  ],
   "cohort": {
     "funnel": {
-      "all": 1,
-      "clean": 1,
-      "qualified": 1,
-      "activeOrWon": 1,
+      "all": 6,
+      "clean": 6,
+      "qualified": 3,
+      "activeOrWon": 3,
       "won": 0,
       "wonSum": 0,
       "expectedSumActiveWon": 0.0
     },
     "byStage": [
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
+        "stage": "СПАМ / МУСОР",
+        "deals": 3,
+        "sum": 0.0
+      },
+      {
+        "stage": "НЕ завершили первинний контакт",
+        "deals": 2,
+        "sum": 0.0
+      },
+      {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
         "deals": 1,
         "sum": 0.0
       }
     ],
     "bySource": [
       {
+        "key": "UC_LJ05D6",
+        "name": "Электронная почта sales@easy3dprint.com.ua",
+        "deals": 2,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "50",
+        "name": "Задать вопрос онлайн",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "CALL",
+        "name": "Звонок",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "UC_C5YUHA",
+        "name": "Электронная почта ukr3dprint@gmail.com",
         "deals": 1,
         "expectedSum": 0.0,
         "won": 0,
@@ -33,6 +124,14 @@
       {
         "key": "— / —",
         "name": "— / —",
+        "deals": 5,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / Search_new_ukr",
+        "name": "google / Search_new_ukr",
         "deals": 1,
         "expectedSum": 0.0,
         "won": 0,
@@ -40,18 +139,18 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 1,
-      "returningClients": 0,
+      "clientsInCohort": 6,
+      "returningClients": 3,
       "repeatBuyers": 0,
       "noClientLinked": 0,
       "returning": {
-        "deals": 0,
+        "deals": 3,
         "won": 0,
         "wonSum": 0,
-        "winRate": null
+        "winRate": 0.0
       },
       "new": {
-        "deals": 1,
+        "deals": 3,
         "won": 0,
         "wonSum": 0,
         "winRate": null
@@ -83,7 +182,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 1,
+        "total": 6,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -92,27 +191,27 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 1,
+            "count": 0,
             "sum": 0.0,
-            "reached": 1,
-            "lostHere": 0
+            "reached": 6,
+            "lostHere": 3
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 0,
+            "count": 1,
             "sum": 0.0,
-            "reached": 0,
+            "reached": 3,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 0,
+            "count": 2,
             "sum": 0.0,
-            "reached": 0,
+            "reached": 2,
             "lostHere": 0
           },
           {
@@ -127,7 +226,7 @@
             "id": "LOSE",
             "name": "СПАМ / МУСОР",
             "sem": "F",
-            "count": 0,
+            "count": 3,
             "sum": 0.0
           },
           {
@@ -1064,17 +1163,41 @@
       }
     }
   },
-  "lossReasonsWholesale": [],
+  "lossReasonsWholesale": [
+    {
+      "reason": "НЕ можем реализовать запрос",
+      "count": 1
+    }
+  ],
   "lossReasonsRetail": [],
-  "lossReasonsScreening": [],
-  "lossReasonsTotal": [],
+  "lossReasonsScreening": [
+    {
+      "reason": "СПАМ / МУСОР",
+      "count": 3
+    }
+  ],
+  "lossReasonsTotal": [
+    {
+      "reason": "СПАМ / МУСОР",
+      "count": 3
+    },
+    {
+      "reason": "НЕ можем реализовать запрос",
+      "count": 1
+    }
+  ],
   "lossReasonsByCategory": {
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "reasons": [],
-      "totalLost": 0,
-      "totalReviewed": 0
+      "reasons": [
+        {
+          "reason": "НЕ можем реализовать запрос",
+          "count": 1
+        }
+      ],
+      "totalLost": 1,
+      "totalReviewed": 1
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -1093,19 +1216,24 @@
     "0": {
       "label": "ЛИДЫ (первинний скринінг)",
       "group": "screening",
-      "reasons": [],
-      "totalLost": 0,
-      "totalReviewed": 0
+      "reasons": [
+        {
+          "reason": "СПАМ / МУСОР",
+          "count": 3
+        }
+      ],
+      "totalLost": 3,
+      "totalReviewed": 3
     }
   },
   "totalReviewed": {
-    "wholesale": 0,
+    "wholesale": 1,
     "retail": 0,
-    "screening": 0,
-    "all": 0
+    "screening": 3,
+    "all": 4
   },
   "pipeline": {
-    "asOf": "2026-10-01T00:59:42Z",
+    "asOf": "2026-10-01T06:37:07Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
