@@ -1,0 +1,1357 @@
+{
+ "checked_at": "2026-10-01",
+ "source": "СС_easy3d_metrics_registry.xlsx (Враховувати?=ТАК)",
+ "statuses": {
+  "yes": "автоматизовано на дашборді",
+  "part": "частково",
+  "calc": "можна порахувати з наявних даних",
+  "no": "даних немає"
+ },
+ "note": "dash=null — розділ не перевірявся поштучно 01.10 (виробництво/якість/юніт-економіка), рахується як у static.js",
+ "metrics": [
+  {
+   "n": 1,
+   "section": "Виробництво — Локації",
+   "metric": "Кількість принтерів (активних)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 2,
+   "section": "Виробництво — Локації",
+   "metric": "Теоретична потужність (год/добу)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 3,
+   "section": "Виробництво — Локації",
+   "metric": "Корисний машинний час (год/добу)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 4,
+   "section": "Виробництво — Локації",
+   "metric": "OEE — загальна ефективність обладнання",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 5,
+   "section": "Виробництво — Локації",
+   "metric": "% завантаженості",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 6,
+   "section": "Виробництво — Локації",
+   "metric": "Кількість змін на неделю/месяц",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 7,
+   "section": "Виробництво — Локації",
+   "metric": "Загальний час простою (год)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 8,
+   "section": "Виробництво — Локації",
+   "metric": "Плановий простій (год)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 9,
+   "section": "Виробництво — Локації",
+   "metric": "Аварійний простій (год)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 10,
+   "section": "Виробництво — Локації",
+   "metric": "Простій через відсутність замовлень (год)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 11,
+   "section": "Виробництво — Локації",
+   "metric": "Оренда (грн/міс)",
+   "registry": "yes",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 12,
+   "section": "Виробництво — Локації",
+   "metric": "Електроенергія (кВт·год і грн)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 13,
+   "section": "Виробництво — Локації",
+   "metric": "Витрати на ФОП (локація)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 14,
+   "section": "Виробництво — Локації",
+   "metric": "Витрати на обслуговування обладнання",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 15,
+   "section": "Виробництво — Локації",
+   "metric": "Загальні витрати локації (грн/міс)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 16,
+   "section": "Виробництво — Локації",
+   "metric": "Витрати на 1 год машинного часу (грн)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 17,
+   "section": "Виробництво — Локації",
+   "metric": "Виробіток (кг) за місяць",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 18,
+   "section": "Виробництво — Локації",
+   "metric": "Виручка на 1 принтер (грн/міс)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 19,
+   "section": "Виробництво — Локації",
+   "metric": "Маржинальність локації (%)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 20,
+   "section": "Виробництво — Принтери",
+   "metric": "ID принтера + модель",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 21,
+   "section": "Виробництво — Принтери",
+   "metric": "Дата введення в експлуатацію",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 22,
+   "section": "Виробництво — Принтери",
+   "metric": "Локація (поточна)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 23,
+   "section": "Виробництво — Принтери",
+   "metric": "Статус (Активний / Ремонт / Резерв / Списаний)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 24,
+   "section": "Виробництво — Принтери",
+   "metric": "Корисний час друку (год/добу)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 25,
+   "section": "Виробництво — Принтери",
+   "metric": "Час простою (год/добу)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 26,
+   "section": "Виробництво — Принтери",
+   "metric": "OEE принтера (%)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 27,
+   "section": "Виробництво — Принтери",
+   "metric": "Кількість відмов (за місяць)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 28,
+   "section": "Виробництво — Принтери",
+   "metric": "MTBF — середній час між відмовами (год)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 29,
+   "section": "Виробництво — Принтери",
+   "metric": "MTTR — середній час ремонту (год)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 30,
+   "section": "Виробництво — Принтери",
+   "metric": "% браку (локация, партия)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 31,
+   "section": "Виробництво — Принтери",
+   "metric": "Кількість партій з браком >X%",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 32,
+   "section": "Виробництво — Принтери",
+   "metric": "Тренд якості МоМ",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 33,
+   "section": "Виробництво — Принтери",
+   "metric": "Витрати на обслуговування (грн/міс)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 34,
+   "section": "Виробництво — Принтери",
+   "metric": "Витрата сировини (кг/год друку)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 35,
+   "section": "Виробництво — Принтери",
+   "metric": "Собівартість 1 год роботи принтера (грн)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 36,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "ID партії",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 37,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Тип продукту (деталь / модель)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 38,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Тираж (к-сть одиниць у партії)",
+   "registry": "yes",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 39,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Серійність (к-сть однотипних партій від клієнта/рік)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 40,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "К-сть принтерів задіяних у партії",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 41,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Дата прийому замовлення",
+   "registry": "yes",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 42,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Дата запуску у виробництво",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 43,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Загальний час виробництва (год)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 44,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Нормативний час виробництва (год)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 45,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Відхилення від нормативу (%)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 46,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Lead time — повний цикл (дні)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 47,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Час очікування ЗАПУСКА (год)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 48,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Вид сировини (філамент: тип, колір, постачальник)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 49,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Нормативна витрата сировини (кг/партія)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 50,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Фактична витрата сировини (кг/партія)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 51,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Перевитрата сировини (%)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 52,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Вартість сировини на партію (грн)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 53,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "К-сть бракованих одиниць",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 54,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "% браку партії",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 55,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Причина браку (категорія)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 56,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Вартість браку (грн)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 57,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Виручка з партії (грн)",
+   "registry": "yes",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 58,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Прямі витрати партії (грн)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 59,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Маржинальний прибуток партії (грн)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 60,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Маржинальність партії (%)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 61,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Собівартість 1 одиниці (грн)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 62,
+   "section": "Виробництво — Партії (Batch)",
+   "metric": "Виручка за 1 год машинного часу (грн)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 63,
+   "section": "Юніт-економіка",
+   "metric": "Маржа на одиницю (грн)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 64,
+   "section": "Якість та брак",
+   "metric": "Загальний % браку компанії",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 65,
+   "section": "Якість та брак",
+   "metric": "% браку по локації",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 66,
+   "section": "Якість та брак",
+   "metric": "% браку по моделі принтера",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 67,
+   "section": "Якість та брак",
+   "metric": "% браку по оператору",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 68,
+   "section": "Якість та брак",
+   "metric": "% браку по типу деталі",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 69,
+   "section": "Якість та брак",
+   "metric": "Розподіл браку по категоріях (%)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 70,
+   "section": "Якість та брак",
+   "metric": "ТОП-5 причин браку (Парето)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 71,
+   "section": "Якість та брак",
+   "metric": "% браку від клиента",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 72,
+   "section": "Якість та брак",
+   "metric": "Вартість браку (грн/міс)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 73,
+   "section": "Якість та брак",
+   "metric": "Частка вартості браку у виручці (%)",
+   "registry": "calc",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 74,
+   "section": "Якість та брак",
+   "metric": "Вхідний контроль сировини (% партій перевірено)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 75,
+   "section": "Якість та брак",
+   "metric": "Проміжний контроль (% партій)",
+   "registry": "no",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 76,
+   "section": "Якість та брак",
+   "metric": "Вихідний контроль (% партій перед відвантаженням)",
+   "registry": "part",
+   "dash": null,
+   "evidence": null
+  },
+  {
+   "n": 77,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Виручка ОПТ (грн)",
+   "registry": "yes",
+   "dash": "yes",
+   "evidence": "без змін"
+  },
+  {
+   "n": 78,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Виконання плану продажів (%)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 79,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Динаміка МоМ (%)",
+   "registry": "calc",
+   "dash": "part",
+   "evidence": "помісячний факт WON з Bitrix (тренд), окремого МоМ % немає"
+  },
+  {
+   "n": 80,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "К-сть угод (закритих)",
+   "registry": "yes",
+   "dash": "yes",
+   "evidence": "без змін"
+  },
+  {
+   "n": 81,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Середній чек (грн)",
+   "registry": "calc",
+   "dash": "yes",
+   "evidence": "Bitrix24 avg/median check ОПТ"
+  },
+  {
+   "n": 82,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Середній чек по индустрии (грн)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 83,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "К-сть активних B2B-клієнтів",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 84,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Частка топ-2 клієнтів у виручці (%)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "CashFlow _Клієнти_Топ2, щогодини — Продажі, CEO"
+  },
+  {
+   "n": 85,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Частка топ-5 клієнтів у виручці (%)",
+   "registry": "calc",
+   "dash": "calc",
+   "evidence": "без змін"
+  },
+  {
+   "n": 86,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Повторні замовлення (%)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "Bitrix24 retention: повторні покупки, частка WON-виручки — CEO"
+  },
+  {
+   "n": 87,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Загальна дебіторка (грн)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 88,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Прострочена дебіторка (грн і %)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 89,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "DSO — Days Sales Outstanding",
+   "registry": "calc",
+   "dash": "calc",
+   "evidence": "без змін"
+  },
+  {
+   "n": 90,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "Середній lead time угоди (дні)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 91,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "% відмов через терміни виконання",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "причини відмов: «НЕ устраивают сроки» — Продажі"
+  },
+  {
+   "n": 92,
+   "section": "Продажі ОПТ (B2B)",
+   "metric": "% відмов через ціну",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "причини відмов: «ДОРОГО» — Продажі"
+  },
+  {
+   "n": 93,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "Виручка В2С (грн)",
+   "registry": "yes",
+   "dash": "yes",
+   "evidence": "без змін"
+  },
+  {
+   "n": 94,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "К-сть угод",
+   "registry": "yes",
+   "dash": "yes",
+   "evidence": "без змін"
+  },
+  {
+   "n": 95,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "Середній чек (грн)",
+   "registry": "calc",
+   "dash": "yes",
+   "evidence": "Bitrix24 avg/median check (ОПТ і Роздріб)"
+  },
+  {
+   "n": 96,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "Середній чек по типу деталі/продукту",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 97,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "Повторні звернення (%)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 98,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "Виконання плану (%)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 99,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "Конверсія сайту (Відвідувач → Заявка, %)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 100,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "Нові клієнти (к-сть за місяць)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "retention: нові vs ті, що повернулись (без розділення ОПТ/Роздріб)"
+  },
+  {
+   "n": 101,
+   "section": "Продажі Роздріб (B2C)",
+   "metric": "Утримання клієнтів (Retention rate, %)",
+   "registry": "no",
+   "dash": "part",
+   "evidence": "retention-блок (Маркетинг) — не окремо для B2C"
+  },
+  {
+   "n": 102,
+   "section": "CRM та Маркетинг",
+   "metric": "К-сть лідів (всього)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "Bitrix24: звернень/міс (totalReviewed, когорта) — Маркетинг, CEO"
+  },
+  {
+   "n": 103,
+   "section": "CRM та Маркетинг",
+   "metric": "К-сть цільових лідів (ICP)",
+   "registry": "no",
+   "dash": "part",
+   "evidence": "кваліфіковані ліди з воронки є; ICP формується (Спринт 12, проект 7)"
+  },
+  {
+   "n": 104,
+   "section": "CRM та Маркетинг",
+   "metric": "Конверсія Лід → Кваліфікований (%)",
+   "registry": "calc",
+   "dash": "yes",
+   "evidence": "Воронка кваліфікації лідів (cohort.funnel) — Маркетинг"
+  },
+  {
+   "n": 105,
+   "section": "CRM та Маркетинг",
+   "metric": "Конверсія Кваліфікований → КП/Зустріч (%)",
+   "registry": "no",
+   "dash": "part",
+   "evidence": "воронки по стадіях v4.9.1 (stagehistory); зв’язка кваліфікований→КП між воронками 0 і 24 — неявна"
+  },
+  {
+   "n": 106,
+   "section": "CRM та Маркетинг",
+   "metric": "Конверсія КП → Угода (%)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "воронки CRM по стадіях з історії переходів — v4.9"
+  },
+  {
+   "n": 107,
+   "section": "CRM та Маркетинг",
+   "metric": "Загальна конверсія воронки (Лід → Угода, %)",
+   "registry": "calc",
+   "dash": "yes",
+   "evidence": "Конверсія звернень → WON — Маркетинг"
+  },
+  {
+   "n": 108,
+   "section": "CRM та Маркетинг",
+   "metric": "Середній цикл угоди (днів)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "time-to-close WON (з 25.08) — Продажі, CEO"
+  },
+  {
+   "n": 109,
+   "section": "CRM та Маркетинг",
+   "metric": "Розподіл лідів по каналах (%)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "Канали залучення (SOURCE_ID/UTM) — Маркетинг"
+  },
+  {
+   "n": 110,
+   "section": "CRM та Маркетинг",
+   "metric": "Конверсія по каналу (%)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "win-rate по каналах + тренд ТОП-5 — Маркетинг"
+  },
+  {
+   "n": 111,
+   "section": "CRM та Маркетинг",
+   "metric": "Виручка по каналу (грн)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "Звернення → продажі → виручка по каналах"
+  },
+  {
+   "n": 112,
+   "section": "CRM та Маркетинг",
+   "metric": "Середній чек по каналу (грн)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "таблиця каналів: сер. чек"
+  },
+  {
+   "n": 113,
+   "section": "CRM та Маркетинг",
+   "metric": "CAC — вартість залучення клієнта (грн)",
+   "registry": "no",
+   "dash": "part",
+   "evidence": "вартість / WON по UTM-кампаніях (ROI кампаній); загального CAC на нового клієнта немає"
+  },
+  {
+   "n": 114,
+   "section": "CRM та Маркетинг",
+   "metric": "CPL — вартість ліда (грн)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "ROI кампаній (UTM): вартість / угоди"
+  },
+  {
+   "n": 115,
+   "section": "CRM та Маркетинг",
+   "metric": "ROAS — повернення на рекл. витрати",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "ROI кампаній: вартість → угоди → виручка (UTM)"
+  },
+  {
+   "n": 116,
+   "section": "CRM та Маркетинг",
+   "metric": "LTV — довічна цінність клієнта (грн)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "потрібна історія клієнта за роки"
+  },
+  {
+   "n": 117,
+   "section": "CRM та Маркетинг",
+   "metric": "LTV / CAC (відношення)",
+   "registry": "calc",
+   "dash": "calc",
+   "evidence": "після LTV"
+  },
+  {
+   "n": 118,
+   "section": "CRM та Маркетинг",
+   "metric": "Бюджет рекламних кампаній (грн/міс)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "Google Ads — витрати (ads.json, щогодини)"
+  },
+  {
+   "n": 119,
+   "section": "CRM та Маркетинг",
+   "metric": "CTR — клікабельність (%)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "Google Ads — графік CTR"
+  },
+  {
+   "n": 120,
+   "section": "CRM та Маркетинг",
+   "metric": "CPC — вартість кліка (грн)",
+   "registry": "no",
+   "dash": "calc",
+   "evidence": "витрати / кліки є в ads.json, не виведено"
+  },
+  {
+   "n": 121,
+   "section": "CRM та Маркетинг",
+   "metric": "К-сть Лидов з каналу (сайт) за місяць",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "канал «Сайт» у каналах залучення"
+  },
+  {
+   "n": 122,
+   "section": "Аналіз клієнтів",
+   "metric": "Розподіл виручки по індустріях (%)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 123,
+   "section": "Аналіз клієнтів",
+   "metric": "К-сть клієнтів по індустрії",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 124,
+   "section": "Аналіз клієнтів",
+   "metric": "Середній чек по індустрії (грн)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 125,
+   "section": "Аналіз клієнтів",
+   "metric": "Маржинальність по індустрії (%)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 126,
+   "section": "Аналіз клієнтів",
+   "metric": "Розподіл клієнтів по розміру угоди",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "сегменти угод за розміром + гістограма (Bitrix24)"
+  },
+  {
+   "n": 127,
+   "section": "Аналіз клієнтів",
+   "metric": "К-сть серій (партій) від клієнта за рік",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 128,
+   "section": "Аналіз клієнтів",
+   "metric": "Середній тираж замовлення (одиниць)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 129,
+   "section": "Аналіз клієнтів",
+   "metric": "Термін співпраці (місяців)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 130,
+   "section": "Аналіз клієнтів",
+   "metric": "RFM-аналіз клієнтів",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 131,
+   "section": "Аналіз клієнтів",
+   "metric": "Churn rate клієнтів B2B (%)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 132,
+   "section": "Аналіз клієнтів",
+   "metric": "HHI — індекс концентрації Херфіндаля",
+   "registry": "calc",
+   "dash": "calc",
+   "evidence": "без змін"
+  },
+  {
+   "n": 133,
+   "section": "Аналіз клієнтів",
+   "metric": "К-сть нових B2B-клієнтів за місяць",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "retention: нові клієнти (всі воронки)"
+  },
+  {
+   "n": 134,
+   "section": "Фінанси та P&L",
+   "metric": "Виручка (загальна, грн)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "CashFlow (з 03.09) + P&L"
+  },
+  {
+   "n": 135,
+   "section": "Фінанси та P&L",
+   "metric": "Собівартість продукції (COGS, грн)",
+   "registry": "calc",
+   "dash": "yes",
+   "evidence": "P&L Easy v1 — Фінанси"
+  },
+  {
+   "n": 136,
+   "section": "Фінанси та P&L",
+   "metric": "Валова маржа (грн і %)",
+   "registry": "calc",
+   "dash": "yes",
+   "evidence": "P&L Easy v1 (раніше CF)"
+  },
+  {
+   "n": 137,
+   "section": "Фінанси та P&L",
+   "metric": "Операційні витрати (OpEx, грн)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "P&L Easy v1 — Фінанси"
+  },
+  {
+   "n": 138,
+   "section": "Фінанси та P&L",
+   "metric": "EBITDA (грн і %)",
+   "registry": "calc",
+   "dash": "yes",
+   "evidence": "P&L Easy v1 (раніше CF)"
+  },
+  {
+   "n": 139,
+   "section": "Фінанси та P&L",
+   "metric": "Чистий прибуток (грн і %)",
+   "registry": "calc",
+   "dash": "yes",
+   "evidence": "P&L Easy v1 — Фінанси"
+  },
+  {
+   "n": 140,
+   "section": "Фінанси та P&L",
+   "metric": "Залишок на рахунку (грн)",
+   "registry": "yes",
+   "dash": "yes",
+   "evidence": "без змін"
+  },
+  {
+   "n": 141,
+   "section": "Фінанси та P&L",
+   "metric": "Операційний cashflow (грн/міс)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 142,
+   "section": "Фінанси та P&L",
+   "metric": "Прогноз cashflow на 30/60/90 днів",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 143,
+   "section": "Фінанси та P&L",
+   "metric": "Касовий розрив (дні, грн)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 144,
+   "section": "Фінанси та P&L",
+   "metric": "ФОП (грн/міс)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "P&L: персонал / дохід"
+  },
+  {
+   "n": 145,
+   "section": "Фінанси та P&L",
+   "metric": "Витрати на сировину (грн/міс)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "P&L: собівартість, філамент Друкаря"
+  },
+  {
+   "n": 146,
+   "section": "Фінанси та P&L",
+   "metric": "Витрати на оренду (грн/міс)",
+   "registry": "yes",
+   "dash": "yes",
+   "evidence": "без змін"
+  },
+  {
+   "n": 147,
+   "section": "Фінанси та P&L",
+   "metric": "Витрати на маркетинг (грн/міс)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "P&L: маркетинг / дохід"
+  },
+  {
+   "n": 148,
+   "section": "HR та Персонал",
+   "metric": "Загальна к-сть співробітників",
+   "registry": "yes",
+   "dash": "yes",
+   "evidence": "без змін"
+  },
+  {
+   "n": 149,
+   "section": "HR та Персонал",
+   "metric": "Штат факт vs план (%)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "Штат — % цілі 200 (CEO)"
+  },
+  {
+   "n": 150,
+   "section": "HR та Персонал",
+   "metric": "Плинність кадрів (%)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "hr.json turnover — HR, CEO"
+  },
+  {
+   "n": 151,
+   "section": "HR та Персонал",
+   "metric": "К-сть відкритих вакансій",
+   "registry": "yes",
+   "dash": "yes",
+   "evidence": "без змін"
+  },
+  {
+   "n": 152,
+   "section": "HR та Персонал",
+   "metric": "Час закриття вакансії (днів)",
+   "registry": "no",
+   "dash": "part",
+   "evidence": "норми закриття вакансій (HR); фактичного часу немає"
+  },
+  {
+   "n": 153,
+   "section": "HR та Персонал",
+   "metric": "Виробіток на 1 оператора (кг або одиниць/зміна)",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 154,
+   "section": "HR та Персонал",
+   "metric": "% співробітників з KPI > 100%",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 155,
+   "section": "HR та Персонал",
+   "metric": "вартість найму (по ролях)",
+   "registry": "calc",
+   "dash": "calc",
+   "evidence": "без змін"
+  },
+  {
+   "n": 156,
+   "section": "HR та Персонал",
+   "metric": "eNPS",
+   "registry": "calc",
+   "dash": "calc",
+   "evidence": "без змін"
+  },
+  {
+   "n": 157,
+   "section": "Топ-дашборд CEO",
+   "metric": "Виручка (ОПТ + В2С) план/факт",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 158,
+   "section": "Топ-дашборд CEO",
+   "metric": "OEE / Операційна ефективність (%)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 159,
+   "section": "Топ-дашборд CEO",
+   "metric": "% браку (компанія)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "ОТК з початку місяця (batches) — CEO"
+  },
+  {
+   "n": 160,
+   "section": "Топ-дашборд CEO",
+   "metric": "Cashflow: залишок + прогноз 30 днів",
+   "registry": "no",
+   "dash": "no",
+   "evidence": "без змін"
+  },
+  {
+   "n": 161,
+   "section": "Топ-дашборд CEO",
+   "metric": "Частка топ-2 клієнтів у виручці (%)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "CashFlow _Клієнти_Топ2, щогодини — Продажі, CEO"
+  },
+  {
+   "n": 162,
+   "section": "Топ-дашборд CEO",
+   "metric": "Середній lead time (дні)",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 163,
+   "section": "Топ-дашборд CEO",
+   "metric": "Корисний машинний час (год/добу, середній)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "друк-годин / принтер (capacity, v4.9)"
+  },
+  {
+   "n": 164,
+   "section": "Топ-дашборд CEO",
+   "metric": "К-сть активних B2B-клієнтів",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 165,
+   "section": "Топ-дашборд CEO",
+   "metric": "Нові B2B-клієнти за місяць",
+   "registry": "part",
+   "dash": "part",
+   "evidence": "без змін"
+  },
+  {
+   "n": 166,
+   "section": "Топ-дашборд CEO",
+   "metric": "Виконання плану по проектах SS-2026 (%)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "% виконання стратегії + скорінг цілей + статус спринту (strategy.json) — CEO, 01.10"
+  },
+  {
+   "n": 167,
+   "section": "Топ-дашборд CEO",
+   "metric": "Плинність персоналу (%)",
+   "registry": "part",
+   "dash": "yes",
+   "evidence": "hr.json — CEO"
+  },
+  {
+   "n": 168,
+   "section": "Топ-дашборд CEO",
+   "metric": "Маржинальність компанії (%)",
+   "registry": "no",
+   "dash": "yes",
+   "evidence": "P&L Easy v1: валова/EBITDA/чиста маржа — CEO, 01.10"
+  }
+ ]
+}
