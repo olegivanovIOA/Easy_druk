@@ -33752,7 +33752,1114 @@
         "screening": 928,
         "all": 1781
       }
+    },
+    {
+      "fetched_at": "2026-10-01T00:59:37Z",
+      "month": "2026-10",
+      "bySource": [],
+      "cohort": {
+        "funnel": {
+          "all": 1,
+          "clean": 1,
+          "qualified": 1,
+          "activeOrWon": 1,
+          "won": 0,
+          "wonSum": 0,
+          "expectedSumActiveWon": 0.0
+        },
+        "byStage": [
+          {
+            "stage": "НОВИЙ лід ( не оброблений )",
+            "deals": 1,
+            "sum": 0.0
+          }
+        ],
+        "bySource": [
+          {
+            "key": "24",
+            "name": "Сайт easy3dprint.com.ua",
+            "deals": 1,
+            "expectedSum": 0.0,
+            "won": 0,
+            "wonSum": 0.0
+          }
+        ],
+        "byCampaign": [
+          {
+            "key": "— / —",
+            "name": "— / —",
+            "deals": 1,
+            "expectedSum": 0.0,
+            "won": 0,
+            "wonSum": 0.0
+          }
+        ],
+        "retention": {
+          "clientsInCohort": 1,
+          "returningClients": 0,
+          "repeatBuyers": 0,
+          "noClientLinked": 0,
+          "returning": {
+            "deals": 0,
+            "won": 0,
+            "wonSum": 0,
+            "winRate": null
+          },
+          "new": {
+            "deals": 1,
+            "won": 0,
+            "wonSum": 0,
+            "winRate": null
+          },
+          "repeatPurchase": {
+            "deals": 0,
+            "won": 0,
+            "wonSum": 0,
+            "winRate": null
+          }
+        },
+        "staleBigDeals": [
+          {
+            "id": "153984",
+            "category": 24,
+            "stage": "Згода підтверджена",
+            "amount": 50668000.0,
+            "created": "2025-10-24"
+          },
+          {
+            "id": "144900",
+            "category": 24,
+            "stage": "Згода підтверджена",
+            "amount": 27292960.0,
+            "created": "2025-08-11"
+          }
+        ],
+        "pipelines": [
+          {
+            "id": 0,
+            "title": "ЛИДЫ (первинний скринінг)",
+            "total": 1,
+            "method": "history",
+            "v": 2,
+            "wonDirect": 0,
+            "stages": [
+              {
+                "id": "NEW",
+                "name": "НОВИЙ лід ( не оброблений )",
+                "sem": "P",
+                "count": 1,
+                "sum": 0.0,
+                "reached": 1,
+                "lostHere": 0
+              },
+              {
+                "id": "40",
+                "name": "НЕ додзвонилися (потрібно перетелефонувати )",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "41",
+                "name": "НЕ завершили первинний контакт",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "WON",
+                "name": "ЦЕЛЕВОЙ запрос",
+                "sem": "S",
+                "count": 0,
+                "sum": 0.0,
+                "handedOver": 0
+              },
+              {
+                "id": "LOSE",
+                "name": "СПАМ / МУСОР",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "16",
+                "name": "ДУБЛЬ",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "APOLOGY",
+                "name": "Не берет / не отвечает (более 3 попыток)",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "52",
+                "name": "Уже НЕ актуально (не озвучил запрос)",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "50",
+                "name": "ОШИБСЯ (запрос не по теме)",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "UC_IQCW19",
+                "name": "Некорректные контакты для связи",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "UC_VXSSGV",
+                "name": "ТЕСТОВЫЙ звонок",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              }
+            ]
+          },
+          {
+            "id": 24,
+            "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
+            "total": 0,
+            "method": "history",
+            "v": 2,
+            "wonDirect": 0,
+            "stages": [
+              {
+                "id": "C24:NEW",
+                "name": "НОВА угода (цільовий запит)",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:PREPAYMENT_INVOIC",
+                "name": "ОЧІКУЄМО матеріали (фото / модель / ...)",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:EXECUTING",
+                "name": "Іде РОЗРАХУНОК",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:FINAL_INVOICE",
+                "name": "УМОВИ озвучені",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:UC_HKB5Y6",
+                "name": "Потрібно більше часу для прийняття рішення",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:1",
+                "name": "Згода підтверджена",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:UC_556PC9",
+                "name": "Друк неможливий",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:UC_WX2OD0",
+                "name": "Друк АУТСОРС",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:2",
+                "name": "Очікуємо ОРИГІНАЛ",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:3",
+                "name": "Потрібна 3D Модель",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:4",
+                "name": "Повна ОПЛАТА отримана  (за 3D модель)",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:UC_KSU9OT",
+                "name": "Моделювання неможливе",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:5",
+                "name": "3D Модель готова",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:6",
+                "name": "3D Модель прийнята клієнтом",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:UC_OKE8V5",
+                "name": "ПЛАНУВАННЯ",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:UC_MFGP84",
+                "name": "Планування неможливе",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:UC_AWYMQQ",
+                "name": "СПЛАНОВАНО",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:UC_V3F2Z2",
+                "name": "УМОВИ озвучені",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:7",
+                "name": "ПЕРЕДОПЛАТА  за ДРУК отримана",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:8",
+                "name": "Виробництво  ЗАВЕРШЕНО",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:9",
+                "name": "Запит  на ВІДПРАВКУ  сформований",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:10",
+                "name": "Спаковано  для САМОВИВОЗА",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:11",
+                "name": "Клієнт ЗАБРАВ ПОСИЛКУ",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:13",
+                "name": "ПОВЕРНЕННЯ",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C24:WON",
+                "name": "Сделка УСПЕШНА",
+                "sem": "S",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:LOSE",
+                "name": "ДОРОГО",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:15",
+                "name": "НЕ отвечает (более 3-х попыток)",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:APOLOGY",
+                "name": "НЕ актуально",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:20",
+                "name": "НЕ можем реализовать запрос",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:17",
+                "name": "Ищет в своем ГОРОДЕ",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:19",
+                "name": "ДУБЛЬ",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:14",
+                "name": "НЕ устраивают сроки",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:16",
+                "name": "НЕ устроило качество",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:UC_V7P0RJ",
+                "name": "Косяк отдела моделирования",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:UC_Z1ORD3",
+                "name": "Косяк отдела печати",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:UC_FRFEQY",
+                "name": "Косяк отдела обработки",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:UC_0540T9",
+                "name": "Косяк отдела литья",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C24:UC_X568OT",
+                "name": "Косяк отдела отправки",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              }
+            ]
+          },
+          {
+            "id": 18,
+            "title": "ОТДЕЛ ПРОДАЖ ТОВАРКА (Роздріб)",
+            "total": 0,
+            "method": "history",
+            "v": 2,
+            "wonDirect": 0,
+            "stages": [
+              {
+                "id": "C18:NEW",
+                "name": "НОВА угода (цільовий  запит товарка)",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:1",
+                "name": "ПОТРЕБА виявлена",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:2",
+                "name": "ІНТЕРЕС підтверджений",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:3",
+                "name": "Уточнюємо НАЯВНІСТЬ",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:8",
+                "name": "ЗАПИТ на відправку сформовано",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:UC_FJ34YT",
+                "name": "Відправка НЕМОЖЛИВА",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:27",
+                "name": "Клієнт ЗАБРАВ посилку",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:12",
+                "name": "Упаковано для САМОВИВОЗА",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:28",
+                "name": "На РЕАЛІЗАЦІЇ у дилера (гроші ще не отримали)",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:19",
+                "name": "ПОВЕРНЕННЯ",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C18:WON",
+                "name": "Угода УСПІШНА",
+                "sem": "S",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:LOSE",
+                "name": "ДОРОГО",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:APOLOGY",
+                "name": "НЕ АКТУАЛЬНО",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:15",
+                "name": "НЕ влаштовують терміни",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:21",
+                "name": "НЕ відповідає (більше 3-х спроб)",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:20",
+                "name": "НЕ влаштувала якість",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:26",
+                "name": "Шукає у своєму МІСТІ",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:25",
+                "name": "ДУБЛЬ",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:16",
+                "name": "НЕМАЄ В НАЯВНОСТІ",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:17",
+                "name": "НЕМАЄ в наявності  (вказати коментар)",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:UC_L6RTZX",
+                "name": "Немає можливості отримати",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:UC_UWT6O6",
+                "name": "Наша помилка (не те/не туди відправили/т.д.)",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C18:UC_KF5OB3",
+                "name": "Прокачування маркетплейсів",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              }
+            ]
+          },
+          {
+            "id": 32,
+            "title": "ОТДЕЛ ПРОДАЖ МАГАЗИН (Роздріб)",
+            "total": 0,
+            "method": "history",
+            "v": 2,
+            "wonDirect": 0,
+            "stages": [
+              {
+                "id": "C32:NEW",
+                "name": "НОВАЯ сделка (магазин)",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:UC_94J5I7",
+                "name": "Потребность выявлена",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:PREPAYMENT_INVOIC",
+                "name": "Уточняем НАЛИЧИЕ",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:EXECUTING",
+                "name": "ЗАКАЗАНО",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:UC_OMP90Q",
+                "name": "У ПОСРЕДНИКА",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:UC_44CUWE",
+                "name": "Получено на склад",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:UC_HJBJ14",
+                "name": "ЗАПРОС на отправку сформирован",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:UC_KG1EQX",
+                "name": "Упаковано для САМОВЫВОЗА",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:UC_P0NZL9",
+                "name": "Клиент забрал послку",
+                "sem": "P",
+                "count": 0,
+                "sum": 0.0,
+                "reached": 0,
+                "lostHere": 0
+              },
+              {
+                "id": "C32:WON",
+                "name": "Сделка УСПЕШНА",
+                "sem": "S",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C32:LOSE",
+                "name": "ДОРОГО",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C32:UC_3T1AAK",
+                "name": "НЕТ в ассортименте",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C32:UC_1WEB1R",
+                "name": "НЕТ В НАЛИЧИИ",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C32:UC_W6ZD4K",
+                "name": "НЕ устраивают сроки",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C32:UC_NAPHGT",
+                "name": "Ищет в своем ГОРОДЕ",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C32:UC_8IPSU8",
+                "name": "НЕ АКТУАЛЬНО",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              },
+              {
+                "id": "C32:UC_A5HL19",
+                "name": "НЕ отвечает (более 3-х попыток)",
+                "sem": "F",
+                "count": 0,
+                "sum": 0.0
+              }
+            ]
+          }
+        ],
+        "definitions": {
+          "clean": "без стадій ДУБЛЬ / ТЕСТОВИЙ",
+          "qualified": "clean мінус відмови: спам/мусор, помилкові, некоректні контакти, недодзвон, не завершили перв. контакт",
+          "won": "WON у воронках 24/18/32 (WON воронки 0 — лише пройдений скринінг)",
+          "returning": "у клієнта (компанія або контакт) є угоди, створені раніше",
+          "repeatPurchase": "у клієнта раніше вже була УСПІШНА угода"
+        }
+      },
+      "byUtm": [],
+      "from": "2026-10-01",
+      "to": "2026-10-01",
+      "complete": false,
+      "wholesale": {
+        "deals": 0,
+        "revenue": 0,
+        "avgCheck": null,
+        "medianCheck": null,
+        "tiers": [
+          {
+            "tier": "small",
+            "label": "Дрібні (<10К)",
+            "deals": 0,
+            "revenue": 0.0
+          },
+          {
+            "tier": "medium",
+            "label": "Середні (10К–100К)",
+            "deals": 0,
+            "revenue": 0.0
+          },
+          {
+            "tier": "mega",
+            "label": "Мега-опт (>100К)",
+            "deals": 0,
+            "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 0
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 0
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 0
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 0
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 0
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
+          }
+        ],
+        "timeToClose": {
+          "avgDays": null,
+          "medianDays": null,
+          "sampleSize": 0
+        }
+      },
+      "retail": {
+        "deals": 0,
+        "revenue": 0,
+        "avgCheck": null,
+        "medianCheck": null,
+        "tiers": [
+          {
+            "tier": "small",
+            "label": "Дрібні (<10К)",
+            "deals": 0,
+            "revenue": 0.0
+          },
+          {
+            "tier": "medium",
+            "label": "Середні (10К–100К)",
+            "deals": 0,
+            "revenue": 0.0
+          },
+          {
+            "tier": "mega",
+            "label": "Мега-опт (>100К)",
+            "deals": 0,
+            "revenue": 0.0
+          }
+        ],
+        "histogram": [
+          {
+            "bucket": "b1",
+            "label": "<1К",
+            "deals": 0
+          },
+          {
+            "bucket": "b2",
+            "label": "1К–2К",
+            "deals": 0
+          },
+          {
+            "bucket": "b3",
+            "label": "2К–5К",
+            "deals": 0
+          },
+          {
+            "bucket": "b4",
+            "label": "5К–10К",
+            "deals": 0
+          },
+          {
+            "bucket": "b5",
+            "label": "10К–25К",
+            "deals": 0
+          },
+          {
+            "bucket": "b6",
+            "label": "25К–50К",
+            "deals": 0
+          },
+          {
+            "bucket": "b7",
+            "label": "50К–100К",
+            "deals": 0
+          },
+          {
+            "bucket": "b8",
+            "label": "100К–300К",
+            "deals": 0
+          },
+          {
+            "bucket": "b9",
+            "label": ">300К",
+            "deals": 0
+          }
+        ],
+        "timeToClose": {
+          "avgDays": null,
+          "medianDays": null,
+          "sampleSize": 0
+        }
+      },
+      "dealLists": {
+        "wholesale": {
+          "small": [],
+          "medium": [],
+          "mega": []
+        },
+        "retail": {
+          "small": [],
+          "medium": [],
+          "mega": []
+        }
+      },
+      "byCategory": {
+        "24": {
+          "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
+          "group": "wholesale",
+          "deals": 0,
+          "revenue": 0,
+          "avgCheck": null,
+          "medianCheck": null,
+          "otherCurrencyDealsSkipped": 0,
+          "top5": [],
+          "timeToClose": {
+            "avgDays": null,
+            "medianDays": null,
+            "sampleSize": 0
+          }
+        },
+        "18": {
+          "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
+          "group": "retail",
+          "deals": 0,
+          "revenue": 0,
+          "avgCheck": null,
+          "medianCheck": null,
+          "otherCurrencyDealsSkipped": 0,
+          "top5": [],
+          "timeToClose": {
+            "avgDays": null,
+            "medianDays": null,
+            "sampleSize": 0
+          }
+        },
+        "32": {
+          "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
+          "group": "retail",
+          "deals": 0,
+          "revenue": 0,
+          "avgCheck": null,
+          "medianCheck": null,
+          "otherCurrencyDealsSkipped": 0,
+          "top5": [],
+          "timeToClose": {
+            "avgDays": null,
+            "medianDays": null,
+            "sampleSize": 0
+          }
+        }
+      },
+      "lossReasonsWholesale": [],
+      "lossReasonsRetail": [],
+      "lossReasonsScreening": [],
+      "lossReasonsTotal": [],
+      "lossReasonsByCategory": {
+        "24": {
+          "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
+          "group": "wholesale",
+          "reasons": [],
+          "totalLost": 0,
+          "totalReviewed": 0
+        },
+        "18": {
+          "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
+          "group": "retail",
+          "reasons": [],
+          "totalLost": 0,
+          "totalReviewed": 0
+        },
+        "32": {
+          "label": "ОТДЕЛ ПРОДАЖ МАГАЗИН",
+          "group": "retail",
+          "reasons": [],
+          "totalLost": 0,
+          "totalReviewed": 0
+        },
+        "0": {
+          "label": "ЛИДЫ (первинний скринінг)",
+          "group": "screening",
+          "reasons": [],
+          "totalLost": 0,
+          "totalReviewed": 0
+        }
+      },
+      "totalReviewed": {
+        "wholesale": 0,
+        "retail": 0,
+        "screening": 0,
+        "all": 0
+      }
     }
   ],
-  "updated_at": "2026-09-30T21:12:27Z"
+  "updated_at": "2026-10-01T00:59:42Z"
 }
