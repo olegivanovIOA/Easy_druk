@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-01T14:59:26Z",
+  "fetched_at": "2026-10-01T20:12:34Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -213,27 +213,32 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 37,
-      "clean": 35,
-      "qualified": 24,
-      "activeOrWon": 15,
+      "all": 43,
+      "clean": 41,
+      "qualified": 30,
+      "activeOrWon": 21,
       "won": 0,
       "wonSum": 0,
       "expectedSumActiveWon": 99433.32
     },
     "byStage": [
       {
+        "stage": "НЕ завершили первинний контакт",
+        "deals": 7,
+        "sum": 0.0
+      },
+      {
         "stage": "СПАМ / МУСОР",
         "deals": 6,
         "sum": 0.0
       },
       {
-        "stage": "НЕ завершили первинний контакт",
-        "deals": 6,
+        "stage": "Уже НЕ актуально (не озвучил запрос)",
+        "deals": 5,
         "sum": 0.0
       },
       {
-        "stage": "Уже НЕ актуально (не озвучил запрос)",
+        "stage": "НОВИЙ лід ( не оброблений )",
         "deals": 5,
         "sum": 0.0
       },
@@ -268,7 +273,7 @@
         "sum": 0.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
         "deals": 1,
         "sum": 0.0
       },
@@ -292,8 +297,16 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 17,
+        "deals": 18,
         "expectedSum": 97667.24,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "UC_C5YUHA",
+        "name": "Электронная почта ukr3dprint@gmail.com",
+        "deals": 4,
+        "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -314,8 +327,16 @@
         "wonSum": 0.0
       },
       {
-        "key": "UC_C5YUHA",
-        "name": "Электронная почта ukr3dprint@gmail.com",
+        "key": "47",
+        "name": "B2B site form",
+        "deals": 3,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "24",
+        "name": "Сайт easy3dprint.com.ua",
         "deals": 3,
         "expectedSum": 0.0,
         "won": 0,
@@ -330,24 +351,8 @@
         "wonSum": 0.0
       },
       {
-        "key": "47",
-        "name": "B2B site form",
-        "deals": 2,
-        "expectedSum": 0.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 2,
-        "expectedSum": 0.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
-        "key": "24",
-        "name": "Сайт easy3dprint.com.ua",
         "deals": 2,
         "expectedSum": 0.0,
         "won": 0,
@@ -360,14 +365,38 @@
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
+      },
+      {
+        "key": "51",
+        "name": "Facebook Ukr3DPrint",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "43",
+        "name": "Instagram реклама ОПТ ФДМ",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
       }
     ],
     "byCampaign": [
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 26,
+        "deals": 29,
         "expectedSum": 97327.24,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / B2B_convers",
+        "name": "google / B2B_convers",
+        "deals": 4,
+        "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -376,14 +405,6 @@
         "name": "google / Search_new_ukr",
         "deals": 2,
         "expectedSum": 350.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
-        "key": "google / B2B_convers",
-        "name": "google / B2B_convers",
-        "deals": 2,
-        "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -420,6 +441,14 @@
         "wonSum": 0.0
       },
       {
+        "key": "1413854150112337 / TOF_Leads_miltech_1809-apgreyd3009",
+        "name": "1413854150112337 / TOF_Leads_miltech_1809-apgreyd3009",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
         "key": "google / General_KW_UA_Cities_UA_broad",
         "name": "google / General_KW_UA_Cities_UA_broad",
         "deals": 1,
@@ -437,10 +466,10 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 35,
+      "clientsInCohort": 40,
       "returningClients": 11,
       "repeatBuyers": 5,
-      "noClientLinked": 1,
+      "noClientLinked": 2,
       "returning": {
         "deals": 12,
         "won": 0,
@@ -448,7 +477,7 @@
         "winRate": 0.0
       },
       "new": {
-        "deals": 25,
+        "deals": 31,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
@@ -480,7 +509,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 30,
+        "total": 36,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -489,27 +518,27 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 1,
+            "count": 5,
             "sum": 0.0,
-            "reached": 30,
+            "reached": 36,
             "lostHere": 14
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 0,
+            "count": 1,
             "sum": 0.0,
-            "reached": 15,
+            "reached": 17,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 6,
+            "count": 7,
             "sum": 0.0,
-            "reached": 15,
+            "reached": 16,
             "lostHere": 4
           },
           {
@@ -1694,7 +1723,7 @@
     "all": 51
   },
   "pipeline": {
-    "asOf": "2026-10-01T14:59:32Z",
+    "asOf": "2026-10-01T20:12:39Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
