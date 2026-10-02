@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-02T13:26:39Z",
+  "fetched_at": "2026-10-02T18:52:27Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -21,23 +21,23 @@
     {
       "source": "CALL",
       "name": "Звонок",
-      "reviewed": 33,
+      "reviewed": 34,
       "won": 1,
-      "lost": 29,
+      "lost": 30,
       "junk": 3,
       "wonWholesale": 1,
       "wonRetail": 0,
       "revenue": 350.0,
       "revenueWholesale": 350.0,
       "revenueRetail": 0.0,
-      "winRate": 3.3,
-      "junkShare": 9.1,
+      "winRate": 3.2,
+      "junkShare": 8.8,
       "avgCheck": 350.0
     },
     {
       "source": "24",
       "name": "Сайт easy3dprint.com.ua",
-      "reviewed": 13,
+      "reviewed": 14,
       "won": 0,
       "lost": 12,
       "junk": 1,
@@ -47,7 +47,7 @@
       "revenueWholesale": 0.0,
       "revenueRetail": 0.0,
       "winRate": 0.0,
-      "junkShare": 7.7,
+      "junkShare": 7.1,
       "avgCheck": null
     },
     {
@@ -67,6 +67,22 @@
       "avgCheck": null
     },
     {
+      "source": "UC_C5YUHA",
+      "name": "Электронная почта ukr3dprint@gmail.com",
+      "reviewed": 7,
+      "won": 0,
+      "lost": 7,
+      "junk": 6,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": 0.0,
+      "junkShare": 85.7,
+      "avgCheck": null
+    },
+    {
       "source": "UC_LJ05D6",
       "name": "Электронная почта sales@easy3dprint.com.ua",
       "reviewed": 6,
@@ -83,22 +99,6 @@
       "avgCheck": null
     },
     {
-      "source": "UC_C5YUHA",
-      "name": "Электронная почта ukr3dprint@gmail.com",
-      "reviewed": 6,
-      "won": 0,
-      "lost": 6,
-      "junk": 5,
-      "wonWholesale": 0,
-      "wonRetail": 0,
-      "revenue": 0.0,
-      "revenueWholesale": 0.0,
-      "revenueRetail": 0.0,
-      "winRate": 0.0,
-      "junkShare": 83.3,
-      "avgCheck": null
-    },
-    {
       "source": "47",
       "name": "B2B site form",
       "reviewed": 4,
@@ -112,6 +112,22 @@
       "revenueRetail": 0.0,
       "winRate": 0.0,
       "junkShare": 0.0,
+      "avgCheck": null
+    },
+    {
+      "source": "WEBFORM",
+      "name": "CRM-форма",
+      "reviewed": 4,
+      "won": 0,
+      "lost": 4,
+      "junk": 1,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": 0.0,
+      "junkShare": 25.0,
       "avgCheck": null
     },
     {
@@ -179,22 +195,6 @@
       "avgCheck": null
     },
     {
-      "source": "WEBFORM",
-      "name": "CRM-форма",
-      "reviewed": 2,
-      "won": 0,
-      "lost": 2,
-      "junk": 1,
-      "wonWholesale": 0,
-      "wonRetail": 0,
-      "revenue": 0.0,
-      "revenueWholesale": 0.0,
-      "revenueRetail": 0.0,
-      "winRate": 0.0,
-      "junkShare": 50.0,
-      "avgCheck": null
-    },
-    {
       "source": "UC_DRU189",
       "name": "Электронная почта b2b@easy3dprint.com.ua",
       "reviewed": 1,
@@ -229,23 +229,28 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 88,
-      "clean": 83,
-      "qualified": 57,
-      "activeOrWon": 37,
+      "all": 94,
+      "clean": 89,
+      "qualified": 62,
+      "activeOrWon": 38,
       "won": 0,
       "wonSum": 0,
-      "expectedSumActiveWon": 105003.24
+      "expectedSumActiveWon": 101403.24
     },
     "byStage": [
       {
         "stage": "НЕ завершили первинний контакт",
-        "deals": 23,
+        "deals": 24,
         "sum": 0.0
       },
       {
         "stage": "СПАМ / МУСОР",
-        "deals": 12,
+        "deals": 13,
+        "sum": 0.0
+      },
+      {
+        "stage": "Уже НЕ актуально (не озвучил запрос)",
+        "deals": 9,
         "sum": 0.0
       },
       {
@@ -254,17 +259,12 @@
         "sum": 0.0
       },
       {
-        "stage": "Уже НЕ актуально (не озвучил запрос)",
-        "deals": 8,
+        "stage": "НЕ можем реализовать запрос",
+        "deals": 6,
         "sum": 0.0
       },
       {
         "stage": "Не берет / не отвечает (более 3 попыток)",
-        "deals": 5,
-        "sum": 0.0
-      },
-      {
-        "stage": "НЕ можем реализовать запрос",
         "deals": 5,
         "sum": 0.0
       },
@@ -274,19 +274,14 @@
         "sum": 100753.24
       },
       {
+        "stage": "Ищет в своем ГОРОДЕ",
+        "deals": 4,
+        "sum": 0.0
+      },
+      {
         "stage": "ДУБЛЬ",
         "deals": 3,
         "sum": 0.0
-      },
-      {
-        "stage": "Ищет в своем ГОРОДЕ",
-        "deals": 3,
-        "sum": 0.0
-      },
-      {
-        "stage": "НОВА угода (цільовий запит)",
-        "deals": 3,
-        "sum": 400.0
       },
       {
         "stage": "ТЕСТОВЫЙ звонок",
@@ -304,12 +299,22 @@
         "sum": 0.0
       },
       {
+        "stage": "Іде РОЗРАХУНОК",
+        "deals": 2,
+        "sum": 0.0
+      },
+      {
         "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
         "deals": 2,
         "sum": 0.0
       },
       {
-        "stage": "Іде РОЗРАХУНОК",
+        "stage": "НОВА угода (цільовий запит)",
+        "deals": 2,
+        "sum": 400.0
+      },
+      {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
         "deals": 1,
         "sum": 0.0
       },
@@ -319,37 +324,37 @@
         "sum": 0.0
       },
       {
-        "stage": "УМОВИ озвучені",
-        "deals": 1,
-        "sum": 3600.0
-      },
-      {
         "stage": "3D Модель готова",
         "deals": 1,
         "sum": 250.0
+      },
+      {
+        "stage": "НЕ устраивают сроки",
+        "deals": 1,
+        "sum": 0.0
       }
     ],
     "bySource": [
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 38,
-        "expectedSum": 102167.24,
+        "deals": 40,
+        "expectedSum": 98567.24,
         "won": 0,
         "wonSum": 0.0
       },
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
-        "deals": 9,
+        "deals": 10,
         "expectedSum": 400.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
-        "key": "UC_LJ05D6",
-        "name": "Электронная почта sales@easy3dprint.com.ua",
-        "deals": 7,
+        "key": "UC_C5YUHA",
+        "name": "Электронная почта ukr3dprint@gmail.com",
+        "deals": 8,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -357,15 +362,15 @@
       {
         "key": "WEBFORM",
         "name": "CRM-форма",
-        "deals": 7,
+        "deals": 8,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
-        "key": "UC_C5YUHA",
-        "name": "Электронная почта ukr3dprint@gmail.com",
-        "deals": 6,
+        "key": "UC_LJ05D6",
+        "name": "Электронная почта sales@easy3dprint.com.ua",
+        "deals": 7,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -455,8 +460,8 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 70,
-        "expectedSum": 104653.24,
+        "deals": 75,
+        "expectedSum": 101053.24,
         "won": 0,
         "wonSum": 0.0
       },
@@ -485,6 +490,14 @@
         "wonSum": 0.0
       },
       {
+        "key": "google / Pmax_old_new",
+        "name": "google / Pmax_old_new",
+        "deals": 2,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
         "key": "google / Brand_UA_new",
         "name": "google / Brand_UA_new",
         "deals": 1,
@@ -495,14 +508,6 @@
       {
         "key": "youtube / cubastik",
         "name": "youtube / cubastik",
-        "deals": 1,
-        "expectedSum": 0.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
-        "key": "google / Pmax_old_new",
-        "name": "google / Pmax_old_new",
         "deals": 1,
         "expectedSum": 0.0,
         "won": 0,
@@ -526,24 +531,24 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 85,
-      "returningClients": 15,
-      "repeatBuyers": 5,
+      "clientsInCohort": 91,
+      "returningClients": 17,
+      "repeatBuyers": 6,
       "noClientLinked": 2,
       "returning": {
-        "deals": 16,
+        "deals": 18,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
       },
       "new": {
-        "deals": 72,
+        "deals": 76,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
       },
       "repeatPurchase": {
-        "deals": 5,
+        "deals": 6,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
@@ -569,7 +574,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 67,
+        "total": 71,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -580,25 +585,25 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 67,
-            "lostHere": 35
+            "reached": 71,
+            "lostHere": 37
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 0,
+            "count": 1,
             "sum": 0.0,
-            "reached": 32,
+            "reached": 34,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 23,
+            "count": 24,
             "sum": 0.0,
-            "reached": 32,
+            "reached": 33,
             "lostHere": 4
           },
           {
@@ -613,7 +618,7 @@
             "id": "LOSE",
             "name": "СПАМ / МУСОР",
             "sem": "F",
-            "count": 12,
+            "count": 13,
             "sum": 0.0
           },
           {
@@ -634,7 +639,7 @@
             "id": "52",
             "name": "Уже НЕ актуально (не озвучил запрос)",
             "sem": "F",
-            "count": 8,
+            "count": 9,
             "sum": 0.0
           },
           {
@@ -663,7 +668,7 @@
       {
         "id": 24,
         "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-        "total": 26,
+        "total": 28,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -672,10 +677,10 @@
             "id": "C24:NEW",
             "name": "НОВА угода (цільовий запит)",
             "sem": "P",
-            "count": 3,
+            "count": 2,
             "sum": 400.0,
-            "reached": 26,
-            "lostHere": 9
+            "reached": 28,
+            "lostHere": 12
           },
           {
             "id": "C24:PREPAYMENT_INVOIC",
@@ -690,7 +695,7 @@
             "id": "C24:EXECUTING",
             "name": "Іде РОЗРАХУНОК",
             "sem": "P",
-            "count": 1,
+            "count": 2,
             "sum": 0.0,
             "reached": 12,
             "lostHere": 3
@@ -699,9 +704,9 @@
             "id": "C24:FINAL_INVOICE",
             "name": "УМОВИ озвучені",
             "sem": "P",
-            "count": 1,
-            "sum": 3600.0,
-            "reached": 8,
+            "count": 0,
+            "sum": 0.0,
+            "reached": 7,
             "lostHere": 0
           },
           {
@@ -916,14 +921,14 @@
             "id": "C24:20",
             "name": "НЕ можем реализовать запрос",
             "sem": "F",
-            "count": 5,
+            "count": 6,
             "sum": 0.0
           },
           {
             "id": "C24:17",
             "name": "Ищет в своем ГОРОДЕ",
             "sem": "F",
-            "count": 3,
+            "count": 4,
             "sum": 0.0
           },
           {
@@ -937,7 +942,7 @@
             "id": "C24:14",
             "name": "НЕ устраивают сроки",
             "sem": "F",
-            "count": 0,
+            "count": 1,
             "sum": 0.0
           },
           {
@@ -1334,7 +1339,7 @@
   "byUtm": [
     {
       "utm": "google",
-      "reviewed": 24,
+      "reviewed": 26,
       "won": 1,
       "revenue": 350.0
     },
@@ -1606,7 +1611,7 @@
     },
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 6
+      "count": 7
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
@@ -1618,30 +1623,30 @@
     },
     {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 3
+      "count": 4
+    },
+    {
+      "reason": "НЕ устраивают сроки",
+      "count": 2
     },
     {
       "reason": "ДУБЛЬ",
       "count": 2
-    },
-    {
-      "reason": "НЕ устраивают сроки",
-      "count": 1
     }
   ],
   "lossReasonsRetail": [],
   "lossReasonsScreening": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 14
+      "count": 13
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 12
+      "count": 13
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 11
+      "count": 12
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
@@ -1659,15 +1664,15 @@
   "lossReasonsTotal": [
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 14
+      "count": 13
     },
     {
       "reason": "СПАМ / МУСОР",
-      "count": 12
+      "count": 13
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 11
+      "count": 12
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
@@ -1679,7 +1684,7 @@
     },
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 6
+      "count": 7
     },
     {
       "reason": "ДУБЛЬ",
@@ -1695,15 +1700,15 @@
     },
     {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 3
+      "count": 4
+    },
+    {
+      "reason": "НЕ устраивают сроки",
+      "count": 2
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
       "count": 2
-    },
-    {
-      "reason": "НЕ устраивают сроки",
-      "count": 1
     }
   ],
   "lossReasonsByCategory": {
@@ -1717,7 +1722,7 @@
         },
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 6
+          "count": 7
         },
         {
           "reason": "НЕ отвечает (более 3-х попыток)",
@@ -1729,19 +1734,19 @@
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 3
+          "count": 4
+        },
+        {
+          "reason": "НЕ устраивают сроки",
+          "count": 2
         },
         {
           "reason": "ДУБЛЬ",
           "count": 2
-        },
-        {
-          "reason": "НЕ устраивают сроки",
-          "count": 1
         }
       ],
-      "totalLost": 28,
-      "totalReviewed": 37
+      "totalLost": 31,
+      "totalReviewed": 40
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -1763,15 +1768,15 @@
       "reasons": [
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 14
+          "count": 13
         },
         {
           "reason": "СПАМ / МУСОР",
-          "count": 12
+          "count": 13
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 11
+          "count": 12
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
@@ -1786,23 +1791,23 @@
           "count": 2
         }
       ],
-      "totalLost": 52,
-      "totalReviewed": 53
+      "totalLost": 53,
+      "totalReviewed": 55
     }
   },
   "totalReviewed": {
-    "wholesale": 37,
+    "wholesale": 40,
     "retail": 0,
-    "screening": 53,
-    "all": 90
+    "screening": 55,
+    "all": 95
   },
   "pipeline": {
-    "asOf": "2026-10-02T13:26:45Z",
+    "asOf": "2026-10-02T18:52:33Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
-        "deals": 106,
-        "sum": 129841953.16,
+        "deals": 105,
+        "sum": 129838353.16,
         "stale": 27,
         "staleSum": 78615068.02,
         "stages": [
@@ -1823,8 +1828,8 @@
           },
           {
             "stage": "УМОВИ озвучені",
-            "deals": 13,
-            "sum": 3600.0
+            "deals": 12,
+            "sum": 0.0
           },
           {
             "stage": "Потрібно більше часу для прийняття рішення",
