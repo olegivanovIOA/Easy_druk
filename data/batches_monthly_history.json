@@ -1837,7 +1837,7 @@
       "from": "2026-10-01",
       "to": "2026-10-01",
       "complete": false,
-      "defectCostTotalUAH": 1175.13,
+      "defectCostTotalUAH": 3811.1,
       "totals": {
         "batches": 124,
         "lots": 18
@@ -1845,35 +1845,35 @@
       "company": {
         "batches": 124,
         "lots": 18,
-        "acceptedQty": 749,
-        "defectQty": 16,
-        "defectPercent": 2.14,
-        "defectWeightPercent": 2.13,
+        "acceptedQty": 3274,
+        "defectQty": 142,
+        "defectPercent": 4.34,
+        "defectWeightPercent": 4.33,
         "totalPrintTimeMinutes": 2207273.2,
-        "materialCostUAH": 27813.4,
+        "materialCostUAH": 102486.55,
         "materialCostCoveragePercent": 100.0
       },
       "byPrinterModel": [
         {
+          "printerModel": "P1S",
+          "batches": 45,
+          "acceptedQty": 2279,
+          "defectQty": 129,
+          "defectPercent": 5.66
+        },
+        {
           "printerModel": "A2L",
           "batches": 10,
-          "acceptedQty": 572,
+          "acceptedQty": 695,
           "defectQty": 7,
-          "defectPercent": 1.22
+          "defectPercent": 1.01
         },
         {
           "printerModel": "P2S",
           "batches": 48,
-          "acceptedQty": 112,
+          "acceptedQty": 300,
           "defectQty": 6,
-          "defectPercent": 5.36
-        },
-        {
-          "printerModel": "P1S",
-          "batches": 45,
-          "acceptedQty": 65,
-          "defectQty": 3,
-          "defectPercent": 4.62
+          "defectPercent": 2.0
         },
         {
           "printerModel": "A1 mini",
@@ -1885,56 +1885,56 @@
       ],
       "byProduct": [
         {
+          "baseProductCode": "83112",
+          "batches": 7,
+          "acceptedQty": 1050,
+          "defectQty": 54,
+          "defectPercent": 5.14,
+          "defectCostUAH": 656.96
+        },
+        {
+          "baseProductCode": "83113",
+          "batches": 7,
+          "acceptedQty": 867,
+          "defectQty": 60,
+          "defectPercent": 6.92,
+          "defectCostUAH": 726.59
+        },
+        {
+          "baseProductCode": "000655",
+          "batches": 57,
+          "acceptedQty": 596,
+          "defectQty": 13,
+          "defectPercent": 2.18,
+          "defectCostUAH": 848.43
+        },
+        {
           "baseProductCode": "000656",
           "batches": 1,
-          "acceptedQty": 401,
+          "acceptedQty": 399,
           "defectQty": 0,
           "defectPercent": 0.0,
           "defectCostUAH": 0.0
         },
         {
-          "baseProductCode": "000655",
-          "batches": 57,
-          "acceptedQty": 283,
-          "defectQty": 13,
-          "defectPercent": 4.59,
-          "defectCostUAH": 848.43
+          "baseProductCode": "000650",
+          "batches": 2,
+          "acceptedQty": 182,
+          "defectQty": 5,
+          "defectPercent": 2.75,
+          "defectCostUAH": 490.12
         },
         {
           "baseProductCode": "000651",
           "batches": 2,
-          "acceptedQty": 65,
-          "defectQty": 3,
-          "defectPercent": 4.62,
-          "defectCostUAH": 326.7
-        },
-        {
-          "baseProductCode": "83112",
-          "batches": 7,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
+          "acceptedQty": 180,
+          "defectQty": 10,
+          "defectPercent": 5.56,
+          "defectCostUAH": 1089.0
         },
         {
           "baseProductCode": "49052",
           "batches": 12,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
-        },
-        {
-          "baseProductCode": "000650",
-          "batches": 2,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
-        },
-        {
-          "baseProductCode": "83113",
-          "batches": 7,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
@@ -1967,39 +1967,63 @@
       ],
       "defectCostRanking": [
         {
+          "baseProductCode": "000651",
+          "batches": 2,
+          "acceptedQty": 180,
+          "defectQty": 10,
+          "defectPercent": 5.56,
+          "defectCostUAH": 1089.0
+        },
+        {
           "baseProductCode": "000655",
           "batches": 57,
-          "acceptedQty": 283,
+          "acceptedQty": 596,
           "defectQty": 13,
-          "defectPercent": 4.59,
+          "defectPercent": 2.18,
           "defectCostUAH": 848.43
         },
         {
-          "baseProductCode": "000651",
+          "baseProductCode": "83113",
+          "batches": 7,
+          "acceptedQty": 867,
+          "defectQty": 60,
+          "defectPercent": 6.92,
+          "defectCostUAH": 726.59
+        },
+        {
+          "baseProductCode": "83112",
+          "batches": 7,
+          "acceptedQty": 1050,
+          "defectQty": 54,
+          "defectPercent": 5.14,
+          "defectCostUAH": 656.96
+        },
+        {
+          "baseProductCode": "000650",
           "batches": 2,
-          "acceptedQty": 65,
-          "defectQty": 3,
-          "defectPercent": 4.62,
-          "defectCostUAH": 326.7
+          "acceptedQty": 182,
+          "defectQty": 5,
+          "defectPercent": 2.75,
+          "defectCostUAH": 490.12
         }
       ],
       "byShift": [
         {
           "shift": "FIRST",
           "lots": 10,
-          "acceptedQty": 749,
-          "defectQty": 16,
-          "defectPercent": 2.14
+          "acceptedQty": 1639,
+          "defectQty": 60,
+          "defectPercent": 3.66
         },
         {
           "shift": "SECOND",
           "lots": 8,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null
+          "acceptedQty": 1635,
+          "defectQty": 82,
+          "defectPercent": 5.02
         }
       ]
     }
   ],
-  "updated_at": "2026-10-02T06:32:09Z"
+  "updated_at": "2026-10-02T11:15:04Z"
 }
