@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-01T20:12:34Z",
+  "fetched_at": "2026-10-02T00:25:00Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -35,6 +35,22 @@
       "avgCheck": 350.0
     },
     {
+      "source": "50",
+      "name": "Задать вопрос онлайн",
+      "reviewed": 8,
+      "won": 0,
+      "lost": 7,
+      "junk": 0,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": 0.0,
+      "junkShare": 0.0,
+      "avgCheck": null
+    },
+    {
       "source": "24",
       "name": "Сайт easy3dprint.com.ua",
       "reviewed": 7,
@@ -48,22 +64,6 @@
       "revenueRetail": 0.0,
       "winRate": 0.0,
       "junkShare": 14.3,
-      "avgCheck": null
-    },
-    {
-      "source": "50",
-      "name": "Задать вопрос онлайн",
-      "reviewed": 7,
-      "won": 0,
-      "lost": 7,
-      "junk": 0,
-      "wonWholesale": 0,
-      "wonRetail": 0,
-      "revenue": 0.0,
-      "revenueWholesale": 0.0,
-      "revenueRetail": 0.0,
-      "winRate": 0.0,
-      "junkShare": 0.0,
       "avgCheck": null
     },
     {
@@ -213,10 +213,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 43,
-      "clean": 41,
-      "qualified": 30,
-      "activeOrWon": 21,
+      "all": 44,
+      "clean": 42,
+      "qualified": 31,
+      "activeOrWon": 22,
       "won": 0,
       "wonSum": 0,
       "expectedSumActiveWon": 99433.32
@@ -233,12 +233,12 @@
         "sum": 0.0
       },
       {
-        "stage": "Уже НЕ актуально (не озвучил запрос)",
-        "deals": 5,
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 6,
         "sum": 0.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
+        "stage": "Уже НЕ актуально (не озвучил запрос)",
         "deals": 5,
         "sum": 0.0
       },
@@ -305,7 +305,7 @@
       {
         "key": "UC_C5YUHA",
         "name": "Электронная почта ukr3dprint@gmail.com",
-        "deals": 4,
+        "deals": 5,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -387,7 +387,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 29,
+        "deals": 30,
         "expectedSum": 97327.24,
         "won": 0,
         "wonSum": 0.0
@@ -466,12 +466,12 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 40,
-      "returningClients": 11,
+      "clientsInCohort": 41,
+      "returningClients": 12,
       "repeatBuyers": 5,
       "noClientLinked": 2,
       "returning": {
-        "deals": 12,
+        "deals": 13,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
@@ -509,7 +509,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 36,
+        "total": 37,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -518,9 +518,9 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 5,
+            "count": 6,
             "sum": 0.0,
-            "reached": 36,
+            "reached": 37,
             "lostHere": 14
           },
           {
@@ -1292,7 +1292,7 @@
     }
   ],
   "from": "2026-10-01",
-  "to": "2026-10-01",
+  "to": "2026-10-02",
   "complete": false,
   "wholesale": {
     "deals": 2,
@@ -1454,16 +1454,16 @@
     "wholesale": {
       "small": [
         {
-          "id": "197936",
-          "closed": "2026-10-01",
-          "category": 24,
-          "bucket": "1К–2К"
-        },
-        {
           "id": "199460",
           "closed": "2026-10-01",
           "category": 24,
           "bucket": "<1К"
+        },
+        {
+          "id": "197936",
+          "closed": "2026-10-01",
+          "category": 24,
+          "bucket": "1К–2К"
         }
       ],
       "medium": [],
@@ -1667,7 +1667,7 @@
         }
       ],
       "totalLost": 17,
-      "totalReviewed": 22
+      "totalReviewed": 23
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -1717,13 +1717,13 @@
     }
   },
   "totalReviewed": {
-    "wholesale": 22,
+    "wholesale": 23,
     "retail": 0,
     "screening": 29,
-    "all": 51
+    "all": 52
   },
   "pipeline": {
-    "asOf": "2026-10-01T20:12:39Z",
+    "asOf": "2026-10-02T00:25:06Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
