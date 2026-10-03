@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-03T12:56:19Z",
+  "fetched_at": "2026-10-03T16:56:47Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -131,6 +131,22 @@
       "avgCheck": null
     },
     {
+      "source": "43",
+      "name": "Instagram реклама ОПТ ФДМ",
+      "reviewed": 3,
+      "won": 0,
+      "lost": 3,
+      "junk": 1,
+      "wonWholesale": 0,
+      "wonRetail": 0,
+      "revenue": 0.0,
+      "revenueWholesale": 0.0,
+      "revenueRetail": 0.0,
+      "winRate": 0.0,
+      "junkShare": 33.3,
+      "avgCheck": null
+    },
+    {
       "source": "51",
       "name": "Facebook Ukr3DPrint",
       "reviewed": 3,
@@ -160,22 +176,6 @@
       "revenueRetail": 0.0,
       "winRate": 0.0,
       "junkShare": 50.0,
-      "avgCheck": null
-    },
-    {
-      "source": "43",
-      "name": "Instagram реклама ОПТ ФДМ",
-      "reviewed": 2,
-      "won": 0,
-      "lost": 2,
-      "junk": 0,
-      "wonWholesale": 0,
-      "wonRetail": 0,
-      "revenue": 0.0,
-      "revenueWholesale": 0.0,
-      "revenueRetail": 0.0,
-      "winRate": 0.0,
-      "junkShare": 0.0,
       "avgCheck": null
     },
     {
@@ -229,10 +229,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 116,
-      "clean": 110,
-      "qualified": 75,
-      "activeOrWon": 45,
+      "all": 121,
+      "clean": 115,
+      "qualified": 79,
+      "activeOrWon": 49,
       "won": 0,
       "wonSum": 0,
       "expectedSumActiveWon": 101403.24
@@ -240,12 +240,12 @@
     "byStage": [
       {
         "stage": "НЕ завершили первинний контакт",
-        "deals": 24,
+        "deals": 25,
         "sum": 0.0
       },
       {
         "stage": "СПАМ / МУСОР",
-        "deals": 16,
+        "deals": 17,
         "sum": 0.0
       },
       {
@@ -269,6 +269,11 @@
         "sum": 0.0
       },
       {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 6,
+        "sum": 0.0
+      },
+      {
         "stage": "Ищет в своем ГОРОДЕ",
         "deals": 6,
         "sum": 0.0
@@ -284,8 +289,8 @@
         "sum": 0.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 4,
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 3,
         "sum": 0.0
       },
       {
@@ -305,11 +310,6 @@
       },
       {
         "stage": "ТЕСТОВЫЙ звонок",
-        "deals": 2,
-        "sum": 0.0
-      },
-      {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
         "deals": 2,
         "sum": 0.0
       },
@@ -353,8 +353,16 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 47,
+        "deals": 48,
         "expectedSum": 98567.24,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "24",
+        "name": "Сайт easy3dprint.com.ua",
+        "deals": 15,
+        "expectedSum": 400.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -367,17 +375,9 @@
         "wonSum": 0.0
       },
       {
-        "key": "24",
-        "name": "Сайт easy3dprint.com.ua",
-        "deals": 13,
-        "expectedSum": 400.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 9,
+        "deals": 10,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -407,18 +407,18 @@
         "wonSum": 0.0
       },
       {
-        "key": "PARTNER",
-        "name": "Существующий клиент",
+        "key": "43",
+        "name": "Instagram реклама ОПТ ФДМ",
         "deals": 3,
-        "expectedSum": 2436.0,
+        "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
-        "key": "43",
-        "name": "Instagram реклама ОПТ ФДМ",
-        "deals": 2,
-        "expectedSum": 0.0,
+        "key": "PARTNER",
+        "name": "Существующий клиент",
+        "deals": 3,
+        "expectedSum": 2436.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -475,7 +475,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 90,
+        "deals": 93,
         "expectedSum": 101053.24,
         "won": 0,
         "wonSum": 0.0
@@ -489,17 +489,17 @@
         "wonSum": 0.0
       },
       {
-        "key": "google / 3D_print_Kyiv_General",
-        "name": "google / 3D_print_Kyiv_General",
-        "deals": 4,
+        "key": "google / Pmax_old_new",
+        "name": "google / Pmax_old_new",
+        "deals": 5,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
-        "key": "google / Pmax_old_new",
-        "name": "google / Pmax_old_new",
-        "deals": 3,
+        "key": "google / 3D_print_Kyiv_General",
+        "name": "google / 3D_print_Kyiv_General",
+        "deals": 4,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -554,7 +554,7 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 106,
+      "clientsInCohort": 111,
       "returningClients": 19,
       "repeatBuyers": 6,
       "noClientLinked": 6,
@@ -565,7 +565,7 @@
         "winRate": 0.0
       },
       "new": {
-        "deals": 95,
+        "deals": 100,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
@@ -597,7 +597,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 85,
+        "total": 90,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -606,27 +606,27 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 4,
+            "count": 6,
             "sum": 0.0,
-            "reached": 85,
-            "lostHere": 46
+            "reached": 90,
+            "lostHere": 47
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 2,
+            "count": 3,
             "sum": 0.0,
-            "reached": 35,
+            "reached": 37,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 24,
+            "count": 25,
             "sum": 0.0,
-            "reached": 33,
+            "reached": 34,
             "lostHere": 4
           },
           {
@@ -641,7 +641,7 @@
             "id": "LOSE",
             "name": "СПАМ / МУСОР",
             "sem": "F",
-            "count": 16,
+            "count": 17,
             "sum": 0.0
           },
           {
@@ -1661,7 +1661,7 @@
   "lossReasonsScreening": [
     {
       "reason": "СПАМ / МУСОР",
-      "count": 16
+      "count": 17
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -1691,7 +1691,7 @@
   "lossReasonsTotal": [
     {
       "reason": "СПАМ / МУСОР",
-      "count": 16
+      "count": 17
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -1799,7 +1799,7 @@
       "reasons": [
         {
           "reason": "СПАМ / МУСОР",
-          "count": 16
+          "count": 17
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -1826,18 +1826,18 @@
           "count": 1
         }
       ],
-      "totalLost": 62,
-      "totalReviewed": 64
+      "totalLost": 63,
+      "totalReviewed": 65
     }
   },
   "totalReviewed": {
     "wholesale": 47,
     "retail": 0,
-    "screening": 64,
-    "all": 111
+    "screening": 65,
+    "all": 112
   },
   "pipeline": {
-    "asOf": "2026-10-03T12:56:26Z",
+    "asOf": "2026-10-03T16:56:52Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
