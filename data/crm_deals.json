@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-04T11:13:28Z",
+  "fetched_at": "2026-10-04T15:04:56Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -229,10 +229,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 134,
-      "clean": 128,
-      "qualified": 92,
-      "activeOrWon": 62,
+      "all": 137,
+      "clean": 131,
+      "qualified": 95,
+      "activeOrWon": 65,
       "won": 0,
       "wonSum": 0,
       "expectedSumActiveWon": 101403.24
@@ -249,12 +249,17 @@
         "sum": 0.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 15,
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 14,
         "sum": 0.0
       },
       {
         "stage": "ОШИБСЯ (запрос не по теме)",
+        "deals": 11,
+        "sum": 0.0
+      },
+      {
+        "stage": "НОВИЙ лід ( не оброблений )",
         "deals": 11,
         "sum": 0.0
       },
@@ -270,11 +275,6 @@
       },
       {
         "stage": "Не берет / не отвечает (более 3 попыток)",
-        "deals": 7,
-        "sum": 0.0
-      },
-      {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
         "deals": 7,
         "sum": 0.0
       },
@@ -353,7 +353,7 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 51,
+        "deals": 52,
         "expectedSum": 98567.24,
         "won": 0,
         "wonSum": 0.0
@@ -361,7 +361,7 @@
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
-        "deals": 17,
+        "deals": 19,
         "expectedSum": 400.0,
         "won": 0,
         "wonSum": 0.0
@@ -507,22 +507,22 @@
       {
         "key": "google / Search_new_ukr",
         "name": "google / Search_new_ukr",
-        "deals": 2,
+        "deals": 3,
         "expectedSum": 350.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
-        "key": "google / Brand_UA_new",
-        "name": "google / Brand_UA_new",
-        "deals": 2,
-        "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
         "key": "google / DSA_UA_UA_NEW",
         "name": "google / DSA_UA_UA_NEW",
+        "deals": 3,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / Brand_UA_new",
+        "name": "google / Brand_UA_new",
         "deals": 2,
         "expectedSum": 0.0,
         "won": 0,
@@ -545,6 +545,14 @@
         "wonSum": 0.0
       },
       {
+        "key": "google / gmb_jitomir",
+        "name": "google / gmb_jitomir",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
         "key": "google / gmb_harkov",
         "name": "google / gmb_harkov",
         "deals": 1,
@@ -554,7 +562,7 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 119,
+      "clientsInCohort": 122,
       "returningClients": 20,
       "repeatBuyers": 6,
       "noClientLinked": 10,
@@ -565,7 +573,7 @@
         "winRate": 0.0
       },
       "new": {
-        "deals": 111,
+        "deals": 114,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
@@ -597,7 +605,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 103,
+        "total": 106,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -606,18 +614,18 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 15,
+            "count": 11,
             "sum": 0.0,
-            "reached": 103,
+            "reached": 106,
             "lostHere": 47
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 7,
+            "count": 14,
             "sum": 0.0,
-            "reached": 41,
+            "reached": 48,
             "lostHere": 0
           },
           {
@@ -1837,7 +1845,7 @@
     "all": 113
   },
   "pipeline": {
-    "asOf": "2026-10-04T11:13:33Z",
+    "asOf": "2026-10-04T15:05:01Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
