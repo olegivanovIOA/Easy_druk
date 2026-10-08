@@ -33754,7 +33754,7 @@
       }
     },
     {
-      "fetched_at": "2026-10-07T21:05:13Z",
+      "fetched_at": "2026-10-08T01:29:11Z",
       "month": "2026-10",
       "bySource": [
         {
@@ -33808,7 +33808,7 @@
         {
           "source": "CALL",
           "name": "Звонок",
-          "reviewed": 145,
+          "reviewed": 148,
           "won": 4,
           "lost": 134,
           "junk": 6,
@@ -33902,6 +33902,22 @@
           "avgCheck": null
         },
         {
+          "source": "WEBFORM",
+          "name": "CRM-форма",
+          "reviewed": 11,
+          "won": 0,
+          "lost": 10,
+          "junk": 2,
+          "wonWholesale": 0,
+          "wonRetail": 0,
+          "revenue": 0.0,
+          "revenueWholesale": 0.0,
+          "revenueRetail": 0.0,
+          "winRate": 0.0,
+          "junkShare": 18.2,
+          "avgCheck": null
+        },
+        {
           "source": "37",
           "name": "Электронная почта Easy3dprint.ua@gmail.com",
           "reviewed": 11,
@@ -33931,22 +33947,6 @@
           "revenueRetail": 0.0,
           "winRate": 0.0,
           "junkShare": 10.0,
-          "avgCheck": null
-        },
-        {
-          "source": "WEBFORM",
-          "name": "CRM-форма",
-          "reviewed": 10,
-          "won": 0,
-          "lost": 10,
-          "junk": 2,
-          "wonWholesale": 0,
-          "wonRetail": 0,
-          "revenue": 0.0,
-          "revenueWholesale": 0.0,
-          "revenueRetail": 0.0,
-          "winRate": 0.0,
-          "junkShare": 20.0,
           "avgCheck": null
         },
         {
@@ -34580,45 +34580,38 @@
           {
             "id": 0,
             "title": "ЛИДЫ (первинний скринінг)",
-            "total": 224,
-            "method": "history",
+            "total": 220,
+            "method": "current",
             "v": 2,
-            "wonDirect": 0,
+            "wonDirect": null,
             "stages": [
               {
                 "id": "NEW",
                 "name": "НОВИЙ лід ( не оброблений )",
                 "sem": "P",
                 "count": 6,
-                "sum": 0.0,
-                "reached": 224,
-                "lostHere": 185
+                "sum": 0.0
               },
               {
                 "id": "40",
                 "name": "НЕ додзвонилися (потрібно перетелефонувати )",
                 "sem": "P",
                 "count": 4,
-                "sum": 0.0,
-                "reached": 33,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "41",
                 "name": "НЕ завершили первинний контакт",
                 "sem": "P",
                 "count": 20,
-                "sum": 0.0,
-                "reached": 29,
-                "lostHere": 5
+                "sum": 0.0
               },
               {
                 "id": "WON",
                 "name": "ЦЕЛЕВОЙ запрос",
                 "sem": "S",
-                "count": 4,
-                "sum": 0.0,
-                "handedOver": 4
+                "count": 0,
+                "sum": 0.0
               },
               {
                 "id": "LOSE",
@@ -34675,225 +34668,177 @@
             "id": 24,
             "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
             "total": 124,
-            "method": "history",
+            "method": "current",
             "v": 2,
-            "wonDirect": 1,
+            "wonDirect": null,
             "stages": [
               {
                 "id": "C24:NEW",
                 "name": "НОВА угода (цільовий запит)",
                 "sem": "P",
                 "count": 4,
-                "sum": 1064635.76,
-                "reached": 124,
-                "lostHere": 78
+                "sum": 1064635.76
               },
               {
                 "id": "C24:PREPAYMENT_INVOIC",
                 "name": "ОЧІКУЄМО матеріали (фото / модель / ...)",
                 "sem": "P",
                 "count": 5,
-                "sum": 0.0,
-                "reached": 42,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:EXECUTING",
                 "name": "Іде РОЗРАХУНОК",
                 "sem": "P",
                 "count": 4,
-                "sum": 0.0,
-                "reached": 37,
-                "lostHere": 3
+                "sum": 0.0
               },
               {
                 "id": "C24:FINAL_INVOICE",
                 "name": "УМОВИ озвучені",
                 "sem": "P",
                 "count": 11,
-                "sum": 0.0,
-                "reached": 30,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:UC_HKB5Y6",
                 "name": "Потрібно більше часу для прийняття рішення",
                 "sem": "P",
                 "count": 6,
-                "sum": 0.0,
-                "reached": 19,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:1",
                 "name": "Згода підтверджена",
                 "sem": "P",
                 "count": 7,
-                "sum": 235918.24,
-                "reached": 13,
-                "lostHere": 0
+                "sum": 235918.24
               },
               {
                 "id": "C24:UC_556PC9",
                 "name": "Друк неможливий",
                 "sem": "P",
                 "count": 1,
-                "sum": 1000.0,
-                "reached": 6,
-                "lostHere": 0
+                "sum": 1000.0
               },
               {
                 "id": "C24:UC_WX2OD0",
                 "name": "Друк АУТСОРС",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 5,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:2",
                 "name": "Очікуємо ОРИГІНАЛ",
                 "sem": "P",
                 "count": 3,
-                "sum": 3100.0,
-                "reached": 5,
-                "lostHere": 0
+                "sum": 3100.0
               },
               {
                 "id": "C24:3",
                 "name": "Потрібна 3D Модель",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 2,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:4",
                 "name": "Повна ОПЛАТА отримана  (за 3D модель)",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 2,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:UC_KSU9OT",
                 "name": "Моделювання неможливе",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 2,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:5",
                 "name": "3D Модель готова",
                 "sem": "P",
                 "count": 1,
-                "sum": 250.0,
-                "reached": 2,
-                "lostHere": 0
+                "sum": 250.0
               },
               {
                 "id": "C24:6",
                 "name": "3D Модель прийнята клієнтом",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:UC_OKE8V5",
                 "name": "ПЛАНУВАННЯ",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:UC_MFGP84",
                 "name": "Планування неможливе",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:UC_AWYMQQ",
                 "name": "СПЛАНОВАНО",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:UC_V3F2Z2",
                 "name": "УМОВИ озвучені",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:7",
                 "name": "ПЕРЕДОПЛАТА  за ДРУК отримана",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:8",
                 "name": "Виробництво  ЗАВЕРШЕНО",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:9",
                 "name": "Запит  на ВІДПРАВКУ  сформований",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:10",
                 "name": "Спаковано  для САМОВИВОЗА",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:11",
                 "name": "Клієнт ЗАБРАВ ПОСИЛКУ",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:13",
                 "name": "ПОВЕРНЕННЯ",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C24:WON",
@@ -34999,99 +34944,79 @@
             "id": 18,
             "title": "ОТДЕЛ ПРОДАЖ ТОВАРКА (Роздріб)",
             "total": 1,
-            "method": "history",
+            "method": "current",
             "v": 2,
-            "wonDirect": 1,
+            "wonDirect": null,
             "stages": [
               {
                 "id": "C18:NEW",
                 "name": "НОВА угода (цільовий  запит товарка)",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:1",
                 "name": "ПОТРЕБА виявлена",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:2",
                 "name": "ІНТЕРЕС підтверджений",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:3",
                 "name": "Уточнюємо НАЯВНІСТЬ",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:8",
                 "name": "ЗАПИТ на відправку сформовано",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:UC_FJ34YT",
                 "name": "Відправка НЕМОЖЛИВА",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:27",
                 "name": "Клієнт ЗАБРАВ посилку",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:12",
                 "name": "Упаковано для САМОВИВОЗА",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:28",
                 "name": "На РЕАЛІЗАЦІЇ у дилера (гроші ще не отримали)",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:19",
                 "name": "ПОВЕРНЕННЯ",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 1,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C18:WON",
@@ -35190,90 +35115,72 @@
             "id": 32,
             "title": "ОТДЕЛ ПРОДАЖ МАГАЗИН (Роздріб)",
             "total": 0,
-            "method": "history",
+            "method": "current",
             "v": 2,
-            "wonDirect": 0,
+            "wonDirect": null,
             "stages": [
               {
                 "id": "C32:NEW",
                 "name": "НОВАЯ сделка (магазин)",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:UC_94J5I7",
                 "name": "Потребность выявлена",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:PREPAYMENT_INVOIC",
                 "name": "Уточняем НАЛИЧИЕ",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:EXECUTING",
                 "name": "ЗАКАЗАНО",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:UC_OMP90Q",
                 "name": "У ПОСРЕДНИКА",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:UC_44CUWE",
                 "name": "Получено на склад",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:UC_HJBJ14",
                 "name": "ЗАПРОС на отправку сформирован",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:UC_KG1EQX",
                 "name": "Упаковано для САМОВЫВОЗА",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:UC_P0NZL9",
                 "name": "Клиент забрал послку",
                 "sem": "P",
                 "count": 0,
-                "sum": 0.0,
-                "reached": 0,
-                "lostHere": 0
+                "sum": 0.0
               },
               {
                 "id": "C32:WON",
@@ -35345,7 +35252,7 @@
       "byUtm": [
         {
           "utm": "google",
-          "reviewed": 78,
+          "reviewed": 79,
           "won": 6,
           "revenue": 1842860.0
         },
@@ -35399,7 +35306,7 @@
         }
       ],
       "from": "2026-10-01",
-      "to": "2026-10-07",
+      "to": "2026-10-08",
       "complete": false,
       "wholesale": {
         "deals": 12,
@@ -35880,7 +35787,7 @@
             }
           ],
           "totalLost": 110,
-          "totalReviewed": 141
+          "totalReviewed": 144
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -35930,16 +35837,16 @@
             }
           ],
           "totalLost": 204,
-          "totalReviewed": 204
+          "totalReviewed": 205
         }
       },
       "totalReviewed": {
-        "wholesale": 141,
+        "wholesale": 144,
         "retail": 1,
-        "screening": 204,
-        "all": 346
+        "screening": 205,
+        "all": 350
       }
     }
   ],
-  "updated_at": "2026-10-07T21:05:19Z"
+  "updated_at": "2026-10-08T01:29:11Z"
 }
