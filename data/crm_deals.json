@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-11T08:08:15Z",
+  "fetched_at": "2026-10-11T11:32:44Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -309,10 +309,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 480,
-      "clean": 444,
-      "qualified": 259,
-      "activeOrWon": 110,
+      "all": 482,
+      "clean": 446,
+      "qualified": 261,
+      "activeOrWon": 112,
       "won": 2,
       "wonSum": 1022.2,
       "expectedSumActiveWon": 2047770.2
@@ -354,11 +354,6 @@
         "sum": 0.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 20,
-        "sum": 0.0
-      },
-      {
         "stage": "ТЕСТОВЫЙ звонок",
         "deals": 18,
         "sum": 0.0
@@ -366,6 +361,11 @@
       {
         "stage": "ДУБЛЬ",
         "deals": 18,
+        "sum": 0.0
+      },
+      {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 15,
         "sum": 0.0
       },
       {
@@ -396,6 +396,11 @@
       {
         "stage": "НЕ устраивают сроки",
         "deals": 9,
+        "sum": 0.0
+      },
+      {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 8,
         "sum": 0.0
       },
       {
@@ -439,11 +444,6 @@
         "sum": 0.0
       },
       {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-        "deals": 1,
-        "sum": 0.0
-      },
-      {
         "stage": "Сделка УСПЕШНА",
         "deals": 1,
         "sum": 550.0
@@ -474,7 +474,7 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 238,
+        "deals": 240,
         "expectedSum": 224912.24,
         "won": 0,
         "wonSum": 0.0
@@ -636,7 +636,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 397,
+        "deals": 399,
         "expectedSum": 1662470.2,
         "won": 1,
         "wonSum": 472.2
@@ -787,7 +787,7 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 431,
+      "clientsInCohort": 433,
       "returningClients": 44,
       "repeatBuyers": 15,
       "noClientLinked": 11,
@@ -798,7 +798,7 @@
         "winRate": 1.9
       },
       "new": {
-        "deals": 412,
+        "deals": 414,
         "won": 1,
         "wonSum": 550.0,
         "winRate": 0.3
@@ -830,7 +830,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 309,
+        "total": 311,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -839,18 +839,18 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 20,
+            "count": 15,
             "sum": 0.0,
-            "reached": 309,
+            "reached": 311,
             "lostHere": 247
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 1,
+            "count": 8,
             "sum": 0.0,
-            "reached": 42,
+            "reached": 49,
             "lostHere": 0
           },
           {
@@ -2220,12 +2220,12 @@
     "all": 462
   },
   "pipeline": {
-    "asOf": "2026-10-11T08:08:21Z",
+    "asOf": "2026-10-11T11:32:49Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
-        "deals": 139,
-        "sum": 132528162.52,
+        "deals": 140,
+        "sum": 132529662.52,
         "stale": 28,
         "staleSum": 78630088.02,
         "stages": [
@@ -2281,8 +2281,8 @@
           },
           {
             "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
-            "deals": 11,
-            "sum": 16239.0
+            "deals": 12,
+            "sum": 17739.0
           }
         ]
       },
