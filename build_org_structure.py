@@ -11,6 +11,10 @@ build_org_structure.py — Easy 3D Print Dashboard
 
 Колонки листа: A ID | B Назва | C Батько ID | D Тип | E Кількість осіб | F Статус | G Коментар
 Дані починаються з 5-го рядка (рядок 4 — заголовки).
+
+ВАЖЛИВО: дашборд публічний — колонка «Коментар» у JSON НЕ потрапляє,
+щоб туди випадково не потрапили імена/прізвища. Публікуються лише посади,
+типи, кількість і статус.
 """
 import json
 import sys
@@ -50,7 +54,6 @@ def main():
             "type": typ,
             "count": cnt,
             "status": str(status).strip() if status else "Активний",
-            "comment": str(comment).strip() if comment else "",
         })
     ids = {n["id"] for n in nodes}
     bad = [n["id"] for n in nodes if n["parent"] and n["parent"] not in ids]

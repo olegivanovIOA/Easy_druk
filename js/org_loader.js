@@ -6,6 +6,7 @@
  * Макет: Власник → CEO зверху, під ними департаменти колонками,
  * всередині колонки — вертикальне дерево (відділи → посади).
  * Клік по відділу / керівній посаді згортає-розгортає гілку.
+ * Персональних даних (імен) не показує — лише посади (дашборд публічний).
  */
 window.OrgLoader = (() => {
   const DATA_URL = 'data/org_structure.json';
@@ -55,11 +56,10 @@ window.OrgLoader = (() => {
     const cnt = (n.type === 'role' || n.type === 'executive') && n.parent && n.count != null && n.count > 1
       ? `<span class="org-cnt">×${n.count}</span>` : '';
     const hc = (n.type === 'division') ? `<span class="org-hc" title="Осіб у відділі">${headcount(n.id)}</span>` : '';
-    const who = n.comment ? `<div class="org-who">${esc(n.comment)}</div>` : '';
     const badge = vac ? '<span class="org-badge vac">Вакансія</span>' : plan ? '<span class="org-badge plan">Планується</span>' : '';
     const tog = canTog && kids.length && n.type !== 'role' ? ' org-tog' : '';
     return `<div class="org-n org-${n.type}${vac ? ' is-vac' : ''}${cls ? ' ' + cls : ''}${tog}" data-id="${esc(n.id)}"${tog ? ' role="button" tabindex="0" aria-expanded="true"' : ''}>
-      <div class="org-row"><span class="org-name">${esc(n.name)}</span>${cnt}${hc}</div>${who}${badge}</div>`;
+      <div class="org-row"><span class="org-name">${esc(n.name)}</span>${cnt}${hc}</div>${badge}</div>`;
   }
 
   function branch(id) {
