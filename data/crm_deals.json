@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-12T09:05:37Z",
+  "fetched_at": "2026-10-12T11:33:17Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -35,6 +35,22 @@
       "avgCheck": 256394.0
     },
     {
+      "source": "CALL",
+      "name": "Звонок",
+      "reviewed": 250,
+      "won": 7,
+      "lost": 230,
+      "junk": 17,
+      "wonWholesale": 7,
+      "wonRetail": 0,
+      "revenue": 192787.52,
+      "revenueWholesale": 192787.52,
+      "revenueRetail": 0.0,
+      "winRate": 3.0,
+      "junkShare": 6.8,
+      "avgCheck": 27541.07
+    },
+    {
       "source": "UC_1YIH2Z",
       "name": "Холодная продажа",
       "reviewed": 3,
@@ -51,35 +67,19 @@
       "avgCheck": 36496.1
     },
     {
-      "source": "CALL",
-      "name": "Звонок",
-      "reviewed": 246,
-      "won": 6,
-      "lost": 226,
-      "junk": 16,
-      "wonWholesale": 6,
-      "wonRetail": 0,
-      "revenue": 21140.0,
-      "revenueWholesale": 21140.0,
-      "revenueRetail": 0.0,
-      "winRate": 2.6,
-      "junkShare": 6.5,
-      "avgCheck": 3523.33
-    },
-    {
       "source": "24",
       "name": "Сайт easy3dprint.com.ua",
-      "reviewed": 50,
+      "reviewed": 49,
       "won": 2,
-      "lost": 44,
+      "lost": 43,
       "junk": 2,
       "wonWholesale": 2,
       "wonRetail": 0,
       "revenue": 3860.0,
       "revenueWholesale": 3860.0,
       "revenueRetail": 0.0,
-      "winRate": 4.3,
-      "junkShare": 4.0,
+      "winRate": 4.4,
+      "junkShare": 4.1,
       "avgCheck": 1930.0
     },
     {
@@ -117,17 +117,17 @@
     {
       "source": "UC_C5YUHA",
       "name": "Электронная почта ukr3dprint@gmail.com",
-      "reviewed": 38,
+      "reviewed": 39,
       "won": 1,
-      "lost": 37,
-      "junk": 31,
+      "lost": 38,
+      "junk": 32,
       "wonWholesale": 1,
       "wonRetail": 0,
       "revenue": 350.0,
       "revenueWholesale": 350.0,
       "revenueRetail": 0.0,
       "winRate": 2.6,
-      "junkShare": 81.6,
+      "junkShare": 82.1,
       "avgCheck": 350.0
     },
     {
@@ -163,11 +163,11 @@
       "avgCheck": null
     },
     {
-      "source": "43",
-      "name": "Instagram реклама ОПТ ФДМ",
-      "reviewed": 13,
+      "source": "WEBFORM",
+      "name": "CRM-форма",
+      "reviewed": 14,
       "won": 0,
-      "lost": 12,
+      "lost": 13,
       "junk": 2,
       "wonWholesale": 0,
       "wonRetail": 0,
@@ -175,12 +175,12 @@
       "revenueWholesale": 0.0,
       "revenueRetail": 0.0,
       "winRate": 0.0,
-      "junkShare": 15.4,
+      "junkShare": 14.3,
       "avgCheck": null
     },
     {
-      "source": "WEBFORM",
-      "name": "CRM-форма",
+      "source": "43",
+      "name": "Instagram реклама ОПТ ФДМ",
       "reviewed": 13,
       "won": 0,
       "lost": 12,
@@ -259,11 +259,11 @@
       "avgCheck": null
     },
     {
-      "source": "44",
-      "name": "Facebook реклама ОПТ ФДМ",
-      "reviewed": 2,
+      "source": "WEB",
+      "name": "Веб-сайт",
+      "reviewed": 3,
       "won": 0,
-      "lost": 1,
+      "lost": 3,
       "junk": 0,
       "wonWholesale": 0,
       "wonRetail": 0,
@@ -275,11 +275,11 @@
       "avgCheck": null
     },
     {
-      "source": "WEB",
-      "name": "Веб-сайт",
+      "source": "44",
+      "name": "Facebook реклама ОПТ ФДМ",
       "reviewed": 2,
       "won": 0,
-      "lost": 2,
+      "lost": 1,
       "junk": 0,
       "wonWholesale": 0,
       "wonRetail": 0,
@@ -309,18 +309,18 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 517,
-      "clean": 476,
-      "qualified": 269,
-      "activeOrWon": 91,
+      "all": 529,
+      "clean": 488,
+      "qualified": 274,
+      "activeOrWon": 98,
       "won": 7,
       "wonSum": 1798732.2,
-      "expectedSumActiveWon": 3920564.2
+      "expectedSumActiveWon": 3840491.2
     },
     "byStage": [
       {
         "stage": "СПАМ / МУСОР",
-        "deals": 79,
+        "deals": 81,
         "sum": 0.0
       },
       {
@@ -329,13 +329,13 @@
         "sum": 0.0
       },
       {
-        "stage": "ДОРОГО",
-        "deals": 54,
+        "stage": "ОШИБСЯ (запрос не по теме)",
+        "deals": 53,
         "sum": 0.0
       },
       {
-        "stage": "ОШИБСЯ (запрос не по теме)",
-        "deals": 49,
+        "stage": "ДОРОГО",
+        "deals": 52,
         "sum": 0.0
       },
       {
@@ -350,7 +350,7 @@
       },
       {
         "stage": "НЕ завершили первинний контакт",
-        "deals": 32,
+        "deals": 40,
         "sum": 0.0
       },
       {
@@ -376,7 +376,7 @@
       {
         "stage": "Згода підтверджена",
         "deals": 11,
-        "sum": 256810.24
+        "sum": 256361.24
       },
       {
         "stage": "УМОВИ озвучені",
@@ -390,7 +390,7 @@
       },
       {
         "stage": "Некорректные контакты для связи",
-        "deals": 7,
+        "deals": 8,
         "sum": 0.0
       },
       {
@@ -415,8 +415,8 @@
       },
       {
         "stage": "НОВА угода (цільовий запит)",
-        "deals": 5,
-        "sum": 1512685.76
+        "deals": 6,
+        "sum": 1438485.76
       },
       {
         "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
@@ -426,20 +426,15 @@
       {
         "stage": "3D Модель готова",
         "deals": 3,
-        "sum": 6174.0
+        "sum": 2950.0
       },
       {
         "stage": "Очікуємо ОРИГІНАЛ",
-        "deals": 3,
-        "sum": 5562.0
+        "deals": 2,
+        "sum": 3362.0
       },
       {
         "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-        "deals": 1,
-        "sum": 0.0
-      },
-      {
-        "stage": "НОВИЙ лід ( не оброблений )",
         "deals": 1,
         "sum": 0.0
       },
@@ -459,15 +454,15 @@
         "key": "PARTNER",
         "name": "Существующий клиент",
         "deals": 12,
-        "expectedSum": 1870910.0,
+        "expectedSum": 1796711.0,
         "won": 4,
         "wonSum": 1796710.0
       },
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 260,
-        "expectedSum": 230946.24,
+        "deals": 271,
+        "expectedSum": 225522.24,
         "won": 1,
         "wonSum": 1000.0
       },
@@ -498,8 +493,8 @@
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
-        "deals": 42,
-        "expectedSum": 375150.0,
+        "deals": 41,
+        "expectedSum": 374700.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -530,7 +525,7 @@
       {
         "key": "WEBFORM",
         "name": "CRM-форма",
-        "deals": 15,
+        "deals": 16,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -552,6 +547,14 @@
         "wonSum": 0.0
       },
       {
+        "key": "WEB",
+        "name": "Веб-сайт",
+        "deals": 3,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
         "key": "UC_OZH5IE",
         "name": "Сайт ukr3dprint.com",
         "deals": 3,
@@ -562,14 +565,6 @@
       {
         "key": "42",
         "name": "Электронная почта threedfactory7@gmail.com",
-        "deals": 2,
-        "expectedSum": 0.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
-        "key": "WEB",
-        "name": "Веб-сайт",
         "deals": 2,
         "expectedSum": 0.0,
         "won": 0,
@@ -636,8 +631,8 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 430,
-        "expectedSum": 2243054.2,
+        "deals": 442,
+        "expectedSum": 2237180.2,
         "won": 3,
         "wonSum": 577432.2
       },
@@ -701,7 +696,7 @@
         "key": "google / Search_new_ukr",
         "name": "google / Search_new_ukr",
         "deals": 4,
-        "expectedSum": 75500.0,
+        "expectedSum": 1301.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -795,7 +790,7 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 469,
+      "clientsInCohort": 481,
       "returningClients": 50,
       "repeatBuyers": 19,
       "noClientLinked": 7,
@@ -803,10 +798,10 @@
         "deals": 75,
         "won": 5,
         "wonSum": 1797182.2,
-        "winRate": 8.5
+        "winRate": 8.3
       },
       "new": {
-        "deals": 442,
+        "deals": 454,
         "won": 2,
         "wonSum": 1550.0,
         "winRate": 0.5
@@ -838,7 +833,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 320,
+        "total": 334,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -847,10 +842,10 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 1,
+            "count": 0,
             "sum": 0.0,
-            "reached": 320,
-            "lostHere": 277
+            "reached": 334,
+            "lostHere": 284
           },
           {
             "id": "40",
@@ -858,16 +853,16 @@
             "sem": "P",
             "count": 1,
             "sum": 0.0,
-            "reached": 42,
+            "reached": 50,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 32,
+            "count": 40,
             "sum": 0.0,
-            "reached": 41,
+            "reached": 49,
             "lostHere": 5
           },
           {
@@ -882,7 +877,7 @@
             "id": "LOSE",
             "name": "СПАМ / МУСОР",
             "sem": "F",
-            "count": 79,
+            "count": 81,
             "sum": 0.0
           },
           {
@@ -910,14 +905,14 @@
             "id": "50",
             "name": "ОШИБСЯ (запрос не по теме)",
             "sem": "F",
-            "count": 49,
+            "count": 53,
             "sum": 0.0
           },
           {
             "id": "UC_IQCW19",
             "name": "Некорректные контакты для связи",
             "sem": "F",
-            "count": 7,
+            "count": 8,
             "sum": 0.0
           },
           {
@@ -932,7 +927,7 @@
       {
         "id": 24,
         "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-        "total": 200,
+        "total": 198,
         "method": "history",
         "v": 2,
         "wonDirect": 3,
@@ -941,10 +936,10 @@
             "id": "C24:NEW",
             "name": "НОВА угода (цільовий запит)",
             "sem": "P",
-            "count": 5,
-            "sum": 1512685.76,
-            "reached": 200,
-            "lostHere": 141
+            "count": 6,
+            "sum": 1438485.76,
+            "reached": 198,
+            "lostHere": 139
           },
           {
             "id": "C24:PREPAYMENT_INVOIC",
@@ -952,7 +947,7 @@
             "sem": "P",
             "count": 5,
             "sum": 0.0,
-            "reached": 54,
+            "reached": 53,
             "lostHere": 0
           },
           {
@@ -961,7 +956,7 @@
             "sem": "P",
             "count": 6,
             "sum": 0.0,
-            "reached": 49,
+            "reached": 48,
             "lostHere": 3
           },
           {
@@ -970,7 +965,7 @@
             "sem": "P",
             "count": 10,
             "sum": 0.0,
-            "reached": 40,
+            "reached": 39,
             "lostHere": 0
           },
           {
@@ -979,7 +974,7 @@
             "sem": "P",
             "count": 6,
             "sum": 0.0,
-            "reached": 30,
+            "reached": 29,
             "lostHere": 0
           },
           {
@@ -987,8 +982,8 @@
             "name": "Згода підтверджена",
             "sem": "P",
             "count": 11,
-            "sum": 256810.24,
-            "reached": 24,
+            "sum": 256361.24,
+            "reached": 23,
             "lostHere": 0
           },
           {
@@ -997,7 +992,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 13,
+            "reached": 12,
             "lostHere": 0
           },
           {
@@ -1006,16 +1001,16 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 13,
+            "reached": 12,
             "lostHere": 0
           },
           {
             "id": "C24:2",
             "name": "Очікуємо ОРИГІНАЛ",
             "sem": "P",
-            "count": 3,
-            "sum": 5562.0,
-            "reached": 13,
+            "count": 2,
+            "sum": 3362.0,
+            "reached": 12,
             "lostHere": 0
           },
           {
@@ -1050,7 +1045,7 @@
             "name": "3D Модель готова",
             "sem": "P",
             "count": 3,
-            "sum": 6174.0,
+            "sum": 2950.0,
             "reached": 10,
             "lostHere": 0
           },
@@ -1164,7 +1159,7 @@
             "id": "C24:LOSE",
             "name": "ДОРОГО",
             "sem": "F",
-            "count": 54,
+            "count": 52,
             "sum": 0.0
           },
           {
@@ -1666,10 +1661,10 @@
   "to": "2026-10-12",
   "complete": false,
   "wholesale": {
-    "deals": 23,
-    "revenue": 4005675.0,
-    "avgCheck": 174159.78,
-    "medianCheck": 2800.0,
+    "deals": 24,
+    "revenue": 4177322.52,
+    "avgCheck": 174055.11,
+    "medianCheck": 2830.0,
     "tiers": [
       {
         "tier": "small",
@@ -1686,8 +1681,8 @@
       {
         "tier": "mega",
         "label": "Мега-опт (>100К)",
-        "deals": 4,
-        "revenue": 3884654.0
+        "deals": 5,
+        "revenue": 4056301.52
       }
     ],
     "histogram": [
@@ -1729,7 +1724,7 @@
       {
         "bucket": "b8",
         "label": "100К–300К",
-        "deals": 1
+        "deals": 2
       },
       {
         "bucket": "b9",
@@ -1739,8 +1734,8 @@
     ],
     "timeToClose": {
       "avgDays": 25.7,
-      "medianDays": 17.5,
-      "sampleSize": 22
+      "medianDays": 19,
+      "sampleSize": 23
     }
   },
   "retail": {
@@ -1955,6 +1950,12 @@
           "bucket": ">300К"
         },
         {
+          "id": "198388",
+          "closed": "2026-10-12",
+          "category": 24,
+          "bucket": "100К–300К"
+        },
+        {
           "id": "198648",
           "closed": "2026-10-05",
           "category": 24,
@@ -1985,10 +1986,10 @@
     "24": {
       "label": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО",
       "group": "wholesale",
-      "deals": 23,
-      "revenue": 4005675.0,
-      "avgCheck": 174159.78,
-      "medianCheck": 2800.0,
+      "deals": 24,
+      "revenue": 4177322.52,
+      "avgCheck": 174055.11,
+      "medianCheck": 2830.0,
       "otherCurrencyDealsSkipped": 0,
       "top5": [
         {
@@ -2012,15 +2013,15 @@
           "amount": 256394.0
         },
         {
-          "id": "195740",
-          "title": "3 деталі по 1400",
-          "amount": 72520.0
+          "id": "198388",
+          "title": "Корпуси №6",
+          "amount": 171647.52
         }
       ],
       "timeToClose": {
         "avgDays": 25.7,
-        "medianDays": 17.5,
-        "sampleSize": 22
+        "medianDays": 19,
+        "sampleSize": 23
       }
     },
     "18": {
@@ -2063,7 +2064,7 @@
   "lossReasonsWholesale": [
     {
       "reason": "ДОРОГО",
-      "count": 57
+      "count": 55
     },
     {
       "reason": "НЕ можем реализовать запрос",
@@ -2079,7 +2080,7 @@
     },
     {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 13
+      "count": 14
     },
     {
       "reason": "НЕ устраивают сроки",
@@ -2098,7 +2099,7 @@
   "lossReasonsScreening": [
     {
       "reason": "СПАМ / МУСОР",
-      "count": 79
+      "count": 81
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -2106,7 +2107,7 @@
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 49
+      "count": 53
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -2122,13 +2123,13 @@
     },
     {
       "reason": "Некорректные контакты для связи",
-      "count": 7
+      "count": 8
     }
   ],
   "lossReasonsTotal": [
     {
       "reason": "СПАМ / МУСОР",
-      "count": 79
+      "count": 81
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -2136,11 +2137,11 @@
     },
     {
       "reason": "ДОРОГО",
-      "count": 57
+      "count": 55
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 49
+      "count": 53
     },
     {
       "reason": "НЕ можем реализовать запрос",
@@ -2168,7 +2169,7 @@
     },
     {
       "reason": "Ищет в своем ГОРОДЕ",
-      "count": 13
+      "count": 14
     },
     {
       "reason": "НЕ устраивают сроки",
@@ -2176,7 +2177,7 @@
     },
     {
       "reason": "Некорректные контакты для связи",
-      "count": 7
+      "count": 8
     },
     {
       "reason": "Косяк отдела моделирования",
@@ -2190,7 +2191,7 @@
       "reasons": [
         {
           "reason": "ДОРОГО",
-          "count": 57
+          "count": 55
         },
         {
           "reason": "НЕ можем реализовать запрос",
@@ -2206,7 +2207,7 @@
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 13
+          "count": 14
         },
         {
           "reason": "НЕ устраивают сроки",
@@ -2221,8 +2222,8 @@
           "count": 1
         }
       ],
-      "totalLost": 173,
-      "totalReviewed": 226
+      "totalLost": 172,
+      "totalReviewed": 225
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -2244,7 +2245,7 @@
       "reasons": [
         {
           "reason": "СПАМ / МУСОР",
-          "count": 79
+          "count": 81
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -2252,7 +2253,7 @@
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 49
+          "count": 53
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -2268,32 +2269,32 @@
         },
         {
           "reason": "Некорректные контакты для связи",
-          "count": 7
+          "count": 8
         }
       ],
-      "totalLost": 296,
-      "totalReviewed": 299
+      "totalLost": 303,
+      "totalReviewed": 306
     }
   },
   "totalReviewed": {
-    "wholesale": 226,
+    "wholesale": 225,
     "retail": 1,
-    "screening": 299,
-    "all": 526
+    "screening": 306,
+    "all": 532
   },
   "pipeline": {
-    "asOf": "2026-10-12T09:05:43Z",
+    "asOf": "2026-10-12T11:33:23Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
-        "deals": 134,
-        "sum": 132550115.52,
+        "deals": 133,
+        "sum": 132372594.0,
         "stale": 28,
         "staleSum": 78630088.02,
         "stages": [
           {
             "stage": "НОВА угода (цільовий запит)",
-            "deals": 13,
+            "deals": 15,
             "sum": 49052402.73
           },
           {
@@ -2318,8 +2319,8 @@
           },
           {
             "stage": "Згода підтверджена",
-            "deals": 24,
-            "sum": 83071888.77
+            "deals": 22,
+            "sum": 82899791.25
           },
           {
             "stage": "Друк АУТСОРС",
@@ -2328,13 +2329,13 @@
           },
           {
             "stage": "Очікуємо ОРИГІНАЛ",
-            "deals": 4,
-            "sum": 7212.0
+            "deals": 3,
+            "sum": 5012.0
           },
           {
             "stage": "3D Модель готова",
             "deals": 6,
-            "sum": 8418.0
+            "sum": 5194.0
           },
           {
             "stage": "Виробництво  ЗАВЕРШЕНО",
