@@ -33754,7 +33754,7 @@
       }
     },
     {
-      "fetched_at": "2026-10-12T13:25:31Z",
+      "fetched_at": "2026-10-12T16:11:17Z",
       "month": "2026-10",
       "bySource": [
         {
@@ -33792,17 +33792,17 @@
         {
           "source": "CALL",
           "name": "Звонок",
-          "reviewed": 250,
+          "reviewed": 255,
           "won": 7,
-          "lost": 231,
-          "junk": 17,
+          "lost": 236,
+          "junk": 18,
           "wonWholesale": 7,
           "wonRetail": 0,
           "revenue": 192787.52,
           "revenueWholesale": 192787.52,
           "revenueRetail": 0.0,
           "winRate": 2.9,
-          "junkShare": 6.8,
+          "junkShare": 7.1,
           "avgCheck": 27541.07
         },
         {
@@ -34064,18 +34064,18 @@
       ],
       "cohort": {
         "funnel": {
-          "all": 540,
-          "clean": 499,
-          "qualified": 281,
-          "activeOrWon": 105,
+          "all": 547,
+          "clean": 506,
+          "qualified": 286,
+          "activeOrWon": 107,
           "won": 7,
           "wonSum": 1798732.2,
-          "expectedSumActiveWon": 3838041.2
+          "expectedSumActiveWon": 3836641.2
         },
         "byStage": [
           {
             "stage": "СПАМ / МУСОР",
-            "deals": 84,
+            "deals": 85,
             "sum": 0.0
           },
           {
@@ -34085,7 +34085,7 @@
           },
           {
             "stage": "ОШИБСЯ (запрос не по теме)",
-            "deals": 54,
+            "deals": 55,
             "sum": 0.0
           },
           {
@@ -34094,18 +34094,18 @@
             "sum": 0.0
           },
           {
+            "stage": "НЕ завершили первинний контакт",
+            "deals": 46,
+            "sum": 0.0
+          },
+          {
             "stage": "НЕ можем реализовать запрос",
             "deals": 44,
             "sum": 0.0
           },
           {
-            "stage": "НЕ завершили первинний контакт",
-            "deals": 42,
-            "sum": 0.0
-          },
-          {
             "stage": "Уже НЕ актуально (не озвучил запрос)",
-            "deals": 40,
+            "deals": 42,
             "sum": 0.0
           },
           {
@@ -34125,13 +34125,13 @@
           },
           {
             "stage": "Ищет в своем ГОРОДЕ",
-            "deals": 14,
+            "deals": 15,
             "sum": 0.0
           },
           {
             "stage": "Згода підтверджена",
-            "deals": 12,
-            "sum": 256361.24
+            "deals": 11,
+            "sum": 254961.24
           },
           {
             "stage": "УМОВИ озвучені",
@@ -34146,11 +34146,6 @@
           {
             "stage": "Некорректные контакты для связи",
             "deals": 8,
-            "sum": 0.0
-          },
-          {
-            "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-            "deals": 6,
             "sum": 0.0
           },
           {
@@ -34184,6 +34179,11 @@
             "sum": 0.0
           },
           {
+            "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+            "deals": 4,
+            "sum": 0.0
+          },
+          {
             "stage": "3D Модель готова",
             "deals": 2,
             "sum": 500.0
@@ -34192,6 +34192,11 @@
             "stage": "Очікуємо ОРИГІНАЛ",
             "deals": 2,
             "sum": 3362.0
+          },
+          {
+            "stage": "НОВИЙ лід ( не оброблений )",
+            "deals": 1,
+            "sum": 0.0
           },
           {
             "stage": "Виробництво  ЗАВЕРШЕНО",
@@ -34216,8 +34221,8 @@
           {
             "key": "CALL",
             "name": "Звонок",
-            "deals": 277,
-            "expectedSum": 223072.24,
+            "deals": 283,
+            "expectedSum": 221672.24,
             "won": 1,
             "wonSum": 1000.0
           },
@@ -34240,7 +34245,7 @@
           {
             "key": "50",
             "name": "Задать вопрос онлайн",
-            "deals": 46,
+            "deals": 47,
             "expectedSum": 1550.0,
             "won": 0,
             "wonSum": 0.0
@@ -34386,8 +34391,8 @@
           {
             "key": "— / —",
             "name": "— / —",
-            "deals": 453,
-            "expectedSum": 2234730.2,
+            "deals": 460,
+            "expectedSum": 2233330.2,
             "won": 3,
             "wonSum": 577432.2
           },
@@ -34545,18 +34550,18 @@
           }
         ],
         "retention": {
-          "clientsInCohort": 491,
-          "returningClients": 51,
+          "clientsInCohort": 498,
+          "returningClients": 52,
           "repeatBuyers": 20,
           "noClientLinked": 7,
           "returning": {
-            "deals": 77,
+            "deals": 78,
             "won": 5,
             "wonSum": 1797182.2,
             "winRate": 8.2
           },
           "new": {
-            "deals": 463,
+            "deals": 469,
             "won": 2,
             "wonSum": 1550.0,
             "winRate": 0.5
@@ -34588,7 +34593,7 @@
           {
             "id": 0,
             "title": "ЛИДЫ (первинний скринінг)",
-            "total": 345,
+            "total": 352,
             "method": "history",
             "v": 2,
             "wonDirect": 0,
@@ -34597,27 +34602,27 @@
                 "id": "NEW",
                 "name": "НОВИЙ лід ( не оброблений )",
                 "sem": "P",
-                "count": 0,
+                "count": 1,
                 "sum": 0.0,
-                "reached": 345,
-                "lostHere": 288
+                "reached": 352,
+                "lostHere": 292
               },
               {
                 "id": "40",
                 "name": "НЕ додзвонилися (потрібно перетелефонувати )",
                 "sem": "P",
-                "count": 6,
+                "count": 4,
                 "sum": 0.0,
-                "reached": 57,
+                "reached": 59,
                 "lostHere": 0
               },
               {
                 "id": "41",
                 "name": "НЕ завершили первинний контакт",
                 "sem": "P",
-                "count": 42,
+                "count": 46,
                 "sum": 0.0,
-                "reached": 51,
+                "reached": 55,
                 "lostHere": 5
               },
               {
@@ -34632,7 +34637,7 @@
                 "id": "LOSE",
                 "name": "СПАМ / МУСОР",
                 "sem": "F",
-                "count": 84,
+                "count": 85,
                 "sum": 0.0
               },
               {
@@ -34653,14 +34658,14 @@
                 "id": "52",
                 "name": "Уже НЕ актуально (не озвучил запрос)",
                 "sem": "F",
-                "count": 40,
+                "count": 42,
                 "sum": 0.0
               },
               {
                 "id": "50",
                 "name": "ОШИБСЯ (запрос не по теме)",
                 "sem": "F",
-                "count": 54,
+                "count": 55,
                 "sum": 0.0
               },
               {
@@ -34694,7 +34699,7 @@
                 "count": 6,
                 "sum": 1438485.76,
                 "reached": 198,
-                "lostHere": 139
+                "lostHere": 140
               },
               {
                 "id": "C24:PREPAYMENT_INVOIC",
@@ -34702,7 +34707,7 @@
                 "sem": "P",
                 "count": 5,
                 "sum": 0.0,
-                "reached": 53,
+                "reached": 52,
                 "lostHere": 0
               },
               {
@@ -34711,7 +34716,7 @@
                 "sem": "P",
                 "count": 6,
                 "sum": 0.0,
-                "reached": 48,
+                "reached": 47,
                 "lostHere": 3
               },
               {
@@ -34720,7 +34725,7 @@
                 "sem": "P",
                 "count": 10,
                 "sum": 0.0,
-                "reached": 39,
+                "reached": 38,
                 "lostHere": 0
               },
               {
@@ -34729,16 +34734,16 @@
                 "sem": "P",
                 "count": 6,
                 "sum": 0.0,
-                "reached": 29,
+                "reached": 28,
                 "lostHere": 0
               },
               {
                 "id": "C24:1",
                 "name": "Згода підтверджена",
                 "sem": "P",
-                "count": 12,
-                "sum": 256361.24,
-                "reached": 23,
+                "count": 11,
+                "sum": 254961.24,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -34942,7 +34947,7 @@
                 "id": "C24:17",
                 "name": "Ищет в своем ГОРОДЕ",
                 "sem": "F",
-                "count": 14,
+                "count": 15,
                 "sum": 0.0
               },
               {
@@ -35835,7 +35840,7 @@
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 14
+          "count": 15
         },
         {
           "reason": "НЕ устраивают сроки",
@@ -35854,7 +35859,7 @@
       "lossReasonsScreening": [
         {
           "reason": "СПАМ / МУСОР",
-          "count": 84
+          "count": 85
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -35862,11 +35867,11 @@
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 54
+          "count": 55
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 43
+          "count": 45
         },
         {
           "reason": "ДУБЛЬ",
@@ -35884,7 +35889,7 @@
       "lossReasonsTotal": [
         {
           "reason": "СПАМ / МУСОР",
-          "count": 84
+          "count": 85
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -35896,7 +35901,7 @@
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 54
+          "count": 55
         },
         {
           "reason": "НЕ можем реализовать запрос",
@@ -35904,7 +35909,7 @@
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 43
+          "count": 45
         },
         {
           "reason": "НЕ актуально",
@@ -35924,7 +35929,7 @@
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 14
+          "count": 15
         },
         {
           "reason": "НЕ устраивают сроки",
@@ -35962,7 +35967,7 @@
             },
             {
               "reason": "Ищет в своем ГОРОДЕ",
-              "count": 14
+              "count": 15
             },
             {
               "reason": "НЕ устраивают сроки",
@@ -35977,8 +35982,8 @@
               "count": 1
             }
           ],
-          "totalLost": 172,
-          "totalReviewed": 224
+          "totalLost": 173,
+          "totalReviewed": 225
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -36000,7 +36005,7 @@
           "reasons": [
             {
               "reason": "СПАМ / МУСОР",
-              "count": 84
+              "count": 85
             },
             {
               "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -36008,11 +36013,11 @@
             },
             {
               "reason": "ОШИБСЯ (запрос не по теме)",
-              "count": 54
+              "count": 55
             },
             {
               "reason": "Уже НЕ актуально (не озвучил запрос)",
-              "count": 43
+              "count": 45
             },
             {
               "reason": "ДУБЛЬ",
@@ -36027,17 +36032,17 @@
               "count": 8
             }
           ],
-          "totalLost": 307,
-          "totalReviewed": 310
+          "totalLost": 311,
+          "totalReviewed": 314
         }
       },
       "totalReviewed": {
-        "wholesale": 224,
+        "wholesale": 225,
         "retail": 1,
-        "screening": 310,
-        "all": 535
+        "screening": 314,
+        "all": 540
       }
     }
   ],
-  "updated_at": "2026-10-12T13:25:36Z"
+  "updated_at": "2026-10-12T16:11:22Z"
 }
