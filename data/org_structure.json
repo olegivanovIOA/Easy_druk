@@ -1,0 +1,626 @@
+{
+ "updated": "2026-10-12",
+ "nodes": [
+  {
+   "id": "root-1",
+   "name": "Власник",
+   "parent": null,
+   "type": "executive",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "ceo",
+   "name": "CEO",
+   "parent": "root-1",
+   "type": "executive",
+   "count": null,
+   "status": "Активний",
+   "comment": "Зубрицька Олександра"
+  },
+  {
+   "id": "dep-comm",
+   "name": "Комерційний департамент",
+   "parent": "ceo",
+   "type": "department",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "comm-dir",
+   "name": "Комерційний директор",
+   "parent": "dep-comm",
+   "type": "executive",
+   "count": 1,
+   "status": "Активний",
+   "comment": "Віталій"
+  },
+  {
+   "id": "v-b2b",
+   "name": "Відділ продажів B2B",
+   "parent": "comm-dir",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "m-b2b",
+   "name": "Менеджер з продажів",
+   "parent": "v-b2b",
+   "type": "role",
+   "count": 3,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-b2c",
+   "name": "Відділ продажів B2C",
+   "parent": "comm-dir",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "head-b2c",
+   "name": "Керівник відділу продажів",
+   "parent": "v-b2c",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "m-b2c",
+   "name": "Менеджер з продажів",
+   "parent": "head-b2c",
+   "type": "role",
+   "count": 4,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-mkt",
+   "name": "Відділ маркетингу",
+   "parent": "comm-dir",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "head-mkt",
+   "name": "Керівник відділу маркетингу",
+   "parent": "v-mkt",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": "Євген"
+  },
+  {
+   "id": "mkt-spec",
+   "name": "Маркетолог",
+   "parent": "head-mkt",
+   "type": "role",
+   "count": 2,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "dep-hr",
+   "name": "Департамент з управління персоналом",
+   "parent": "ceo",
+   "type": "department",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "hr-dept",
+   "name": "HR-відділ",
+   "parent": "dep-hr",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "hr-role",
+   "name": "HR",
+   "parent": "hr-dept",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": "Щуліпенко Зоряна"
+  },
+  {
+   "id": "recruiter",
+   "name": "Рекрутер",
+   "parent": "hr-role",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "kadri-dept",
+   "name": "Відділ кадрів",
+   "parent": "dep-hr",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "kadri-spec",
+   "name": "Фахівець з кадрового діловодства",
+   "parent": "kadri-dept",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "dep-dev",
+   "name": "Департамент розвитку та масштабування",
+   "parent": "ceo",
+   "type": "department",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-dev",
+   "name": "Відділ розвитку",
+   "parent": "dep-dev",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "head-dev",
+   "name": "Керівник відділу розвитку",
+   "parent": "v-dev",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-scale",
+   "name": "Відділ масштабування",
+   "parent": "dep-dev",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "head-scale",
+   "name": "Керівник відділу масштабування",
+   "parent": "v-scale",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": "Жолудь Максим"
+  },
+  {
+   "id": "dep-fin",
+   "name": "Фінансовий департамент",
+   "parent": "ceo",
+   "type": "department",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-acc",
+   "name": "Відділ бухгалтерії",
+   "parent": "dep-fin",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "head-acc",
+   "name": "Головний бухгалтер",
+   "parent": "v-acc",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "acc-salary",
+   "name": "Бухгалтер із заробітної плати",
+   "parent": "head-acc",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "acc-prod",
+   "name": "Бухгалтер з виробництва",
+   "parent": "head-acc",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "acc-gen",
+   "name": "Бухгалтер",
+   "parent": "head-acc",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-fin",
+   "name": "Фінансовий відділ",
+   "parent": "dep-fin",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "fin-spec",
+   "name": "Фінансист",
+   "parent": "v-fin",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-econ",
+   "name": "Економічний відділ",
+   "parent": "dep-fin",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "econ-spec",
+   "name": "Економіст",
+   "parent": "v-econ",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "dep-sec",
+   "name": "Департамент безпеки та інфраструктури",
+   "parent": "ceo",
+   "type": "department",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "sec-dir",
+   "name": "Директор з безпеки",
+   "parent": "dep-sec",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-sec-work",
+   "name": "Відділ охорони праці",
+   "parent": "dep-sec",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "sec-eng",
+   "name": "Інженер з охорони праці",
+   "parent": "v-sec-work",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-it",
+   "name": "IT-відділ",
+   "parent": "dep-sec",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "sys-admin",
+   "name": "Системний адміністратор",
+   "parent": "v-it",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": "Стріляний Олександр"
+  },
+  {
+   "id": "v-energy",
+   "name": "Відділ енергозабезпечення",
+   "parent": "dep-sec",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "chief-eng",
+   "name": "Головний енергетик",
+   "parent": "v-energy",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "dep-prod",
+   "name": "Виробничий департамент",
+   "parent": "ceo",
+   "type": "department",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "dir-b2b",
+   "name": "Директор виробництва B2B",
+   "parent": "dep-prod",
+   "type": "executive",
+   "count": 1,
+   "status": "Активний",
+   "comment": "Бруновський Михайло"
+  },
+  {
+   "id": "v-buy",
+   "name": "Відділ закупівель та логістики",
+   "parent": "dir-b2b",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "m-buy",
+   "name": "Менеджер з закупівель та логістики",
+   "parent": "v-buy",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "driver",
+   "name": "Водій",
+   "parent": "m-buy",
+   "type": "role",
+   "count": 2,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-norm",
+   "name": "Відділ нормування праці",
+   "parent": "dir-b2b",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "m-norm",
+   "name": "Менеджер з нормування праці",
+   "parent": "v-norm",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-test",
+   "name": "Відділ тестування",
+   "parent": "dir-b2b",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "testers",
+   "name": "Тестувальники",
+   "parent": "v-test",
+   "type": "role",
+   "count": 5,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-plan",
+   "name": "Відділ планування",
+   "parent": "dir-b2b",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "planner",
+   "name": "Планувальник",
+   "parent": "v-plan",
+   "type": "role",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "v-loc",
+   "name": "Відділ управління локаціями",
+   "parent": "dir-b2b",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "loc-heads",
+   "name": "Керівники локацій",
+   "parent": "v-loc",
+   "type": "role",
+   "count": 5,
+   "status": "Активний",
+   "comment": "По кожній локації"
+  },
+  {
+   "id": "b2b-op",
+   "name": "Оператори (B2B)",
+   "parent": "loc-heads",
+   "type": "role",
+   "count": 80,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2b-tech",
+   "name": "Техніки (B2B)",
+   "parent": "loc-heads",
+   "type": "role",
+   "count": 20,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2b-proc",
+   "name": "Обробники (B2B)",
+   "parent": "loc-heads",
+   "type": "role",
+   "count": 10,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2b-qa",
+   "name": "Інспектори з якості (B2B)",
+   "parent": "loc-heads",
+   "type": "role",
+   "count": 5,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2b-ship",
+   "name": "Відправники (B2B)",
+   "parent": "loc-heads",
+   "type": "role",
+   "count": 5,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2b-clean",
+   "name": "Клінери (B2B)",
+   "parent": "loc-heads",
+   "type": "role",
+   "count": 3,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "head-prod-b2c",
+   "name": "Начальник виробництва B2C",
+   "parent": "dep-prod",
+   "type": "executive",
+   "count": 1,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2c-mod",
+   "name": "Відділ моделювання",
+   "parent": "head-prod-b2c",
+   "type": "division",
+   "count": null,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2c-mod-r",
+   "name": "Інженери-конструктори (моделісти)",
+   "parent": "b2c-mod",
+   "type": "role",
+   "count": 3,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2c-op",
+   "name": "Оператори (B2C)",
+   "parent": "head-prod-b2c",
+   "type": "role",
+   "count": 15,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2c-tech",
+   "name": "Техніки (B2C)",
+   "parent": "head-prod-b2c",
+   "type": "role",
+   "count": 5,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2c-proc",
+   "name": "Обробники (B2C)",
+   "parent": "head-prod-b2c",
+   "type": "role",
+   "count": 5,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2c-paint",
+   "name": "Фарбувальники (художники)",
+   "parent": "head-prod-b2c",
+   "type": "role",
+   "count": 3,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2c-ship",
+   "name": "Відправники (B2C)",
+   "parent": "head-prod-b2c",
+   "type": "role",
+   "count": 3,
+   "status": "Активний",
+   "comment": ""
+  },
+  {
+   "id": "b2c-clean",
+   "name": "Клінери (B2C)",
+   "parent": "head-prod-b2c",
+   "type": "role",
+   "count": 2,
+   "status": "Активний",
+   "comment": ""
+  }
+ ]
+}
