@@ -96,11 +96,47 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/ads.json
+          [ -f data/ads_campaigns_daily.json ] && git add data/ads_campaigns_daily.json
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: update ads data [skip ci]"
+          ok=0
           for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
+            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
           done
+          [ "$ok" = 1 ] || { echo "::error::Push ads data failed after 5 attempts"; exit 1; }
+
+  update-ga4:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests google-auth
+
+      - name: Fetch Google Analytics 4 data
+        env:
+          GA4_SA_KEY: ${{ secrets.GA4_SA_KEY }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+        run: python fetch_ga4.py
+
+      - name: Commit GA4 data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          [ -f data/ga4.json ] || { echo "No ga4.json (secrets not set yet)"; exit 0; }
+          git add data/ga4.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: update GA4 data [skip ci]"
+          ok=0
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
+          done
+          [ "$ok" = 1 ] || { echo "::error::Push GA4 data failed after 5 attempts"; exit 1; }
 
   update-mql:
     runs-on: ubuntu-latest
