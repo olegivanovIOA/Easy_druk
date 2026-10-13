@@ -37,10 +37,44 @@ SCOPE = "https://www.googleapis.com/auth/analytics.readonly"
 PAGE = 100000
 
 
+def parse_key(raw):
+    """JSON ключа service account. Терпимо до типових помилок вставки в GitHub Secret:
+    «розумні» лапки з TextEdit, BOM, зайві лапки навколо, base64 замість тексту."""
+    import base64
+    cands = [raw]
+    t = raw.strip().lstrip("\ufeff")
+    for a, b in (("\u201c", '"'), ("\u201d", '"'), ("\u201e", '"'), ("\u2018", "'"), ("\u2019", "'"), ("\u00a0", " ")):
+        t = t.replace(a, b)
+    cands.append(t)
+    if len(t) > 1 and t[0] == t[-1] and t[0] in "'\"":
+        cands.append(t[1:-1])
+    try:
+        cands.append(base64.b64decode(t, validate=True).decode("utf-8"))
+    except Exception:
+        pass
+    for c in cands:
+        try:
+            info = json.loads(c)
+            if isinstance(info, dict):
+                return info
+        except Exception:
+            continue
+    return None
+
+
+def key_diag(raw):
+    """Безпечна діагностика секрету — без вмісту ключа."""
+    t = raw.strip()
+    return (f"довжина {len(t)} символів (очікується ~2300), перший символ {t[:1]!r}, останній {t[-1:]!r}, "
+            f"«розумні» лапки: {'так' if any(q in t for q in '\u201c\u201d') else 'ні'}, "
+            f"є поле private_key: {'так' if 'private_key' in t else 'ні'}, "
+            f"є client_email: {'так' if 'client_email' in t else 'ні'}")
+
+
 def session():
     from google.oauth2 import service_account
     from google.auth.transport.requests import AuthorizedSession
-    info = json.loads(SA_KEY)
+    info = parse_key(SA_KEY)
     creds = service_account.Credentials.from_service_account_info(info, scopes=[SCOPE])
     print(f"[GA4] Service account: {info.get('client_email')}")
     return AuthorizedSession(creds)
@@ -124,10 +158,11 @@ def main():
     if not PROPERTY_ID or not SA_KEY:
         print("[GA4] ⏭ GA4_PROPERTY_ID / GA4_SA_KEY не задані — пропускаю (налаштуй секрети в GitHub)")
         return 0
-    try:
-        json.loads(SA_KEY)
-    except Exception:
-        print("::error::GA4_SA_KEY — не валідний JSON. Встав увесь вміст файлу ключа, від { до }.")
+    info = parse_key(SA_KEY)
+    if not info or "private_key" not in info or "client_email" not in info:
+        print(f"[GA4] Діагностика секрету GA4_SA_KEY: {key_diag(SA_KEY)}")
+        print("::error::GA4_SA_KEY — не схожий на JSON-ключ service account. Відкрий завантажений .json "
+              "у VS Code / Блокноті (НЕ в TextEdit), скопіюй УСЕ від { до } і встав у секрет заново.")
         return 1
 
     s = session()
