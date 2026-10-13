@@ -65,10 +65,12 @@ def parse_key(raw):
 def key_diag(raw):
     """Безпечна діагностика секрету — без вмісту ключа."""
     t = raw.strip()
-    return (f"довжина {len(t)} символів (очікується ~2300), перший символ {t[:1]!r}, останній {t[-1:]!r}, "
-            f"«розумні» лапки: {'так' if any(q in t for q in '\u201c\u201d') else 'ні'}, "
-            f"є поле private_key: {'так' if 'private_key' in t else 'ні'}, "
-            f"є client_email: {'так' if 'client_email' in t else 'ні'}")
+    smart = "так" if ("\u201c" in t or "\u201d" in t) else "ні"
+    has_pk = "так" if "private_key" in t else "ні"
+    has_em = "так" if "client_email" in t else "ні"
+    first, last = repr(t[:1]), repr(t[-1:])
+    return (f"довжина {len(t)} символів (очікується ~2300), перший символ {first}, останній {last}, "
+            f"«розумні» лапки: {smart}, є поле private_key: {has_pk}, є client_email: {has_em}")
 
 
 def session():
