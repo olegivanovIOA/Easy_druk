@@ -478,6 +478,51 @@ def fetch_created_deals(category_id, date_from, date_to):
     return deals
 
 
+# ══ v5.0: щоденна розбивка UTM-кампаній (для довільного періоду на дашборді) ══
+# Компактні рядки на (день створення, utm_source, utm_campaign, SOURCE_ID):
+#   d — дата, us/uc — UTM source/campaign, s — SOURCE_ID (для угод без UTM),
+#   n — нових угод, e — очікувана сума (не відмовлені), w — WON, ws — WON сума.
+# Тільки агрегати, без ID угод і клієнтів.
+def rollup_campaign_daily(deals, sem, is_won):
+    m = {}
+    for d in deals:
+        k = ((d.get("DATE_CREATE") or "")[:10],
+             (d.get("UTM_SOURCE") or "").strip(),
+             (d.get("UTM_CAMPAIGN") or "").strip(),
+             d.get("SOURCE_ID") or "")
+        a = m.setdefault(k, {"d": k[0], "us": k[1], "uc": k[2], "s": k[3], "n": 0, "e": 0.0, "w": 0, "ws": 0.0})
+        a["n"] += 1
+        amt = _num(d.get("OPPORTUNITY"))
+        if sem(d) != "F":
+            a["e"] += amt
+        if is_won(d):
+            a["w"] += 1
+            a["ws"] += amt
+    out = []
+    for a in m.values():
+        a["e"], a["ws"] = round(a["e"], 2), round(a["ws"], 2)
+        out.append(a)
+    return sorted(out, key=lambda x: (x["d"], x["us"], x["uc"], x["s"]))
+
+
+def compute_campaign_daily(month_start, month_end):
+    """Дешевий доповнювальний прохід для бекфілу: тільки створені угоди 4 воронок
+    і їх стадії — без retention/воронок/завислих (≈ 10–30 с на місяць)."""
+    deals, stage_sem = [], {}
+    for cat in COHORT_CATEGORIES:
+        for s in fetch_stage_list(cat):
+            stage_sem[s["STATUS_ID"]] = s.get("SEMANTICS")
+        time.sleep(0.3)
+        ds = fetch_created_deals(cat, month_start, month_end)
+        for d in ds:
+            d["_cat"] = cat
+        deals.extend(ds)
+        time.sleep(0.3)
+    sem = lambda d: d.get("STAGE_SEMANTIC_ID") or stage_sem.get(d.get("STAGE_ID")) or "P"
+    is_won = lambda d: sem(d) == "S" and d["_cat"] != 0
+    return rollup_campaign_daily(deals, sem, is_won)
+
+
 def _client_key(d):
     comp = str(d.get("COMPANY_ID") or "0")
     if comp not in ("0", ""):
@@ -728,6 +773,7 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
                     lambda k: "Не вказано" if k == "—" else source_names.get(k, k))
     by_campaign = agg(lambda d: ((d.get("UTM_SOURCE") or "").strip() or "—") + " / " + ((d.get("UTM_CAMPAIGN") or "").strip() or "—"),
                       lambda k: k)
+    by_campaign_daily = rollup_campaign_daily(deals, sem, is_won)
 
     # ── 4. Retention: клієнти, у яких були угоди до цього місяця ──
     first_dt = {}
@@ -777,6 +823,7 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
 
     print(f"[CRM] ✓ Когорта: {funnel} | retention: {retention['returningClients']}/{retention['clientsInCohort']} клієнтів повернулись")
     return {"funnel": funnel, "byStage": by_stage, "bySource": by_source, "byCampaign": by_campaign,
+            "byCampaignDaily": by_campaign_daily,
             "retention": retention, "staleBigDeals": stale[:10],
             "pipelines": build_pipelines(deals, stage_lists, fetch_histories(month_start)),
             "definitions": {

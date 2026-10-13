@@ -1,5 +1,5 @@
 /**
- * leadgen_loader.js — Easy 3D Print Dashboard v4.6
+ * leadgen_loader.js — Easy 3D Print Dashboard v5.1 (ROI кампаній: період, канал, сортування, GA4)
  * Вкладка «Маркетинг» → «Лідогенерація, ROI кампаній та retention».
  *
  * Замінює ручний Looker Studio-звіт тими самими показниками, але з живих даних:
@@ -31,7 +31,9 @@ window.LeadgenLoader = (() => {
         fetch('data/crm_deals.json?t=' + Date.now()).then(r => r.ok ? r.json() : null),
         fetch('data/crm_monthly_history.json?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null),
         fetch('data/ads.json?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null),
-      ]);
+        fetch('data/ads_campaigns_daily.json?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('data/ga4.json?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]).then(([a, b, c, d, g]) => { _adsDaily = d; _ga = g; return [a, b, c]; });
     } catch (e) { console.warn('[Leadgen]', e); }
     const months = monthsWithCohort();
     const ts = $('mkt-leadgen-updated');
@@ -46,6 +48,8 @@ window.LeadgenLoader = (() => {
       sel.innerHTML = months.slice().reverse().map(m => `<option value="${m.month}">${m.month}${m.complete === false ? ' (триває)' : ''}</option>`).join('');
       sel.onchange = render;
     }
+    // ROI-таблиця має власний період і не залежить від графіків нижче
+    try { initRoi(); renderRoi(); } catch (e) { console.warn('[Leadgen ROI]', e); }
     render();
   }
 
@@ -64,7 +68,6 @@ window.LeadgenLoader = (() => {
     const m = months[idx], prev = idx > 0 ? months[idx - 1] : null;
     renderFunnel(m.cohort, prev && prev.cohort, m);
     renderRetention(m.cohort, prev && prev.cohort);
-    renderRoi(m);
     renderStale(m.cohort);
     renderTrend(months);
   }
@@ -117,61 +120,258 @@ window.LeadgenLoader = (() => {
   }
 
   // ── 3. ROI кампаній: Google Ads (вартість) × Bitrix (угоди/виручка за UTM) ──
-  function adsCampaigns() {
-    const all = (_ads && _ads.analytics && _ads.analytics.all) || [];
-    const sum = (_ads && _ads.analytics && _ads.analytics.summary) || {};
-    // Скрипт Ads пише cost_uah у ТИСЯЧАХ (напр. 66 замість ~66 000 при 3 786 кліках) —
-    // виявляємо за неправдоподібною ціною кліку і масштабуємо, з позначкою "≈".
-    const clicks = sum.total_clicks || all.reduce((s, c) => s + (c.clicks || 0), 0);
-    const cost = sum.total_cost_uah || all.reduce((s, c) => s + (c.cost_uah || 0), 0);
-    const scale = (clicks > 500 && cost / clicks < 0.5) ? 1000 : 1;
-    // Ads-дані — за останні 30 днів; Bitrix-когорта — з 1-го числа. Приводимо вартість
-    // до "з 1-го числа" пропорційно клікам (денна воронка ads.funnel).
-    const fun = (_ads && _ads.funnel) || [];
-    const monthStart = new Date().toISOString().slice(0, 7);
-    const clicksAll = fun.reduce((s, d) => s + (d.clicks || 0), 0);
-    const clicksMtd = fun.filter(d => (d.date || '').startsWith(monthStart)).reduce((s, d) => s + (d.clicks || 0), 0);
-    const mtdRatio = clicksAll ? clicksMtd / clicksAll : null;
-    return { list: all.filter(c => (c.cost_uah || 0) > 0 || (c.clicks || 0) > 0), scale, mtdRatio };
+  // v5.0: власний період (день / кілька днів / місяць / рік), колонка «Канал»
+  // (google / facebook / instagram / …, після «/» — акаунт), сортування колонок,
+  // підсумковий рядок і розгорнуте пояснення формул (CPL/CAC/ROAS).
+  const ROI_LS = 'e3d_roi_period_v1', ROI_SORT_LS = 'e3d_roi_sort_v1';
+  let _roi = null, _roiSort = { k: 'wonSum', dir: -1 }, _adsDaily = null, _ga = null;
+
+  const iso = d => d.toISOString().slice(0, 10);
+  const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return iso(d); };
+  const addDays = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
+  const lastDay = ym => { const [y, m] = ym.split('-').map(Number); return iso(new Date(Date.UTC(y, m, 0))); };
+  const lsGet = (k, def) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return def; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+  function roiRange() {
+    const r = _roi, t = today();
+    let a, b;
+    if (r.mode === 'day') [a, b] = [r.day, r.day];
+    else if (r.mode === 'range') [a, b] = r.from <= r.to ? [r.from, r.to] : [r.to, r.from];
+    else if (r.mode === 'month') [a, b] = [r.month + '-01', lastDay(r.month)];
+    else [a, b] = [r.year + '-01-01', r.year + '-12-31'];
+    return [a, b > t && a <= t ? t : b];   // поточний місяць/рік — до сьогодні
   }
 
-  function renderRoi(m) {
-    const el = $('mkt-leadgen-roi'); if (!el) return;
-    const isCurrent = _cur && m.month === _cur.month;
-    const camps = (m.cohort.byCampaign || []);
-    const { list, scale, mtdRatio } = adsCampaigns();
-    const note = $('mkt-leadgen-roi-note');
-    const useAds = isCurrent && list.length && mtdRatio;
+  // Канал: utm_source → google / facebook / instagram / meta…; без UTM — поле «Джерело».
+  function channelOf(us, sid, srcNames) {
+    const u = (us || '').trim(), l = u.toLowerCase();
+    if (u) {
+      if (/google|adwords|gads|youtube/.test(l)) return { ch: l.includes('youtube') ? 'youtube' : 'google', acc: '' };
+      if (/^(fb|facebook)$|facebook\.com|^meta$/.test(l)) return { ch: 'facebook', acc: '' };
+      if (/^(ig|insta|instagram)$|instagram\.com/.test(l)) return { ch: 'instagram', acc: '' };
+      if (/^\d{8,}$/.test(l)) return { ch: 'meta', acc: u };            // ID рекламного акаунта/кампанії Meta
+      if (/tiktok/.test(l)) return { ch: 'tiktok', acc: '' };
+      if (/telegram|^t\.me|^tg$/.test(l)) return { ch: 'telegram', acc: '' };
+      if (/linkedin|lnkd/.test(l)) return { ch: 'linkedin', acc: '' };
+      if (/chatgpt|openai/.test(l)) return { ch: 'chatgpt', acc: '' };
+      if (/bing/.test(l)) return { ch: 'bing', acc: '' };
+      if (/prom\.ua|olx|rozetka/.test(l)) return { ch: 'маркетплейс', acc: u };
+      if (l === '(not set)' || l === 'test') return { ch: l, acc: '' };
+      return { ch: 'реферал', acc: u };
+    }
+    const name = (srcNames[sid] || sid || '').trim(), n = name.toLowerCase();
+    const rest = (re) => name.replace(re, '').trim();
+    if (!name) return { ch: 'не вказано', acc: '' };
+    if (n.includes('instagram')) return { ch: 'instagram', acc: rest(/instagram/i) };
+    if (n.includes('facebook')) return { ch: 'facebook', acc: rest(/facebook/i) };
+    if (/звон|call|дзвін/.test(n)) return { ch: 'дзвінок', acc: '' };
+    const em = name.match(/[\w.+-]+@[\w.-]+/);
+    if (/почт|e-?mail|пошт/.test(n) || em) return { ch: 'email', acc: em ? em[0] : '' };
+    if (/сайт|web|site/.test(n) && !/форм/.test(n)) return { ch: 'сайт', acc: rest(/сайт|веб-сайт/ig) };
+    if (/форм|webform|онлайн/.test(n)) return { ch: 'форма', acc: name };
+    if (/рекоменд/.test(n)) return { ch: 'рекомендація', acc: '' };
+    if (/повтор|существ|існуюч|partner/.test(n)) return { ch: 'існуючий клієнт', acc: '' };
+    if (/холод/.test(n)) return { ch: 'холодний продаж', acc: '' };
+    return { ch: 'інше', acc: name };
+  }
+
+  // Bitrix-частина за період: щоденні рядки (byCampaignDaily), або місячна
+  // розбивка, якщо місяць повністю в періоді і щоденної ще немає (до бекфілу).
+  function bitrixRows(from, to) {
+    const months = monthsWithCohort(), srcNames = {}, out = [], gaps = [];
+    months.forEach(m => (m.cohort.bySource || []).forEach(s => { if (s.key && s.key !== '—') srcNames[s.key] = s.name; }));
+    months.forEach(m => {
+      const mFrom = m.month + '-01', mTo = lastDay(m.month);
+      if (mTo < from || mFrom > to) return;
+      const daily = m.cohort.byCampaignDaily;
+      if (daily) {
+        daily.forEach(r => { if (r.d >= from && r.d <= to) out.push({ us: r.us, uc: r.uc, s: r.s, n: r.n, e: r.e, w: r.w, ws: r.ws }); });
+      } else if (mFrom >= from && mTo <= to) {
+        (m.cohort.byCampaign || []).forEach(c => {
+          const [us, uc] = c.key.split(' / ');
+          out.push({ us: us === '—' ? '' : us, uc: uc === '—' ? '' : uc, s: '', n: c.deals, e: c.expectedSum, w: c.won, ws: c.wonSum });
+        });
+      } else gaps.push(m.month);
+    });
+    return { rows: out, srcNames, gaps };
+  }
+
+  // Вартість Google Ads за період → {campaign: {cost, clicks}}, + прапорці точності.
+  function adsCost(from, to) {
+    const all = (_ads && _ads.analytics && _ads.analytics.all) || [];
+    const known = new Set(all.map(c => c.campaign));
+    // 0) v5.1: Google Analytics 4 — вартість Ads по днях і кампаніях (точно, у грн)
+    const gaCost = (_ga && _ga.adsCost) || [];
+    if (gaCost.length) {
+      const gMin = _ga.from || gaCost[0].d, gMax = (_ga.fetched_at || '').slice(0, 10) || gaCost[gaCost.length - 1].d;
+      const map = {}, accOf = {};
+      gaCost.forEach(r => { accOf[r.c] = r.a || 'GA'; known.add(r.c); });
+      gaCost.filter(r => r.d >= from && r.d <= to).forEach(r => {
+        const a = map[r.c] || (map[r.c] = { cost: 0, clicks: 0 }); a.cost += r.cost || 0; a.clicks += r.clk || 0;
+      });
+      return { map, known, accOf, mode: 'ga', scale: 1, partial: from < gMin || to > gMax, dMin: gMin, dMax: gMax,
+               cFrom: from < gMin ? gMin : from, cTo: to > gMax ? gMax : to };
+    }
+    // 1) точні щоденні дані по кампаніях (лист «campaigns» → data/ads_campaigns_daily.json)
+    const daily = (_adsDaily && _adsDaily.rows) || [];
+    if (daily.length) {
+      const dMin = daily[0].date, dMax = daily[daily.length - 1].date;
+      const inR = daily.filter(r => r.date >= from && r.date <= to);
+      const clk = inR.reduce((s, r) => s + (r.clicks || 0), 0), cst = inR.reduce((s, r) => s + (r.cost_uah || 0), 0);
+      const scale = (clk > 200 && cst / clk < 0.5) ? 1000 : 1;
+      const map = {};
+      inR.forEach(r => { const a = map[r.campaign] || (map[r.campaign] = { cost: 0, clicks: 0 }); a.cost += (r.cost_uah || 0) * scale; a.clicks += r.clicks || 0; known.add(r.campaign); });
+      return { map, known, mode: 'daily', scale, partial: from < dMin || to > dMax, dMin, dMax, cFrom: from < dMin ? dMin : from, cTo: to > dMax ? dMax : to };
+    }
+    // 2) наближення: 30-денна вартість кампанії × частка кліків періоду (денна воронка)
+    const fun = (_ads && _ads.funnel) || [];
+    if (!all.length || !fun.length) return { map: {}, known, mode: 'none' };
+    const fMin = fun[0].date, fMax = fun[fun.length - 1].date;
+    if (to < fMin || from > fMax) return { map: {}, known, mode: 'out', fMin, fMax };
+    const clicksAll = fun.reduce((s, d) => s + (d.clicks || 0), 0);
+    const clicksR = fun.filter(d => d.date >= from && d.date <= to).reduce((s, d) => s + (d.clicks || 0), 0);
+    const ratio = clicksAll ? clicksR / clicksAll : 0;
+    const sum = (_ads.analytics && _ads.analytics.summary) || {};
+    const tc = sum.total_clicks || all.reduce((s, c) => s + (c.clicks || 0), 0);
+    const tcost = sum.total_cost_uah || all.reduce((s, c) => s + (c.cost_uah || 0), 0);
+    const scale = (tc > 500 && tcost / tc < 0.5) ? 1000 : 1;
+    const map = {};
+    all.filter(c => (c.cost_uah || 0) > 0 || (c.clicks || 0) > 0)
+      .forEach(c => { map[c.campaign] = { cost: (c.cost_uah || 0) * scale * ratio, clicks: Math.round((c.clicks || 0) * ratio) }; });
+    return { map, known, mode: 'approx', scale, partial: from < fMin || to > fMax, fMin, fMax, cFrom: from < fMin ? fMin : from, cTo: to > fMax ? fMax : to };
+  }
+
+  function initRoi() {
+    const t = today();
+    _roi = Object.assign({ mode: 'month', day: addDays(t, -1), from: addDays(t, -6), to: t, month: t.slice(0, 7), year: t.slice(0, 4) }, lsGet(ROI_LS, {}));
+    _roiSort = lsGet(ROI_SORT_LS, _roiSort);
+    const ys = $('roi-year');
+    if (ys) {
+      const years = new Set([t.slice(0, 4)]);
+      monthsWithCohort().forEach(m => years.add(m.month.slice(0, 4)));
+      ys.innerHTML = [...years].sort().reverse().map(y => `<option>${y}</option>`).join('');
+      if (![...years].includes(_roi.year)) _roi.year = t.slice(0, 4);
+    }
+    const set = (id, v) => { const e = $(id); if (e) { e.value = v; e.max = id === 'roi-month' ? t.slice(0, 7) : (id === 'roi-year' ? '' : t); } };
+    set('roi-day', _roi.day); set('roi-from', _roi.from); set('roi-to', _roi.to); set('roi-month', _roi.month); set('roi-year', _roi.year);
+    const upd = () => { lsSet(ROI_LS, _roi); syncRoiCtl(); renderRoi(); };
+    document.querySelectorAll('#roi-mode button').forEach(b => b.onclick = () => { _roi.mode = b.dataset.m; upd(); });
+    [['roi-day', 'day'], ['roi-from', 'from'], ['roi-to', 'to'], ['roi-month', 'month'], ['roi-year', 'year']].forEach(([id, k]) => {
+      const e = $(id); if (e) e.onchange = () => { if (e.value) { _roi[k] = e.value; upd(); } };
+    });
+    document.querySelectorAll('.roi-in[data-for="range"] a[data-q]').forEach(a => a.onclick = ev => {
+      ev.preventDefault(); _roi.to = t; _roi.from = addDays(t, -(+a.dataset.q - 1));
+      $('roi-from').value = _roi.from; $('roi-to').value = _roi.to; upd();
+    });
+    document.querySelectorAll('.roi-tbl th[data-k]').forEach(th => th.onclick = ev => {
+      if (ev.target.classList.contains('roi-i')) return;
+      const k = th.dataset.k;
+      _roiSort = _roiSort.k === k ? { k, dir: -_roiSort.dir } : { k, dir: (k === 'ch' || k === 'name') ? 1 : -1 };
+      lsSet(ROI_SORT_LS, _roiSort); renderRoi();
+    });
+    const ri = $('roi-roas-i');
+    if (ri) ri.onclick = ev => { ev.stopPropagation(); const d = $('roi-info'); if (d) { d.open = !d.open; if (d.open) d.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } };
+    syncRoiCtl();
+  }
+
+  function syncRoiCtl() {
+    document.querySelectorAll('#roi-mode button').forEach(b => b.classList.toggle('on', b.dataset.m === _roi.mode));
+    document.querySelectorAll('.roi-in').forEach(e => e.classList.toggle('on', e.dataset.for === _roi.mode));
+  }
+
+  function renderRoi() {
+    const el = $('mkt-leadgen-roi'); if (!el || !_roi) return;
+    const [from, to] = roiRange();
+    const bx = bitrixRows(from, to), ads = adsCost(from, to);
     const rows = {};
-    camps.forEach(c => {
-      const [src, name] = c.key.split(' / ');
-      rows[c.key] = { src, name, deals: c.deals, expectedSum: c.expectedSum, won: c.won, wonSum: c.wonSum, cost: null, clicks: null };
+    const row = (ch, acc, name) => {
+      const k = ch + '|' + acc + '|' + name;
+      return rows[k] || (rows[k] = { ch, acc, name, deals: 0, exp: 0, won: 0, wonSum: 0, cost: null, clicks: null, cd: 0, cw: 0, cws: 0 });
+    };
+    const accOf = ads.accOf || {};
+    const keyOf = r => { const c = channelOf(r.us, r.s, bx.srcNames); if (c.ch === 'google' && r.uc && ads.known.has(r.uc)) c.acc = accOf[r.uc] || 'EASY'; return row(c.ch, c.acc, r.uc || ''); };
+    bx.rows.forEach(r => { const x = keyOf(r); x.deals += r.n; x.exp += r.e; x.won += r.w; x.wonSum += r.ws; });
+    // CPL/CAC/ROAS рахуємо лише за дні, де є вартість Ads — інакше річні угоди
+    // ділились би на 30-денну вартість і ROAS виходив би завищеним.
+    const partial = ads.partial && ads.cFrom && ads.cFrom <= ads.cTo;
+    const cbx = partial ? bitrixRows(ads.cFrom, ads.cTo) : bx;
+    const cmpOk = !(partial && cbx.gaps.length);
+    cbx.rows.forEach(r => { const x = keyOf(r); x.cd += r.n; x.cw += r.w; x.cws += r.ws; });
+    Object.entries(ads.map).forEach(([camp, a]) => {
+      if (!(a.cost > 0 || a.clicks > 0)) return;
+      const x = row('google', accOf[camp] || 'EASY', camp);
+      x.cost = (x.cost || 0) + a.cost; x.clicks = (x.clicks || 0) + a.clicks;
     });
-    if (useAds) list.forEach(a => {
-      const k = 'google / ' + a.campaign;
-      const r = rows[k] || (rows[k] = { src: 'google', name: a.campaign, deals: 0, expectedSum: 0, won: 0, wonSum: 0 });
-      r.cost = (a.cost_uah || 0) * scale * mtdRatio;
-      r.clicks = Math.round((a.clicks || 0) * mtdRatio);
+    // v5.1: сеанси з GA4 (source → канал, utm_campaign) — для колонок «Сеанси» і «CR»
+    const sesMap = {}, NOCAMP = new Set(['', '(not set)', '(organic)', '(direct)', '(referral)', '(none)']);
+    if (_ga && _ga.traffic) _ga.traffic.forEach(t => {
+      if (t.d < from || t.d > to || NOCAMP.has(t.c)) return;
+      const k = channelOf(t.s, '', {}).ch + '|' + t.c; sesMap[k] = (sesMap[k] || 0) + t.ses;
     });
-    const arr = Object.values(rows).filter(r => r.deals || r.cost).sort((a, b) => (b.wonSum - a.wonSum) || ((b.cost || 0) - (a.cost || 0)) || (b.deals - a.deals)).slice(0, 25);
-    if (note) note.innerHTML = useAds
-      ? `Вартість — з Google Ads (акаунт EASY), <b>≈ з 1-го числа</b> (30-денна вартість × частка кліків з 1-го числа${scale !== 1 ? '; ⚠ скрипт Ads пише вартість у тисячах — перераховано ×1000, округлення до тис.' : ''}). Угоди/виручка — Bitrix24 за UTM (source / campaign), створені в ${m.month}. Кампанії UKR-акаунта (Search_miltech тощо) у вивантаженні Ads відсутні — для них тільки Bitrix-частина.`
-      : `Вартість Google Ads доступна тільки для поточного місяця. Для ${m.month} — лише Bitrix-частина (угоди/виручка за UTM).`;
+    const gaOk = !!(_ga && _ga.traffic);
+    Object.values(rows).forEach(r => { r.ses = gaOk && r.name && !NOCAMP.has(r.name) ? (sesMap[r.ch + '|' + r.name] || 0) : null; r.cr = r.ses ? r.deals / r.ses * 100 : null; });
+    const siteDeals = bx.rows.reduce((s, r) => { const c = channelOf(r.us, r.s, bx.srcNames).ch; return s + ((r.us || r.uc || c === 'сайт' || c === 'форма') ? r.n : 0); }, 0);
+    const arr = Object.values(rows).filter(r => r.deals || r.cost).map(r => Object.assign(r, {
+      cpl: cmpOk && r.cost && r.cd ? r.cost / r.cd : null,
+      cac: cmpOk && r.cost && r.cw ? r.cost / r.cw : null,
+      roas: cmpOk && r.cost ? r.cws / r.cost * 100 : null,
+    }));
+    const { k, dir } = _roiSort;
+    const val = r => k === 'ch' ? (r.ch + ' ' + r.acc).toLowerCase() : k === 'name' ? (r.name || '￿').toLowerCase() : r[k];
+    arr.sort((a, b) => {
+      const va = val(a), vb = val(b);
+      if (va == null && vb == null) return b.wonSum - a.wonSum;
+      if (va == null) return 1; if (vb == null) return -1;   // порожні — завжди внизу
+      const c = typeof va === 'string' ? va.localeCompare(vb, 'uk') : va - vb;
+      return c * dir || (b.wonSum - a.wonSum);
+    });
+    document.querySelectorAll('.roi-tbl th[data-k]').forEach(th => {
+      const old = th.querySelector('.arr'); if (old) old.remove();
+      if (th.dataset.k === k) th.insertAdjacentHTML('beforeend', `<span class="arr">${dir > 0 ? '▲' : '▼'}</span>`);
+    });
+
+    // Примітка: період + звідки вартість і наскільки точна
+    const note = $('mkt-leadgen-roi-note');
+    const fmtD = d => d.split('-').reverse().join('.');
+    const per = from === to ? fmtD(from) : `${fmtD(from)} – ${fmtD(to)}`;
+    let costNote;
+    if (ads.mode === 'ga') costNote = `Вартість — Google Ads через <b>Google Analytics</b>, точно по днях (${(() => { const a = [...new Set(Object.values(ads.accOf || {}))].filter(x => x !== 'GA'); return a.length ? 'акаунт ' + a.join(', ') : 'акаунт Ads, прив\'язаний до GA'; })()})${ads.partial ? `; ⚠ є за ${fmtD(ads.dMin)} – ${fmtD(ads.dMax)}` : ''}. Сеанси — GA4.`;
+    else if (ads.mode === 'daily') costNote = `Вартість — Google Ads (акаунт EASY) по днях${ads.scale !== 1 ? ' (⚠ скрипт пише в тисячах — ×1000)' : ''}${ads.partial ? `; ⚠ щоденні дані є лише за ${fmtD(ads.dMin)} – ${fmtD(ads.dMax)}` : ''}.`;
+    else if (ads.mode === 'approx') costNote = `Вартість — Google Ads (акаунт EASY), <b>≈ наближено</b>: 30-денна вартість кампанії × частка кліків періоду${ads.scale !== 1 ? '; скрипт пише в тисячах — ×1000' : ''}${ads.partial ? `; ⚠ дані Ads є лише за ${fmtD(ads.fMin)} – ${fmtD(ads.fMax)}, решта періоду без вартості` : ''}. Точно по днях — коли скрипт Ads заповнюватиме лист «campaigns».`;
+    else if (ads.mode === 'out') costNote = `Вартості Google Ads за цей період немає (є лише ${fmtD(ads.fMin)} – ${fmtD(ads.fMax)}) — показана тільки Bitrix-частина.`;
+    else costNote = 'Вартості Google Ads немає — показана тільки Bitrix-частина.';
+    if (partial) costNote += cmpOk ? ` <b>CPL / CAC / ROAS — лише за ${fmtD(ads.cFrom)} – ${fmtD(ads.cTo)}</b> (дні з вартістю), щоб угоди й витрати були за той самий період.`
+      : ` CPL / CAC / ROAS не показані: за дні з вартістю ще немає розбивки угод по днях.`;
+    if (note) note.innerHTML = `<b>${per}</b> · Угоди/виручка — Bitrix24, створені в періоді. ${costNote} Витрат Facebook/Instagram у дашборді поки немає.` +
+      (bx.gaps.length ? ` <span style="color:${R}">⚠ Для ${bx.gaps.join(', ')} ще немає розбивки по днях — запусти один раз «Backfill CRM Monthly History».</span>` : '');
+
     const tb = $('mkt-leadgen-roi-table'); if (!tb) return;
-    tb.innerHTML = arr.map(r => {
-      const cpl = r.cost && r.deals ? r.cost / r.deals : null, cac = r.cost && r.won ? r.cost / r.won : null;
-      const roas = r.cost ? r.wonSum / r.cost * 100 : null;
-      const rc = roas == null ? 'var(--tl)' : roas >= 300 ? GD : roas >= 100 ? WH : R;
-      return `<tr><td>${r.name === '—' ? '<span style="color:var(--tl)">без UTM</span>' : r.name}<span style="color:var(--tl);font-size:9px"> ${r.src === '—' ? '' : r.src}</span></td>
-        <td style="text-align:right">${r.cost != null ? fmt(r.cost) : '—'}</td>
-        <td style="text-align:right">${r.deals}</td>
-        <td style="text-align:right">${cpl != null ? fmt(cpl) : '—'}</td>
-        <td style="text-align:right">${fmt(r.expectedSum)}</td>
-        <td style="text-align:right">${r.won}</td>
-        <td style="text-align:right;font-weight:700">${fmt(r.wonSum)}</td>
-        <td style="text-align:right">${cac != null ? fmt(cac) : '—'}</td>
-        <td style="text-align:right;font-weight:700;color:${rc}">${roas != null ? roas.toFixed(0) + '%' : '—'}</td></tr>`;
-    }).join('');
+    const rc = v => v == null ? 'var(--tl)' : v >= 300 ? GD : v >= 100 ? WH : R;
+    const td = (v, bold, color) => `<td class="r"${bold || color ? ` style="${bold ? 'font-weight:700;' : ''}${color ? 'color:' + color : ''}"` : ''}>${v}</td>`;
+    tb.innerHTML = arr.length ? arr.map(r => `<tr>
+        <td><span class="roi-ch">${r.ch}</span>${r.acc ? `<span class="roi-acc"> / ${r.acc}</span>` : ''}</td>
+        <td style="font-weight:500">${r.name || '<span style="color:var(--tl)">без UTM</span>'}</td>
+        ${td(r.cost != null ? fmt(r.cost) : '—')}${td(r.ses != null ? fmt(r.ses) : '—')}${td(r.deals)}${td(r.cr != null ? r.cr.toFixed(1) + '%' : '—')}${td(r.cpl != null ? fmt(r.cpl) : '—')}${td(fmt(r.exp))}
+        ${td(r.won)}${td(fmt(r.wonSum), true)}${td(r.cac != null ? fmt(r.cac) : '—')}
+        ${td(r.roas != null ? r.roas.toFixed(0) + '%' : '—', true, rc(r.roas))}</tr>`).join('')
+      : `<tr><td colspan="12" style="color:var(--tl);font-weight:400">Немає угод за ${per}</td></tr>`;
+
+    // Разом: угоди/суми — усі рядки; CPL/CAC/ROAS — лише рядки з вартістю (платний трафік)
+    const tf = $('mkt-leadgen-roi-total');
+    if (tf) {
+      const S = (a, f) => a.reduce((s, r) => s + (r[f] || 0), 0);
+      const paid = arr.filter(r => r.cost);
+      const cost = S(paid, 'cost'), pd = cmpOk ? S(paid, 'cd') : 0, pw = cmpOk ? S(paid, 'cw') : 0, pws = S(paid, 'cws');
+      const roas = cmpOk && cost ? pws / cost * 100 : null;
+      tf.innerHTML = arr.length ? `<tr><td>Разом</td><td style="font-weight:500;color:var(--tl)">${arr.length} рядків</td>
+        ${td(cost ? fmt(cost) : '—')}${td(gaOk ? fmt(S(arr.filter(r => r.ses), 'ses')) : '—')}${td(S(arr, 'deals'))}<td class="r" title="Лише рядки з сеансами GA">${(() => { const w = arr.filter(r => r.ses); const sS = S(w, 'ses'); return sS ? (S(w, 'deals') / sS * 100).toFixed(1) + '%' : '—'; })()}</td>
+        <td class="r" title="Лише платні рядки (з вартістю)">${cost && pd ? fmt(cost / pd) : '—'}</td>${td(fmt(S(arr, 'exp')))}
+        ${td(S(arr, 'won'))}${td(fmt(S(arr, 'wonSum')))}
+        <td class="r" title="Лише платні рядки (з вартістю)">${cost && pw ? fmt(cost / pw) : '—'}</td>
+        <td class="r" style="color:${rc(roas)}" title="WON сума платних рядків ÷ вартість">${roas != null ? roas.toFixed(0) + '%' : '—'}</td></tr>` : '';
+    }
+    if (window.GA4View) { try { GA4View.render(_ga, from, to, { siteDeals }); } catch (e) { console.warn('[GA4View]', e); } }
   }
 
   // ── 4. Завислі великі угоди ──

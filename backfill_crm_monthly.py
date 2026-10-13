@@ -79,6 +79,15 @@ def main():
                     print(f"[Backfill CRM] ＋ {month_key}: додано воронки по стадіях")
                 except Exception as e:
                     print(f"[Backfill CRM] ⚠ {month_key}: воронки не додано: {e}")
+            if prev.get("cohort") is not None and prev["cohort"].get("byCampaignDaily") is None:
+                # v5.0: щоденна розбивка UTM-кампаній — дешевий доповнювальний прохід
+                try:
+                    from fetch_crm_deals import compute_campaign_daily
+                    prev["cohort"]["byCampaignDaily"] = compute_campaign_daily(month_start, month_end)
+                    print(f"[Backfill CRM] ＋ {month_key}: додано щоденну розбивку кампаній "
+                          f"({len(prev['cohort']['byCampaignDaily'])} рядків)")
+                except Exception as e:
+                    print(f"[Backfill CRM] ⚠ {month_key}: щоденну розбивку не додано: {e}")
             if prev.get("dealLists") is not None and _pipes_ok(prev.get("cohort") or {}):
                 print(f"[Backfill CRM] ⏭ {month_key}: вже пораховано (повний місяць) — пропускаю")
             cur_year, cur_month = (cur_year + 1, 1) if cur_month == 12 else (cur_year, cur_month + 1)

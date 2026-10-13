@@ -268,6 +268,25 @@ a{color:var(--gd);text-decoration:none}
 .tbl th{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--tm);padding:7px 10px;text-align:left;background:var(--s2);border-bottom:1px solid var(--bd)}
 .tbl td{font-size:12px;color:var(--td);padding:7px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}.tbl td:first-child{color:var(--tx);font-weight:600}
+/* v5.0 ROI кампаній: період, сортування, інфо */
+.roi-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px}
+.roi-seg{display:inline-flex;border:1px solid var(--bd);border-radius:7px;overflow:hidden}
+.roi-seg button{font-size:11px;padding:4px 9px;border:0;background:transparent;color:var(--td);cursor:pointer;border-right:1px solid var(--bd)}
+.roi-seg button:last-child{border-right:0}
+.roi-seg button.on{background:var(--s2);color:var(--tx);font-weight:700}
+.roi-in{display:none;align-items:center;gap:4px}.roi-in.on{display:inline-flex}
+.roi-in input,.roi-in select{font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:transparent;color:var(--tx)}
+.roi-in a{font-size:10px;color:var(--tl);text-decoration:none;border-bottom:1px dashed var(--tl)}
+.roi-tbl th{cursor:pointer;user-select:none;white-space:nowrap;position:sticky;top:0;z-index:1}
+.roi-tbl th.r,.roi-tbl td.r{text-align:right}
+.roi-tbl th .arr{font-size:9px;margin-left:3px;color:var(--tx)}
+.roi-tbl tfoot td{font-weight:700;background:var(--s2);border-top:1px solid var(--bd);position:sticky;bottom:0}
+.roi-i{cursor:pointer;font-size:11px;color:var(--tl);margin-left:2px}
+.roi-info{margin-bottom:8px;font-size:11px}
+.roi-info summary{cursor:pointer;color:var(--tl);font-size:10px}
+.roi-info-body{display:grid;gap:5px;margin-top:6px;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--s2);color:var(--td);line-height:1.45}
+.roi-ch{font-weight:700;color:var(--tx)}.roi-acc{color:var(--tl);font-weight:500}
+
 .tbl tr:hover td{background:var(--s2)}
 .tfoot{padding:7px 12px;font-size:10px;color:var(--tm);background:var(--s2);border-top:1px solid var(--bd);border-radius:0 0 var(--r) var(--r)}
 
@@ -1157,16 +1176,61 @@ a{color:var(--gd);text-decoration:none}
       <div class="ct" style="margin:6px 0">Retention — клієнти, що повертаються</div>
       <div id="mkt-leadgen-retention" style="margin-bottom:12px"></div>
       <div id="mkt-leadgen-stale" style="display:none;font-size:11px;margin-bottom:12px;padding:8px 12px;border:1px solid var(--bd);border-left:3px solid #C0392B;border-radius:8px;background:#FDF1EF"></div>
-      <div class="card" style="margin-bottom:12px">
-        <div class="ct" style="margin-bottom:4px">ROI кампаній: вартість → угоди → виручка (UTM)</div>
-        <div id="mkt-leadgen-roi-note" style="font-size:10px;color:var(--tl);margin-bottom:8px"></div>
-        <div class="tw" id="mkt-leadgen-roi"><table class="tbl"><thead><tr><th>Кампанія (utm_campaign)</th><th style="text-align:right">Вартість</th><th style="text-align:right">Нових угод</th><th style="text-align:right" title="Вартість / нові угоди">CPL</th><th style="text-align:right" title="Сума угод у роботі + успішних">Очік. сума</th><th style="text-align:right">WON</th><th style="text-align:right">WON сума</th><th style="text-align:right" title="Вартість / WON">CAC</th><th style="text-align:right" title="WON сума / вартість">ROAS</th></tr></thead><tbody id="mkt-leadgen-roi-table"></tbody></table></div>
+      <div class="card" style="margin-bottom:12px" id="mkt-roi-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+          <div class="ct" style="margin:0">ROI кампаній: вартість → угоди → виручка</div>
+          <div class="roi-ctl">
+            <div class="roi-seg" id="roi-mode">
+              <button type="button" data-m="day">День</button><button type="button" data-m="range">Кілька днів</button><button type="button" data-m="month">Місяць</button><button type="button" data-m="year">Рік</button>
+            </div>
+            <span class="roi-in" data-for="day"><input type="date" id="roi-day"></span>
+            <span class="roi-in" data-for="range"><input type="date" id="roi-from"> – <input type="date" id="roi-to">
+              <a href="#" data-q="7">7 дн</a> <a href="#" data-q="14">14 дн</a> <a href="#" data-q="30">30 дн</a></span>
+            <span class="roi-in" data-for="month"><input type="month" id="roi-month"></span>
+            <span class="roi-in" data-for="year"><select id="roi-year"></select></span>
+          </div>
+        </div>
+        <div id="mkt-leadgen-roi-note" style="font-size:10px;color:var(--tl);margin-bottom:6px"></div>
+        <details id="roi-info" class="roi-info">
+          <summary>ⓘ Як рахуються показники (CPL, CAC, ROAS…)</summary>
+          <div class="roi-info-body">
+            <div><b>Канал</b> — звідки прийшла угода: <code>utm_source</code> з Bitrix24 (google, facebook, instagram, meta…), а якщо UTM немає — поле «Джерело» угоди (дзвінок, email, сайт, Instagram реклама…). Після «/» — акаунт або уточнення (для Google: <b>EASY</b> — кампанія є у вивантаженні Ads-акаунта EASY).</div>
+            <div><b>Кампанія</b> — <code>utm_campaign</code>; «без UTM» — угода прийшла без рекламних міток.</div>
+            <div><b>Вартість</b> — витрати Google Ads за обраний період (з Google Analytics — точно по днях; без нього — з вивантаження скрипта Ads). Для Facebook/Instagram витрат у дашборді поки немає — там «—».</div>
+            <div><b>Сеанси</b> — візити на easy3dprint.com.ua з цієї кампанії за даними Google Analytics (за <code>utm_campaign</code>). Для угод без UTM — «—».</div>
+            <div><b>Нових угод</b> — угоди всіх 4 воронок Bitrix24 (0 ЛИДЫ, 24 ОПТ, 18/32 Роздріб), <u>створені</u> в обраному періоді.</div>
+            <div><b>CR</b> = Нових угод ÷ Сеанси × 100% — яка частка візитів з кампанії стала угодою в Bitrix24.</div>
+            <div><b>CPL</b> = Вартість ÷ Нових угод — скільки коштує одне звернення.</div>
+            <div><b>Очік. сума</b> — сума угод з цього періоду, які ще в роботі або вже успішні (без відмов). Потенціал, не гроші.</div>
+            <div><b>WON</b> / <b>WON сума</b> — скільки з цих угод уже закрито успішно у воронках 24/18/32 і на яку суму. WON воронки 0 (пройдений скринінг) не рахується, щоб не задвоювати.</div>
+            <div><b>CAC</b> = Вартість ÷ WON — скільки реклами витрачено на одну успішну угоду.</div>
+            <div><b>ROAS</b> = WON сума ÷ Вартість × 100%. <b>100%</b> — реклама окупилась по виручці один в один, <b>300%</b> — кожна гривня реклами принесла 3 грн виручки. Колір: <span style="color:#1e7a6e;font-weight:700">≥ 300%</span> · <span style="color:#3D7EA6;font-weight:700">100–300%</span> · <span style="color:#C0392B;font-weight:700">&lt; 100%</span>. Це по <u>виручці</u>, не по прибутку: щоб реклама окупилась по марже, ROAS має бути вищим за 100% ÷ маржинальність (напр. при марже 30% — від ~330%).</div>
+            <div style="color:var(--tl)">Угода прив'язується до періоду за датою <u>створення</u>, тому WON за свіжі дні ще доростатиме: угода, створена сьогодні, може закритися через тиждень-два — і ROAS цього дня зросте.</div>
+          </div>
+        </details>
+        <div class="tw" id="mkt-leadgen-roi" style="max-height:520px;overflow:auto"><table class="tbl roi-tbl"><thead><tr>
+          <th data-k="ch">Канал</th><th data-k="name">Кампанія</th>
+          <th data-k="cost" class="r">Вартість</th><th data-k="ses" class="r" title="Сеанси на сайті з цієї кампанії (Google Analytics)">Сеанси</th><th data-k="deals" class="r">Нових угод</th><th data-k="cr" class="r" title="Нових угод / сеанси">CR</th>
+          <th data-k="cpl" class="r" title="Вартість / нові угоди">CPL</th><th data-k="exp" class="r" title="Сума угод у роботі + успішних">Очік. сума</th>
+          <th data-k="won" class="r">WON</th><th data-k="wonSum" class="r">WON сума</th>
+          <th data-k="cac" class="r" title="Вартість / WON">CAC</th>
+          <th data-k="roas" class="r">ROAS <span class="roi-i" id="roi-roas-i" title="Як рахується ROAS">ⓘ</span></th>
+        </tr></thead><tbody id="mkt-leadgen-roi-table"></tbody><tfoot id="mkt-leadgen-roi-total"></tfoot></table></div>
       </div>
       <div class="card" id="mkt-leadgen-trend-wrap" style="display:none;margin-bottom:12px">
         <div class="ct" style="margin-bottom:8px">Динаміка: звернення → кваліфіковані → WON, частка виручки від повторних покупців <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
         <div class="cw" style="height:220px"><canvas id="mkt-leadgen-trend"></canvas></div>
       </div>
     </div>
+  </div>
+
+  <!-- ═══ v5.1: САЙТ — GOOGLE ANALYTICS 4 (період = період таблиці ROI) ═══ -->
+  <div id="w-mkt-ga4">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px">
+      <div class="sec" style="margin-bottom:0">🌐 Сайт — Google Analytics <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl);cursor:help" title="GA4, ресурс easy3dprint.com.ua (378398411). Період — той самий, що обраний у таблиці «ROI кампаній». Посадкові сторінки, міста й пристрої — завжди за останні 30 днів.">ⓘ</span></div>
+      <span id="mkt-ga4-updated"></span>
+    </div>
+    <div id="mkt-ga4-root" style="margin-top:8px"><div style="font-size:11px;color:var(--tl)">Завантаження…</div></div>
   </div>
 
   <!-- ═══ v4.5: КАНАЛИ ЗАЛУЧЕННЯ (Bitrix24 SOURCE_ID / UTM) ═══ -->
@@ -3782,7 +3846,8 @@ window.LocLoader = (() => {
 <script src="js/funnels_loader.js?v=20260930e"></script>
 <script src="js/finance_status.js?v=20261001"></script>
 <script src="js/channels_loader.js?v=20260930"></script>
-<script src="js/leadgen_loader.js?v=20260924"></script>
+<script src="js/ga4_loader.js?v=20261013b"></script>
+<script src="js/leadgen_loader.js?v=20261013b"></script>
 <script>
 // v4.5: зміна складу локацій у /api/capacity. Дашборд нічого не фільтрує —
 // показує те, що віддає API. Якщо набір локацій змінився (напр. 23.09: зникли

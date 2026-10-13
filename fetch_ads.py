@@ -50,6 +50,47 @@ def to_float(v, default=0.0):
     except Exception:
         return default
 
+def norm_date(raw):
+    """v5.0: дата з листа → YYYY-MM-DD. Підтримує Excel serial (46000),
+    ISO (2026-10-13), DD.MM.YYYY і YYYYMMDD (формат Ads Script)."""
+    raw = (raw or "").strip()
+    if not raw:
+        return ""
+    if raw.replace(".", "", 1).isdigit() and len(raw) <= 7:
+        return excel_date(raw)
+    for fmt in ("%Y-%m-%d", "%d.%m.%Y", "%Y%m%d", "%d/%m/%Y", "%m/%d/%Y"):
+        try:
+            return datetime.strptime(raw[:10], fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    return raw[:10]
+
+
+HISTORY_DAILY = Path(__file__).parent / "data" / "ads_campaigns_daily.json"
+
+
+def update_daily_history(daily):
+    """v5.0: накопичує щоденні рядки по кампаніях (лист «campaigns») в окремий
+    файл — лист Ads Script тримає лише останні N днів, а дашборду потрібна
+    вартість за довільний період (день / діапазон / місяць / рік).
+    Upsert за (date, campaign): свіжий запуск перезаписує день, бо Ads ще
+    доуточнює вартість кілька днів після показу."""
+    hist = {"rows": []}
+    if HISTORY_DAILY.exists():
+        try:
+            hist = json.loads(HISTORY_DAILY.read_text(encoding="utf-8"))
+        except Exception:
+            hist = {"rows": []}
+    rows = {(r["date"], r["campaign"]): r for r in hist.get("rows", [])}
+    for r in daily:
+        if r.get("date") and r.get("campaign"):
+            rows[(r["date"], r["campaign"])] = {k: r[k] for k in ("date", "campaign", "impressions", "clicks", "cost_uah", "conversions")}
+    hist["rows"] = sorted(rows.values(), key=lambda r: (r["date"], r["campaign"]))
+    hist["updated_at"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    HISTORY_DAILY.write_text(json.dumps(hist, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"[ADS] ✓ Історія по днях: {len(hist['rows'])} рядків")
+
+
 def parse_funnel(rows):
     """date, impressions, clicks, leads, ctr_pct, cvr_pct"""
     result = []
@@ -135,8 +176,9 @@ def parse_campaigns(rows):
     for row in rows[1:]:
         if not cell(row, 0):
             continue
-        date_raw = cell(row, 0)
-        date_str = excel_date(date_raw) if date_raw.replace("-","").replace(".","").isdigit() and "." in date_raw == False else date_raw
+        date_str = norm_date(cell(row, 0))
+        if not date_str:
+            continue
         result.append({
             "date":        date_str,
             "campaign":    cell(row, 1),
@@ -196,6 +238,8 @@ def main():
         rows = fetch_csv(sheets["campaigns"])
         result["campaigns"] = parse_campaigns(rows)
         print(f"[ADS] Кампанії (щоденні): {len(result['campaigns'])} рядків")
+        if result["campaigns"]:
+            update_daily_history(result["campaigns"])
 
     if "geo" in sheets:
         rows = fetch_csv(sheets["geo"])
