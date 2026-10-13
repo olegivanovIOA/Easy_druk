@@ -8833,24 +8833,24 @@
           "name": "Локація 4",
           "batches": 8,
           "lots": 2,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectWeightPercent": null,
+          "acceptedQty": 129,
+          "defectQty": 5,
+          "defectPercent": 3.88,
+          "defectWeightPercent": 3.87,
           "totalPrintTimeMinutes": 166251,
-          "materialCostUAH": null,
-          "materialCostCoveragePercent": null
+          "materialCostUAH": 8590.56,
+          "materialCostCoveragePercent": 100.0
         },
         "5": {
           "name": "Локація 5",
           "batches": 16,
           "lots": 2,
-          "acceptedQty": 2309,
+          "acceptedQty": 2392,
           "defectQty": 64,
-          "defectPercent": 2.77,
-          "defectWeightPercent": 2.77,
+          "defectPercent": 2.68,
+          "defectWeightPercent": 2.68,
           "totalPrintTimeMinutes": 217455.5,
-          "materialCostUAH": 9439.32,
+          "materialCostUAH": 15062.52,
           "materialCostCoveragePercent": 100.0
         },
         "6": {
@@ -8881,15 +8881,33 @@
       "company": {
         "batches": 34,
         "lots": 9,
-        "acceptedQty": 10156,
-        "defectQty": 625,
-        "defectPercent": 6.15,
-        "defectWeightPercent": 6.16,
+        "acceptedQty": 10368,
+        "defectQty": 630,
+        "defectPercent": 6.08,
+        "defectWeightPercent": 6.08,
         "totalPrintTimeMinutes": 601575.5,
-        "materialCostUAH": 33035.75,
+        "materialCostUAH": 47249.51,
         "materialCostCoveragePercent": 100.0
       },
       "lots": [
+        {
+          "location": "4",
+          "acceptedQty": 65,
+          "batchCount": 4,
+          "defectPercent": 7.69,
+          "printerModels": [
+            "P2S"
+          ]
+        },
+        {
+          "location": "4",
+          "acceptedQty": 64,
+          "batchCount": 4,
+          "defectPercent": 0,
+          "printerModels": [
+            "P2S"
+          ]
+        },
         {
           "location": "5",
           "acceptedQty": 2264,
@@ -8901,7 +8919,7 @@
         },
         {
           "location": "5",
-          "acceptedQty": 45,
+          "acceptedQty": 128,
           "batchCount": 15,
           "defectPercent": 0,
           "printerModels": [
@@ -8956,5 +8974,5 @@
       ]
     }
   ],
-  "updated_at": "2026-10-13T09:57:08Z"
+  "updated_at": "2026-10-13T12:52:59Z"
 }
