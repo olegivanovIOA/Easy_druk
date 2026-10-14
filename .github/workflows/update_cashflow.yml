@@ -24,10 +24,32 @@ jobs:
           CF_SHEET_ID:                  ${{ secrets.CF_SHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON:  ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: python fetch_cashflow.py
+
+      # v6.1 (14.10.2026): P&L раніше не запускався жодним workflow — pnl.json оновлювався
+      # лише вручну (останній раз 01.10). Тепер — щогодини разом з CF, тим самим сервісним акаунтом.
+      # continue-on-error: якщо P&L впаде (напр. нема доступу до таблиці PnL_Easy), CF все одно закомітиться.
+      - name: Fetch P&L data
+        id: pnl
+        continue-on-error: true
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON:  ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python fetch_pnl.py
+
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/cashflow.json
-          git diff --cached --quiet || git commit -m "chore: update cashflow [skip ci]"
-          git push origin main_root
+          [ -f data/pnl.json ] && git add data/pnl.json
+          git diff --cached --quiet && { echo "No changes"; exit 0; }
+          git commit -m "chore: update cashflow + P&L [skip ci]"
+          ok=0
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main_root && git push origin main_root && ok=1 && break || sleep $((i*3))
+          done
+          [ "$ok" = 1 ] || { echo "::error::Push cashflow/P&L failed after 5 attempts"; exit 1; }
+
+      - name: P&L status
+        if: steps.pnl.outcome == 'failure'
+        run: |
+          echo "::warning::P&L не оновлено — дивись крок «Fetch P&L data». Найчастіше: сервісний акаунт з GOOGLE_SERVICE_ACCOUNT_JSON не має доступу до таблиці PnL_Easy (Поділитися → email акаунта, роль «Читач»)."
