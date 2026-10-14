@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-14T15:31:22Z",
+  "fetched_at": "2026-10-14T15:47:58Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -53,17 +53,17 @@
     {
       "source": "CALL",
       "name": "Звонок",
-      "reviewed": 321,
+      "reviewed": 324,
       "won": 8,
-      "lost": 295,
-      "junk": 29,
+      "lost": 298,
+      "junk": 31,
       "wonWholesale": 8,
       "wonRetail": 0,
       "revenue": 201452.52,
       "revenueWholesale": 201452.52,
       "revenueRetail": 0.0,
       "winRate": 2.6,
-      "junkShare": 9.0,
+      "junkShare": 9.6,
       "avgCheck": 25181.56
     },
     {
@@ -358,9 +358,9 @@
   "cohort": {
     "funnel": {
       "all": 678,
-      "clean": 632,
-      "qualified": 352,
-      "activeOrWon": 134,
+      "clean": 631,
+      "qualified": 349,
+      "activeOrWon": 131,
       "won": 10,
       "wonSum": 2140632.2,
       "expectedSumActiveWon": 4018121.2
@@ -368,7 +368,7 @@
     "byStage": [
       {
         "stage": "СПАМ / МУСОР",
-        "deals": 114,
+        "deals": 115,
         "sum": 0.0
       },
       {
@@ -378,7 +378,7 @@
       },
       {
         "stage": "ОШИБСЯ (запрос не по теме)",
-        "deals": 66,
+        "deals": 67,
         "sum": 0.0
       },
       {
@@ -398,12 +398,12 @@
       },
       {
         "stage": "НЕ завершили первинний контакт",
-        "deals": 44,
+        "deals": 51,
         "sum": 0.0
       },
       {
         "stage": "ДУБЛЬ",
-        "deals": 28,
+        "deals": 29,
         "sum": 0.0
       },
       {
@@ -413,11 +413,6 @@
       },
       {
         "stage": "ТЕСТОВЫЙ звонок",
-        "deals": 18,
-        "sum": 0.0
-      },
-      {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
         "deals": 18,
         "sum": 0.0
       },
@@ -453,6 +448,11 @@
       },
       {
         "stage": "Некорректные контакты для связи",
+        "deals": 8,
+        "sum": 0.0
+      },
+      {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
         "deals": 8,
         "sum": 0.0
       },
@@ -2868,24 +2868,24 @@
             "count": 2,
             "sum": 0.0,
             "reached": 445,
-            "lostHere": 372
+            "lostHere": 375
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 18,
+            "count": 8,
             "sum": 0.0,
-            "reached": 71,
+            "reached": 68,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 44,
+            "count": 51,
             "sum": 0.0,
-            "reached": 53,
+            "reached": 60,
             "lostHere": 5
           },
           {
@@ -2900,14 +2900,14 @@
             "id": "LOSE",
             "name": "СПАМ / МУСОР",
             "sem": "F",
-            "count": 114,
+            "count": 115,
             "sum": 0.0
           },
           {
             "id": "16",
             "name": "ДУБЛЬ",
             "sem": "F",
-            "count": 28,
+            "count": 29,
             "sum": 0.0
           },
           {
@@ -2928,7 +2928,7 @@
             "id": "50",
             "name": "ОШИБСЯ (запрос не по теме)",
             "sem": "F",
-            "count": 66,
+            "count": 67,
             "sum": 0.0
           },
           {
@@ -4206,7 +4206,7 @@
   "lossReasonsScreening": [
     {
       "reason": "СПАМ / МУСОР",
-      "count": 114
+      "count": 115
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -4214,7 +4214,7 @@
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 66
+      "count": 67
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -4222,7 +4222,7 @@
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 29
+      "count": 30
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
@@ -4236,7 +4236,7 @@
   "lossReasonsTotal": [
     {
       "reason": "СПАМ / МУСОР",
-      "count": 114
+      "count": 115
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -4244,7 +4244,7 @@
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 66
+      "count": 67
     },
     {
       "reason": "ДОРОГО",
@@ -4260,7 +4260,7 @@
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 31
+      "count": 32
     },
     {
       "reason": "НЕ актуально",
@@ -4352,7 +4352,7 @@
       "reasons": [
         {
           "reason": "СПАМ / МУСОР",
-          "count": 114
+          "count": 115
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -4360,7 +4360,7 @@
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 66
+          "count": 67
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -4368,7 +4368,7 @@
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 29
+          "count": 30
         },
         {
           "reason": "ТЕСТОВЫЙ звонок",
@@ -4379,18 +4379,18 @@
           "count": 8
         }
       ],
-      "totalLost": 391,
-      "totalReviewed": 398
+      "totalLost": 394,
+      "totalReviewed": 401
     }
   },
   "totalReviewed": {
     "wholesale": 274,
     "retail": 1,
-    "screening": 398,
-    "all": 673
+    "screening": 401,
+    "all": 676
   },
   "pipeline": {
-    "asOf": "2026-10-14T15:31:28Z",
+    "asOf": "2026-10-14T15:48:04Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
