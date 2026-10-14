@@ -14,7 +14,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests
-      - name: Воронки Bitrix24 (що таке 34)
+      # v6.2: заповненість індустрій / товарних позицій / глибина історії (лише кількості, без персональних даних)
+      - name: Поля Bitrix24 — індустрії, товари, історія
         env:
           BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
-        run: python diag_bitrix.py
+        run: python diag_bitrix_fields.py

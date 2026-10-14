@@ -180,6 +180,48 @@ jobs:
           done
           [ "$ok" = 1 ] || { echo "::error::Push shop-floor data failed after 5 attempts"; exit 1; }
 
+  update-clients:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run once a day (04 UTC) or manually
+        id: gate
+        run: |
+          H=$(date -u +%-H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$H" -eq 4 ]; then echo "go=1" >> $GITHUB_OUTPUT; else echo "skip (hour $H)"; fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.go == '1'
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.go == '1'
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+        if: steps.gate.outputs.go == '1'
+
+      - name: Client analytics (LTV / RFM / churn / industries)
+        if: steps.gate.outputs.go == '1'
+        env:
+          BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
+        run: python fetch_clients.py
+
+      - name: Commit clients data
+        if: steps.gate.outputs.go == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/clients.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: update clients analytics [skip ci]"
+          ok=0
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
+          done
+          [ "$ok" = 1 ] || { echo "::error::Push clients data failed after 5 attempts"; exit 1; }
+
   update-mql:
     runs-on: ubuntu-latest
     steps:
