@@ -7,7 +7,7 @@
   "calc": "можна порахувати з наявних даних",
   "no": "даних немає"
  },
- "note": "dash=null — розділ не перевірявся поштучно 01.10 (виробництво/якість/юніт-економіка), рахується як у static.js",
+ "note": "dash=null — розділ не перевірявся поштучно 01.10 (виробництво/якість/юніт-економіка), рахується як у static.js | 14.10.2026 (v6.0): «Якість та брак» звірено поштучно; у Виробництво — Локації/Принтери/Партії і HR оновлено лише метрики, закриті даними цеху (shopfloor), решта як у static.js.",
  "metrics": [
   {
    "n": 1,
@@ -54,8 +54,8 @@
    "section": "Виробництво — Локації",
    "metric": "Кількість змін на неделю/месяц",
    "registry": "part",
-   "dash": null,
-   "evidence": null
+   "dash": "yes",
+   "evidence": "к-сть змін день/ніч, операторо-зміни по локаціях — Виробництво «Зміни операторів» · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 7,
@@ -222,16 +222,16 @@
    "section": "Виробництво — Принтери",
    "metric": "Кількість відмов (за місяць)",
    "registry": "no",
-   "dash": null,
-   "evidence": null
+   "dash": "part",
+   "evidence": "непланові ремонти за місяць по локаціях і компанії (не по окремому принтеру) — Локації «ТО і ремонти» · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 28,
    "section": "Виробництво — Принтери",
    "metric": "MTBF — середній час між відмовами (год)",
    "registry": "calc",
-   "dash": null,
-   "evidence": null
+   "dash": "part",
+   "evidence": "≈MTBF = години друку ÷ непланові ремонти, по локаціях (з 12.08) і компанії — Локації · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 29,
@@ -446,8 +446,8 @@
    "section": "Виробництво — Партії (Batch)",
    "metric": "Причина браку (категорія)",
    "registry": "no",
-   "dash": null,
-   "evidence": null
+   "dash": "part",
+   "evidence": "причини браку за типами (журнал, зв'язок з партіями через batchNumbers) — по локаціях/змінах/артикулах, не по кожній партії — Якість · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 56,
@@ -518,104 +518,104 @@
    "section": "Якість та брак",
    "metric": "Загальний % браку компанії",
    "registry": "part",
-   "dash": null,
-   "evidence": null
+   "dash": "yes",
+   "evidence": "% браку компанії (партії ОТК) — Якість, CEO · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 65,
    "section": "Якість та брак",
    "metric": "% браку по локації",
    "registry": "part",
-   "dash": null,
-   "evidence": null
+   "dash": "yes",
+   "evidence": "% браку по локаціях — Якість, Локації · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 66,
    "section": "Якість та брак",
    "metric": "% браку по моделі принтера",
    "registry": "part",
-   "dash": null,
-   "evidence": null
+   "dash": "yes",
+   "evidence": "% браку по моделі принтера — Якість · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 67,
    "section": "Якість та брак",
    "metric": "% браку по оператору",
    "registry": "part",
-   "dash": null,
-   "evidence": null
+   "dash": "part",
+   "evidence": "лише на рівні ЗМІН (виконання/брак змін день/ніч по локаціях); персонально не показуємо за рішенням власника — Виробництво · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 68,
    "section": "Якість та брак",
    "metric": "% браку по типу деталі",
    "registry": "part",
-   "dash": null,
-   "evidence": null
+   "dash": "yes",
+   "evidence": "% браку по деталях/артикулах — Якість · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 69,
    "section": "Якість та брак",
    "metric": "Розподіл браку по категоріях (%)",
    "registry": "part",
-   "dash": null,
-   "evidence": null
+   "dash": "yes",
+   "evidence": "розподіл браку за причинами (шт/кг/₴), по локаціях і змінах — Якість «Причини браку» · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 70,
    "section": "Якість та брак",
    "metric": "ТОП-5 причин браку (Парето)",
    "registry": "no",
-   "dash": null,
-   "evidence": null
+   "dash": "yes",
+   "evidence": "Парето причин браку з накопиченою часткою — Якість «Причини браку» · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 71,
    "section": "Якість та брак",
    "metric": "% браку від клиента",
    "registry": "no",
-   "dash": null,
-   "evidence": null
+   "dash": "no",
+   "evidence": "немає джерела (рекламації клієнтів не в API)"
   },
   {
    "n": 72,
    "section": "Якість та брак",
    "metric": "Вартість браку (грн/міс)",
    "registry": "no",
-   "dash": null,
-   "evidence": null
+   "dash": "yes",
+   "evidence": "вартість браку (партії) + ≈₴ за причинами з журналу — Якість · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 73,
    "section": "Якість та брак",
    "metric": "Частка вартості браку у виручці (%)",
    "registry": "calc",
-   "dash": null,
-   "evidence": null
+   "dash": "calc",
+   "evidence": "потребує виручки по локації/артикулу"
   },
   {
    "n": 74,
    "section": "Якість та брак",
    "metric": "Вхідний контроль сировини (% партій перевірено)",
    "registry": "no",
-   "dash": null,
-   "evidence": null
+   "dash": "no",
+   "evidence": "вхідного контролю в API немає"
   },
   {
    "n": 75,
    "section": "Якість та брак",
    "metric": "Проміжний контроль (% партій)",
    "registry": "no",
-   "dash": null,
-   "evidence": null
+   "dash": "no",
+   "evidence": "проміжного контролю в API немає"
   },
   {
    "n": 76,
    "section": "Якість та брак",
    "metric": "Вихідний контроль (% партій перед відвантаженням)",
    "registry": "part",
-   "dash": null,
-   "evidence": null
+   "dash": "part",
+   "evidence": "покриття ОТК змін (≥95%) і черга ОТК — Якість, Виробництво · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 77,
@@ -1230,16 +1230,16 @@
    "section": "HR та Персонал",
    "metric": "Виробіток на 1 оператора (кг або одиниць/зміна)",
    "registry": "no",
-   "dash": "no",
-   "evidence": "без змін"
+   "dash": "yes",
+   "evidence": "деталей і друк-годин на операторо-зміну (партії ÷ зміни, з 12.08) — Виробництво · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 154,
    "section": "HR та Персонал",
    "metric": "% співробітників з KPI > 100%",
    "registry": "no",
-   "dash": "no",
-   "evidence": "без змін"
+   "dash": "part",
+   "evidence": "% операторів з виконанням плану змін ≥100% (розподіл без імен, від 3 людей) — не KPI, а результат змін · shopfloor.json (/api/defects, /api/shift-workers), v6.0 14.10.2026"
   },
   {
    "n": 155,
