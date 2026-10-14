@@ -27,23 +27,42 @@ CATS = {24: "wholesale", 18: "retail", 32: "retail"}
 CHURN_DAYS = int(os.environ.get("CHURN_DAYS", "180"))
 RISK_FROM = int(os.environ.get("RISK_FROM_DAYS", "120"))
 IND_FIELD = os.environ.get("CLIENT_INDUSTRY_FIELD", "").strip()
-KW = re.compile(r"індустр|индустр|галуз|отрасл|сфер|industry|вид діяльн|вид деятельн", re.I)
+KW = re.compile(r"індустр|индустр|галуз|отрасл|сфер[аиуе]|industry|вид діяльн|вид деятельн", re.I)
 TODAY = date.today()
 
 
 def call(method, params=None):
-    for a in range(6):
-        r = requests.get(URL + method, params=params or {}, timeout=60)
-        if r.status_code == 503 or "QUERY_LIMIT_EXCEEDED" in r.text:
-            time.sleep(2 + 2 * a)
-            continue
+    """Bitrix REST з повторами: ліміт запитів (503/QUERY_LIMIT_EXCEEDED), тимчасові 5xx (502/504) і мережеві збої."""
+    last = None
+    for a in range(8):
+        try:
+            r = requests.get(URL + method, params=params or {}, timeout=90)
+        except requests.RequestException as e:
+            last = e; time.sleep(float(os.environ.get("BX_RETRY_SLEEP", "1")) * (3 + 3 * a)); continue
+        if r.status_code >= 500 or "QUERY_LIMIT_EXCEEDED" in r.text:
+            last = f"HTTP {r.status_code}"; print(f"  ↻ {method}: {last}, повтор {a + 1}/8"); time.sleep(float(os.environ.get("BX_RETRY_SLEEP", "1")) * (3 + 3 * a)); continue
         r.raise_for_status()
         j = r.json()
         if "error" in j:
             raise RuntimeError(f"{method}: {j.get('error_description') or j['error']}")
         time.sleep(float(os.environ.get("BX_SLEEP", "0.35")))
         return j
-    raise RuntimeError(method + ": rate limit")
+    raise RuntimeError(f"{method}: не вдалося після 8 спроб ({last})")
+
+
+DEAL_IND = {}   # {code: (підпис, {id варіанта: назва})} — поля галузі/сфери в картці УГОДИ
+
+
+def detect_deal_industry_fields():
+    """Напр. «Сфера применения» (UF_CRM_…) — у вашому Bitrix галузь заповнюють саме в угоді."""
+    fields = call("crm.deal.fields").get("result", {})
+    for code, f in fields.items():
+        lb = f.get("formLabel") or f.get("listLabel") or f.get("title") or ""
+        if f.get("type") == "boolean" or code == "CATEGORY_ID":
+            continue
+        if (IND_FIELD and code == IND_FIELD) or (not IND_FIELD and KW.search(lb)):
+            DEAL_IND[code] = (lb, {str(i.get("ID")): i.get("VALUE") for i in (f.get("items") or [])})
+    print(f"[CL] поля галузі в угоді: {[(c, v[0]) for c, v in DEAL_IND.items()] or '—'}")
 
 
 def won_deals(cat):
@@ -52,7 +71,7 @@ def won_deals(cat):
     while True:
         j = call("crm.deal.list", {"filter[CATEGORY_ID]": cat, "filter[STAGE_SEMANTIC_ID]": "S", "filter[>ID]": last,
                                    "order[ID]": "ASC", "start": -1,
-                                   "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "OPPORTUNITY", "CLOSEDATE"]})
+                                   "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "OPPORTUNITY", "CLOSEDATE"] + list(DEAL_IND)})
         rows = j.get("result") or []
         out += rows
         if len(rows) < 50:
@@ -142,6 +161,10 @@ def main():
     if URL == "/":
         print("::error::BITRIX_WEBHOOK_URL не встановлено")
         return 1
+    try:
+        detect_deal_industry_fields()
+    except Exception as e:
+        print(f"[CL] ⚠ поля угоди: {e}")
     deals, skipped = [], 0
     for cat, grp in CATS.items():
         ds = won_deals(cat)
@@ -156,7 +179,8 @@ def main():
             if not key:
                 skipped += 1
                 continue
-            deals.append({"k": key, "grp": grp, "dt": dt, "amt": num(d.get("OPPORTUNITY"))})
+            deals.append({"k": key, "grp": grp, "dt": dt, "amt": num(d.get("OPPORTUNITY")),
+                          "ind": {c: d.get(c) for c in DEAL_IND if filled(d.get(c))}})
     print(f"[CL] угод у розрахунку: {len(deals)}, пропущено (без клієнта/дати): {skipped}")
     if not deals:
         print("::error::Немає WON-угод")
@@ -285,34 +309,48 @@ def main():
 
     churn = {"all": churn_series(lambda c: True), "wholesale": churn_series(lambda c: c["group"] == "wholesale")}
 
-    # ── Галузі ──
+    # ── Галузі: поле угоди (напр. «Сфера применения») або компанії — беремо найкраще заповнене ──
     industries = None
+    tot12 = sum(c["rev12"] for c in cl.values()) or 1
+    d12 = [d for d in deals if d["dt"] > y12]
+    best = None   # (покриття, тип, код, підпис, функція: угода → [галузі] або None)
+    for code, (lb, items) in DEAL_IND.items():
+        cov = sum(d["amt"] for d in d12 if code in d["ind"]) / tot12
+        print(f"[CL] поле угоди {code} «{lb}»: заповнено для {cov * 100:.0f}% виручки (12 міс.)")
+        def fn(d, code=code, items=items):
+            v = d["ind"].get(code)
+            if v is None:
+                return None
+            return [items.get(str(x)) or str(x) for x in (v if isinstance(v, list) else [v])]
+        if cov > 0 and (best is None or cov > best[0]):
+            best = (cov, "deal", code, lb, fn)
     co_rev12 = defaultdict(float)
     for k, c in cl.items():
         if k.startswith("c") and c["rev12"] > 0:
             co_rev12[k[1:]] = c["rev12"]
     try:
-        field, flabel, imap, cover = industry_map(set(co_rev12), co_rev12)
+        cfield, clabel, imap, ccover = industry_map(set(co_rev12), co_rev12)
+        if cfield and imap and (best is None or (ccover.get(cfield) or 0) > best[0]):
+            best = (ccover.get(cfield) or 0, "company", cfield, clabel,
+                    lambda d: imap.get(d["k"][1:]) if d["k"].startswith("c") else None)
     except Exception as e:
-        print(f"[CL] ⚠ галузі: {e}")
-        field, flabel, imap, cover = None, None, {}, {}
-    if field:
+        print(f"[CL] ⚠ галузі компаній: {e}")
+    if best:
+        cov, src, field, flabel, fn = best
         agg = defaultdict(lambda: {"clients": set(), "deals": 0, "rev": 0.0})
-        tot12 = sum(c["rev12"] for c in cl.values()) or 1
-        for d in deals:
-            if d["dt"] <= y12 or not d["k"].startswith("c"):
-                continue
-            for ind in imap.get(d["k"][1:], ["Не вказано"]):
+        for d in d12:
+            inds = fn(d) or ["Не вказано"]
+            for ind in inds:
                 a = agg[ind]
                 a["clients"].add(d["k"])
                 a["deals"] += 1
-                a["rev"] += d["amt"] / len(imap.get(d["k"][1:], [1]))
+                a["rev"] += d["amt"] / len(inds)
         rows = []
         for ind, a in agg.items():
             n = len(a["clients"])
             rows.append({"industry": ind, "clients": n, "deals": a["deals"], "revenueShare12m": round(a["rev"] / tot12 * 100, 1),
                          "avgCheck12m": round(a["rev"] / a["deals"]) if a["deals"] and n >= 2 else None})
-        industries = {"field": field, "fieldLabel": flabel, "coverageRevenue12mPct": round((cover.get(field) or 0) * 100, 1),
+        industries = {"field": field, "fieldLabel": flabel, "source": src, "coverageRevenue12mPct": round(cov * 100, 1),
                       "rows": sorted(rows, key=lambda r: -r["revenueShare12m"])}
 
     out = {"fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "asOf": TODAY.isoformat(),

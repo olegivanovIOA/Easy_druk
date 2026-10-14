@@ -16,26 +16,34 @@ KW = re.compile(r"індустр|индустр|галуз|отрасл|сфер
 
 
 def call(method, params=None):
-    for a in range(5):
-        r = requests.get(URL + method, params=params or {}, timeout=60)
-        if r.status_code == 503 or "QUERY_LIMIT_EXCEEDED" in r.text:
-            time.sleep(2 + a * 2)
-            continue
+    """Bitrix REST з повторами: ліміт запитів (503/QUERY_LIMIT_EXCEEDED), тимчасові 5xx (502/504) і мережеві збої."""
+    last = None
+    for a in range(8):
+        try:
+            r = requests.get(URL + method, params=params or {}, timeout=90)
+        except requests.RequestException as e:
+            last = e; time.sleep(float(os.environ.get("BX_RETRY_SLEEP", "1")) * (3 + 3 * a)); continue
+        if r.status_code >= 500 or "QUERY_LIMIT_EXCEEDED" in r.text:
+            last = f"HTTP {r.status_code}"; print(f"  ↻ {method}: {last}, повтор {a + 1}/8"); time.sleep(float(os.environ.get("BX_RETRY_SLEEP", "1")) * (3 + 3 * a)); continue
         r.raise_for_status()
-        time.sleep(0.4)
-        return r.json()
-    raise RuntimeError(method + ": rate limit")
+        j = r.json()
+        if "error" in j:
+            raise RuntimeError(f"{method}: {j.get('error_description') or j['error']}")
+        time.sleep(float(os.environ.get("BX_SLEEP", "0.35")))
+        return j
+    raise RuntimeError(f"{method}: не вдалося після 8 спроб ({last})")
 
 
 def all_list(method, params):
-    out, start = [], 0
+    """Пагінація через filter[>ID] + start=-1 — швидше і стійкіше за start=N на великих вибірках."""
+    out, last = [], 0
     while True:
-        p = dict(params, start=start)
-        j = call(method, p)
-        out += j.get("result", []) or []
-        if j.get("next") is None:
+        p = dict(params, **{"filter[>ID]": last, "order[ID]": "ASC", "start": -1})
+        rows = call(method, p).get("result", []) or []
+        out += rows
+        if len(rows) < 50:
             return out
-        start = j["next"]
+        last = rows[-1]["ID"]
 
 
 def label(f):
@@ -105,6 +113,7 @@ sel = ["ID"] + [c[0] for c in comp_f]
 comps = []
 for i in range(0, len(ids), 50):
     comps += all_list("crm.company.list", {"filter[ID][]": ids[i:i + 50], "select[]": sel})
+comps = list({str(c["ID"]): c for c in comps}.values())
 for code, lb, tp, n, items in comp_f:
     f = [c for c in comps if filled(c.get(code))]
     frev = sum(rev_by_co[str(c["ID"])] for c in f)
