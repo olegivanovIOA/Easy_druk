@@ -1,0 +1,52 @@
+name: SEO Report (external)
+
+# Окремий зашифрований звіт GA4 + Google Ads для зовнішніх SEO-підрядників.
+# Збирається з data/ga4.json і викладається на Cloudflare Pages. У репозиторій НЕ комітиться.
+# Секрети: SEO_REPORT_PASSWORD, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CF_PAGES_PROJECT
+
+on:
+  schedule:
+    - cron: '20 */8 * * *'   # кожні 8 годин (00:20, 08:20, 16:20 UTC)
+  workflow_dispatch:
+
+concurrency:
+  group: seo-report
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install cryptography
+
+      - name: Build encrypted page
+        env:
+          SEO_REPORT_PASSWORD: ${{ secrets.SEO_REPORT_PASSWORD }}
+          SEO_OUT_DIR: ${{ runner.temp }}/seo_dist
+        run: python seo/build_seo_page.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PAGES_PROJECT: ${{ secrets.CF_PAGES_PROJECT }}
+        run: |
+          set -o pipefail
+          [ -n "$CF_PAGES_PROJECT" ] || { echo "::error::Секрет CF_PAGES_PROJECT не заданий"; exit 1; }
+          # створює проєкт при першому запуску (далі — «already exists», це нормально)
+          npx --yes wrangler@3.114.0 pages project create "$CF_PAGES_PROJECT" --production-branch=main >/dev/null 2>&1 || true
+          npx --yes wrangler@3.114.0 pages deploy "$RUNNER_TEMP/seo_dist" --project-name="$CF_PAGES_PROJECT" --branch=main --commit-dirty=true 2>&1 \
+            | sed -E 's#https://[a-z0-9]+\.[a-z0-9-]+\.pages\.dev#[preview-url]#g'
+          echo "✓ Викладено. Адреса звіту: https://<CF_PAGES_PROJECT>.pages.dev"
