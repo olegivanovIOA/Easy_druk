@@ -286,6 +286,20 @@ a{color:var(--gd);text-decoration:none}
 .roi-info summary{cursor:pointer;color:var(--tl);font-size:10px}
 .roi-info-body{display:grid;gap:5px;margin-top:6px;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--s2);color:var(--td);line-height:1.45}
 .roi-ch{font-weight:700;color:var(--tx)}.roi-acc{color:var(--tl);font-weight:500}
+.roi-flt{display:flex;align-items:flex-start;gap:6px 10px;flex-wrap:wrap;margin:2px 0 8px;font-size:11px}
+.roi-flt-l{color:var(--tl);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding-top:5px}
+.roi-chips{display:flex;flex-wrap:wrap;gap:5px;flex:1 1 420px;min-width:0}
+.roi-chip{font-size:11px;padding:3px 9px;border:1px solid var(--bd);border-radius:999px;background:transparent;color:var(--td);cursor:pointer;white-space:nowrap;line-height:1.5}
+.roi-chip:hover{border-color:var(--tl)}
+.roi-chip .n{color:var(--tl);font-size:10px;margin-left:4px}
+.roi-chip.on{background:var(--tx);border-color:var(--tx);color:var(--bg,#fff)}
+.roi-chip.on .n{color:inherit;opacity:.75}
+.roi-chip.all{font-weight:700}
+.roi-flt-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.roi-paid{display:inline-flex;align-items:center;gap:4px;color:var(--td);cursor:pointer;white-space:nowrap}
+#roi-q{font-size:11px;padding:3px 8px;border:1px solid var(--bd);border-radius:6px;background:transparent;color:var(--tx);width:190px}
+#roi-reset{font-size:10px;color:#C0392B;text-decoration:none;white-space:nowrap}
+.roi-nu{font-size:9px;font-weight:700;color:#B26A00;background:#FFF4E0;border-radius:4px;padding:1px 5px;margin-left:4px;white-space:nowrap;cursor:help}
 
 .tbl tr:hover td{background:var(--s2)}
 .tfoot{padding:7px 12px;font-size:10px;color:var(--tm);background:var(--s2);border-top:1px solid var(--bd);border-radius:0 0 var(--r) var(--r)}
@@ -1191,6 +1205,14 @@ a{color:var(--gd);text-decoration:none}
           </div>
         </div>
         <div id="mkt-leadgen-roi-note" style="font-size:10px;color:var(--tl);margin-bottom:6px"></div>
+        <div class="roi-flt" id="roi-filter">
+          <span class="roi-flt-l">Канал:</span><span id="roi-chips" class="roi-chips"></span>
+          <span class="roi-flt-r">
+            <label class="roi-paid" title="Показати тільки рядки, де є витрати на рекламу"><input type="checkbox" id="roi-paid"> лише з витратами</label>
+            <input type="search" id="roi-q" placeholder="Пошук: кампанія, акаунт, email…" autocomplete="off">
+            <a href="#" id="roi-reset" style="display:none">✕ скинути</a>
+          </span>
+        </div>
         <details id="roi-info" class="roi-info">
           <summary>ⓘ Як рахуються показники (CPL, CAC, ROAS…)</summary>
           <div class="roi-info-body">
@@ -3846,8 +3868,8 @@ window.LocLoader = (() => {
 <script src="js/funnels_loader.js?v=20260930e"></script>
 <script src="js/finance_status.js?v=20261001"></script>
 <script src="js/channels_loader.js?v=20260930"></script>
-<script src="js/ga4_loader.js?v=20261013b"></script>
-<script src="js/leadgen_loader.js?v=20261013b"></script>
+<script src="js/ga4_loader.js?v=20261014"></script>
+<script src="js/leadgen_loader.js?v=20261014"></script>
 <script>
 // v4.5: зміна складу локацій у /api/capacity. Дашборд нічого не фільтрує —
 // показує те, що віддає API. Якщо набір локацій змінився (напр. 23.09: зникли

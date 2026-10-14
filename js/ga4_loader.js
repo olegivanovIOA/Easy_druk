@@ -23,7 +23,7 @@ window.GA4View = (() => {
     'Cross-network': 'Cross-network (PMax)', 'Display': 'Медійна реклама', 'Email': 'Email', 'Unassigned': 'Не визначено',
     'Organic Video': 'Відео (органіка)', 'Paid Video': 'Відео (реклама)', 'Organic Shopping': 'Shopping (органіка)',
     'Paid Shopping': 'Shopping (реклама)', 'Paid Other': 'Інша реклама', 'Affiliates': 'Партнери', 'SMS': 'SMS',
-    'Mobile Push Notifications': 'Push', 'Audio': 'Аудіо',
+    'Mobile Push Notifications': 'Push', 'Audio': 'Аудіо', 'AI Assistant': 'AI-асистенти (ChatGPT…)',
   };
   // Найчастіші назви подій → зрозуміло
   const EVENT_UA = {
@@ -31,6 +31,11 @@ window.GA4View = (() => {
     phone_click: 'Клік по телефону', call: 'Дзвінок', click_tel: 'Клік по телефону', purchase: 'Покупка',
     contact: 'Контакт', click_email: 'Клік по email', email_click: 'Клік по email', click_telegram: 'Клік Telegram',
     click_viber: 'Клік Viber', click_whatsapp: 'Клік WhatsApp', file_download: 'Завантаження файлу',
+    // реальні ключові події ресурсу easy3dprint.com.ua
+    PhonetTrackingCall: 'Дзвінок (Phonet, трекінг)', 'Phonet_Call requested': 'Запит дзвінка (Phonet)',
+    'Phonet_Off hours call requested': 'Запит дзвінка в неробочий час', all_forms: 'Форми на сайті (усі)',
+    phone_b2b: 'Телефон B2B', Ringostat_calls: 'Дзвінки (Ringostat)', 'crm-form': 'CRM-форма Bitrix',
+    Callback_calls: 'Callback-дзвінки', Answered_Calls: 'Прийняті дзвінки',
   };
 
   function inRange(rows, from, to) { return (rows || []).filter(r => r.d >= from && r.d <= to); }
