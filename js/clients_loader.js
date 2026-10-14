@@ -74,7 +74,7 @@ window.ClientsView = (() => {
         th('Когорта') + th('Клієнтів', 1) + [0, 1, 2, 3, 4].map(k => th(k === 0 ? '1-й рік' : `+${k} р.`, 1)).join(''),
         (C.cohorts || []).map(c => `<tr><td>${c.year}</td>${td(fmt(c.clients))}${[0, 1, 2, 3, 4].map(k => td(c.cumRevenuePerClient[k] != null ? fmt(c.cumRevenuePerClient[k]) : '')).join('')}</tr>`).join(''))}
         <div style="font-size:10px;color:var(--tl);margin-top:6px">Поточний рік ще не завершений — останнє значення кожної когорти неповне.</div></div>
-      <div class="card"><div class="ct" style="margin-bottom:8px">Галузі клієнтів <span style="font-weight:500;color:var(--tl);font-size:10px">(виручка за 12 міс.)</span></div><div id="cl-ind"></div></div>
+      <div class="card"><div class="ct" style="margin-bottom:8px">Галузі клієнтів <span style="font-weight:500;color:var(--tl);font-size:10px">(виручка за 12 міс.${g === 'wholesale' ? ', ОПТ' : g === 'retail' ? ', роздріб' : ''}; частка — від виручки групи)</span></div><div id="cl-ind"></div></div>
     </div>`;
 
     const s = ch.series || [];
@@ -86,7 +86,8 @@ window.ClientsView = (() => {
         scales: { x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true } }, y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: GRID } },
           y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: v => v + '%' } } } } });
 
-    const I = C.industries, el = $('cl-ind');
+    const I0 = C.industries, el = $('cl-ind');
+    const I = I0 && Object.assign({}, I0, { rows: (g !== 'all' && I0.byGroup && I0.byGroup[g]) || I0.rows });
     if (!I || !I.rows || !I.rows.length) {
       el.innerHTML = `<div style="font-size:11px;color:var(--tl)">Поле галузі/сфери в картках компаній Bitrix24 ${I && I.field ? `(<code>${esc(I.field)}</code>) ще не заповнене` : 'не знайдено'}. Як тільки менеджери почнуть заповнювати — розподіл з’явиться тут автоматично.</div>`;
     } else {

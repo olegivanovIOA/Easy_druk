@@ -337,21 +337,27 @@ def main():
         print(f"[CL] ⚠ галузі компаній: {e}")
     if best:
         cov, src, field, flabel, fn = best
-        agg = defaultdict(lambda: {"clients": set(), "deals": 0, "rev": 0.0})
-        for d in d12:
-            inds = fn(d) or ["Не вказано"]
-            for ind in inds:
-                a = agg[ind]
-                a["clients"].add(d["k"])
-                a["deals"] += 1
-                a["rev"] += d["amt"] / len(inds)
-        rows = []
-        for ind, a in agg.items():
-            n = len(a["clients"])
-            rows.append({"industry": ind, "clients": n, "deals": a["deals"], "revenueShare12m": round(a["rev"] / tot12 * 100, 1),
-                         "avgCheck12m": round(a["rev"] / a["deals"]) if a["deals"] and n >= 2 else None})
+        def ind_rows(sel):
+            agg = defaultdict(lambda: {"clients": set(), "deals": 0, "rev": 0.0})
+            ds = [d for d in d12 if sel(d)]
+            tot = sum(d["amt"] for d in ds) or 1
+            for d in ds:
+                inds = fn(d) or ["Не вказано"]
+                for ind in inds:
+                    a = agg[ind]
+                    a["clients"].add(d["k"])
+                    a["deals"] += 1
+                    a["rev"] += d["amt"] / len(inds)
+            rows = []
+            for ind, a in agg.items():
+                n = len(a["clients"])
+                rows.append({"industry": ind, "clients": n, "deals": a["deals"], "revenueShare12m": round(a["rev"] / tot * 100, 1),
+                             "avgCheck12m": round(a["rev"] / a["deals"]) if a["deals"] and n >= 2 else None})
+            return sorted(rows, key=lambda r: -r["revenueShare12m"])
         industries = {"field": field, "fieldLabel": flabel, "source": src, "coverageRevenue12mPct": round(cov * 100, 1),
-                      "rows": sorted(rows, key=lambda r: -r["revenueShare12m"])}
+                      "rows": ind_rows(lambda d: True),
+                      "byGroup": {"wholesale": ind_rows(lambda d: d["grp"] == "wholesale"),
+                                  "retail": ind_rows(lambda d: d["grp"] == "retail")}}
 
     out = {"fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "asOf": TODAY.isoformat(),
            "firstDeal": first_all.isoformat(), "dealsUsed": len(deals), "dealsSkipped": skipped, "clients": len(cl),
