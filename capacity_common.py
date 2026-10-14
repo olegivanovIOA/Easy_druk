@@ -23,7 +23,11 @@ def compute_metrics(loc):
     parts = batches.get("parts") or 0
     defect_parts = batches.get("defectParts") or 0
     defect_pct = round(defect_parts / parts * 100, 2) if parts else None
-    return {"util": util, "defectPct": defect_pct, "total": total, "free": free}
+    plan = loc.get("plan", {}) or {}
+    # v6.2: для «витрата сировини, кг на годину друку» — план дня і фактичні партії (накопичується в історії)
+    return {"util": util, "defectPct": defect_pct, "total": total, "free": free,
+            "planKg": plan.get("weightKg"), "planMin": plan.get("printTimeMinutes"),
+            "batchKg": batches.get("weightKg"), "batchMin": batches.get("printTimeMinutes")}
 
 
 def upsert_day(history, date_str, locations_payload):

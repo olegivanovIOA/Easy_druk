@@ -208,10 +208,12 @@ window.E3D_STATIC = {
   // v6.0 (14.10.2026): дані цеху з easy3dprint API (/api/defects, /api/shift-workers) закрили: Парето і розподіл
   // причин браку, к-сть змін, виробіток на оператора, ≈MTBF і к-сть ремонтів, причина браку (частково), % операторів
   // з виконанням ≥100% (частково). «Якість та брак» звірено поштучно (data/metrics_audit.json).
+  // v6.2 (14.10.2026): групи А (вже були на дашборді/в даних) і Б (розраховано з наявних даних): +14 метрик —
+  // лоти з браком >X%, витрата сировини/год, LTV, RFM, відтік, опер. CF, обслуговування, конверсія сайту та ін.
   metrics_coverage: [
-    { section:'Виробництво — Локації',         total:19, yes:5 ,part:7 ,calc:3,  no:4 },
-    { section:'Виробництво — Принтери',         total:16, yes:0 ,part:6 ,calc:3,  no:7 },
-    { section:'Виробництво — Партії (Batch)',   total:27, yes:11 ,part:7 ,calc:5,  no:4 },
+    { section:'Виробництво — Локації',         total:19, yes:5 ,part:8 ,calc:3,  no:3 },
+    { section:'Виробництво — Принтери',         total:16, yes:3 ,part:9 ,calc:3,  no:1 },
+    { section:'Виробництво — Партії (Batch)',   total:27, yes:12 ,part:7 ,calc:5,  no:3 },
     { section:'Юніт-економіка',                 total:1, yes:0 ,part:0 ,calc:1,  no:0 },
     // ↑ Перевірено проти СС_easy3d_metrics_registry.xlsx (Google Drive) 03.09.2026:
     // з 8 запропонованих Юніт-економіка метрик у розрізі Модель принтера×Тип
@@ -223,16 +225,16 @@ window.E3D_STATIC = {
     // клієнта, CAPEX на локацію) — зовсім інша метрика, не з цього пункту
     // реєстру, і не рухає це число (потребує зв'язку партія↔угода на рівні
     // моделі принтера, якого ще немає — див. Group A у нотатках проєкту).
-    { section:'Якість та брак',                 total:13, yes:7 ,part:2 ,calc:1,  no:3 },
+    { section:'Якість та брак',                 total:13, yes:7 ,part:3 ,calc:1,  no:2 },
     { section:'Продажі ОПТ (B2B)',              total:16, yes:7 ,part:6 ,calc:2,  no:1 },
-    { section:'Продажі Роздріб (B2C)',          total:9, yes:3 ,part:4 ,calc:0,  no:2 },
-    { section:'CRM та Маркетинг',               total:20, yes:14,part:3 ,calc:2,  no:1},
+    { section:'Продажі Роздріб (B2C)',          total:9, yes:4 ,part:4 ,calc:0,  no:1 },
+    { section:'CRM та Маркетинг',               total:20, yes:15 ,part:3 ,calc:2,  no:0},
     // ↑ "Середній цикл угоди (днів)" (time-to-close, DATE_CREATE→CLOSEDATE для
     // WON) — реально автоматизовано на дашборді 25.08.2026, но→так. У самому
     // реєстрі (Google Drive) досі стоїть "Ні" — не оновлювали там, дашборд тут
     // випереджає застарілий сорс.
-    { section:'Аналіз клієнтів',                total:12, yes:1 ,part:4 ,calc:1,  no:6 },
-    { section:'Фінанси та P&L',                 total:14, yes:11,part:0 ,calc:0,  no:3 },
+    { section:'Аналіз клієнтів',                total:12, yes:3 ,part:4 ,calc:1,  no:4 },
+    { section:'Фінанси та P&L',                 total:14, yes:11 ,part:1 ,calc:0,  no:2 },
     // ↑ v4.10 (01.10.2026): запущено P&L Easy v1 (PnL_Easy.gs → fetch_pnl.py → pnl.json, щогодини)
     // — Собівартість (COGS) calc→yes, Операційні витрати (OpEx) part→yes, Чистий прибуток calc→yes
     // (у % доходу на вкладках Фінанси і CEO). Лишаються "Ні": Операційний CF як окрема

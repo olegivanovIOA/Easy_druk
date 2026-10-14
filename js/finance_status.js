@@ -96,6 +96,22 @@ window.CashflowLoader = (() => {
       'Частка «Інших витрат (потребує уточнення категорії)» — CF розд. 17 — в операційних витратах. Чим менше, тим точніший P&L.');
     set('pnl-recon', y.recon_ok_all ? '✅ 0 розбіжностей' : '⚠ є розбіжності', y.recon_ok_all ? 'var(--g)' : 'var(--red)',
       'Блок «Звірка з CashFlow» у P&L: сума врахованих статей = РАЗОМ розділів CF по кожному місяцю');
+    // v6.2: операційний CF, запас грошей, обслуговування обладнання — лише % / місяці (публічний формат)
+    let cashRow = document.getElementById('pnl-cash-row');
+    if (!cashRow) {
+      const anchor = document.getElementById('pnl-unclass');
+      const grid = anchor && anchor.closest('.g6');
+      if (grid) { grid.insertAdjacentHTML('afterend', '<div class="g6" id="pnl-cash-row" style="margin-bottom:12px"></div>'); cashRow = document.getElementById('pnl-cash-row'); }
+    }
+    if (cashRow) {
+      const k = (lbl, val, color, tip, bar) => `<div class="krow" title="${tip}"><div class="krow-bar ${bar}"></div><div class="krow-lbl">${lbl}</div><div class="krow-val" style="color:${color}">${val}</div><div class="real-dot"></div></div>`;
+      const rw = y.cash_runway_months;
+      cashRow.innerHTML =
+        k('Операційний CF YTD', fp(y.op_cf_pct), tone(y.op_cf_pct, 20, 5), 'Касовий: EBITDA − сплачені податки (ФОП, інші, податок на прибуток факт) − сплачений ПДВ, % доходу', 'kb-g') +
+        k('Місяців з + опер. CF', y.months_count ? `${y.positive_op_cf_months ?? '—'} з ${y.months_count}` : '—', y.positive_op_cf_months === y.months_count ? 'var(--g)' : 'var(--amb)', 'Повні місяці YTD, де операційний грошовий потік додатний', 'kb-b') +
+        k('Запас грошей', rw == null ? '—' : rw.toFixed(1) + ' міс.', rw == null ? 'var(--tl)' : rw >= 2 ? 'var(--g)' : rw >= 1 ? 'var(--amb)' : 'var(--red)', 'Залишок на кінець останнього повного місяця ÷ місячні витрати (собівартість + OpEx без амортизації). Індикатор ризику касового розриву; прогнозу надходжень/платежів (платіжного календаря) поки немає.', 'kb-a') +
+        k('Обслуговування обладнання', fp(y.maint_pct), toneLow(y.maint_pct, 3, 6), 'Загальновиробничі витрати: МШП, запчастини, ремонт — % доходу YTD', 'kb-r');
+    }
     const built = document.getElementById('pnl-built'); if (built) built.textContent = p.pnl_built_at ? `P&L перераховано: ${p.pnl_built_at}` : '';
 
     const months = (p.months || []);
@@ -132,10 +148,13 @@ window.CashflowLoader = (() => {
     const tb = document.getElementById('pnl-table');
     if (tb) {
       const cols = [['gross_margin_pct', 'Валова'], ['ebitda_pct', 'EBITDA'], ['net_pct', 'Чиста'], ['net_after_vat_pct', 'Чиста після ПДВ'],
-        ['cogs_pct', 'Собів.'], ['opex_pct', 'OpEx'], ['personnel_pct', 'Персонал'], ['marketing_pct', 'Маркет.'], ['drukar_share_of_cogs_pct', 'Філамент Друкаря у собів.']];
-      const cell = (v, neg) => `<td style="text-align:right;${neg && v != null && v < 0 ? 'color:var(--red);font-weight:700' : ''}">${fp(v)}</td>`;
-      const rowsHtml = months.map(m => `<tr style="${m.complete ? '' : 'color:var(--tl)'}"><td>${m.month}${m.complete ? '' : ' ⏳'}</td>${cols.map(([k], i) => cell(m[k], i < 4)).join('')}<td style="text-align:center">${m.recon_ok ? '✅' : '⚠'}</td></tr>`).join('');
-      const ytdRow = `<tr style="font-weight:700;border-top:2px solid var(--bd)"><td>YTD</td>${cols.map(([k], i) => cell(y[k], i < 4)).join('')}<td style="text-align:center">${y.recon_ok_all ? '✅' : '⚠'}</td></tr>`;
+        ['cogs_pct', 'Собів.'], ['opex_pct', 'OpEx'], ['personnel_pct', 'Персонал'], ['marketing_pct', 'Маркет.'], ['drukar_share_of_cogs_pct', 'Філамент Друкаря у собів.'],
+        ['op_cf_pct', 'Опер. CF'], ['cash_change_pct', 'Δ залишку'], ['maint_pct', 'Обслуг. обладн.'], ['cash_runway_months', 'Запас, міс.']];
+      const cell = (v, neg, key) => key === 'cash_runway_months' ? `<td style="text-align:right">${v == null ? '—' : v.toFixed(1)}</td>`
+        : `<td style="text-align:right;${neg && v != null && v < 0 ? 'color:var(--red);font-weight:700' : ''}">${fp(v)}</td>`;
+      const NEG = new Set([0, 1, 2, 3, 9, 10]);
+      const rowsHtml = months.map(m => `<tr style="${m.complete ? '' : 'color:var(--tl)'}"><td>${m.month}${m.complete ? '' : ' ⏳'}</td>${cols.map(([k], i) => cell(m[k], NEG.has(i), k)).join('')}<td style="text-align:center">${m.recon_ok ? '✅' : '⚠'}</td></tr>`).join('');
+      const ytdRow = `<tr style="font-weight:700;border-top:2px solid var(--bd)"><td>YTD</td>${cols.map(([k], i) => cell(y[k], NEG.has(i), k)).join('')}<td style="text-align:center">${y.recon_ok_all ? '✅' : '⚠'}</td></tr>`;
       tb.innerHTML = `<thead><tr><th>Місяць</th>${cols.map(([, h]) => `<th style="text-align:right">${h}</th>`).join('')}<th style="text-align:center">Звірка з CF</th></tr></thead><tbody>${rowsHtml}${ytdRow}</tbody>`;
     }
     const meth = document.getElementById('pnl-method');

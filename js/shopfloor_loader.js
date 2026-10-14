@@ -24,7 +24,7 @@ window.Shopfloor = (() => {
   const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const CAT = { OPERATOR: 'Оператори', TECH: 'ІТО (техніки)', QC: 'ОТК' };
 
-  let D = null, CAP = null, BH = null, BMH = null, HR = null, _loading = null;
+  let D = null, CAP = null, BH = null, BMH = null, HR = null, CH = null, _loading = null;
   const charts = {}, done = {};
   function chart(id, cfg) {
     const c = $(id); if (!c || typeof Chart === 'undefined') return;
@@ -37,8 +37,8 @@ window.Shopfloor = (() => {
   function load() {
     if (_loading) return _loading;
     const j = u => fetch(u + '?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null);
-    _loading = Promise.all([j('data/shopfloor.json'), j('data/capacity.json'), j('data/batches_history.json'), j('data/batches_monthly_history.json'), j('data/hr.json')])
-      .then(([a, b, c, d, e]) => { D = a; CAP = b; BH = c; BMH = d; HR = e; });
+    _loading = Promise.all([j('data/shopfloor.json'), j('data/capacity.json'), j('data/batches_history.json'), j('data/batches_monthly_history.json'), j('data/hr.json'), j('data/capacity_history.json')])
+      .then(([a, b, c, d, e, f]) => { D = a; CAP = b; BH = c; BMH = d; HR = e; CH = f; });
     return _loading;
   }
 
@@ -441,8 +441,75 @@ window.Shopfloor = (() => {
         scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, grid: { color: GRID } } } } });
   }
 
+
+  // ═══════════════ 6. ЯКІСТЬ: лоти з браком > X% (v6.2, реєстр #31) ═══════════════
+  const LS_LOTX = 'e3d_sf_lotx_v1';
+  function renderLots() {
+    const root = mount('panel-qual', 'w-sf-lots', header('📦', 'Лоти з браком понад поріг',
+      'Кожен фіналізований лот (ОТК) з даних партій: частка лотів, у яких брак перевищив поріг X% (редагується). Дані по окремих лотах накопичуються з 12.08.2026.',
+      `${sel('sf-l-per', '')} ${sel('sf-l-loc', '')} <label title="Поріг браку лота, %">X = <input id="sf-l-x" type="number" min="0.5" step="0.5" style="width:52px;font-size:11px;padding:2px 4px;border:1px solid var(--bd);border-radius:6px">%</label>`)
+      + `<div id="sf-l-body" style="margin-top:8px"></div>`);
+    if (!root) return;
+    const body = $('sf-l-body'), days = (BH && BH.days) || [];
+    if (!days.some(d => (d.lots || []).length)) return noData(body, 'Дані по окремих лотах ще не накопичились.');
+    const per = $('sf-l-per'), loc = $('sf-l-loc'), x = $('sf-l-x');
+    if (!per.options.length) {
+      const ms = [...new Set(days.filter(d => (d.lots || []).length).map(d => d.date.slice(0, 7)))].sort().reverse();
+      per.innerHTML = `<option value="all">Увесь період (з 12.08)</option>` + ms.map(m => `<option value="${m}">${m}</option>`).join('');
+      const locs = [...new Set(days.flatMap(d => (d.lots || []).map(l => String(l.location))))].sort((a, b) => (+a || 9e9) - (+b || 9e9));
+      loc.innerHTML = `<option value="">Усі локації</option>` + locs.map(l => `<option value="${l}">${locName(l)}</option>`).join('');
+      x.value = lsGet(LS_LOTX, 7.5);
+      per.onchange = loc.onchange = drawLots;
+      x.onchange = () => { lsSet(LS_LOTX, +x.value || 7.5); drawLots(); };
+    }
+    drawLots();
+  }
+  function drawLots() {
+    const per = $('sf-l-per').value, loc = $('sf-l-loc').value, X = +$('sf-l-x').value || 7.5, days = (BH && BH.days) || [];
+    const lots = [];
+    days.forEach(d => (d.lots || []).forEach(l => { if ((per === 'all' || d.date.slice(0, 7) === per) && (!loc || String(l.location) === loc) && l.defectPercent != null) lots.push(Object.assign({ date: d.date }, l)); }));
+    const bad = lots.filter(l => l.defectPercent > X), qty = lots.reduce((s, l) => s + (l.acceptedQty || 0), 0), badQty = bad.reduce((s, l) => s + (l.acceptedQty || 0), 0);
+    const byLoc = {};
+    lots.forEach(l => { const a = byLoc[l.location] || (byLoc[l.location] = { n: 0, b: 0, q: 0, bq: 0 }); a.n++; a.q += l.acceptedQty || 0; if (l.defectPercent > X) { a.b++; a.bq += l.acceptedQty || 0; } });
+    const B = [[0, 0, '0%'], [0, 2, '0–2%'], [2, 5, '2–5%'], [5, X, '5–' + X + '%'], [X, 15, X + '–15%'], [15, 1e9, '>15%']].filter(b => b[0] < b[1] || b[2] === '0%');
+    const cnt = B.map(([a, b, l]) => lots.filter(t => l === '0%' ? t.defectPercent === 0 : t.defectPercent > a && t.defectPercent <= b).length);
+    const ms = [...new Set(days.filter(d => (d.lots || []).length).map(d => d.date.slice(0, 7)))].sort();
+    const tr = ms.map(m => { const ls = []; days.forEach(d => { if (d.date.slice(0, 7) === m) (d.lots || []).forEach(l => { if ((!loc || String(l.location) === loc) && l.defectPercent != null) ls.push(l); }); }); return ls.length ? +(ls.filter(l => l.defectPercent > X).length / ls.length * 100).toFixed(1) : null; });
+    $('sf-l-body').innerHTML = tiles([
+      tile('Лотів перевірено', fmt(lots.length), `${fmt(qty)} прийнятих деталей`),
+      tile(`Лотів з браком > ${X}%`, fmt(bad.length), p1(pct(bad.length, lots.length)) + ' від усіх лотів', '', pct(bad.length, lots.length) > 15 ? R : null),
+      tile('Деталей у таких лотах', p1(pct(badQty, qty)), fmt(badQty) + ' шт'),
+    ]) + `<div class="g2" style="margin-bottom:12px">
+      <div class="card"><div class="ct" style="margin-bottom:8px">По локаціях</div>${tbl(th('Локація') + th('Лотів', 1) + th(`> ${X}%`, 1) + th('Частка', 1) + th('Деталей у них', 1),
+        Object.entries(byLoc).sort((a, b) => (+a[0] || 9e9) - (+b[0] || 9e9)).map(([l, a]) => `<tr><td>${locName(l)}</td>${td(a.n)}${td(a.b, 1)}${td(p1(pct(a.b, a.n)), 1, pct(a.b, a.n) > 15 ? R : null)}${td(p1(pct(a.bq, a.q)))}</tr>`).join(''))}</div>
+      <div class="card"><div class="ct" style="margin-bottom:8px">Розподіл лотів за % браку · і частка лотів > ${X}% по місяцях</div><div class="g2"><div class="cw" style="height:200px"><canvas id="sf-l-hist"></canvas></div><div class="cw" style="height:200px"><canvas id="sf-l-trend"></canvas></div></div></div></div>`;
+    chart('sf-l-hist', { type: 'bar', data: { labels: B.map(b => b[2]), datasets: [{ data: cnt, backgroundColor: B.map(b => b[0] >= X ? R : b[0] >= 5 ? RT : G), borderRadius: 3 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 } } }, y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: GRID } } } } });
+    chart('sf-l-trend', { type: 'line', data: { labels: ms, datasets: [{ label: `% лотів > ${X}%`, data: tr, borderColor: R, backgroundColor: R, pointRadius: 3, tension: .3 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: GRID }, ticks: { callback: v => v + '%' } } } } });
+  }
+
+  // ═══════════════ 7. ВИРОБНИЦТВО: витрата сировини на годину друку (v6.2, реєстр #34) ═══════════════
+  function renderMaterial() {
+    const root = mount('panel-prod', 'w-sf-mat', header('🧵', 'Витрата сировини на годину друку',
+      'Грами пластику на 1 машино-годину друку по локаціях: «план» — з денного плану друку, «факт» — з прийнятих партій дня (дані /api/capacity). Історія накопичується з 14.10.2026; щоб заповнити минулі дні — один раз запусти Backfill Capacity History.',
+      '') + `<div id="sf-m-body" style="margin-top:8px"></div>`);
+    if (!root) return;
+    const days = ((CH && CH.days) || []).filter(d => Object.values(d.locations || {}).some(l => l.planMin || l.batchMin)).slice(-30);
+    const src = days.length ? days : (CAP ? [{ date: CAP.date, locations: Object.fromEntries((CAP.locations || []).map(l => [(String(l.location).match(/\d+/) || [l.location])[0], { planKg: l.plan && l.plan.weightKg, planMin: l.plan && l.plan.printTimeMinutes, batchKg: l.batches && l.batches.weightKg, batchMin: l.batches && l.batches.printTimeMinutes }])) }] : []);
+    if (!src.length) return noData($('sf-m-body'), 'Немає даних.');
+    const a = {};
+    src.forEach(d => Object.entries(d.locations || {}).forEach(([l, v]) => { const x = a[l] || (a[l] = { pk: 0, pm: 0, bk: 0, bm: 0, d: 0 }); x.pk += v.planKg || 0; x.pm += v.planMin || 0; x.bk += v.batchKg || 0; x.bm += v.batchMin || 0; x.d++; }));
+    const gph = (kg, min) => min ? kg * 1000 / (min / 60) : null;
+    const T = Object.values(a).reduce((t, x) => ({ pk: t.pk + x.pk, pm: t.pm + x.pm, bk: t.bk + x.bk, bm: t.bm + x.bm }), { pk: 0, pm: 0, bk: 0, bm: 0 });
+    $('sf-m-body').innerHTML = `<div class="card" style="margin-bottom:12px"><div class="ct" style="margin-bottom:8px">${days.length ? `Останні ${days.length} дн. з даними (${days[0].date} – ${days[days.length - 1].date})` : `Сьогодні (${src[0].date}) — історія ще накопичується`}</div>${tbl(
+      th('Локація') + th('План, г/год друку', 1) + th('Факт партій, г/год', 1) + th('Відхилення', 1, 'факт до плану') + th('Факт: кг', 1) + th('Факт: машино-год', 1),
+      Object.entries(a).sort((p, q) => (+p[0] || 9e9) - (+q[0] || 9e9)).map(([l, x]) => { const p = gph(x.pk, x.pm), f = gph(x.bk, x.bm); return `<tr><td>${locName(l)}</td>${td(f1(p))}${td(f1(f), 1)}${td(p && f ? ((f / p - 1) * 100).toFixed(0) + '%' : '—', 0, p && f && f / p > 1.15 ? R : null)}${td(f1(x.bk))}${td(fmt(x.bm / 60))}</tr>`; }).join(''),
+      `<tr><td>Разом</td>${td(f1(gph(T.pk, T.pm)), 1)}${td(f1(gph(T.bk, T.bm)), 1)}${td('—')}${td(f1(T.bk), 1)}${td(fmt(T.bm / 60), 1)}</tr>`)}</div>`;
+  }
+
   // ── вхід: виклик з go()/restoreTab() при відкритті вкладки ──
-  const BY_TAB = { qual: [renderDefects, renderQC], prod: [renderShifts], loc: [renderTech], hr: [renderStaff] };
+  const BY_TAB = { qual: [renderDefects, renderQC, renderLots], prod: [renderShifts, renderMaterial], loc: [renderTech], hr: [renderStaff] };
   function onTab(id) {
     const fns = BY_TAB[id]; if (!fns || done[id]) return;
     done[id] = 1;

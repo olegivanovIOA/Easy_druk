@@ -59,6 +59,12 @@ ROWS = {
     "dividends":     ("Дивіденди", "exact"),
     "ebitda":        ("EBITDA", None),
     "capex_cash":    ("Капітальні витрати (оплата", None),
+    # v6.2: для операційного CF, запасу грошей і витрат на обслуговування (публікуємо лише % / місяці)
+    "maint":         ("Загальновиробничі", None),
+    "taxes_other":   ("Податки інші", "exact"),
+    "profit_tax_fact": ("Податок на прибуток_ТОВ (факт", None),
+    "cash_start":    ("Залишок на початок", None),
+    "cash_end":      ("Залишок на кінець", None),
     "recon_exp":     ("Різниця витрат", None),
     "recon_inc":     ("Різниця доходу", None),
 }
@@ -118,6 +124,12 @@ def build(rows):
         rev = v["revenue"]
         cogs = v["cogs"] or 0
         taxes_after_ebit = sum(v[k] or 0 for k in ("fop_single", "fop_mil", "fop_esv", "profit_tax"))
+        # v6.2: операційний CF (касовий) ≈ EBITDA − сплачені податки (ФОП, інші, податок на прибуток факт) − сплачений ПДВ
+        paid_tax = sum(v[k] or 0 for k in ("fop_single", "fop_mil", "fop_esv", "taxes_other", "profit_tax_fact", "vat_paid"))
+        op_cf = (v["ebitda"] - paid_tax) if v["ebitda"] is not None else None
+        cash_delta = (v["cash_end"] - v["cash_start"]) if v["cash_end"] is not None and v["cash_start"] is not None else None
+        outflow = (cogs + (v["opex"] or 0) - (v["amort"] or 0))
+        runway = round(v["cash_end"] / outflow, 1) if v["cash_end"] is not None and outflow > 0 else None
         recon_ok = (v["recon_exp"] is not None and abs(v["recon_exp"]) < 1 and
                     v["recon_inc"] is not None and abs(v["recon_inc"]) < 1)
         out_months.append({
@@ -142,12 +154,16 @@ def build(rows):
             "fop_rev_share_pct": pct(v["rev_fop"], rev),
             "drukar_share_of_cogs_pct": pct(v["cogs_drukar"], cogs),
             "unclassified_share_of_opex_pct": pct(v["unclassified"], v["opex"]),
+            "op_cf_pct":        pct(op_cf, rev),
+            "cash_change_pct":  pct(cash_delta, rev),
+            "cash_runway_months": runway,   # залишок на кінець ÷ місячні витрати (собівартість + OpEx без амортизації)
+            "maint_pct":        pct(v["maint"], rev),
             "recon_ok": recon_ok,
         })
         if not complete:
             # неповний місяць: відсотки від неповного доходу — шум (напр. −474%), не публікуємо
             for k in list(out_months[-1]):
-                if k.endswith("_pct"):
+                if k.endswith("_pct") or k == "cash_runway_months":
                     out_months[-1][k] = None
         if complete:
             for k, x in v.items():
@@ -181,6 +197,10 @@ def build(rows):
             "unclassified_share_of_opex_pct": pct(sums["unclassified"], sums["opex"]),
             "dividend_payout_pct": pct(sums["dividends"], sums["net"]) if sums.get("net", 0) > 0 else None,
             "profitable_months": sum(1 for m in done if (m["net_pct"] or 0) > 0),
+            "op_cf_pct": pct(sums.get("ebitda", 0) - sum(sums.get(k, 0) for k in ("fop_single", "fop_mil", "fop_esv", "taxes_other", "profit_tax_fact", "vat_paid")), rev),
+            "maint_pct": pct(sums.get("maint"), rev),
+            "cash_runway_months": done[-1].get("cash_runway_months"),
+            "positive_op_cf_months": sum(1 for m in done if (m.get("op_cf_pct") or 0) > 0),
             "recon_ok_all": all(m["recon_ok"] for m in out_months),
         }
     return out_months, ytd, missing

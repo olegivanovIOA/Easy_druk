@@ -6,7 +6,7 @@
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="data/static.js?v=20261014"></script>
+<script src="data/static.js?v=20261014b"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
@@ -3173,6 +3173,7 @@ function go(id,btn){
   try{localStorage.setItem('e3d_tab',id);}catch(e){}
   setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
   if(window.Shopfloor) window.Shopfloor.onTab(id);   // v6.0: дані цеху (брак/зміни/ТО) — нові блоки в кінці вкладок
+  if(window.ClientsView) window.ClientsView.onTab(id); // v6.2: LTV / RFM / відтік / галузі (Продажі)
   if(id==='str'&&window.E3D_STRATEGY){
     E3D_STRATEGY.render();
     try{ buildForecast(); }catch(e){}
@@ -3216,6 +3217,7 @@ function restoreTab(){
       btn.classList.add('active');
       panel.classList.add('active');
       if(window.Shopfloor) window.Shopfloor.onTab(saved);   // v6.0
+      if(window.ClientsView) window.ClientsView.onTab(saved); // v6.2
       if(saved==='loc'&&window.LocLoader&&!panel.dataset.loaded){
         window.LocLoader.load();panel.dataset.loaded='1';
       }
@@ -3868,11 +3870,12 @@ window.LocLoader = (() => {
 <script src="js/mql_loader.js?v=20260924"></script>
 <script src="js/sales_loader.js?v=20260930b"></script>
 <script src="js/funnels_loader.js?v=20260930e"></script>
-<script src="js/finance_status.js?v=20261001"></script>
+<script src="js/finance_status.js?v=20261014"></script>
 <script src="js/channels_loader.js?v=20260930"></script>
 <script src="js/ga4_loader.js?v=20261014"></script>
 <script src="js/leadgen_loader.js?v=20261014"></script>
-<script src="js/shopfloor_loader.js?v=20261014"></script>
+<script src="js/shopfloor_loader.js?v=20261014b"></script>
+<script src="js/clients_loader.js?v=20261014"></script>
 <script>
 // v4.5: зміна складу локацій у /api/capacity. Дашборд нічого не фільтрує —
 // показує те, що віддає API. Якщо набір локацій змінився (напр. 23.09: зникли
