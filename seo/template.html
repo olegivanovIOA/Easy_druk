@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Звіт: відвідуваність сайту</title>
+<style>
+:root{--bg:#f6f7f5;--card:#fff;--tx:#1d2420;--td:#3a443e;--tl:#7b857f;--bd:#e3e7e2;--s2:#f1f3ef;--ac:#2A9D8F;--ac2:#3D7EA6;--warn:#C98A2B;--bad:#C0392B;--good:#1e7a6e}
+@media (prefers-color-scheme:dark){:root{--bg:#121614;--card:#1a201d;--tx:#e9eeeb;--td:#c9d1cc;--tl:#8a948e;--bd:#2b332f;--s2:#212824;--good:#5cc4b5}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:19px;margin:0}
+.sub{color:var(--tl);font-size:11px;margin-top:2px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.ct{font-weight:700;font-size:12px;margin-bottom:8px}
+.ct small{font-weight:500;color:var(--tl)}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.grid>*,.card{min-width:0}
+.wrap{overflow-x:hidden}
+@media (max-width:860px){.g2{grid-template-columns:minmax(0,1fr)}.ctl{width:100%}.bar{align-items:flex-start}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}
+.kpi .l{font-size:10px;color:var(--tl);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.kpi .v{font-size:20px;font-weight:800;margin-top:2px}
+.kpi .s{font-size:10px;color:var(--tl)}
+.d{font-size:10px;font-weight:700;margin-left:4px}.d.up{color:var(--good)}.d.dn{color:var(--bad)}
+.bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;background:var(--card)}
+.seg button{font:inherit;font-size:11px;padding:5px 10px;border:0;border-right:1px solid var(--bd);background:transparent;color:var(--td);cursor:pointer}
+.seg button:last-child{border-right:0}.seg button.on{background:var(--s2);color:var(--tx);font-weight:700}
+input[type=date],select{font:inherit;font-size:11px;padding:4px 6px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--tx)}
+label.cb{display:inline-flex;gap:4px;align-items:center;cursor:pointer;color:var(--td)}
+.tw{overflow:auto;max-height:440px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--tl);padding:6px 8px;text-align:left;background:var(--s2);border-bottom:1px solid var(--bd);position:sticky;top:0;cursor:pointer;user-select:none;white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--bd);color:var(--td);vertical-align:middle}
+td:first-child{color:var(--tx);font-weight:600}
+th.r,td.r{text-align:right}
+td.url{max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+th .a{font-size:9px;margin-left:3px;color:var(--tx)}
+.cw{position:relative;height:240px}
+.note{font-size:10px;color:var(--tl)}
+/* lock screen */
+#lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+#lock form{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:26px 24px;width:100%;max-width:340px}
+#lock h2{font-size:16px;margin:0 0 4px}
+#lock p{font-size:11px;color:var(--tl);margin:0 0 14px}
+#lock input[type=password]{width:100%;font:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
+#lock button{width:100%;margin-top:10px;font:inherit;font-size:13px;font-weight:700;padding:9px;border:0;border-radius:8px;background:var(--ac);color:#fff;cursor:pointer}
+#lock .err{color:var(--bad);font-size:11px;min-height:16px;margin-top:6px}
+#lock label{font-size:11px;margin-top:10px}
+#app{display:none}
+</style>
+</head>
+<body>
+<div id="lock">
+  <form id="lf" autocomplete="off">
+    <h2>Звіт відвідуваності</h2>
+    <p>Введіть пароль, щоб відкрити звіт.</p>
+    <input type="password" id="pw" placeholder="Пароль" autofocus>
+    <label class="cb"><input type="checkbox" id="rem"> запам'ятати на цьому пристрої</label>
+    <button type="submit" id="go">Відкрити</button>
+    <div class="err" id="perr"></div>
+  </form>
+</div>
+
+<div id="app"><div class="wrap">
+  <div class="bar">
+    <div><h1 id="ttl">Звіт</h1><div class="sub" id="upd"></div></div>
+    <div class="ctl">
+      <div class="seg" id="pm">
+        <button data-p="7">7 дн</button><button data-p="30">30 дн</button><button data-p="90">90 дн</button><button data-p="m">Місяць</button><button data-p="y">З початку року</button><button data-p="c">Свій період</button>
+      </div>
+      <select id="msel" style="display:none"></select>
+      <span id="cust" style="display:none"><input type="date" id="cf"> – <input type="date" id="ct"></span>
+      <label class="cb" title="Порівняти з попереднім періодом такої ж довжини"><input type="checkbox" id="cmp" checked> порівняти з попереднім</label>
+      <a href="#" id="lo" class="note">вийти</a>
+    </div>
+  </div>
+  <div class="note" id="pinfo" style="margin:-6px 0 10px"></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card"><div class="ct">Сеанси за каналами <small id="gran"></small></div><div class="cw"><canvas id="c1"></canvas></div></div>
+  <div class="card"><div class="ct">Органічний пошук: сеанси і ключові події</div><div class="cw" style="height:200px"><canvas id="c2"></canvas></div></div>
+
+  <div class="grid g2">
+    <div class="card"><div class="ct">Канали (групи GA4)</div><div class="tw" id="t-ch"></div></div>
+    <div class="card"><div class="ct">Джерело / канал (source / medium) <small>топ-30</small></div><div class="tw" id="t-sm"></div></div>
+  </div>
+
+  <div class="card"><div class="ct">Органічний пошук — посадкові сторінки <small id="seo-per"></small></div><div class="tw" id="t-seo"></div></div>
+
+  <div class="card"><div class="ct">Google Ads — кампанії <small>(витрати з Google Ads, сеанси і ключові події — GA4)</small></div><div class="tw" id="t-ads"></div></div>
+
+  <div class="grid g2">
+    <div class="card"><div class="ct">Ключові події за типами</div><div class="tw" id="t-ev"></div></div>
+    <div class="card"><div class="ct">Усі посадкові сторінки <small id="l30-per"></small></div><div class="tw" id="t-land"></div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><div class="ct">Міста <small id="c30-per"></small></div><div class="tw" id="t-city"></div></div>
+    <div class="card"><div class="ct">Пристрої <small id="d30-per"></small></div><div class="tw" id="t-dev"></div></div>
+  </div>
+  <p class="note">Дані Google Analytics 4. GA4 недораховує частину візитів (блокувальники, відмова від cookies) — використовуйте для порівняння каналів і динаміки. «Залучені» — сеанси довше 10 с, або з 2+ переглядами, або з ключовою подією. CR — ключові події ÷ сеанси.</p>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const ENC = /*__PAYLOAD__*/null;
+const LS = 'rpt_k1';
+const $ = id => document.getElementById(id);
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+async function decrypt(pw) {
+  const enc = new TextEncoder();
+  const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(ENC.s), iterations: ENC.n, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(ENC.i) }, key, b64(ENC.c));
+  const ds = new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return JSON.parse(await new Response(ds).text());
+}
+
+async function unlock(pw, remember) {
+  const err = $('perr'); err.textContent = ''; $('go').disabled = true; $('go').textContent = 'Відкриваю…';
+  try {
+    const data = await decrypt(pw);
+    if (remember) { try { localStorage.setItem(LS, pw); } catch (e) {} }
+    $('lock').style.display = 'none'; $('app').style.display = 'block';
+    App.start(data);
+  } catch (e) {
+    try { localStorage.removeItem(LS); } catch (x) {}
+    err.textContent = !window.crypto || !crypto.subtle || typeof DecompressionStream === 'undefined'
+      ? 'Браузер застарів — відкрийте звіт в актуальному Chrome / Safari / Firefox.' : 'Невірний пароль.';
+  }
+  $('go').disabled = false; $('go').textContent = 'Відкрити';
+}
+
+$('lf').onsubmit = e => { e.preventDefault(); unlock($('pw').value, $('rem').checked); };
+$('lo').onclick = e => { e.preventDefault(); try { localStorage.removeItem(LS); } catch (x) {} location.reload(); };
+(() => { let s = null; try { s = localStorage.getItem(LS); } catch (e) {} if (s) unlock(s, true); })();
+
+const App = (() => {
+  let D, charts = {}, P = { p: '30', m: '', cf: '', ct: '', cmp: true };
+  const GROUP = { 'Organic Search': 'Органічний пошук', 'Paid Search': 'Платний пошук', 'Direct': 'Прямі заходи', 'Referral': 'Реферали (сайти)',
+    'Organic Social': 'Соцмережі (органіка)', 'Paid Social': 'Соцмережі (реклама)', 'Cross-network': 'Cross-network (PMax)', 'Display': 'Медійна реклама',
+    'Email': 'Email', 'Unassigned': 'Не визначено', 'Organic Video': 'Відео (органіка)', 'Paid Video': 'Відео (реклама)', 'Organic Shopping': 'Shopping (органіка)',
+    'Paid Shopping': 'Shopping (реклама)', 'Paid Other': 'Інша реклама', 'Affiliates': 'Партнери', 'SMS': 'SMS', 'Mobile Push Notifications': 'Push',
+    'Audio': 'Аудіо', 'AI Assistant': 'AI-асистенти (ChatGPT…)' };
+  let EVENT = {};   // назви подій приходять у зашифрованих даних
+  const COLORS = ['#2A9D8F', '#3D7EA6', '#C98A2B', '#8E6CB5', '#C0392B', '#5F8D4E', '#D4A373', '#6C8EAD', '#B5838D', '#9AA5A0'];
+  const fmt = n => n == null || !isFinite(n) ? '—' : Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(2) + ' млн' : Math.round(n).toLocaleString('uk-UA');
+  const fmt2 = n => n == null || !isFinite(n) ? '—' : n.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const pct = (a, b) => b ? a / b * 100 : null;
+  const p1 = v => v == null || !isFinite(v) ? '—' : v.toFixed(1) + '%';
+  const fD = d => d.split('-').reverse().join('.');
+  const iso = d => d.toISOString().slice(0, 10);
+  const add = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
+  const days = (a, b) => Math.round((new Date(b) - new Date(a)) / 864e5) + 1;
+  const lastDay = ym => { const [y, m] = ym.split('-').map(Number); return iso(new Date(Date.UTC(y, m, 0))); };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const delta = (c, p, inv) => {
+    if (!P.cmp || p == null || !p || c == null) return '';
+    const d = (c - p) / p * 100, up = inv ? d < 0 : d >= 0;
+    return `<span class="d ${up ? 'up' : 'dn'}">${d >= 0 ? '▲' : '▼'}${Math.abs(d).toFixed(0)}%</span>`;
+  };
+
+  function range() {
+    const max = D.to, min = D.from;
+    let a, b;
+    if (P.p === 'm') { a = P.m + '-01'; b = lastDay(P.m); }
+    else if (P.p === 'y') { a = max.slice(0, 4) + '-01-01'; b = max; }
+    else if (P.p === 'c') { a = P.cf || add(max, -29); b = P.ct || max; if (a > b) [a, b] = [b, a]; }
+    else { b = add(max, -1); a = add(b, -(+P.p - 1)); }   // ковзні періоди — по вчора (сьогодні ще неповний)
+    if (b > max) b = max; if (a < min) a = min;
+    const n = days(a, b);
+    return { a, b, pa: add(a, -n), pb: add(a, -1), n };
+  }
+  const inR = (rows, a, b) => rows.filter(r => r[0] >= a && r[0] <= b);
+  const sum = (rows, i) => rows.reduce((s, r) => s + (r[i] || 0), 0);
+
+  function start(data) {
+    D = data; EVENT = D.evLabels || {};
+    $('ttl').textContent = 'Звіт: ' + D.site;
+    $('upd').textContent = `Дані GA4 з ${fD(D.from)} по ${fD(D.to)} · оновлено ${new Date(D.generated).toLocaleString('uk-UA', { dateStyle: 'short', timeStyle: 'short' })}`;
+    const months = []; for (let m = D.from.slice(0, 7); m <= D.to.slice(0, 7);) { months.push(m); const [y, mo] = m.split('-').map(Number); m = mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`; }
+    P.m = months[months.length - 1];
+    $('msel').innerHTML = months.slice().reverse().map(m => `<option value="${m}">${m}</option>`).join('');
+    $('cf').value = add(D.to, -29); $('ct').value = D.to; $('cf').min = $('ct').min = D.from; $('cf').max = $('ct').max = D.to;
+    document.querySelectorAll('#pm button').forEach(b => b.onclick = () => { P.p = b.dataset.p; render(); });
+    $('msel').onchange = () => { P.m = $('msel').value; render(); };
+    $('cf').onchange = () => { P.cf = $('cf').value; render(); };
+    $('ct').onchange = () => { P.ct = $('ct').value; render(); };
+    $('cmp').onchange = () => { P.cmp = $('cmp').checked; render(); };
+    render();
+  }
+
+  function render() {
+    document.querySelectorAll('#pm button').forEach(b => b.classList.toggle('on', b.dataset.p === P.p));
+    $('msel').style.display = P.p === 'm' ? '' : 'none';
+    $('cust').style.display = P.p === 'c' ? '' : 'none';
+    const R = range();
+    $('pinfo').innerHTML = `Період: <b>${fD(R.a)} – ${fD(R.b)}</b> (${R.n} дн)` + (P.cmp ? ` · порівняння з ${fD(R.pa)} – ${fD(R.pb)}${R.pa < D.from ? ' (частково немає даних)' : ''}` : '');
+    const ch = inR(D.ch, R.a, R.b), chp = inR(D.ch, R.pa, R.pb);   // [d,g,ses,usr,new,eng,ke]
+    const org = r => r[1] === 'Organic Search';
+    const ads = inR(D.ads, R.a, R.b), adsp = inR(D.ads, R.pa, R.pb);  // [d,c,cost,clk,imp]
+    const K = (rows) => ({ ses: sum(rows, 2), usr: sum(rows, 3), nw: sum(rows, 4), eng: sum(rows, 5), ke: sum(rows, 6) });
+    const k = K(ch), kp = K(chp), o = K(ch.filter(org)), op = K(chp.filter(org));
+    const cost = sum(ads, 2), costp = sum(adsp, 2), clk = sum(ads, 3), clkp = sum(adsp, 3);
+    const tile = (l, v, s, dl) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}${dl || ''}</div><div class="s">${s || ''}</div></div>`;
+    $('kpis').innerHTML =
+      tile('Сеанси', fmt(k.ses), `${fmt(k.usr)} користувачів · ${fmt(k.nw)} нових`, delta(k.ses, kp.ses)) +
+      tile('Органічні сеанси', fmt(o.ses), `${p1(pct(o.ses, k.ses))} усього трафіку`, delta(o.ses, op.ses)) +
+      tile('Залученість', p1(pct(k.eng, k.ses)), 'залучені / усі сеанси', delta(pct(k.eng, k.ses), pct(kp.eng, kp.ses))) +
+      tile('Ключові події', fmt(k.ke), `CR ${p1(pct(k.ke, k.ses))}`, delta(k.ke, kp.ke)) +
+      tile('Ключові події з органіки', fmt(o.ke), `CR органіки ${p1(pct(o.ke, o.ses))}`, delta(o.ke, op.ke)) +
+      tile('Витрати Google Ads', fmt(cost) + ' ₴', `${fmt(clk)} кліків · CPC ${fmt2(clk ? cost / clk : null)} ₴`, delta(cost, costp, true));
+    renderCharts(R, ch);
+    renderChannels(ch, chp);
+    renderSM(R);
+    renderSEO();
+    renderAds(R, ads, adsp);
+    renderEvents(R);
+    renderL30();
+  }
+
+  function bucketOf(R) {
+    if (R.n <= 62) return { k: d => d, lab: d => d.slice(8, 10) + '.' + d.slice(5, 7), name: 'по днях' };
+    if (R.n <= 200) return { k: d => { const x = new Date(d + 'T12:00:00Z'); const wd = (x.getUTCDay() + 6) % 7; x.setUTCDate(x.getUTCDate() - wd); return iso(x); }, lab: d => 'тиж. ' + d.slice(8, 10) + '.' + d.slice(5, 7), name: 'по тижнях' };
+    return { k: d => d.slice(0, 7), lab: d => d, name: 'по місяцях' };
+  }
+  function chart(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart($(id), cfg); }
+
+  function renderCharts(R, ch) {
+    const B = bucketOf(R); $('gran').textContent = '(' + B.name + ')';
+    const keys = [...new Set(ch.map(r => B.k(r[0])))].sort();
+    const tot = {}; ch.forEach(r => tot[r[1]] = (tot[r[1]] || 0) + r[2]);
+    const groups = Object.keys(tot).sort((a, b) => tot[b] - tot[a]);
+    const top = groups.slice(0, 7), rest = groups.slice(7);
+    const series = top.map((g, i) => ({ label: GROUP[g] || g, data: keys.map(k => sum(ch.filter(r => r[1] === g && B.k(r[0]) === k), 2)), backgroundColor: COLORS[i], borderRadius: 2, stack: 's' }));
+    if (rest.length) series.push({ label: 'Інші', data: keys.map(k => sum(ch.filter(r => rest.includes(r[1]) && B.k(r[0]) === k), 2)), backgroundColor: '#B8C0BB', borderRadius: 2, stack: 's' });
+    const grid = getComputedStyle(document.documentElement).getPropertyValue('--bd');
+    const base = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } },
+      scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true } }, y: { stacked: true, beginAtZero: true, grid: { color: grid } } } };
+    chart('c1', { type: 'bar', data: { labels: keys.map(B.lab), datasets: series }, options: base });
+    const og = ch.filter(r => r[1] === 'Organic Search');
+    chart('c2', { data: { labels: keys.map(B.lab), datasets: [
+      { type: 'bar', label: 'Органічні сеанси', data: keys.map(k => sum(og.filter(r => B.k(r[0]) === k), 2)), backgroundColor: 'rgba(42,157,143,.55)', borderRadius: 2, yAxisID: 'y' },
+      { type: 'line', label: 'Ключові події з органіки', data: keys.map(k => Math.round(sum(og.filter(r => B.k(r[0]) === k), 6))), borderColor: '#C98A2B', backgroundColor: '#C98A2B', tension: .3, pointRadius: 2, yAxisID: 'y1' }] },
+      options: { ...base, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true } }, y: { beginAtZero: true, grid: { color: grid } }, y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } } } } });
+  }
+
+  // Таблиця з сортуванням по кліку на заголовок
+  const SORT = {};
+  function table(el, cols, rows, defKey) {
+    const st = SORT[el] || (SORT[el] = { k: defKey, dir: -1 });
+    const c = cols.find(x => x.k === st.k) || cols[0];
+    rows = rows.slice().sort((a, b) => { if (a._t || b._t) return a._t ? 1 : -1; const va = a[c.k], vb = b[c.k];
+      if (va == null) return 1; if (vb == null) return -1;
+      return (typeof va === 'string' ? va.localeCompare(vb, 'uk') : va - vb) * st.dir; });
+    $(el).innerHTML = `<table><thead><tr>${cols.map(x => `<th class="${x.r ? 'r' : ''}" data-k="${x.k}" title="${x.t || ''}">${x.h}${x.k === st.k ? `<span class="a">${st.dir > 0 ? '▲' : '▼'}</span>` : ''}</th>`).join('')}</tr></thead>
+      <tbody>${rows.length ? rows.map(r => `<tr${r._t ? ' style="background:var(--s2)"' : ''}>${cols.map(x => `<td class="${x.r ? 'r' : ''}${x.url ? ' url' : ''}"${x.url ? ` title="${esc(r[x.k])}"` : ''}>${x.f ? x.f(r[x.k], r) : esc(r[x.k])}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${cols.length}" style="color:var(--tl);font-weight:400">Немає даних за період</td></tr>`}</tbody></table>`;
+    $(el).querySelectorAll('th').forEach(th => th.onclick = () => { const k = th.dataset.k; SORT[el] = st.k === k ? { k, dir: -st.dir } : { k, dir: cols.find(x => x.k === k).r ? -1 : 1 }; table(el, cols, rows, defKey); });
+  }
+  const dcol = (k, h, pk) => ({ k, h, r: 1, f: (v, r) => fmt(v) + delta(v, r[pk]) });
+
+  function renderChannels(ch, chp) {
+    const agg = (rows) => { const m = {}; rows.forEach(r => { const a = m[r[1]] || (m[r[1]] = { g: r[1], ses: 0, nw: 0, eng: 0, ke: 0 }); a.ses += r[2]; a.nw += r[4]; a.eng += r[5]; a.ke += r[6]; }); return m; };
+    const c = agg(ch), p = agg(chp);
+    const rows = Object.values(c).map(a => ({ name: GROUP[a.g] || a.g, ses: a.ses, pses: (p[a.g] || {}).ses, nw: a.nw, er: pct(a.eng, a.ses), ke: a.ke, cr: pct(a.ke, a.ses) }));
+    table('t-ch', [{ k: 'name', h: 'Канал' }, dcol('ses', 'Сеанси', 'pses'), { k: 'nw', h: 'Нові корист.', r: 1, f: fmt },
+      { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }], rows, 'ses');
+  }
+
+  function renderSM(R) {
+    const agg = (a, b) => { const m = {}; inR(D.sm, a, b).forEach(r => { const k = r[1] + ' / ' + r[2]; const x = m[k] || (m[k] = { name: k, ses: 0, eng: 0, ke: 0 }); x.ses += r[3]; x.eng += r[4]; x.ke += r[5]; }); return m; };
+    const c = agg(R.a, R.b), p = agg(R.pa, R.pb);
+    const rows = Object.values(c).sort((x, y) => y.ses - x.ses).slice(0, 30).map(x => ({ ...x, pses: (p[x.name] || {}).ses, er: pct(x.eng, x.ses), cr: pct(x.ke, x.ses) }));
+    table('t-sm', [{ k: 'name', h: 'Source / medium' }, dcol('ses', 'Сеанси', 'pses'), { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }], rows, 'ses');
+  }
+
+  function renderSEO() {
+    const s = D.seo || {};
+    $('seo-per').textContent = s.from ? `(останні 30 днів: ${fD(s.from)} – ${fD(s.to)}; Δ — до ${fD(s.prevFrom)} – ${fD(s.prevTo)})` : '';
+    const prev = {}; (s.landingOrganicPrev || []).forEach(r => prev[r.k] = r.ses);
+    const rows = (s.landingOrganic || []).map(r => ({ url: r.k || '(не визначено)', ses: r.ses, pses: prev[r.k], usr: r.usr, er: pct(r.eng, r.ses), ke: r.ke, cr: pct(r.ke, r.ses) }));
+    const keep = P.cmp; P.cmp = true;
+    table('t-seo', [{ k: 'url', h: 'Сторінка', url: 1 }, dcol('ses', 'Сеанси', 'pses'), { k: 'pses', h: 'Попер. 30 дн', r: 1, f: fmt },
+      { k: 'usr', h: 'Користувачі', r: 1, f: fmt }, { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }], rows, 'ses');
+    P.cmp = keep;
+  }
+
+  function renderAds(R, ads, adsp) {
+    const m = {};
+    const row = c => m[c] || (m[c] = { name: c, cost: 0, clk: 0, imp: 0, ses: 0, ke: 0, pcost: 0 });
+    ads.forEach(r => { const x = row(r[1]); x.cost += r[2]; x.clk += r[3]; x.imp += r[4]; });
+    adsp.forEach(r => { row(r[1]).pcost += r[2]; });
+    inR(D.adsSes, R.a, R.b).forEach(r => { if (m[r[1]]) { m[r[1]].ses += r[2]; m[r[1]].ke += r[3]; } });
+    const rows = Object.values(m).filter(x => x.cost || x.clk).map(x => ({ ...x, pcost: x.pcost || null, ctr: pct(x.clk, x.imp), cpc: x.clk ? x.cost / x.clk : null, cpa: x.ke ? x.cost / x.ke : null }));
+    const S = k => rows.reduce((s, r) => s + (r[k] || 0), 0);
+    if (rows.length) rows.push({ name: 'Разом', cost: S('cost'), pcost: S('pcost') || null, clk: S('clk'), imp: S('imp'), ses: S('ses'), ke: S('ke'), ctr: pct(S('clk'), S('imp')), cpc: S('clk') ? S('cost') / S('clk') : null, cpa: S('ke') ? S('cost') / S('ke') : null, _t: 1 });
+    table('t-ads', [{ k: 'name', h: 'Кампанія', f: (v, r) => r._t ? '<b>Разом</b>' : esc(v) }, { k: 'cost', h: 'Витрати, ₴', r: 1, f: (v, r) => fmt(v) + delta(v, r.pcost, true) },
+      { k: 'clk', h: 'Кліки', r: 1, f: fmt }, { k: 'imp', h: 'Покази', r: 1, f: fmt }, { k: 'ctr', h: 'CTR', r: 1, f: p1 },
+      { k: 'cpc', h: 'CPC, ₴', r: 1, f: fmt2 }, { k: 'ses', h: 'Сеанси', r: 1, f: fmt, t: 'Сеанси з цієї кампанії за даними GA4' },
+      { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cpa', h: '₴ / ключ. подію', r: 1, f: fmt, t: 'Витрати ÷ ключові події' }], rows, 'cost');
+  }
+
+  function renderEvents(R) {
+    const agg = (a, b) => { const m = {}; inR(D.ev, a, b).forEach(r => m[r[1]] = (m[r[1]] || 0) + r[2]); return m; };
+    const c = agg(R.a, R.b), p = agg(R.pa, R.pb), tot = Object.values(c).reduce((s, v) => s + v, 0);
+    const rows = Object.entries(c).map(([e, n]) => ({ name: EVENT[e] || e, n, pn: p[e], sh: pct(n, tot) }));
+    table('t-ev', [{ k: 'name', h: 'Подія' }, dcol('n', 'Кількість', 'pn'), { k: 'sh', h: 'Частка', r: 1, f: p1 }], rows, 'n');
+  }
+
+  function renderL30() {
+    const l = D.l30 || {}, per = l.from ? `(останні 30 днів: ${fD(l.from)} – ${fD(l.to)})` : '';
+    $('l30-per').textContent = per; $('c30-per').textContent = per; $('d30-per').textContent = per;
+    const map = (arr) => (arr || []).map(r => ({ name: r.k, ses: r.ses, er: pct(r.eng, r.ses), ke: r.ke, cr: pct(r.ke, r.ses) }));
+    const cols = h => [{ k: 'name', h, url: h === 'Сторінка' ? 1 : 0 }, { k: 'ses', h: 'Сеанси', r: 1, f: fmt }, { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }];
+    table('t-land', cols('Сторінка'), map(l.landing), 'ses');
+    table('t-city', cols('Місто'), map(l.cities).map(r => ({ ...r, name: r.name === '(not set)' ? 'не визначено' : r.name })), 'ses');
+    const DEV = { desktop: "Комп'ютер", mobile: 'Телефон', tablet: 'Планшет' };
+    table('t-dev', cols('Пристрій'), map(l.devices).map(r => ({ ...r, name: DEV[r.name] || r.name })), 'ses');
+  }
+
+  return { start };
+})();
+</script>
+</body>
+</html>

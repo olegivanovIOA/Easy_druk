@@ -86,7 +86,7 @@ class GA4Error(Exception):
     pass
 
 
-def run_report(s, dims, metrics, start, end, limit=PAGE, order_metric=None, filter_expr=None):
+def run_report(s, dims, metrics, start, end, limit=PAGE, order_metric=None, filter_expr=None, dim_filter=None):
     """Повертає список dict {dim: value, metric: float}. Пагінація по offset."""
     out, offset = [], 0
     while True:
@@ -101,6 +101,8 @@ def run_report(s, dims, metrics, start, end, limit=PAGE, order_metric=None, filt
             body["orderBys"] = [{"metric": {"metricName": order_metric}, "desc": True}]
         if filter_expr:
             body["metricFilter"] = filter_expr
+        if dim_filter:
+            body["dimensionFilter"] = dim_filter
         r = s.post(API.format(pid=PROPERTY_ID), json=body, timeout=60)
         if r.status_code != 200:
             try:
@@ -234,6 +236,21 @@ def main():
                      "landing": top("landingPage", "Посадкові сторінки", 30),
                      "cities": top("city", "Міста", 25),
                      "devices": top("deviceCategory", "Пристрої", 5)}
+
+    # ── 6. v5.3: SEO — посадкові сторінки з ОРГАНІЧНОГО пошуку, 30 днів + попередні 30 (для динаміки) ──
+    organic = {"filter": {"fieldName": "sessionDefaultChannelGroup", "stringFilter": {"matchType": "EXACT", "value": "Organic Search"}}}
+    p_to = (date.today() - timedelta(days=30)).isoformat()
+    p_from = (date.today() - timedelta(days=59)).isoformat()
+
+    def org_landing(start, end, label):
+        rows, _ = try_report(s, [["landingPage"]], ["sessions", "engagedSessions", "totalUsers", key_metric], start, end, label,
+                             limit=100, order_metric="sessions", dim_filter=organic)
+        return [{"k": r["landingPage"], "ses": int(r["sessions"]), "eng": int(r["engagedSessions"]),
+                 "usr": int(r["totalUsers"]), "ke": r2(r[key_metric])} for r in rows]
+
+    res["seo"] = {"from": d30, "to": today, "prevFrom": p_from, "prevTo": p_to,
+                  "landingOrganic": org_landing(d30, today, "SEO: органічні посадкові (30 дн)"),
+                  "landingOrganicPrev": org_landing(p_from, p_to, "SEO: органічні посадкові (попер. 30 дн)")}
 
     tot_cost = sum(r["cost"] for r in res["adsCost"])
     tot_ses = sum(r["ses"] for r in res["traffic"])
