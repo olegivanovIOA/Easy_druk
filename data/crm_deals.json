@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-16T15:07:25Z",
+  "fetched_at": "2026-10-16T19:12:19Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -389,10 +389,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 767,
-      "clean": 714,
-      "qualified": 389,
-      "activeOrWon": 131,
+      "all": 771,
+      "clean": 718,
+      "qualified": 393,
+      "activeOrWon": 135,
       "won": 19,
       "wonSum": 2299492.2,
       "expectedSumActiveWon": 14170288.2
@@ -459,6 +459,11 @@
         "sum": 0.0
       },
       {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 14,
+        "sum": 0.0
+      },
+      {
         "stage": "НЕ устраивают сроки",
         "deals": 14,
         "sum": 0.0
@@ -472,11 +477,6 @@
         "stage": "Згода підтверджена",
         "deals": 12,
         "sum": 595685.24
-      },
-      {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-        "deals": 10,
-        "sum": 0.0
       },
       {
         "stage": "Некорректные контакты для связи",
@@ -567,7 +567,7 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 408,
+        "deals": 409,
         "expectedSum": 178890.24,
         "won": 3,
         "wonSum": 3700.0
@@ -575,7 +575,7 @@
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 81,
+        "deals": 82,
         "expectedSum": 10450.0,
         "won": 2,
         "wonSum": 3450.0
@@ -599,7 +599,7 @@
       {
         "key": "43",
         "name": "Instagram реклама ОПТ ФДМ",
-        "deals": 20,
+        "deals": 21,
         "expectedSum": 300.0,
         "won": 1,
         "wonSum": 300.0
@@ -639,7 +639,7 @@
       {
         "key": "UC_V2N0RN",
         "name": "Электронная почта shop@easy3dprint.com.ua",
-        "deals": 6,
+        "deals": 7,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -745,7 +745,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 668,
+        "deals": 672,
         "expectedSum": 12312306.2,
         "won": 11,
         "wonSum": 926482.2
@@ -2969,7 +2969,7 @@
         "us": "",
         "uc": "",
         "s": "43",
-        "n": 2,
+        "n": 3,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -2989,7 +2989,7 @@
         "us": "",
         "uc": "",
         "s": "50",
-        "n": 3,
+        "n": 4,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -2999,7 +2999,7 @@
         "us": "",
         "uc": "",
         "s": "CALL",
-        "n": 28,
+        "n": 29,
         "e": 3595.0,
         "w": 0,
         "ws": 0.0
@@ -3038,6 +3038,16 @@
         "d": "2026-10-16",
         "us": "",
         "uc": "",
+        "s": "UC_V2N0RN",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-10-16",
+        "us": "",
+        "uc": "",
         "s": "UC_YEKRMN",
         "n": 1,
         "e": 812.0,
@@ -3056,7 +3066,7 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 705,
+      "clientsInCohort": 709,
       "returningClients": 71,
       "repeatBuyers": 27,
       "noClientLinked": 7,
@@ -3067,7 +3077,7 @@
         "winRate": 12.9
       },
       "new": {
-        "deals": 658,
+        "deals": 662,
         "won": 8,
         "wonSum": 9000.0,
         "winRate": 1.4
@@ -3099,7 +3109,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 501,
+        "total": 505,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -3110,16 +3120,16 @@
             "sem": "P",
             "count": 6,
             "sum": 0.0,
-            "reached": 501,
+            "reached": 505,
             "lostHere": 439
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 10,
+            "count": 14,
             "sum": 0.0,
-            "reached": 56,
+            "reached": 60,
             "lostHere": 0
           },
           {
@@ -4723,7 +4733,7 @@
     "all": 791
   },
   "pipeline": {
-    "asOf": "2026-10-16T15:07:31Z",
+    "asOf": "2026-10-16T19:12:24Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
