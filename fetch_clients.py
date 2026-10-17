@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-fetch_clients.py — Easy 3D Print Dashboard v6.3
+fetch_clients.py — Easy 3D Print Dashboard v6.4
 Аналіз клієнтів з Bitrix24 (усі WON-угоди воронок продажів 24 ОПТ, 18/32 Роздріб за весь час) → data/clients.json
 
 Метрики: LTV (середня/медіанна виручка на клієнта за весь час, тривалість життя, частота покупок, когорти),
@@ -13,8 +13,13 @@ RFM-сегменти, відтік клієнтів (B2B і всі) по міс�
 середній чек; скрипт перевіряє, що в файлі немає ID.
 Клієнт = компанія угоди; якщо компанії немає — контакт; угоди без обох не враховуються (лічильник є).
 Відтік: клієнт вважається втраченим, якщо після WON-угоди минуло CHURN_DAYS днів без нової WON.
+
+v6.4: «перший дотик» (LTV реклами) — інкрементально. Кеш .cache/touch.json (GitHub Actions cache, не в git):
+по кожній угоді — хеш клієнта (sha256 з сіллю), дата, UTM. Щоденно докачуються лише угоди, змінені після
+попереднього запуску (filter[>DATE_MODIFY]); повне перевантаження — раз на TOUCH_FULL_DAYS днів (7),
+якщо кешу немає, або TOUCH_FULL=1.
 """
-import json, os, re, statistics, sys, time
+import hashlib, json, os, re, statistics, sys, time
 from collections import defaultdict, Counter
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -27,6 +32,9 @@ CATS = {24: "wholesale", 18: "retail", 32: "retail"}
 CHURN_DAYS = int(os.environ.get("CHURN_DAYS", "180"))
 RISK_FROM = int(os.environ.get("RISK_FROM_DAYS", "120"))
 IND_FIELD = os.environ.get("CLIENT_INDUSTRY_FIELD", "").strip()
+TOUCH_CACHE = Path(__file__).parent / ".cache" / "touch.json"
+TOUCH_FULL_DAYS = int(os.environ.get("TOUCH_FULL_DAYS", "7"))
+TOUCH_CATS = (0, 24, 18, 32)
 KW = re.compile(r"індустр|индустр|галуз|отрасл|сфер[аиуе]|industry|вид діяльн|вид деятельн", re.I)
 TODAY = date.today()
 
@@ -79,17 +87,67 @@ def won_deals(cat):
         last = rows[-1]["ID"]
 
 
-def all_deals_touch(cat):
-    """v6.3: усі угоди воронки (будь-яка стадія) — лише поля для «першого дотику» клієнта."""
+def all_deals_touch(cat, since=None):
+    """v6.3: угоди воронки (будь-яка стадія) — лише поля для «першого дотику». v6.4: since → тільки змінені після."""
     out, last = [], 0
     while True:
-        j = call("crm.deal.list", {"filter[CATEGORY_ID]": cat, "filter[>ID]": last, "order[ID]": "ASC", "start": -1,
-                                   "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "DATE_CREATE", "UTM_SOURCE", "UTM_CAMPAIGN", "SOURCE_ID"]})
+        p = {"filter[CATEGORY_ID]": cat, "filter[>ID]": last, "order[ID]": "ASC", "start": -1,
+             "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "DATE_CREATE", "UTM_SOURCE", "UTM_CAMPAIGN", "SOURCE_ID"]}
+        if since:
+            p["filter[>DATE_MODIFY]"] = since
+        j = call("crm.deal.list", p)
         rows = j.get("result") or []
         out += rows
         if len(rows) < 50:
             return out
         last = rows[-1]["ID"]
+
+
+def hkey(key):
+    """Незворотний ідентифікатор клієнта для кешу: sha256(сіль + c123/p456), сіль — секретний URL вебхука."""
+    return hashlib.sha256((URL + "|" + key).encode()).hexdigest()[:16]
+
+
+def touch_deals():
+    """{deal_id: [hkey, 'YYYY-MM-DD', utm_source, utm_campaign, SOURCE_ID]} — з кешу + докачка змін."""
+    started = datetime.utcnow()
+    cache = None
+    try:
+        cache = json.loads(TOUCH_CACHE.read_text(encoding="utf-8"))
+        if cache.get("v") != 1:
+            cache = None
+    except Exception:
+        cache = None
+    full = (cache is None or os.environ.get("TOUCH_FULL") == "1"
+            or (TODAY - date.fromisoformat(cache.get("full", "2000-01-01"))).days >= TOUCH_FULL_DAYS)
+    deals = {} if full else cache["deals"]
+    # запас 3 год на розбіжність годинників/часових поясів Bitrix
+    since = None if full else (datetime.fromisoformat(cache["ts"]) - timedelta(hours=3)).strftime("%Y-%m-%dT%H:%M:%S+00:00")
+    print(f"[CL] перший дотик: {'ПОВНЕ завантаження' if full else f'інкремент з {since} (у кеші {len(deals)} угод)'}")
+    n = 0
+    for cat in TOUCH_CATS:
+        ds = all_deals_touch(cat, since)
+        n += len(ds)
+        print(f"[CL] перший дотик: воронка {cat} — {len(ds)} угод")
+        for d in ds:
+            co, ct = d.get("COMPANY_ID"), d.get("CONTACT_ID")
+            key = ("c" + str(co)) if filled(co) else ("p" + str(ct)) if filled(ct) else None
+            dt = d10(d.get("DATE_CREATE"))
+            if not key or not dt:
+                deals.pop(str(d["ID"]), None)
+                continue
+            us = (d.get("UTM_SOURCE") or "").strip()
+            deals[str(d["ID"])] = [hkey(key), dt.isoformat(), us, (d.get("UTM_CAMPAIGN") or "").strip(),
+                                   "" if us else (d.get("SOURCE_ID") or "")]
+    try:
+        TOUCH_CACHE.parent.mkdir(exist_ok=True)
+        TOUCH_CACHE.write_text(json.dumps({"v": 1, "ts": started.isoformat(timespec="seconds"),
+                                           "full": TODAY.isoformat() if full else cache["full"], "deals": deals},
+                                          separators=(",", ":")), encoding="utf-8")
+    except Exception as e:
+        print(f"[CL] ⚠ кеш першого дотику не записано: {e}")
+    print(f"[CL] перший дотик: отримано {n} угод, у кеші {len(deals)}")
+    return deals
 
 
 def d10(s):
@@ -378,25 +436,18 @@ def main():
     acquisition = None
     try:
         first = {}
-        for cat in (0, 24, 18, 32):
-            ds = all_deals_touch(cat)
-            print(f"[CL] перший дотик: воронка {cat} — {len(ds)} угод")
-            for d in ds:
-                co, ct = d.get("COMPANY_ID"), d.get("CONTACT_ID")
-                key = ("c" + str(co)) if filled(co) else ("p" + str(ct)) if filled(ct) else None
-                dt = d10(d.get("DATE_CREATE"))
-                if not key or not dt:
-                    continue
-                us, uc = (d.get("UTM_SOURCE") or "").strip(), (d.get("UTM_CAMPAIGN") or "").strip()
-                cur = first.get(key)
-                # раніша угода перемагає; у той самий день — та, що з UTM
-                if cur is None or dt < cur[0] or (dt == cur[0] and us and not cur[1]):
-                    first[key] = (dt, us, uc, "" if us else (d.get("SOURCE_ID") or ""))
+        for hk, ds, us, uc, src in touch_deals().values():
+            dt = date.fromisoformat(ds)
+            cur = first.get(hk)
+            # раніша угода перемагає; у той самий день — та, що з UTM
+            if cur is None or dt < cur[0] or (dt == cur[0] and us and not cur[1]):
+                first[hk] = (dt, us, uc, src)
+        clh = {hkey(k): c for k, c in cl.items()}
         acq = defaultdict(lambda: {"n": 0, "p": 0, "rev": 0.0, "w": 0, "rev12": 0.0})
         for key, (dt, us, uc, src) in first.items():
             a = acq[(dt.strftime("%Y-%m"), us.lower(), uc, src)]
             a["n"] += 1
-            c = cl.get(key)
+            c = clh.get(key)
             if c and c["rev"] > 0:
                 a["p"] += 1
                 a["rev"] += c["rev"]
