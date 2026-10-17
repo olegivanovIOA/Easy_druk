@@ -103642,7 +103642,7 @@
       }
     },
     {
-      "fetched_at": "2026-10-17T05:19:31Z",
+      "fetched_at": "2026-10-17T09:37:12Z",
       "month": "2026-10",
       "bySource": [
         {
@@ -103696,9 +103696,9 @@
         {
           "source": "CALL",
           "name": "Звонок",
-          "reviewed": 392,
+          "reviewed": 394,
           "won": 11,
-          "lost": 354,
+          "lost": 356,
           "junk": 39,
           "wonWholesale": 11,
           "wonRetail": 0,
@@ -103792,17 +103792,17 @@
         {
           "source": "42",
           "name": "Электронная почта threedfactory7@gmail.com",
-          "reviewed": 4,
+          "reviewed": 5,
           "won": 1,
-          "lost": 3,
-          "junk": 1,
+          "lost": 4,
+          "junk": 2,
           "wonWholesale": 1,
           "wonRetail": 0,
           "revenue": 2100.0,
           "revenueWholesale": 2100.0,
           "revenueRetail": 0.0,
-          "winRate": 25.0,
-          "junkShare": 25.0,
+          "winRate": 20.0,
+          "junkShare": 40.0,
           "avgCheck": 2100.0
         },
         {
@@ -103904,10 +103904,10 @@
         {
           "source": "UC_V2N0RN",
           "name": "Электронная почта shop@easy3dprint.com.ua",
-          "reviewed": 6,
+          "reviewed": 7,
           "won": 0,
-          "lost": 6,
-          "junk": 6,
+          "lost": 7,
+          "junk": 7,
           "wonWholesale": 0,
           "wonRetail": 0,
           "revenue": 0.0,
@@ -104032,18 +104032,18 @@
       ],
       "cohort": {
         "funnel": {
-          "all": 772,
-          "clean": 719,
-          "qualified": 394,
-          "activeOrWon": 136,
+          "all": 784,
+          "clean": 730,
+          "qualified": 403,
+          "activeOrWon": 144,
           "won": 19,
           "wonSum": 2299492.2,
-          "expectedSumActiveWon": 14170288.2
+          "expectedSumActiveWon": 14170288.21
         },
         "byStage": [
           {
             "stage": "СПАМ / МУСОР",
-            "deals": 127,
+            "deals": 129,
             "sum": 0.0
           },
           {
@@ -104068,12 +104068,12 @@
           },
           {
             "stage": "НЕ можем реализовать запрос",
-            "deals": 58,
+            "deals": 59,
             "sum": 0.0
           },
           {
             "stage": "НЕ завершили первинний контакт",
-            "deals": 36,
+            "deals": 53,
             "sum": 0.0
           },
           {
@@ -104088,7 +104088,7 @@
           },
           {
             "stage": "ТЕСТОВЫЙ звонок",
-            "deals": 18,
+            "deals": 19,
             "sum": 0.0
           },
           {
@@ -104099,11 +104099,6 @@
           {
             "stage": "Ищет в своем ГОРОДЕ",
             "deals": 18,
-            "sum": 0.0
-          },
-          {
-            "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-            "deals": 14,
             "sum": 0.0
           },
           {
@@ -104122,6 +104117,11 @@
             "sum": 595685.24
           },
           {
+            "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+            "deals": 11,
+            "sum": 0.0
+          },
+          {
             "stage": "Некорректные контакты для связи",
             "deals": 8,
             "sum": 0.0
@@ -104129,11 +104129,6 @@
           {
             "stage": "НЕ отвечает (более 3-х попыток)",
             "deals": 8,
-            "sum": 0.0
-          },
-          {
-            "stage": "НОВИЙ лід ( не оброблений )",
-            "deals": 7,
             "sum": 0.0
           },
           {
@@ -104158,8 +104153,8 @@
           },
           {
             "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
-            "deals": 3,
-            "sum": 5150.0
+            "deals": 4,
+            "sum": 5150.01
           },
           {
             "stage": "Друк АУТСОРС",
@@ -104210,15 +104205,15 @@
           {
             "key": "CALL",
             "name": "Звонок",
-            "deals": 409,
-            "expectedSum": 178890.24,
+            "deals": 418,
+            "expectedSum": 178890.25,
             "won": 3,
             "wonSum": 3700.0
           },
           {
             "key": "50",
             "name": "Задать вопрос онлайн",
-            "deals": 82,
+            "deals": 85,
             "expectedSum": 10450.0,
             "won": 2,
             "wonSum": 3450.0
@@ -104388,8 +104383,8 @@
           {
             "key": "— / —",
             "name": "— / —",
-            "deals": 673,
-            "expectedSum": 12312306.2,
+            "deals": 684,
+            "expectedSum": 12312306.21,
             "won": 11,
             "wonSum": 926482.2
           },
@@ -104428,7 +104423,7 @@
           {
             "key": "google / Pmax_old_new",
             "name": "google / Pmax_old_new",
-            "deals": 16,
+            "deals": 17,
             "expectedSum": 0.0,
             "won": 0,
             "wonSum": 0.0
@@ -106192,8 +106187,8 @@
             "us": "",
             "uc": "",
             "s": "CALL",
-            "n": 41,
-            "e": 0.0,
+            "n": 42,
+            "e": 0.01,
             "w": 0,
             "ws": 0.0
           },
@@ -106716,27 +106711,57 @@
             "e": 0.0,
             "w": 0,
             "ws": 0.0
+          },
+          {
+            "d": "2026-10-17",
+            "us": "",
+            "uc": "",
+            "s": "50",
+            "n": 2,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
+          },
+          {
+            "d": "2026-10-17",
+            "us": "",
+            "uc": "",
+            "s": "CALL",
+            "n": 8,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
+          },
+          {
+            "d": "2026-10-17",
+            "us": "google",
+            "uc": "Pmax_old_new",
+            "s": "50",
+            "n": 1,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
           }
         ],
         "retention": {
-          "clientsInCohort": 710,
-          "returningClients": 71,
-          "repeatBuyers": 27,
+          "clientsInCohort": 722,
+          "returningClients": 72,
+          "repeatBuyers": 28,
           "noClientLinked": 7,
           "returning": {
-            "deals": 109,
+            "deals": 110,
             "won": 11,
             "wonSum": 2290492.2,
-            "winRate": 12.9
+            "winRate": 12.8
           },
           "new": {
-            "deals": 663,
+            "deals": 674,
             "won": 8,
             "wonSum": 9000.0,
             "winRate": 1.4
           },
           "repeatPurchase": {
-            "deals": 31,
+            "deals": 32,
             "won": 11,
             "wonSum": 2290492.2,
             "winRate": 78.6
@@ -106762,7 +106787,7 @@
           {
             "id": 0,
             "title": "ЛИДЫ (первинний скринінг)",
-            "total": 506,
+            "total": 516,
             "method": "history",
             "v": 2,
             "wonDirect": 0,
@@ -106771,27 +106796,27 @@
                 "id": "NEW",
                 "name": "НОВИЙ лід ( не оброблений )",
                 "sem": "P",
-                "count": 7,
+                "count": 0,
                 "sum": 0.0,
-                "reached": 506,
-                "lostHere": 439
+                "reached": 516,
+                "lostHere": 442
               },
               {
                 "id": "40",
                 "name": "НЕ додзвонилися (потрібно перетелефонувати )",
                 "sem": "P",
-                "count": 14,
+                "count": 11,
                 "sum": 0.0,
-                "reached": 60,
+                "reached": 74,
                 "lostHere": 0
               },
               {
                 "id": "41",
                 "name": "НЕ завершили первинний контакт",
                 "sem": "P",
-                "count": 36,
+                "count": 53,
                 "sum": 0.0,
-                "reached": 46,
+                "reached": 63,
                 "lostHere": 5
               },
               {
@@ -106806,7 +106831,7 @@
                 "id": "LOSE",
                 "name": "СПАМ / МУСОР",
                 "sem": "F",
-                "count": 127,
+                "count": 129,
                 "sum": 0.0
               },
               {
@@ -106848,7 +106873,7 @@
                 "id": "UC_VXSSGV",
                 "name": "ТЕСТОВЫЙ звонок",
                 "sem": "F",
-                "count": 18,
+                "count": 19,
                 "sum": 0.0
               }
             ]
@@ -106856,7 +106881,7 @@
           {
             "id": 24,
             "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-            "total": 270,
+            "total": 272,
             "method": "history",
             "v": 2,
             "wonDirect": 14,
@@ -106867,8 +106892,8 @@
                 "sem": "P",
                 "count": 6,
                 "sum": 11210827.76,
-                "reached": 270,
-                "lostHere": 189
+                "reached": 272,
+                "lostHere": 190
               },
               {
                 "id": "C24:PREPAYMENT_INVOIC",
@@ -106876,7 +106901,7 @@
                 "sem": "P",
                 "count": 5,
                 "sum": 0.0,
-                "reached": 75,
+                "reached": 76,
                 "lostHere": 0
               },
               {
@@ -106885,7 +106910,7 @@
                 "sem": "P",
                 "count": 6,
                 "sum": 0.0,
-                "reached": 70,
+                "reached": 71,
                 "lostHere": 3
               },
               {
@@ -106894,7 +106919,7 @@
                 "sem": "P",
                 "count": 13,
                 "sum": 250.0,
-                "reached": 61,
+                "reached": 62,
                 "lostHere": 0
               },
               {
@@ -106903,7 +106928,7 @@
                 "sem": "P",
                 "count": 7,
                 "sum": 901.0,
-                "reached": 48,
+                "reached": 49,
                 "lostHere": 0
               },
               {
@@ -106912,7 +106937,7 @@
                 "sem": "P",
                 "count": 12,
                 "sum": 595685.24,
-                "reached": 41,
+                "reached": 42,
                 "lostHere": 0
               },
               {
@@ -106921,7 +106946,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 29,
+                "reached": 30,
                 "lostHere": 0
               },
               {
@@ -106930,7 +106955,7 @@
                 "sem": "P",
                 "count": 3,
                 "sum": 48720.0,
-                "reached": 29,
+                "reached": 30,
                 "lostHere": 0
               },
               {
@@ -106939,7 +106964,7 @@
                 "sem": "P",
                 "count": 3,
                 "sum": 4912.0,
-                "reached": 26,
+                "reached": 27,
                 "lostHere": 0
               },
               {
@@ -106948,7 +106973,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 23,
+                "reached": 24,
                 "lostHere": 0
               },
               {
@@ -106957,7 +106982,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 23,
+                "reached": 24,
                 "lostHere": 0
               },
               {
@@ -106966,7 +106991,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 23,
+                "reached": 24,
                 "lostHere": 0
               },
               {
@@ -106975,7 +107000,7 @@
                 "sem": "P",
                 "count": 2,
                 "sum": 4350.0,
-                "reached": 23,
+                "reached": 24,
                 "lostHere": 0
               },
               {
@@ -106984,7 +107009,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -106993,7 +107018,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -107002,7 +107027,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -107011,7 +107036,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -107020,7 +107045,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -107029,7 +107054,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -107038,7 +107063,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -107047,7 +107072,7 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -107056,16 +107081,16 @@
                 "sem": "P",
                 "count": 0,
                 "sum": 0.0,
-                "reached": 21,
+                "reached": 22,
                 "lostHere": 0
               },
               {
                 "id": "C24:11",
                 "name": "Клієнт ЗАБРАВ ПОСИЛКУ",
                 "sem": "P",
-                "count": 3,
-                "sum": 5150.0,
-                "reached": 21,
+                "count": 4,
+                "sum": 5150.01,
+                "reached": 22,
                 "lostHere": 0
               },
               {
@@ -107109,7 +107134,7 @@
                 "id": "C24:20",
                 "name": "НЕ можем реализовать запрос",
                 "sem": "F",
-                "count": 58,
+                "count": 59,
                 "sum": 0.0
               },
               {
@@ -108171,7 +108196,7 @@
         },
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 60
+          "count": 61
         },
         {
           "reason": "НЕ актуально",
@@ -108202,7 +108227,7 @@
       "lossReasonsScreening": [
         {
           "reason": "СПАМ / МУСОР",
-          "count": 127
+          "count": 129
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -108222,7 +108247,7 @@
         },
         {
           "reason": "ТЕСТОВЫЙ звонок",
-          "count": 18
+          "count": 19
         },
         {
           "reason": "Некорректные контакты для связи",
@@ -108232,7 +108257,7 @@
       "lossReasonsTotal": [
         {
           "reason": "СПАМ / МУСОР",
-          "count": 127
+          "count": 129
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -108252,7 +108277,7 @@
         },
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 60
+          "count": 61
         },
         {
           "reason": "ДУБЛЬ",
@@ -108263,15 +108288,15 @@
           "count": 34
         },
         {
+          "reason": "ТЕСТОВЫЙ звонок",
+          "count": 19
+        },
+        {
           "reason": "НЕ отвечает (более 3-х попыток)",
           "count": 18
         },
         {
           "reason": "Ищет в своем ГОРОДЕ",
-          "count": 18
-        },
-        {
-          "reason": "ТЕСТОВЫЙ звонок",
           "count": 18
         },
         {
@@ -108298,7 +108323,7 @@
             },
             {
               "reason": "НЕ можем реализовать запрос",
-              "count": 60
+              "count": 61
             },
             {
               "reason": "НЕ актуально",
@@ -108325,8 +108350,8 @@
               "count": 1
             }
           ],
-          "totalLost": 222,
-          "totalReviewed": 322
+          "totalLost": 223,
+          "totalReviewed": 323
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -108348,7 +108373,7 @@
           "reasons": [
             {
               "reason": "СПАМ / МУСОР",
-              "count": 127
+              "count": 129
             },
             {
               "reason": "Не берет / не отвечает (более 3 попыток)",
@@ -108368,24 +108393,24 @@
             },
             {
               "reason": "ТЕСТОВЫЙ звонок",
-              "count": 18
+              "count": 19
             },
             {
               "reason": "Некорректные контакты для связи",
               "count": 8
             }
           ],
-          "totalLost": 458,
-          "totalReviewed": 473
+          "totalLost": 461,
+          "totalReviewed": 476
         }
       },
       "totalReviewed": {
-        "wholesale": 322,
+        "wholesale": 323,
         "retail": 1,
-        "screening": 473,
-        "all": 796
+        "screening": 476,
+        "all": 800
       }
     }
   ],
-  "updated_at": "2026-10-17T05:19:36Z"
+  "updated_at": "2026-10-17T09:37:18Z"
 }
