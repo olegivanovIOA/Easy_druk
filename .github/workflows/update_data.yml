@@ -202,11 +202,27 @@ jobs:
       - run: pip install requests
         if: steps.gate.outputs.go == '1'
 
+      # v6.4: кеш «першого дотику» — щоб не качати всі угоди щоразу (повне завантаження раз на 7 днів)
+      - name: Restore first-touch cache
+        if: steps.gate.outputs.go == '1'
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/touch.json
+          key: clients-touch-${{ github.run_id }}
+          restore-keys: clients-touch-
+
       - name: Client analytics (LTV / RFM / churn / industries)
         if: steps.gate.outputs.go == '1'
         env:
           BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
         run: python fetch_clients.py
+
+      - name: Save first-touch cache
+        if: steps.gate.outputs.go == '1' && hashFiles('.cache/touch.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/touch.json
+          key: clients-touch-${{ github.run_id }}
 
       - name: Commit clients data
         if: steps.gate.outputs.go == '1'
