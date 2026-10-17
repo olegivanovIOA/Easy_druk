@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-17T00:56:30Z",
+  "fetched_at": "2026-10-17T05:17:58Z",
   "date": "2026-10-16",
   "range": {
     "from": "16.10.2026",
@@ -8,24 +8,24 @@
     "basis": "date"
   },
   "totals": {
-    "batches": 6,
+    "batches": 7,
     "lots": 2
   },
   "company": {
-    "batches": 6,
+    "batches": 7,
     "lots": 2,
     "acceptedQty": 0,
     "defectQty": 0,
     "defectPercent": null,
     "defectWeightPercent": null,
-    "totalPrintTimeMinutes": 66381,
+    "totalPrintTimeMinutes": 74907,
     "materialCostUAH": null,
     "materialCostCoveragePercent": null
   },
   "byPrinterModel": [
     {
       "printerModel": "P2S",
-      "batches": 6,
+      "batches": 7,
       "acceptedQty": 0,
       "defectQty": 0,
       "defectPercent": null
@@ -34,7 +34,7 @@
   "byProduct": [
     {
       "baseProductCode": "000708",
-      "batches": 6,
+      "batches": 7,
       "acceptedQty": 0,
       "defectQty": 0,
       "defectPercent": null,
@@ -47,7 +47,7 @@
       "byPrinterModel": [
         {
           "printerModel": "P2S",
-          "batches": 6,
+          "batches": 7,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null
@@ -56,7 +56,7 @@
       "byProduct": [
         {
           "baseProductCode": "000708",
-          "batches": 6,
+          "batches": 7,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
@@ -126,8 +126,8 @@
       {
         "location": "4",
         "baseProductCode": "000708",
-        "batchCount": 3,
-        "totalPrintTimeMinutes": 31465,
+        "batchCount": 4,
+        "totalPrintTimeMinutes": 39991,
         "shift": "SECOND"
       }
     ]
@@ -136,7 +136,7 @@
     {
       "location": 4,
       "totals": {
-        "batches": 6,
+        "batches": 7,
         "lots": 2
       },
       "lots": [
@@ -177,18 +177,18 @@
           "printerModels": [
             "P2S"
           ],
-          "batchCount": 3,
+          "batchCount": 4,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
-          "totalPrintTimeMinutes": 31465,
+          "totalPrintTimeMinutes": 39991,
           "printTimeCoverage": 1,
           "plannedMachines": {
             "planned": 240,
             "estimated": 288
           },
-          "avgPartsPerMachine": 0.6,
-          "avgPartsPerMachineEstimated": 0.5,
+          "avgPartsPerMachine": 0.8,
+          "avgPartsPerMachineEstimated": 0.7,
           "qcDefectWeightPercent": null,
           "defectWeightCoverage": 0
         }
@@ -196,7 +196,7 @@
       "printerModels": [
         {
           "printerModel": "P2S",
-          "batchCount": 6,
+          "batchCount": 7,
           "lotCount": 2,
           "batches": [
             {
@@ -351,6 +351,38 @@
                 "perPartMinutes": 203,
                 "qty": 53,
                 "totalMinutes": 10759,
+                "source": "production_plans_daily"
+              },
+              "plannedMachines": {
+                "planned": 240,
+                "estimated": 288
+              },
+              "qcDefectWeightPercent": null
+            },
+            {
+              "batchNumber": "289-N-26-04-000-000708-004",
+              "lotKey": "289-N-26-04-000708",
+              "date": "16.10.2026",
+              "shift": "SECOND",
+              "product": {
+                "code": "000708",
+                "baseCode": "000708",
+                "orderNumber": "199592_10"
+              },
+              "material": {
+                "type": "PETG",
+                "color": "#FCE300",
+                "source": "gcode_files"
+              },
+              "acceptedQty": 0,
+              "defectQty": 0,
+              "defectPercent": null,
+              "qcCompleted": false,
+              "unitWeightG": 183.59,
+              "printTime": {
+                "perPartMinutes": 203,
+                "qty": 42,
+                "totalMinutes": 8526,
                 "source": "production_plans_daily"
               },
               "plannedMachines": {
