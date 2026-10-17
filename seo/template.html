@@ -71,7 +71,7 @@ th .a{font-size:9px;margin-left:3px;color:var(--tx)}
 
 <div id="app"><div class="wrap">
   <div class="bar">
-    <div><h1 id="ttl">Звіт</h1><div class="sub" id="upd"></div></div>
+    <div><h1>Звіт: відвідуваність сайту</h1><div class="sub" id="upd"></div></div>
     <div class="ctl">
       <div class="seg" id="pm">
         <button data-p="7">7 дн</button><button data-p="30">30 дн</button><button data-p="90">90 дн</button><button data-p="m">Місяць</button><button data-p="y">З початку року</button><button data-p="c">Свій період</button>
@@ -82,31 +82,36 @@ th .a{font-size:9px;margin-left:3px;color:var(--tx)}
       <a href="#" id="lo" class="note">вийти</a>
     </div>
   </div>
-  <div class="note" id="pinfo" style="margin:-6px 0 10px"></div>
+  <div class="bar" style="margin-top:-6px">
+    <div class="ctl"><span class="note" style="font-weight:700;text-transform:uppercase;letter-spacing:.5px">Трафік:</span>
+      <div class="seg" id="sg">
+        <button data-s="all">Весь (ALL)</button><button data-s="seo">Органіка (SEO)</button><button data-s="ppc">Реклама (PPC)</button><button data-s="gads">Google Ads</button><button data-s="fb">Facebook / Instagram</button>
+      </div>
+    </div>
+    <div class="note" id="pinfo"></div>
+  </div>
 
   <div class="kpis" id="kpis"></div>
 
+  <div class="card"><div class="ct" id="c2t">Сеанси і ключові події</div><div class="cw" style="height:220px"><canvas id="c2"></canvas></div></div>
   <div class="card"><div class="ct">Сеанси за каналами <small id="gran"></small></div><div class="cw"><canvas id="c1"></canvas></div></div>
-  <div class="card"><div class="ct">Органічний пошук: сеанси і ключові події</div><div class="cw" style="height:200px"><canvas id="c2"></canvas></div></div>
 
   <div class="grid g2">
     <div class="card"><div class="ct">Канали (групи GA4)</div><div class="tw" id="t-ch"></div></div>
     <div class="card"><div class="ct">Джерело / канал (source / medium) <small>топ-30</small></div><div class="tw" id="t-sm"></div></div>
   </div>
 
-  <div class="card"><div class="ct">Органічний пошук — посадкові сторінки <small id="seo-per"></small></div><div class="tw" id="t-seo"></div></div>
+  <div class="card"><div class="ct" id="land-t">Посадкові сторінки <small id="land-per"></small></div><div class="tw" id="t-land"></div></div>
 
-  <div class="card"><div class="ct">Google Ads — кампанії <small>(витрати з Google Ads, сеанси і ключові події — GA4)</small></div><div class="tw" id="t-ads"></div></div>
+  <div class="card" id="ads-card"><div class="ct">Google Ads — кампанії <small>(витрати з Google Ads, сеанси і ключові події — GA4)</small></div><div class="tw" id="t-ads"></div></div>
+  <div class="card note" id="fb-note" style="display:none">Витрати Facebook / Instagram Ads у цей звіт не передаються — тут лише трафік і ключові події з GA4 (група «Соцмережі (реклама)»).</div>
 
   <div class="grid g2">
     <div class="card"><div class="ct">Ключові події за типами</div><div class="tw" id="t-ev"></div></div>
-    <div class="card"><div class="ct">Усі посадкові сторінки <small id="l30-per"></small></div><div class="tw" id="t-land"></div></div>
-  </div>
-  <div class="grid g2">
-    <div class="card"><div class="ct">Міста <small id="c30-per"></small></div><div class="tw" id="t-city"></div></div>
     <div class="card"><div class="ct">Пристрої <small id="d30-per"></small></div><div class="tw" id="t-dev"></div></div>
   </div>
-  <p class="note">Дані Google Analytics 4. GA4 недораховує частину візитів (блокувальники, відмова від cookies) — використовуйте для порівняння каналів і динаміки. «Залучені» — сеанси довше 10 с, або з 2+ переглядами, або з ключовою подією. CR — ключові події ÷ сеанси.</p>
+  <div class="card"><div class="ct">Міста <small id="c30-per"></small></div><div class="tw" id="t-city"></div></div>
+  <p class="note">Дані Google Analytics 4. GA4 недораховує частину візитів (блокувальники, відмова від cookies) — використовуйте для порівняння каналів і динаміки. «Залучені» — сеанси довше 10 с, або з 2+ переглядами, або з ключовою подією. CR — ключові події ÷ сеанси. Сегменти: SEO — група «Органічний пошук»; PPC — уся платна реклама; Google Ads — платний пошук, PMax, медійна, відео, Shopping; Facebook / Instagram — «Соцмережі (реклама)».</p>
 </div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -146,7 +151,19 @@ $('lo').onclick = e => { e.preventDefault(); try { localStorage.removeItem(LS); 
 (() => { let s = null; try { s = localStorage.getItem(LS); } catch (e) {} if (s) unlock(s, true); })();
 
 const App = (() => {
-  let D, charts = {}, P = { p: '30', m: '', cf: '', ct: '', cmp: true };
+  let D, charts = {}, P = { p: '30', m: '', cf: '', ct: '', cmp: true, s: 'all' };
+  // Сегменти трафіку: за групою каналу GA4 (g) і, для source/medium, за правилами нижче
+  const PAID = ['Paid Search', 'Cross-network', 'Paid Social', 'Display', 'Paid Video', 'Paid Shopping', 'Paid Other'];
+  const GADS = ['Paid Search', 'Cross-network', 'Display', 'Paid Video', 'Paid Shopping'];
+  const SEG = {
+    all: { n: 'Весь трафік', g: () => true, sm: () => true, ads: true },
+    seo: { n: 'Органіка (SEO)', g: g => g === 'Organic Search', sm: (s, m) => m === 'organic' },
+    ppc: { n: 'Реклама (PPC)', g: g => PAID.includes(g), sm: (s, m) => /cpc|ppc|paid|cpm|cpv|display/.test(m), ads: true },
+    gads: { n: 'Google Ads', g: g => GADS.includes(g), sm: (s, m) => /google|youtube/.test(s) && /cpc|ppc|paid|cpm|cpv|display/.test(m), ads: true },
+    fb: { n: 'Facebook / Instagram', g: g => g === 'Paid Social', sm: (s, m) => /facebook|^fb$|instagram|^ig$|meta/.test(s) && !/referral|organic/.test(m) },
+  };
+  const SLS = 'rpt_seg1';
+  try { const v = localStorage.getItem(SLS); if (v && SEG[v]) P.s = v; } catch (e) {}
   const GROUP = { 'Organic Search': 'Органічний пошук', 'Paid Search': 'Платний пошук', 'Direct': 'Прямі заходи', 'Referral': 'Реферали (сайти)',
     'Organic Social': 'Соцмережі (органіка)', 'Paid Social': 'Соцмережі (реклама)', 'Cross-network': 'Cross-network (PMax)', 'Display': 'Медійна реклама',
     'Email': 'Email', 'Unassigned': 'Не визначено', 'Organic Video': 'Відео (органіка)', 'Paid Video': 'Відео (реклама)', 'Organic Shopping': 'Shopping (органіка)',
@@ -186,7 +203,6 @@ const App = (() => {
 
   function start(data) {
     D = data; EVENT = D.evLabels || {};
-    $('ttl').textContent = 'Звіт: ' + D.site;
     $('upd').textContent = `Дані GA4 з ${fD(D.from)} по ${fD(D.to)} · оновлено ${new Date(D.generated).toLocaleString('uk-UA', { dateStyle: 'short', timeStyle: 'short' })}`;
     const months = []; for (let m = D.from.slice(0, 7); m <= D.to.slice(0, 7);) { months.push(m); const [y, mo] = m.split('-').map(Number); m = mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`; }
     P.m = months[months.length - 1];
@@ -197,36 +213,43 @@ const App = (() => {
     $('cf').onchange = () => { P.cf = $('cf').value; render(); };
     $('ct').onchange = () => { P.ct = $('ct').value; render(); };
     $('cmp').onchange = () => { P.cmp = $('cmp').checked; render(); };
+    document.querySelectorAll('#sg button').forEach(b => b.onclick = () => { P.s = b.dataset.s; try { localStorage.setItem(SLS, P.s); } catch (e) {} render(); });
     render();
   }
 
   function render() {
     document.querySelectorAll('#pm button').forEach(b => b.classList.toggle('on', b.dataset.p === P.p));
+    document.querySelectorAll('#sg button').forEach(b => b.classList.toggle('on', b.dataset.s === P.s));
     $('msel').style.display = P.p === 'm' ? '' : 'none';
     $('cust').style.display = P.p === 'c' ? '' : 'none';
-    const R = range();
+    const R = range(), S = SEG[P.s];
     $('pinfo').innerHTML = `Період: <b>${fD(R.a)} – ${fD(R.b)}</b> (${R.n} дн)` + (P.cmp ? ` · порівняння з ${fD(R.pa)} – ${fD(R.pb)}${R.pa < D.from ? ' (частково немає даних)' : ''}` : '');
-    const ch = inR(D.ch, R.a, R.b), chp = inR(D.ch, R.pa, R.pb);   // [d,g,ses,usr,new,eng,ke]
-    const org = r => r[1] === 'Organic Search';
-    const ads = inR(D.ads, R.a, R.b), adsp = inR(D.ads, R.pa, R.pb);  // [d,c,cost,clk,imp]
+    const chAll = inR(D.ch, R.a, R.b), chpAll = inR(D.ch, R.pa, R.pb);   // [d,g,ses,usr,new,eng,ke]
+    const ch = chAll.filter(r => S.g(r[1])), chp = chpAll.filter(r => S.g(r[1]));
+    const ads = S.ads ? inR(D.ads, R.a, R.b) : [], adsp = S.ads ? inR(D.ads, R.pa, R.pb) : [];  // [d,c,cost,clk,imp]
     const K = (rows) => ({ ses: sum(rows, 2), usr: sum(rows, 3), nw: sum(rows, 4), eng: sum(rows, 5), ke: sum(rows, 6) });
-    const k = K(ch), kp = K(chp), o = K(ch.filter(org)), op = K(chp.filter(org));
-    const cost = sum(ads, 2), costp = sum(adsp, 2), clk = sum(ads, 3), clkp = sum(adsp, 3);
+    const k = K(ch), kp = K(chp), all = K(chAll), allp = K(chpAll);
+    const cost = sum(ads, 2), costp = sum(adsp, 2), clk = sum(ads, 3);
     const tile = (l, v, s, dl) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}${dl || ''}</div><div class="s">${s || ''}</div></div>`;
-    $('kpis').innerHTML =
-      tile('Сеанси', fmt(k.ses), `${fmt(k.usr)} користувачів · ${fmt(k.nw)} нових`, delta(k.ses, kp.ses)) +
-      tile('Органічні сеанси', fmt(o.ses), `${p1(pct(o.ses, k.ses))} усього трафіку`, delta(o.ses, op.ses)) +
+    let html =
+      tile('Сеанси · ' + S.n, fmt(k.ses), `${fmt(k.usr)} користувачів · ${fmt(k.nw)} нових`, delta(k.ses, kp.ses)) +
+      (P.s === 'all' ? tile('Органічні сеанси', fmt(K(ch.filter(r => r[1] === 'Organic Search')).ses), `${p1(pct(K(ch.filter(r => r[1] === 'Organic Search')).ses, k.ses))} усього трафіку`)
+        : tile('Частка у всьому трафіку', p1(pct(k.ses, all.ses)), `з ${fmt(all.ses)} сеансів`, delta(pct(k.ses, all.ses), pct(kp.ses, allp.ses)))) +
       tile('Залученість', p1(pct(k.eng, k.ses)), 'залучені / усі сеанси', delta(pct(k.eng, k.ses), pct(kp.eng, kp.ses))) +
-      tile('Ключові події', fmt(k.ke), `CR ${p1(pct(k.ke, k.ses))}`, delta(k.ke, kp.ke)) +
-      tile('Ключові події з органіки', fmt(o.ke), `CR органіки ${p1(pct(o.ke, o.ses))}`, delta(o.ke, op.ke)) +
-      tile('Витрати Google Ads', fmt(cost) + ' ₴', `${fmt(clk)} кліків · CPC ${fmt2(clk ? cost / clk : null)} ₴`, delta(cost, costp, true));
-    renderCharts(R, ch);
+      tile('Ключові події', fmt(k.ke), `CR ${p1(pct(k.ke, k.ses))}`, delta(k.ke, kp.ke));
+    if (S.ads) html += tile('Витрати Google Ads', fmt(cost) + ' ₴', `${fmt(clk)} кліків · CPC ${fmt2(clk ? cost / clk : null)} ₴`, delta(cost, costp, true)) +
+      tile('Вартість ключової події', k.ke && cost ? fmt(cost / (P.s === 'all' ? K(ch.filter(r => GADS.includes(r[1]))).ke || k.ke : k.ke)) + ' ₴' : '—', 'витрати Google Ads ÷ ключові події з реклами Google');
+    else html += tile('Нові користувачі', fmt(k.nw), `${p1(pct(k.nw, k.usr))} від користувачів`, delta(k.nw, kp.nw));
+    $('kpis').innerHTML = html;
+    $('ads-card').style.display = S.ads ? '' : 'none';
+    $('fb-note').style.display = P.s === 'fb' ? '' : 'none';
+    renderCharts(R, ch, S);
     renderChannels(ch, chp);
-    renderSM(R);
-    renderSEO();
-    renderAds(R, ads, adsp);
-    renderEvents(R);
-    renderL30();
+    renderSM(R, S);
+    renderLanding(S);
+    if (S.ads) renderAds(R, ads, adsp);
+    renderEvents(R, S);
+    renderL30(S);
   }
 
   function bucketOf(R) {
@@ -236,12 +259,13 @@ const App = (() => {
   }
   function chart(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart($(id), cfg); }
 
-  function renderCharts(R, ch) {
+  function renderCharts(R, ch, S) {
     const B = bucketOf(R); $('gran').textContent = '(' + B.name + ')';
-    const keys = [...new Set(ch.map(r => B.k(r[0])))].sort();
+    const keys = [...new Set(inR(D.ch, R.a, R.b).map(r => B.k(r[0])))].sort();
     const tot = {}; ch.forEach(r => tot[r[1]] = (tot[r[1]] || 0) + r[2]);
     const groups = Object.keys(tot).sort((a, b) => tot[b] - tot[a]);
     const top = groups.slice(0, 7), rest = groups.slice(7);
+    $('c1').closest('.card').style.display = groups.length > 1 ? '' : 'none';   // один канал — графік дублює верхній
     const series = top.map((g, i) => ({ label: GROUP[g] || g, data: keys.map(k => sum(ch.filter(r => r[1] === g && B.k(r[0]) === k), 2)), backgroundColor: COLORS[i], borderRadius: 2, stack: 's' }));
     if (rest.length) series.push({ label: 'Інші', data: keys.map(k => sum(ch.filter(r => rest.includes(r[1]) && B.k(r[0]) === k), 2)), backgroundColor: '#B8C0BB', borderRadius: 2, stack: 's' });
     const grid = getComputedStyle(document.documentElement).getPropertyValue('--bd');
@@ -249,10 +273,10 @@ const App = (() => {
       plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } },
       scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true } }, y: { stacked: true, beginAtZero: true, grid: { color: grid } } } };
     chart('c1', { type: 'bar', data: { labels: keys.map(B.lab), datasets: series }, options: base });
-    const og = ch.filter(r => r[1] === 'Organic Search');
+    $('c2t').textContent = S.n + ': сеанси і ключові події';
     chart('c2', { data: { labels: keys.map(B.lab), datasets: [
-      { type: 'bar', label: 'Органічні сеанси', data: keys.map(k => sum(og.filter(r => B.k(r[0]) === k), 2)), backgroundColor: 'rgba(42,157,143,.55)', borderRadius: 2, yAxisID: 'y' },
-      { type: 'line', label: 'Ключові події з органіки', data: keys.map(k => Math.round(sum(og.filter(r => B.k(r[0]) === k), 6))), borderColor: '#C98A2B', backgroundColor: '#C98A2B', tension: .3, pointRadius: 2, yAxisID: 'y1' }] },
+      { type: 'bar', label: 'Сеанси', data: keys.map(k => sum(ch.filter(r => B.k(r[0]) === k), 2)), backgroundColor: 'rgba(42,157,143,.55)', borderRadius: 2, yAxisID: 'y' },
+      { type: 'line', label: 'Ключові події', data: keys.map(k => Math.round(sum(ch.filter(r => B.k(r[0]) === k), 6))), borderColor: '#C98A2B', backgroundColor: '#C98A2B', tension: .3, pointRadius: 2, yAxisID: 'y1' }] },
       options: { ...base, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true } }, y: { beginAtZero: true, grid: { color: grid } }, y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } } } } });
   }
 
@@ -278,22 +302,41 @@ const App = (() => {
       { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }], rows, 'ses');
   }
 
-  function renderSM(R) {
-    const agg = (a, b) => { const m = {}; inR(D.sm, a, b).forEach(r => { const k = r[1] + ' / ' + r[2]; const x = m[k] || (m[k] = { name: k, ses: 0, eng: 0, ke: 0 }); x.ses += r[3]; x.eng += r[4]; x.ke += r[5]; }); return m; };
+  function renderSM(R, S) {
+    const agg = (a, b) => { const m = {}; inR(D.sm, a, b).filter(r => S.sm(String(r[1]).toLowerCase(), String(r[2]).toLowerCase())).forEach(r => { const k = r[1] + ' / ' + r[2]; const x = m[k] || (m[k] = { name: k, ses: 0, eng: 0, ke: 0 }); x.ses += r[3]; x.eng += r[4]; x.ke += r[5]; }); return m; };
     const c = agg(R.a, R.b), p = agg(R.pa, R.pb);
     const rows = Object.values(c).sort((x, y) => y.ses - x.ses).slice(0, 30).map(x => ({ ...x, pses: (p[x.name] || {}).ses, er: pct(x.eng, x.ses), cr: pct(x.ke, x.ses) }));
     table('t-sm', [{ k: 'name', h: 'Source / medium' }, dcol('ses', 'Сеанси', 'pses'), { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }], rows, 'ses');
   }
 
-  function renderSEO() {
-    const s = D.seo || {};
-    $('seo-per').textContent = s.from ? `(останні 30 днів: ${fD(s.from)} – ${fD(s.to)}; Δ — до ${fD(s.prevFrom)} – ${fD(s.prevTo)})` : '';
-    const prev = {}; (s.landingOrganicPrev || []).forEach(r => prev[r.k] = r.ses);
-    const rows = (s.landingOrganic || []).map(r => ({ url: r.k || '(не визначено)', ses: r.ses, pses: prev[r.k], usr: r.usr, er: pct(r.eng, r.ses), ke: r.ke, cr: pct(r.ke, r.ses) }));
-    const keep = P.cmp; P.cmp = true;
-    table('t-seo', [{ k: 'url', h: 'Сторінка', url: 1 }, dcol('ses', 'Сеанси', 'pses'), { k: 'pses', h: 'Попер. 30 дн', r: 1, f: fmt },
-      { k: 'usr', h: 'Користувачі', r: 1, f: fmt }, { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }], rows, 'ses');
-    P.cmp = keep;
+  // Посадкові сторінки: SEO — органіка з динамікою до попередніх 30 днів; інші сегменти — зріз з групою каналу
+  function renderLanding(S) {
+    const s = D.seo || {}, bc = D.bc || {};
+    if (P.s === 'seo') {
+      $('land-t').firstChild.textContent = 'Органічний пошук — посадкові сторінки ';
+      $('land-per').textContent = s.from ? `(останні 30 днів: ${fD(s.from)} – ${fD(s.to)}; Δ — до ${fD(s.prevFrom)} – ${fD(s.prevTo)})` : '';
+      const prev = {}; (s.landingOrganicPrev || []).forEach(r => prev[r.k] = r.ses);
+      const rows = (s.landingOrganic || []).map(r => ({ url: r.k || '(не визначено)', ses: r.ses, pses: prev[r.k], usr: r.usr, er: pct(r.eng, r.ses), ke: r.ke, cr: pct(r.ke, r.ses) }));
+      const keep = P.cmp; P.cmp = true;
+      table('t-land', [{ k: 'url', h: 'Сторінка', url: 1 }, dcol('ses', 'Сеанси', 'pses'), { k: 'pses', h: 'Попер. 30 дн', r: 1, f: fmt },
+        { k: 'usr', h: 'Користувачі', r: 1, f: fmt }, { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }], rows, 'ses');
+      P.cmp = keep; return;
+    }
+    $('land-t').firstChild.textContent = 'Посадкові сторінки — ' + S.n.toLowerCase() + ' ';
+    const per = (bc.from || (D.l30 || {}).from); $('land-per').textContent = per ? `(останні 30 днів: ${fD(bc.from || D.l30.from)} – ${fD(bc.to || D.l30.to)})` : '';
+    table('t-land', cols30('Сторінка'), slice30('landing', 'landing', S), 'ses');
+  }
+
+  // Зрізи за 30 днів. Якщо є дані з групою каналу (bc) — фільтруємо за сегментом; інакше — лише «Весь трафік».
+  const cols30 = h => [{ k: 'name', h, url: h === 'Сторінка' ? 1 : 0 }, { k: 'ses', h: 'Сеанси', r: 1, f: fmt }, { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }];
+  function slice30(bcKey, l30Key, S) {
+    const bc = (D.bc || {})[bcKey];
+    let src;
+    if (bc && bc.length) {
+      const m = {}; bc.filter(r => S.g(r[1])).forEach(r => { const a = m[r[0]] || (m[r[0]] = { k: r[0], ses: 0, eng: 0, ke: 0 }); a.ses += r[2]; a.eng += r[3]; a.ke += r[4]; });
+      src = Object.values(m);
+    } else src = P.s === 'all' ? ((D.l30 || {})[l30Key] || []) : [];
+    return src.map(r => ({ name: r.k, ses: r.ses, er: pct(r.eng, r.ses), ke: r.ke, cr: pct(r.ke, r.ses) }));
   }
 
   function renderAds(R, ads, adsp) {
@@ -311,22 +354,23 @@ const App = (() => {
       { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cpa', h: '₴ / ключ. подію', r: 1, f: fmt, t: 'Витрати ÷ ключові події' }], rows, 'cost');
   }
 
-  function renderEvents(R) {
-    const agg = (a, b) => { const m = {}; inR(D.ev, a, b).forEach(r => m[r[1]] = (m[r[1]] || 0) + r[2]); return m; };
+  function renderEvents(R, S) {
+    const useCh = D.evc && D.evc.length;
+    const agg = (a, b) => { const m = {};
+      if (useCh) inR(D.evc, a, b).filter(r => S.g(r[1])).forEach(r => m[r[2]] = (m[r[2]] || 0) + r[3]);
+      else if (P.s === 'all') inR(D.ev, a, b).forEach(r => m[r[1]] = (m[r[1]] || 0) + r[2]);
+      return m; };
     const c = agg(R.a, R.b), p = agg(R.pa, R.pb), tot = Object.values(c).reduce((s, v) => s + v, 0);
     const rows = Object.entries(c).map(([e, n]) => ({ name: EVENT[e] || e, n, pn: p[e], sh: pct(n, tot) }));
     table('t-ev', [{ k: 'name', h: 'Подія' }, dcol('n', 'Кількість', 'pn'), { k: 'sh', h: 'Частка', r: 1, f: p1 }], rows, 'n');
   }
 
-  function renderL30() {
-    const l = D.l30 || {}, per = l.from ? `(останні 30 днів: ${fD(l.from)} – ${fD(l.to)})` : '';
-    $('l30-per').textContent = per; $('c30-per').textContent = per; $('d30-per').textContent = per;
-    const map = (arr) => (arr || []).map(r => ({ name: r.k, ses: r.ses, er: pct(r.eng, r.ses), ke: r.ke, cr: pct(r.ke, r.ses) }));
-    const cols = h => [{ k: 'name', h, url: h === 'Сторінка' ? 1 : 0 }, { k: 'ses', h: 'Сеанси', r: 1, f: fmt }, { k: 'er', h: 'Залучені', r: 1, f: p1 }, { k: 'ke', h: 'Ключ. події', r: 1, f: fmt }, { k: 'cr', h: 'CR', r: 1, f: p1 }];
-    table('t-land', cols('Сторінка'), map(l.landing), 'ses');
-    table('t-city', cols('Місто'), map(l.cities).map(r => ({ ...r, name: r.name === '(not set)' ? 'не визначено' : r.name })), 'ses');
+  function renderL30(S) {
+    const l = D.bc && D.bc.from ? D.bc : (D.l30 || {}), per = l.from ? `(останні 30 днів: ${fD(l.from)} – ${fD(l.to)})` : '';
+    $('c30-per').textContent = per; $('d30-per').textContent = per;
+    table('t-city', cols30('Місто'), slice30('cities', 'cities', S).map(r => ({ ...r, name: r.name === '(not set)' ? 'не визначено' : r.name })), 'ses');
     const DEV = { desktop: "Комп'ютер", mobile: 'Телефон', tablet: 'Планшет' };
-    table('t-dev', cols('Пристрій'), map(l.devices).map(r => ({ ...r, name: DEV[r.name] || r.name })), 'ses');
+    table('t-dev', cols30('Пристрій'), slice30('devices', 'devices', S).map(r => ({ ...r, name: DEV[r.name] || r.name })), 'ses');
   }
 
   return { start };

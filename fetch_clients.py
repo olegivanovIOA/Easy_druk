@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-fetch_clients.py — Easy 3D Print Dashboard v6.2
+fetch_clients.py — Easy 3D Print Dashboard v6.3
 Аналіз клієнтів з Bitrix24 (усі WON-угоди воронок продажів 24 ОПТ, 18/32 Роздріб за весь час) → data/clients.json
 
 Метрики: LTV (середня/медіанна виручка на клієнта за весь час, тривалість життя, частота покупок, когорти),
@@ -72,6 +72,19 @@ def won_deals(cat):
         j = call("crm.deal.list", {"filter[CATEGORY_ID]": cat, "filter[STAGE_SEMANTIC_ID]": "S", "filter[>ID]": last,
                                    "order[ID]": "ASC", "start": -1,
                                    "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "OPPORTUNITY", "CLOSEDATE"] + list(DEAL_IND)})
+        rows = j.get("result") or []
+        out += rows
+        if len(rows) < 50:
+            return out
+        last = rows[-1]["ID"]
+
+
+def all_deals_touch(cat):
+    """v6.3: усі угоди воронки (будь-яка стадія) — лише поля для «першого дотику» клієнта."""
+    out, last = [], 0
+    while True:
+        j = call("crm.deal.list", {"filter[CATEGORY_ID]": cat, "filter[>ID]": last, "order[ID]": "ASC", "start": -1,
+                                   "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "DATE_CREATE", "UTM_SOURCE", "UTM_CAMPAIGN", "SOURCE_ID"]})
         rows = j.get("result") or []
         out += rows
         if len(rows) < 50:
@@ -359,10 +372,54 @@ def main():
                       "byGroup": {"wholesale": ind_rows(lambda d: d["grp"] == "wholesale"),
                                   "retail": ind_rows(lambda d: d["grp"] == "retail")}}
 
+    # ── v6.3: LTV рекламного трафіку — клієнт отримує канал/кампанію своєї ПЕРШОЇ угоди (воронки 0/24/18/32,
+    #    будь-яка стадія); у його LTV — уся WON-виручка за весь час, у т.ч. повторні угоди без UTM.
+    #    Агрегат по (місяць першої угоди × utm_source × utm_campaign × SOURCE_ID), без ID клієнтів.
+    acquisition = None
+    try:
+        first = {}
+        for cat in (0, 24, 18, 32):
+            ds = all_deals_touch(cat)
+            print(f"[CL] перший дотик: воронка {cat} — {len(ds)} угод")
+            for d in ds:
+                co, ct = d.get("COMPANY_ID"), d.get("CONTACT_ID")
+                key = ("c" + str(co)) if filled(co) else ("p" + str(ct)) if filled(ct) else None
+                dt = d10(d.get("DATE_CREATE"))
+                if not key or not dt:
+                    continue
+                us, uc = (d.get("UTM_SOURCE") or "").strip(), (d.get("UTM_CAMPAIGN") or "").strip()
+                cur = first.get(key)
+                # раніша угода перемагає; у той самий день — та, що з UTM
+                if cur is None or dt < cur[0] or (dt == cur[0] and us and not cur[1]):
+                    first[key] = (dt, us, uc, "" if us else (d.get("SOURCE_ID") or ""))
+        acq = defaultdict(lambda: {"n": 0, "p": 0, "rev": 0.0, "w": 0, "rev12": 0.0})
+        for key, (dt, us, uc, src) in first.items():
+            a = acq[(dt.strftime("%Y-%m"), us.lower(), uc, src)]
+            a["n"] += 1
+            c = cl.get(key)
+            if c and c["rev"] > 0:
+                a["p"] += 1
+                a["rev"] += c["rev"]
+                a["w"] += len(c["dates"])
+                a["rev12"] += c["rev12"]
+        acquisition = {
+            "note": "клієнт = компанія угоди або контакт; канал — з першої угоди у воронках 0/24/18/32; "
+                    "LTV — уся WON-виручка клієнта за весь час",
+            "fields": "m=місяць першої угоди, us/uc=utm_source/utm_campaign, s=SOURCE_ID (якщо без UTM), "
+                      "n=нових клієнтів, p=з них купили (WON), rev=їхня WON-виручка за весь час, w=WON-угод, rev12=виручка за 12 міс",
+            "rows": sorted([{"m": k[0], "us": k[1], "uc": k[2], "s": k[3], "n": v["n"], "p": v["p"],
+                             "rev": round(v["rev"]), "w": v["w"], "rev12": round(v["rev12"])}
+                            for k, v in acq.items()], key=lambda r: (r["m"], r["us"], r["uc"]))}
+        withU = sum(1 for v in first.values() if v[1])
+        print(f"[CL] перший дотик: {len(first)} клієнтів, з UTM у першій угоді — {withU}")
+    except Exception as e:
+        print(f"[CL] ⚠ перший дотик (LTV реклами) не пораховано: {e}")
+
     out = {"fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "asOf": TODAY.isoformat(),
            "firstDeal": first_all.isoformat(), "dealsUsed": len(deals), "dealsSkipped": skipped, "clients": len(cl),
            "params": {"churnDays": CHURN_DAYS, "riskFromDays": RISK_FROM},
            "ltv": ltv_out, "cohorts": cohorts, "rfm": rfm, "rfmGrid": grid, "churn": churn, "industries": industries,
+           "acquisition": acquisition,
            "privacy": "лише агрегати; ID/назви клієнтів не зберігаються"}
     blob = json.dumps(out, ensure_ascii=False)
     if re.search(r'"(c|p)\d{2,}"', blob):

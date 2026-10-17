@@ -252,6 +252,24 @@ def main():
                   "landingOrganic": org_landing(d30, today, "SEO: органічні посадкові (30 дн)"),
                   "landingOrganicPrev": org_landing(p_from, p_to, "SEO: органічні посадкові (попер. 30 дн)")}
 
+    # ── 7. v6.3: ті самі зрізи, але з групою каналу — для фільтра «Весь / SEO / Реклама / Google / FB»
+    #     на сторінці для SEO-підрядників (landing / міста / пристрої за 30 днів, події по днях) ──
+    def top_g(dim, label, n):
+        rows, _ = try_report(s, [[dim, "sessionDefaultChannelGroup"]], ["sessions", "engagedSessions", key_metric],
+                             d30, today, label, limit=n, order_metric="sessions")
+        return [{"k": r[dim], "g": r["sessionDefaultChannelGroup"], "ses": int(r["sessions"]),
+                 "eng": int(r["engagedSessions"]), "ke": r2(r[key_metric])} for r in rows]
+
+    res["byChannel"] = {"from": d30, "to": today,
+                        "landing": top_g("landingPage", "Посадкові × канал (30 дн)", 800),
+                        "cities": top_g("city", "Міста × канал (30 дн)", 400),
+                        "devices": top_g("deviceCategory", "Пристрої × канал (30 дн)", 80)}
+    rows, _ = try_report(s, [["date", "sessionDefaultChannelGroup", "eventName"]], [key_metric], START, today,
+                         "Ключові події × канал")
+    res["eventsCh"] = sorted([{"d": d8(r["date"]), "g": r["sessionDefaultChannelGroup"], "e": r["eventName"],
+                               "n": r2(r[key_metric])} for r in rows if r[key_metric] > 0],
+                             key=lambda x: (x["d"], x["g"], x["e"]))
+
     tot_cost = sum(r["cost"] for r in res["adsCost"])
     tot_ses = sum(r["ses"] for r in res["traffic"])
     print(f"[GA4] Разом з {START}: вартість Ads {tot_cost:,.0f} грн, сеансів {tot_ses:,}, "

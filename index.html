@@ -282,6 +282,13 @@ a{color:var(--gd);text-decoration:none}
 .roi-tbl th .arr{font-size:9px;margin-left:3px;color:var(--tx)}
 .roi-tbl tfoot td{font-weight:700;background:var(--s2);border-top:1px solid var(--bd);position:sticky;bottom:0}
 .roi-i{cursor:pointer;font-size:11px;color:var(--tl);margin-left:2px}
+.roi-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:2px 0 10px}
+.roi-k{border:1px solid var(--bd);border-radius:10px;padding:8px 10px;background:var(--s2)}
+.roi-k .l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tl)}
+.roi-k .v{font-size:18px;font-weight:800;margin-top:2px}
+.roi-k .s{font-size:9px;color:var(--tl);margin-top:1px}
+.roi-kw{grid-column:1/-1;font-size:10px;color:#8a5a12;background:rgba(201,138,43,.10);border:1px solid rgba(201,138,43,.35);border-radius:8px;padding:6px 10px}
+.roi-km input{width:64px;font:inherit;font-size:16px;font-weight:800;padding:1px 4px;border:1px solid var(--bd);border-radius:6px;background:var(--card,#fff);color:var(--tx)}
 .roi-info{margin-bottom:8px;font-size:11px}
 .roi-info summary{cursor:pointer;color:var(--tl);font-size:10px}
 .roi-info-body{display:grid;gap:5px;margin-top:6px;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--s2);color:var(--td);line-height:1.45}
@@ -1213,6 +1220,7 @@ a{color:var(--gd);text-decoration:none}
             <a href="#" id="roi-reset" style="display:none">✕ скинути</a>
           </span>
         </div>
+        <div id="mkt-roi-kpi" class="roi-kpi"></div>
         <details id="roi-info" class="roi-info">
           <summary>ⓘ Як рахуються показники (CPL, CAC, ROAS…)</summary>
           <div class="roi-info-body">
@@ -1227,6 +1235,8 @@ a{color:var(--gd);text-decoration:none}
             <div><b>WON</b> / <b>WON сума</b> — скільки з цих угод уже закрито успішно у воронках 24/18/32 і на яку суму. WON воронки 0 (пройдений скринінг) не рахується, щоб не задвоювати.</div>
             <div><b>CAC</b> = Вартість ÷ WON — скільки реклами витрачено на одну успішну угоду.</div>
             <div><b>ROAS</b> = WON сума ÷ Вартість × 100%. <b>100%</b> — реклама окупилась по виручці один в один, <b>300%</b> — кожна гривня реклами принесла 3 грн виручки. Колір: <span style="color:#1e7a6e;font-weight:700">≥ 300%</span> · <span style="color:#3D7EA6;font-weight:700">100–300%</span> · <span style="color:#C0392B;font-weight:700">&lt; 100%</span>. Це по <u>виручці</u>, не по прибутку: щоб реклама окупилась по марже, ROAS має бути вищим за 100% ÷ маржинальність (напр. при марже 30% — від ~330%).</div>
+            <div><b>ROMI по виручці</b> = (WON сума − Вартість) ÷ Вартість × 100%. <b>0%</b> — реклама повернула рівно вкладене, <b>+200%</b> — кожна гривня реклами принесла 2 грн виручки понад себе. Те саме, що ROAS − 100%.</div>
+            <div><b>ROMI по марже</b> = (WON сума × маржа − Вартість) ÷ Вартість × 100%. Показує окупність по валовому прибутку: <span style="color:#1e7a6e;font-weight:700">&gt; 0%</span> — реклама окупилась, <span style="color:#C0392B;font-weight:700">&lt; 0%</span> — ні. Маржа за замовчуванням — валова маржа з P&L з початку року; її можна змінити в полі над таблицею.</div>
             <div style="color:var(--tl)">Угода прив'язується до періоду за датою <u>створення</u>, тому WON за свіжі дні ще доростатиме: угода, створена сьогодні, може закритися через тиждень-два — і ROAS цього дня зросте.</div>
           </div>
         </details>
@@ -1237,7 +1247,26 @@ a{color:var(--gd);text-decoration:none}
           <th data-k="won" class="r">WON</th><th data-k="wonSum" class="r">WON сума</th>
           <th data-k="cac" class="r" title="Вартість / WON">CAC</th>
           <th data-k="roas" class="r">ROAS <span class="roi-i" id="roi-roas-i" title="Як рахується ROAS">ⓘ</span></th>
+          <th data-k="romiR" class="r" title="(WON сума − Вартість) ÷ Вартість">ROMI вир.</th>
+          <th data-k="romiM" class="r" title="(WON сума × маржа − Вартість) ÷ Вартість">ROMI марж.</th>
         </tr></thead><tbody id="mkt-leadgen-roi-table"></tbody><tfoot id="mkt-leadgen-roi-total"></tfoot></table></div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="ct" style="margin:0 0 4px">LTV рекламного трафіку: скільки приносять клієнти, залучені кампанією, за весь час</div>
+        <div id="mkt-ltv-ads-note" style="font-size:10px;color:var(--tl);margin-bottom:6px"></div>
+        <div class="tw" style="max-height:440px;overflow:auto"><table class="tbl roi-tbl"><thead><tr>
+          <th>Канал</th><th>Кампанія першої угоди</th>
+          <th class="r" title="Клієнти, у яких перша угода — з цієї кампанії">Нових клієнтів</th>
+          <th class="r" title="З них мають хоча б одну WON-угоду">Купили</th>
+          <th class="r" title="Купили ÷ нових клієнтів">Конв.</th>
+          <th class="r" title="Уся WON-виручка цих клієнтів за весь час, з повторними">Виручка (весь час)</th>
+          <th class="r" title="Виручка ÷ клієнтів, що купили">LTV</th>
+          <th class="r" title="Витрати Google Ads у місяцях залучення">Вартість</th>
+          <th class="r" title="Вартість ÷ клієнтів, що купили">CAC</th>
+          <th class="r" title="LTV ÷ CAC: ≥3 — добре, 1–3 — окупається, <1 — збиток">LTV/CAC</th>
+          <th class="r" title="(Виручка × маржа − Вартість) ÷ Вартість">ROMI LTV</th>
+        </tr></thead><tbody id="mkt-ltv-ads"></tbody><tfoot id="mkt-ltv-ads-total"></tfoot></table></div>
+        <div style="font-size:10px;color:var(--tl);margin-top:6px">Фільтр каналів, «лише з витратами» і пошук — ті самі, що в таблиці ROI вище. UTM у Bitrix24 пишуться з 2026 року, тому клієнти, які прийшли раніше, потрапляють у «без UTM» / джерело угоди.</div>
       </div>
       <div class="card" id="mkt-leadgen-trend-wrap" style="display:none;margin-bottom:12px">
         <div class="ct" style="margin-bottom:8px">Динаміка: звернення → кваліфіковані → WON, частка виручки від повторних покупців <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
@@ -3873,7 +3902,7 @@ window.LocLoader = (() => {
 <script src="js/finance_status.js?v=20261014"></script>
 <script src="js/channels_loader.js?v=20260930"></script>
 <script src="js/ga4_loader.js?v=20261014"></script>
-<script src="js/leadgen_loader.js?v=20261014"></script>
+<script src="js/leadgen_loader.js?v=20261017"></script>
 <script src="js/shopfloor_loader.js?v=20261014b"></script>
 <script src="js/clients_loader.js?v=20261014b"></script>
 <script>

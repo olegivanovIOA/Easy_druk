@@ -12,7 +12,7 @@ build_seo_page.py — окремий звіт для зовнішніх SEO-пі
 Запуск локально:  SEO_REPORT_PASSWORD=... python seo/build_seo_page.py
 """
 
-import base64, gzip, json, os, sys
+import base64, gzip, json, os, re, sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -26,7 +26,28 @@ SRC = Path(os.environ.get("SEO_SRC", ROOT / "data" / "ga4.json"))
 TPL = Path(__file__).resolve().parent / "template.html"
 OUT = Path(os.environ.get("SEO_OUT_DIR", ROOT / "dist"))
 ITER = 250_000
-SITE = os.environ.get("SEO_SITE_NAME", "easy3dprint.com.ua")
+# v6.3: назву компанії/сайту на сторінці не показуємо — посилання може потрапити будь-кому.
+# Усі рядки даних проходять через anon(): бренд у джерелах/кампаніях замінюється нейтральним словом.
+BRAND_RE = re.compile(r"easy\s*3\s*d\s*print|easy3d|easy_3d|ізі\s*3д|ukr3dprint|druk\w*|друкар\w*", re.I)
+SERVICE_RE = [(re.compile(r"[\w.-]*bitrix[\w.-]*", re.I), "crm (реферал)"),
+              (re.compile(r"[\w.-]*phonet[\w.-]*", re.I), "телефонія (реферал)")]
+FORBIDDEN = ("github", "easy_druk", "olegivanov", "dashboard", "дашборд", "bitrix", "easy3d", "easy 3d", "drukar", "друкар")
+
+
+def anon(v):
+    if not isinstance(v, str):
+        return v
+    for rx, rep in SERVICE_RE:
+        v = rx.sub(rep, v)
+    return BRAND_RE.sub("brand", v)
+
+
+def anon_all(o):
+    if isinstance(o, dict):
+        return {k: anon_all(v) for k, v in o.items()}
+    if isinstance(o, list):
+        return [anon_all(v) for v in o]
+    return anon(o)
 
 
 # Людські назви ключових подій (лише всередині зашифрованих даних)
@@ -69,16 +90,22 @@ def build_payload(ga):
     ads_ses_rows = [[d, c, v[0], r1(v[1])] for (d, c), v in sorted(ads_ses.items())]
 
     ev = [[r["d"], r["e"], r1(r["n"])] for r in ga.get("events", [])]
+    # події з групою каналу: [d, group, event, n] (є з v6.3 fetch_ga4; якщо ще немає — сторінка бере ev)
+    evc = [[r["d"], r["g"], r["e"], r1(r["n"])] for r in ga.get("eventsCh", [])]
+    # зрізи за 30 днів з групою каналу: [key, group, ses, eng, ke]
+    bc_src = ga.get("byChannel") or {}
+    bc = {k: [[r["k"], r["g"], r["ses"], r["eng"], r1(r["ke"])] for r in bc_src.get(k, [])]
+          for k in ("landing", "cities", "devices")}
+    bc["from"], bc["to"] = bc_src.get("from"), bc_src.get("to")
 
-    return {
-        "site": SITE,
+    return anon_all({
         "generated": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "from": ga.get("from"), "to": to,
-        "ch": ch, "sm": sm_rows, "ads": ads_rows, "adsSes": ads_ses_rows, "ev": ev,
+        "ch": ch, "sm": sm_rows, "ads": ads_rows, "adsSes": ads_ses_rows, "ev": ev, "evc": evc, "bc": bc,
         "l30": ga.get("last30") or {},
         "seo": ga.get("seo") or {},
         "evLabels": EVENT_LABELS,
-    }
+    })
 
 
 def encrypt(obj, password):
@@ -100,6 +127,11 @@ def main():
         return 1
     ga = json.loads(SRC.read_text(encoding="utf-8"))
     payload = build_payload(ga)
+    plain = json.dumps(payload, ensure_ascii=False).lower()
+    for bad in FORBIDDEN:
+        if bad in plain:
+            print(f"::error::У даних звіту лишилось слово «{bad}» — додай його в anon() і перезапусти")
+            return 1
     enc, gz_len = encrypt(payload, pw)
 
     tpl = TPL.read_text(encoding="utf-8")
@@ -107,7 +139,7 @@ def main():
     html = tpl.replace("/*__PAYLOAD__*/null", json.dumps(enc, separators=(",", ":")))
     # Захист від випадкових «слідів»: у готовій сторінці не має бути згадок про репо/дашборд
     low = html.lower()
-    for bad in ("github", "easy_druk", "olegivanov", "dashboard", "дашборд", "bitrix"):
+    for bad in FORBIDDEN:
         if bad in low:
             print(f"::error::У сторінці знайдено заборонене слово «{bad}» — збірку зупинено")
             return 1
