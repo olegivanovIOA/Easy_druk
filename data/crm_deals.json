@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-18T07:40:55Z",
+  "fetched_at": "2026-10-18T09:49:06Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -389,13 +389,13 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 806,
-      "clean": 751,
-      "qualified": 409,
-      "activeOrWon": 136,
+      "all": 808,
+      "clean": 753,
+      "qualified": 411,
+      "activeOrWon": 138,
       "won": 19,
       "wonSum": 2299492.2,
-      "expectedSumActiveWon": 14174148.21
+      "expectedSumActiveWon": 14175558.21
     },
     "byStage": [
       {
@@ -485,18 +485,18 @@
       },
       {
         "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
+        "deals": 8,
+        "sum": 10420.01
+      },
+      {
+        "stage": "НОВИЙ лід ( не оброблений )",
         "deals": 7,
-        "sum": 9010.01
+        "sum": 0.0
       },
       {
         "stage": "Потрібно більше часу для прийняття рішення",
         "deals": 7,
         "sum": 901.0
-      },
-      {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 6,
-        "sum": 0.0
       },
       {
         "stage": "Іде РОЗРАХУНОК",
@@ -567,8 +567,8 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 427,
-        "expectedSum": 178890.25,
+        "deals": 429,
+        "expectedSum": 180300.25,
         "won": 3,
         "wonSum": 3700.0
       },
@@ -745,7 +745,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 703,
+        "deals": 704,
         "expectedSum": 12316166.21,
         "won": 11,
         "wonSum": 926482.2
@@ -761,8 +761,8 @@
       {
         "key": "google / (not set)",
         "name": "google / (not set)",
-        "deals": 4,
-        "expectedSum": 5150.0,
+        "deals": 5,
+        "expectedSum": 6560.0,
         "won": 2,
         "wonSum": 5150.0
       },
@@ -2643,6 +2643,16 @@
       {
         "d": "2026-10-12",
         "us": "google",
+        "uc": "(not set)",
+        "s": "CALL",
+        "n": 1,
+        "e": 1410.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-10-12",
+        "us": "google",
         "uc": "Search_new_ukr",
         "s": "PARTNER",
         "n": 1,
@@ -3175,7 +3185,7 @@
         "us": "",
         "uc": "",
         "s": "CALL",
-        "n": 1,
+        "n": 2,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -3192,24 +3202,24 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 741,
-      "returningClients": 75,
-      "repeatBuyers": 29,
+      "clientsInCohort": 743,
+      "returningClients": 76,
+      "repeatBuyers": 30,
       "noClientLinked": 8,
       "returning": {
-        "deals": 115,
+        "deals": 116,
         "won": 11,
         "wonSum": 2290492.2,
         "winRate": 12.8
       },
       "new": {
-        "deals": 691,
+        "deals": 692,
         "won": 8,
         "wonSum": 9000.0,
         "winRate": 1.3
       },
       "repeatPurchase": {
-        "deals": 33,
+        "deals": 34,
         "won": 11,
         "wonSum": 2290492.2,
         "winRate": 78.6
@@ -3235,7 +3245,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 525,
+        "total": 526,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -3244,9 +3254,9 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 6,
+            "count": 7,
             "sum": 0.0,
-            "reached": 525,
+            "reached": 526,
             "lostHere": 462
           },
           {
@@ -3329,7 +3339,7 @@
       {
         "id": 24,
         "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-        "total": 285,
+        "total": 286,
         "method": "history",
         "v": 2,
         "wonDirect": 14,
@@ -3340,7 +3350,7 @@
             "sem": "P",
             "count": 6,
             "sum": 11210827.76,
-            "reached": 285,
+            "reached": 286,
             "lostHere": 200
           },
           {
@@ -3349,7 +3359,7 @@
             "sem": "P",
             "count": 5,
             "sum": 0.0,
-            "reached": 79,
+            "reached": 80,
             "lostHere": 0
           },
           {
@@ -3358,7 +3368,7 @@
             "sem": "P",
             "count": 6,
             "sum": 0.0,
-            "reached": 74,
+            "reached": 75,
             "lostHere": 3
           },
           {
@@ -3367,7 +3377,7 @@
             "sem": "P",
             "count": 13,
             "sum": 250.0,
-            "reached": 65,
+            "reached": 66,
             "lostHere": 0
           },
           {
@@ -3376,7 +3386,7 @@
             "sem": "P",
             "count": 7,
             "sum": 901.0,
-            "reached": 52,
+            "reached": 53,
             "lostHere": 0
           },
           {
@@ -3385,7 +3395,7 @@
             "sem": "P",
             "count": 12,
             "sum": 595685.24,
-            "reached": 45,
+            "reached": 46,
             "lostHere": 0
           },
           {
@@ -3394,7 +3404,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 33,
+            "reached": 34,
             "lostHere": 0
           },
           {
@@ -3403,7 +3413,7 @@
             "sem": "P",
             "count": 3,
             "sum": 48720.0,
-            "reached": 33,
+            "reached": 34,
             "lostHere": 0
           },
           {
@@ -3412,7 +3422,7 @@
             "sem": "P",
             "count": 3,
             "sum": 4912.0,
-            "reached": 30,
+            "reached": 31,
             "lostHere": 0
           },
           {
@@ -3421,7 +3431,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 27,
+            "reached": 28,
             "lostHere": 0
           },
           {
@@ -3430,7 +3440,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 27,
+            "reached": 28,
             "lostHere": 0
           },
           {
@@ -3439,7 +3449,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 27,
+            "reached": 28,
             "lostHere": 0
           },
           {
@@ -3448,7 +3458,7 @@
             "sem": "P",
             "count": 2,
             "sum": 4350.0,
-            "reached": 27,
+            "reached": 28,
             "lostHere": 0
           },
           {
@@ -3457,7 +3467,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -3466,7 +3476,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -3475,7 +3485,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -3484,7 +3494,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -3493,7 +3503,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -3502,7 +3512,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -3511,7 +3521,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -3520,7 +3530,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -3529,16 +3539,16 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 25,
+            "reached": 26,
             "lostHere": 0
           },
           {
             "id": "C24:11",
             "name": "Клієнт ЗАБРАВ ПОСИЛКУ",
             "sem": "P",
-            "count": 7,
-            "sum": 9010.01,
-            "reached": 25,
+            "count": 8,
+            "sum": 10420.01,
+            "reached": 26,
             "lostHere": 0
           },
           {
@@ -4859,12 +4869,12 @@
     "all": 832
   },
   "pipeline": {
-    "asOf": "2026-10-18T07:41:01Z",
+    "asOf": "2026-10-18T09:49:11Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
-        "deals": 147,
-        "sum": 142893155.01,
+        "deals": 148,
+        "sum": 142894565.01,
         "stale": 29,
         "staleSum": 78634818.02,
         "stages": [
@@ -4920,8 +4930,8 @@
           },
           {
             "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
-            "deals": 17,
-            "sum": 30152.01
+            "deals": 18,
+            "sum": 31562.01
           }
         ]
       },
