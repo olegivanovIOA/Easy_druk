@@ -130,6 +130,31 @@ window.LeadgenLoader = (() => {
   let _roi = null, _roiSort = { k: 'wonSum', dir: -1 }, _adsDaily = null, _ga = null, _cl = null, _pnl = null, _mgn = null;
   // v6.3: маржа для ROMI — за замовчуванням валова маржа з P&L (з початку року), можна змінити в полі над таблицею
   const MGN_LS = 'e3d_roi_margin_v1';
+  // v6.4: старі назви utm_campaign / кампаній → поточна назва кампанії в Google Ads (від маркетолога, 17.10.2026).
+  // [нова назва, акаунт або null]. Для ukr3d акаунт окремий — щоб клієнти не змішувались із витратами EASY
+  // на кампанію з тією ж назвою (вартість ukr3d у GA4 поки не приходить).
+  const CAMP_ALIAS = {
+    '3D_print_Kharkiv_new': ['search_3d_print_Kharkiv', null],
+    '3D_print_Kyiv_General': ['search_3d_print_Kyiv', null],
+    'B2B_convers': ['search_3d_print_Main', null],
+    'Pmax_old_new': ['performance_max', null],
+    'DSA_UA_UA_NEW': ['search_dynamic_Main', null],
+    'Remarketing_b2b': ['remarketing_b2b', null],
+    'Brand_UA_new': ['search_brand_Main', null],
+    'Search_new_ukr': ['search_3d_print_Main', 'ukr3d'],
+    'Brand_ukr': ['search_brand_Main', 'ukr3d'],
+    'Search_miltech': ['search_miltech_Main', 'ukr3d'],
+  };
+  const campOf = uc => CAMP_ALIAS[uc] ? CAMP_ALIAS[uc][0] : uc;
+  // канал/акаунт/назва для рядка Bitrix (UTM): google-кампанії — з урахуванням аліасів і акаунта з GA4
+  const bxKey = (c, uc, ads) => {
+    const al = CAMP_ALIAS[uc], name = al ? al[0] : (uc || '');
+    if (c.ch === 'google' && name) {
+      if (al && al[1]) c.acc = al[1];
+      else if (ads.known.has(name)) c.acc = (ads.accOf || {})[name] || 'EASY';
+    }
+    return name;
+  };
   const defMargin = () => { const y = _pnl && _pnl.ytd && _pnl.ytd.gross_margin_pct; return y ? +y : 30; };
   const marginPct = () => { if (_mgn == null) { const v = lsGet(MGN_LS, null); _mgn = v != null && isFinite(v) && v > 0 ? +v : defMargin(); } return _mgn; };
 
@@ -213,9 +238,9 @@ window.LeadgenLoader = (() => {
     if (gaCost.length) {
       const gMin = _ga.from || gaCost[0].d, gMax = (_ga.fetched_at || '').slice(0, 10) || gaCost[gaCost.length - 1].d;
       const map = {}, accOf = {};
-      gaCost.forEach(r => { accOf[r.c] = r.a || 'GA'; known.add(r.c); });
+      gaCost.forEach(r => { const c = campOf(r.c); accOf[c] = r.a || 'GA'; known.add(c); });
       gaCost.filter(r => r.d >= from && r.d <= to).forEach(r => {
-        const a = map[r.c] || (map[r.c] = { cost: 0, clicks: 0 }); a.cost += r.cost || 0; a.clicks += r.clk || 0;
+        const c = campOf(r.c), a = map[c] || (map[c] = { cost: 0, clicks: 0 }); a.cost += r.cost || 0; a.clicks += r.clk || 0;
       });
       return { map, known, accOf, mode: 'ga', scale: 1, partial: from < gMin || to > gMax, dMin: gMin, dMax: gMax,
                cFrom: from < gMin ? gMin : from, cTo: to > gMax ? gMax : to };
@@ -228,7 +253,7 @@ window.LeadgenLoader = (() => {
       const clk = inR.reduce((s, r) => s + (r.clicks || 0), 0), cst = inR.reduce((s, r) => s + (r.cost_uah || 0), 0);
       const scale = (clk > 200 && cst / clk < 0.5) ? 1000 : 1;
       const map = {};
-      inR.forEach(r => { const a = map[r.campaign] || (map[r.campaign] = { cost: 0, clicks: 0 }); a.cost += (r.cost_uah || 0) * scale; a.clicks += r.clicks || 0; known.add(r.campaign); });
+      inR.forEach(r => { const c = campOf(r.campaign), a = map[c] || (map[c] = { cost: 0, clicks: 0 }); a.cost += (r.cost_uah || 0) * scale; a.clicks += r.clicks || 0; known.add(c); });
       return { map, known, mode: 'daily', scale, partial: from < dMin || to > dMax, dMin, dMax, cFrom: from < dMin ? dMin : from, cTo: to > dMax ? dMax : to };
     }
     // 2) наближення: 30-денна вартість кампанії × частка кліків періоду (денна воронка)
@@ -245,7 +270,7 @@ window.LeadgenLoader = (() => {
     const scale = (tc > 500 && tcost / tc < 0.5) ? 1000 : 1;
     const map = {};
     all.filter(c => (c.cost_uah || 0) > 0 || (c.clicks || 0) > 0)
-      .forEach(c => { map[c.campaign] = { cost: (c.cost_uah || 0) * scale * ratio, clicks: Math.round((c.clicks || 0) * ratio) }; });
+      .forEach(c => { const k = campOf(c.campaign), a = map[k] || (map[k] = { cost: 0, clicks: 0 }); a.cost += (c.cost_uah || 0) * scale * ratio; a.clicks += Math.round((c.clicks || 0) * ratio); });
     return { map, known, mode: 'approx', scale, partial: from < fMin || to > fMax, fMin, fMax, cFrom: from < fMin ? fMin : from, cTo: to > fMax ? fMax : to };
   }
 
@@ -315,7 +340,7 @@ window.LeadgenLoader = (() => {
       return rows[k] || (rows[k] = { ch, acc, name, deals: 0, exp: 0, won: 0, wonSum: 0, cost: null, clicks: null, cd: 0, cw: 0, cws: 0 });
     };
     const accOf = ads.accOf || {};
-    const keyOf = r => { const c = channelOf(r.us, r.s, bx.srcNames); if (c.ch === 'google' && r.uc && ads.known.has(r.uc)) c.acc = accOf[r.uc] || 'EASY'; return row(c.ch, c.acc, r.uc || ''); };
+    const keyOf = r => { const c = channelOf(r.us, r.s, bx.srcNames); const n = bxKey(c, r.uc, ads); return row(c.ch, c.acc, n); };
     bx.rows.forEach(r => { const x = keyOf(r); x.deals += r.n; x.exp += r.e; x.won += r.w; x.wonSum += r.ws; });
     // CPL/CAC/ROAS рахуємо лише за дні, де є вартість Ads — інакше річні угоди
     // ділились би на 30-денну вартість і ROAS виходив би завищеним.
@@ -332,7 +357,7 @@ window.LeadgenLoader = (() => {
     const sesMap = {}, NOCAMP = new Set(['', '(not set)', '(organic)', '(direct)', '(referral)', '(none)']);
     if (_ga && _ga.traffic) _ga.traffic.forEach(t => {
       if (t.d < from || t.d > to || NOCAMP.has(t.c)) return;
-      const k = channelOf(t.s, '', {}).ch + '|' + t.c; sesMap[k] = (sesMap[k] || 0) + t.ses;
+      const k = channelOf(t.s, '', {}).ch + '|' + campOf(t.c); sesMap[k] = (sesMap[k] || 0) + t.ses;
     });
     const gaOk = !!(_ga && _ga.traffic);
     Object.values(rows).forEach(r => { r.ses = gaOk && r.name && !NOCAMP.has(r.name) ? (sesMap[r.ch + '|' + r.name] || 0) : null; r.cr = r.ses ? r.deals / r.ses * 100 : null; });
@@ -471,8 +496,7 @@ window.LeadgenLoader = (() => {
     const row = (ch, acc, name) => { const k = ch + '|' + acc + '|' + name; return rows[k] || (rows[k] = { ch, acc, name, n: 0, p: 0, rev: 0, w: 0, cost: null }); };
     acq.filter(r => r.m >= mA && r.m <= mB).forEach(r => {
       const c = channelOf(r.us, r.s, srcNames);
-      if (c.ch === 'google' && r.uc && ads.known.has(r.uc)) c.acc = accOf[r.uc] || 'EASY';
-      const x = row(c.ch, c.acc, r.uc || ''); x.n += r.n; x.p += r.p; x.rev += r.rev; x.w += r.w;
+      const nm = bxKey(c, r.uc, ads), x = row(c.ch, c.acc, nm); x.n += r.n; x.p += r.p; x.rev += r.rev; x.w += r.w;
     });
     Object.entries(ads.map || {}).forEach(([camp, a]) => { if (a.cost > 0) { const x = row('google', accOf[camp] || 'EASY', camp); x.cost = (x.cost || 0) + a.cost; } });
     const m = marginPct() / 100;
