@@ -141,16 +141,28 @@ jobs:
   update-shopfloor:
     runs-on: ubuntu-latest
     steps:
-      - name: Run every 3 hours (or manually)
-        id: gate
-        run: |
-          H=$(date -u +%-H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ $((H % 3)) -eq 0 ]; then echo "go=1" >> $GITHUB_OUTPUT; else echo "skip (hour $H)"; fi
-
       - uses: actions/checkout@v4
-        if: steps.gate.outputs.go == '1'
         with:
           ref: main_root
+
+      # v6.4: GitHub запускає cron нерегулярно (раз на 2–5 год), тож замість «рівно о годині N»
+      # перевіряємо вік даних: оновлюємо, якщо даним ≥ 2.8 год.
+      - name: Run if data older than ~3 h (or manually)
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "go=1" >> $GITHUB_OUTPUT; exit 0; fi
+          python3 - <<'PY' >> $GITHUB_OUTPUT
+          import json, datetime as dt
+          now = dt.datetime.utcnow()
+          try:
+              f = json.load(open("data/shopfloor.json", encoding="utf-8"))["fetched_at"]
+              age = (now - dt.datetime.strptime(f[:19], "%Y-%m-%dT%H:%M:%S")).total_seconds() / 3600
+          except Exception:
+              age = 999
+          go = age >= 2.8
+          print("go=1" if go else "go=0")
+          import sys; print(f"age {age:.1f} h, hour {now.hour} -> {'run' if go else 'skip'}", file=sys.stderr)
+          PY
 
       - uses: actions/setup-python@v5
         if: steps.gate.outputs.go == '1'
@@ -183,16 +195,28 @@ jobs:
   update-clients:
     runs-on: ubuntu-latest
     steps:
-      - name: Run once a day (04 UTC) or manually
-        id: gate
-        run: |
-          H=$(date -u +%-H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$H" -eq 4 ]; then echo "go=1" >> $GITHUB_OUTPUT; else echo "skip (hour $H)"; fi
-
       - uses: actions/checkout@v4
-        if: steps.gate.outputs.go == '1'
         with:
           ref: main_root
+
+      # v6.4: GitHub запускає cron нерегулярно (раз на 2–5 год), тож замість «рівно о годині N»
+      # перевіряємо вік даних: раз на добу — перший запуск після 00 UTC (03:00 Kyiv), якщо даним ≥ 18 год.
+      - name: Run once a day at night (or manually)
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "go=1" >> $GITHUB_OUTPUT; exit 0; fi
+          python3 - <<'PY' >> $GITHUB_OUTPUT
+          import json, datetime as dt
+          now = dt.datetime.utcnow()
+          try:
+              f = json.load(open("data/clients.json", encoding="utf-8"))["fetched_at"]
+              age = (now - dt.datetime.strptime(f[:19], "%Y-%m-%dT%H:%M:%S")).total_seconds() / 3600
+          except Exception:
+              age = 999
+          go = age >= 18 and now.hour < 12 or age >= 30
+          print("go=1" if go else "go=0")
+          import sys; print(f"age {age:.1f} h, hour {now.hour} -> {'run' if go else 'skip'}", file=sys.stderr)
+          PY
 
       - uses: actions/setup-python@v5
         if: steps.gate.outputs.go == '1'
