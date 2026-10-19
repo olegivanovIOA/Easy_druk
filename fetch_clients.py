@@ -31,6 +31,7 @@ OUT = Path(__file__).parent / "data" / "clients.json"
 CATS = {24: "wholesale", 18: "retail", 32: "retail"}
 CHURN_DAYS = int(os.environ.get("CHURN_DAYS", "180"))
 RISK_FROM = int(os.environ.get("RISK_FROM_DAYS", "120"))
+REACT_GAP = int(os.environ.get("REACT_GAP_DAYS", "180"))   # v7.0: пауза, після якої угода = «повернення»
 IND_FIELD = os.environ.get("CLIENT_INDUSTRY_FIELD", "").strip()
 TOUCH_CACHE = Path(__file__).parent / ".cache" / "touch.json"
 TOUCH_FULL_DAYS = int(os.environ.get("TOUCH_FULL_DAYS", "7"))
@@ -108,8 +109,14 @@ def hkey(key):
     return hashlib.sha256((URL + "|" + key).encode()).hexdigest()[:16]
 
 
+_TOUCH = None
+
+
 def touch_deals():
     """{deal_id: [hkey, 'YYYY-MM-DD', utm_source, utm_campaign, SOURCE_ID]} — з кешу + докачка змін."""
+    global _TOUCH
+    if _TOUCH is not None:          # v7.0: один запит на запуск (перший дотик + повернення)
+        return _TOUCH
     started = datetime.utcnow()
     cache = None
     try:
@@ -147,6 +154,7 @@ def touch_deals():
     except Exception as e:
         print(f"[CL] ⚠ кеш першого дотику не записано: {e}")
     print(f"[CL] перший дотик: отримано {n} угод, у кеші {len(deals)}")
+    _TOUCH = deals
     return deals
 
 
@@ -466,11 +474,58 @@ def main():
     except Exception as e:
         print(f"[CL] ⚠ перший дотик (LTV реклами) не пораховано: {e}")
 
+    # ── v7.0: повернення клієнтів після паузи (retention силами маркетингу) ──
+    #    Подія «повернення» = нова угода (воронки 0/24/18/32, будь-яка стадія) клієнта, який УЖЕ купував (WON раніше),
+    #    і в якого перед цим ≥ REACT_GAP днів не було ні угод, ні покупок. Канал повернення — UTM/джерело цієї угоди
+    #    (класифікацію «маркетинг / ні» робить дашборд за data/marketing_rules.json). Виручка повернення — WON клієнта
+    #    за 365 днів від дати повернення. Агрегат без ID: (місяць × utm_source × utm_campaign × SOURCE_ID).
+    reactivation = None
+    try:
+        touches = defaultdict(list)
+        for hk, ds, us, uc, src in touch_deals().values():
+            touches[hk].append((date.fromisoformat(ds), us, uc, src))
+        wons = defaultdict(list)
+        for d in deals:
+            wons[hkey(d["k"])].append((d["dt"], d["amt"]))
+        rx = defaultdict(lambda: {"n": 0, "p": 0, "rev": 0.0, "w": 0})
+        n_ev = 0
+        for hk, ts in touches.items():
+            wl = sorted(wons.get(hk, []))
+            if not wl:
+                continue
+            ts.sort(key=lambda t: (t[0], not t[1]))   # у той самий день перша — угода з UTM
+            last_act = None
+            for dt, us, uc, src in ts:
+                prior_won = [w for w in wl if w[0] < dt]
+                if prior_won:
+                    last = max([w[0] for w in prior_won] + ([last_act] if last_act else []))
+                    if (dt - last).days >= REACT_GAP:
+                        win = [w for w in wl if dt <= w[0] < dt + timedelta(days=365)]
+                        a = rx[(dt.strftime("%Y-%m"), us.lower(), uc, src)]
+                        a["n"] += 1
+                        n_ev += 1
+                        if win:
+                            a["p"] += 1
+                            a["w"] += len(win)
+                            a["rev"] += sum(w[1] for w in win)
+                last_act = dt if last_act is None or dt > last_act else last_act
+        reactivation = {
+            "gapDays": REACT_GAP,
+            "note": f"повернення = нова угода клієнта, що вже купував, після ≥{REACT_GAP} днів без угод і покупок; "
+                    "виручка — WON клієнта за 365 днів від повернення",
+            "fields": "m=місяць повернення, us/uc=utm_source/utm_campaign угоди повернення, s=SOURCE_ID, n=повернень, "
+                      "p=з них купили, w=WON-угод, rev=WON-виручка за 365 днів",
+            "rows": sorted([{"m": k[0], "us": k[1], "uc": k[2], "s": k[3], "n": v["n"], "p": v["p"], "w": v["w"],
+                             "rev": round(v["rev"])} for k, v in rx.items()], key=lambda r: (r["m"], r["us"], r["uc"]))}
+        print(f"[CL] повернення після паузы ≥{REACT_GAP} дн: {n_ev} подій")
+    except Exception as e:
+        print(f"[CL] ⚠ повернення клієнтів не пораховано: {e}")
+
     out = {"fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "asOf": TODAY.isoformat(),
            "firstDeal": first_all.isoformat(), "dealsUsed": len(deals), "dealsSkipped": skipped, "clients": len(cl),
            "params": {"churnDays": CHURN_DAYS, "riskFromDays": RISK_FROM},
            "ltv": ltv_out, "cohorts": cohorts, "rfm": rfm, "rfmGrid": grid, "churn": churn, "industries": industries,
-           "acquisition": acquisition,
+           "acquisition": acquisition, "reactivation": reactivation,
            "privacy": "лише агрегати; ID/назви клієнтів не зберігаються"}
     blob = json.dumps(out, ensure_ascii=False)
     if re.search(r'"(c|p)\d{2,}"', blob):

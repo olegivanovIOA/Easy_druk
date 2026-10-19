@@ -18,6 +18,12 @@ Google Analytics 4 (ресурс easy3dprint.com.ua, 378398411) → data/ga4.jso
   GA4_PROPERTY_ID  — 378398411
 Service account має бути доданий у GA: Admin → Property access management → Viewer.
 
+v7.1: додаткові ресурси GA4 (інші сайти) — лише ВАРТІСТЬ Google Ads їхніх акаунтів, щоб у дашборді були витрати Ukr3d:
+  GA4_EXTRA_PROPERTIES — «ID=мітка» через кому; за замовчуванням 353447917=ukr3d (ukr3dprint.com).
+  Рядки додаються в adsCost з a=<мітка> і site=<мітка>; якщо той самий акаунт уже прив'язаний до основного
+  ресурсу (є день+кампанія з цим акаунтом) — рядок не дублюється. Немає доступу — попередження, job не падає;
+  статус — у полі extraProperties.
+
 Без секретів скрипт нічого не пише і завершується з кодом 0 (джоба зелена) —
 щоб workflow не червонів, поки доступ ще налаштовується.
 """
@@ -35,6 +41,9 @@ START = os.environ.get("GA4_START", "2026-01-01")
 API = "https://analyticsdata.googleapis.com/v1beta/properties/{pid}:runReport"
 SCOPE = "https://www.googleapis.com/auth/analytics.readonly"
 PAGE = 100000
+EXTRA = [x.split("=", 1) if "=" in x else [x, "site" + x] for x in
+         (os.environ.get("GA4_EXTRA_PROPERTIES", "353447917=ukr3d") or "").replace(";", ",").split(",") if x.strip()]
+EXTRA = [(a.strip(), b.strip()) for a, b in EXTRA if a.strip().isdigit() and a.strip() != PROPERTY_ID]
 
 
 def parse_key(raw):
@@ -86,7 +95,7 @@ class GA4Error(Exception):
     pass
 
 
-def run_report(s, dims, metrics, start, end, limit=PAGE, order_metric=None, filter_expr=None, dim_filter=None):
+def run_report(s, dims, metrics, start, end, limit=PAGE, order_metric=None, filter_expr=None, dim_filter=None, pid=None):
     """Повертає список dict {dim: value, metric: float}. Пагінація по offset."""
     out, offset = [], 0
     while True:
@@ -103,7 +112,7 @@ def run_report(s, dims, metrics, start, end, limit=PAGE, order_metric=None, filt
             body["metricFilter"] = filter_expr
         if dim_filter:
             body["dimensionFilter"] = dim_filter
-        r = s.post(API.format(pid=PROPERTY_ID), json=body, timeout=60)
+        r = s.post(API.format(pid=pid or PROPERTY_ID), json=body, timeout=60)
         if r.status_code != 200:
             try:
                 err = r.json().get("error", {})
@@ -269,6 +278,35 @@ def main():
     res["eventsCh"] = sorted([{"d": d8(r["date"]), "g": r["sessionDefaultChannelGroup"], "e": r["eventName"],
                                "n": r2(r[key_metric])} for r in rows if r[key_metric] > 0],
                              key=lambda x: (x["d"], x["g"], x["e"]))
+
+    # ── 7. v7.1: вартість Ads з додаткових ресурсів GA4 (Ukr3d) ──
+    res["extraProperties"] = []
+    for pid, tag in EXTRA:
+        st = {"id": pid, "tag": tag, "ok": False, "rows": 0, "cost": 0}
+        try:
+            rows, dims = try_report(
+                s, [["date", "sessionGoogleAdsCampaignName", "sessionGoogleAdsAccountName"], ["date", "sessionGoogleAdsCampaignName"]],
+                ["advertiserAdCost", "advertiserAdClicks", "advertiserAdImpressions"], START, today, f"Вартість Ads [{tag} {pid}]", pid=pid)
+            if dims:
+                have = {(r["d"], r["c"]) for r in res["adsCost"] if tag.lower() in (r.get("a") or "").lower()}
+                add = [{"d": d8(r["date"]), "c": r.get(dims[1], ""), "a": tag, "site": tag,
+                        "cost": r2(r["advertiserAdCost"]), "clk": int(r["advertiserAdClicks"]), "imp": int(r["advertiserAdImpressions"])}
+                       for r in rows if r.get(dims[1]) not in ("", "(not set)") and (r["advertiserAdCost"] or r["advertiserAdClicks"])]
+                add = [r for r in add if (r["d"], r["c"]) not in have]
+                res["adsCost"] += add
+                accs = sorted({r.get(dims[2], "") for r in rows} - {""}) if len(dims) > 2 else []
+                st.update(ok=True, rows=len(add), cost=round(sum(r["cost"] for r in add)), accounts=accs)
+                if not add:
+                    st["note"] = "у ресурсі немає вартості Ads — перевір Product links → Google Ads links"
+                    print(f"[GA4] ℹ {tag} ({pid}): вартості Ads немає — перевір прив'язку Ads-акаунта до цього ресурсу")
+            else:
+                st["err"] = "звіт не вдався"
+        except GA4Error as e:
+            msg = str(e)
+            st["err"] = "немає доступу (додай service account як Viewer)" if ("PERMISSION_DENIED" in msg or msg.startswith("403")) else msg[:200]
+            print(f"::warning::GA4 {tag} ({pid}): {st['err']}")
+        res["extraProperties"].append(st)
+    res["adsCost"].sort(key=lambda x: (x["d"], x["c"]))
 
     tot_cost = sum(r["cost"] for r in res["adsCost"])
     tot_ses = sum(r["ses"] for r in res["traffic"])

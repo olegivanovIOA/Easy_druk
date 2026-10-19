@@ -229,7 +229,10 @@ window.E3D_STATIC = {
     { section:'Якість та брак',                 total:13, yes:7 ,part:3 ,calc:1,  no:2 },
     { section:'Продажі ОПТ (B2B)',              total:16, yes:8 ,part:6 ,calc:2,  no:0 },
     { section:'Продажі Роздріб (B2C)',          total:9, yes:4 ,part:4 ,calc:0,  no:1 },
-    { section:'CRM та Маркетинг',               total:20, yes:15 ,part:3 ,calc:2,  no:0},
+    { section:'CRM та Маркетинг',               total:20, yes:16 ,part:3 ,calc:1,  no:0},
+    // ↑ v7.0 (19.10.2026): LTV / CAC calc→yes — колонка LTV/CAC у «LTV рекламного трафіку» (v6.3). Додано: витрати
+    // по акаунтах EASY / Ukr3d / Meta, ліди «від маркетингу / ні» (правила data/marketing_rules.json), Facebook+Instagram,
+    // retention силами маркетингу (повернення після паузи ≥180 дн). Лишається calc: CPC.
     // ↑ "Середній цикл угоди (днів)" (time-to-close, DATE_CREATE→CLOSEDATE для
     // WON) — реально автоматизовано на дашборді 25.08.2026, но→так. У самому
     // реєстрі (Google Drive) досі стоїть "Ні" — не оновлювали там, дашборд тут

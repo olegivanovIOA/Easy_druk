@@ -84,6 +84,8 @@ def build_payload(ga):
     # Google Ads по днях × кампаніях: [d, campaign, cost, clicks, impressions] — без назви акаунта
     ads = defaultdict(lambda: [0.0, 0, 0])
     for r in ga.get("adsCost", []):
+        if r.get("site"):          # v7.1: вартість інших сайтів (Ukr3d) у SEO-звіт не потрапляє
+            continue
         a = ads[(r["d"], r["c"])]
         a[0] += r["cost"]; a[1] += r["clk"]; a[2] += r["imp"]
     ads_rows = [[d, c, round(v[0], 2), v[1], v[2]] for (d, c), v in sorted(ads.items())]

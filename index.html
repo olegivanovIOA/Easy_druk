@@ -6,7 +6,7 @@
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="data/static.js?v=20261014c"></script>
+<script src="data/static.js?v=20261019"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
@@ -306,6 +306,14 @@ a{color:var(--gd);text-decoration:none}
 .roi-paid{display:inline-flex;align-items:center;gap:4px;color:var(--td);cursor:pointer;white-space:nowrap}
 #roi-q{font-size:11px;padding:3px 8px;border:1px solid var(--bd);border-radius:6px;background:transparent;color:var(--tx);width:190px}
 #roi-reset{font-size:10px;color:#C0392B;text-decoration:none;white-space:nowrap}
+.roi-cls{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.roi-row{cursor:pointer}.roi-row.open td{background:var(--s2)}
+.roi-dd>td{padding:4px 8px 10px 22px!important;background:var(--s2)}
+.roi-ddt{width:100%;border-collapse:collapse;font-size:10px}.roi-ddt th{font-size:9px;color:var(--tl);text-align:left;font-weight:700;padding:2px 6px;position:static;cursor:default}
+.roi-ddt td{padding:2px 6px;border-top:1px solid var(--bd);color:var(--td);font-weight:400!important}.roi-ddt .r{text-align:right}
+.ms-sel{font-size:10px;padding:1px 4px;border:1px solid var(--bd);border-radius:5px;background:transparent;color:var(--tx)}
+.ms-ov{color:#C98A2B;font-size:10px}
+#ms-rules-json{width:100%;height:220px;font:10px/1.4 monospace;margin-top:6px;border:1px solid var(--bd);border-radius:6px;padding:6px;background:var(--s2);color:var(--tx)}
 .roi-nu{font-size:9px;font-weight:700;color:#B26A00;background:#FFF4E0;border-radius:4px;padding:1px 5px;margin-left:4px;white-space:nowrap;cursor:help}
 
 .tbl tr:hover td{background:var(--s2)}
@@ -1213,6 +1221,10 @@ a{color:var(--gd);text-decoration:none}
         </div>
         <div id="mkt-leadgen-roi-note" style="font-size:10px;color:var(--tl);margin-bottom:6px"></div>
         <div class="roi-flt" id="roi-filter">
+          <span class="roi-flt-l">Акаунт:</span><span class="roi-seg" id="roi-acc" title="Група рекламного акаунта: Google Ads EASY / Ukr3d, Meta (Facebook + Instagram) або джерела без реклами"><button type="button" data-v="all">Усі</button><button type="button" data-v="easy">EASY</button><button type="button" data-v="ukr3d">Ukr3d</button><button type="button" data-v="meta">Meta (FB+IG)</button><button type="button" data-v="none">Без реклами</button></span>
+          <span class="roi-flt-l">Ліди:</span><span class="roi-seg" id="roi-cls" title="Від маркетингу / не від маркетингу — за правилами data/marketing_rules.json (блок «Ліди від маркетингу» нижче)"><button type="button" data-v="all">Усі</button><button type="button" data-v="mkt">Маркетинг</button><button type="button" data-v="non">Не маркетинг</button><button type="button" data-v="unk">Не визначено</button></span>
+        </div>
+        <div class="roi-flt">
           <span class="roi-flt-l">Канал:</span><span id="roi-chips" class="roi-chips"></span>
           <span class="roi-flt-r">
             <label class="roi-paid" title="Показати тільки рядки, де є витрати на рекламу"><input type="checkbox" id="roi-paid"> лише з витратами</label>
@@ -1226,7 +1238,8 @@ a{color:var(--gd);text-decoration:none}
           <div class="roi-info-body">
             <div><b>Канал</b> — звідки прийшла угода: <code>utm_source</code> з Bitrix24 (google, facebook, instagram, meta…), а якщо UTM немає — поле «Джерело» угоди (дзвінок, email, сайт, Instagram реклама…). Після «/» — акаунт або уточнення (для Google: <b>EASY</b> — кампанія є у вивантаженні Ads-акаунта EASY).</div>
             <div><b>Кампанія</b> — <code>utm_campaign</code>; «без UTM» — угода прийшла без рекламних міток.</div>
-            <div><b>Вартість</b> — витрати Google Ads за обраний період (з Google Analytics — точно по днях; без нього — з вивантаження скрипта Ads). Для Facebook/Instagram витрат у дашборді поки немає — там «—».</div>
+            <div><b>Вартість</b> — витрати Google Ads за обраний період (з Google Analytics — точно по днях; без нього — з вивантаження скрипта Ads). Для Facebook/Instagram — витрати Meta Ads (job <b>update-meta</b>), коли підключено токен Meta API; до того там «—».</div>
+            <div><b>Акаунт</b> — EASY / Ukr3d (Google Ads) або Meta (Facebook + Instagram). <b>Ліди</b> — «від маркетингу / не від маркетингу / не визначено» за правилами <code>data/marketing_rules.json</code>; кольорова крапка перед каналом — клас рядка. <b>Клік по рядку</b> — деталізація по днях (період до 45 днів) або по місяцях.</div>
             <div><b>Сеанси</b> — візити на easy3dprint.com.ua з цієї кампанії за даними Google Analytics (за <code>utm_campaign</code>). Для угод без UTM — «—».</div>
             <div><b>Нових угод</b> — угоди всіх 4 воронок Bitrix24 (0 ЛИДЫ, 24 ОПТ, 18/32 Роздріб), <u>створені</u> в обраному періоді.</div>
             <div><b>CR</b> = Нових угод ÷ Сеанси × 100% — яка частка візитів з кампанії стала угодою в Bitrix24.</div>
@@ -1267,6 +1280,50 @@ a{color:var(--gd);text-decoration:none}
           <th class="r" title="(Виручка × маржа − Вартість) ÷ Вартість">ROMI LTV</th>
         </tr></thead><tbody id="mkt-ltv-ads"></tbody><tfoot id="mkt-ltv-ads-total"></tfoot></table></div>
         <div style="font-size:10px;color:var(--tl);margin-top:6px">Фільтр каналів, «лише з витратами» і пошук — ті самі, що в таблиці ROI вище. UTM у Bitrix24 пишуться з 2026 року, тому клієнти, які прийшли раніше, потрапляють у «без UTM» / джерело угоди.</div>
+      </div>
+      <!-- ═══ v7.0: витрати по акаунтах · маркетинг / не маркетинг · Facebook + Instagram · retention силами маркетингу ═══ -->
+      <div id="mkt-split-root">
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+            <div class="ct" style="margin:0">💸 Витрати на рекламу по акаунтах · <span class="ms-per" style="font-weight:500;color:var(--tl)"></span></div>
+            <span class="roi-seg" id="ms-spend-acc"><button type="button" data-v="all">Усі</button><button type="button" data-v="easy">EASY</button><button type="button" data-v="ukr3d">Ukr3d</button><button type="button" data-v="meta">Meta</button></span>
+          </div>
+          <div id="ms-spend-kpi" class="roi-kpi"></div>
+          <div class="cw" style="height:220px"><canvas id="ms-spend-chart"></canvas></div>
+          <div id="ms-spend-note" style="font-size:10px;color:var(--tl);margin-top:6px"></div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+            <div class="ct" style="margin:0">🧭 Ліди від маркетингу vs не від маркетингу · <span class="ms-per" style="font-weight:500;color:var(--tl)"></span></div>
+            <span class="roi-seg" id="ms-split-metric"><button type="button" data-v="n">Ліди</button><button type="button" data-v="w">WON</button><button type="button" data-v="ws">WON-виручка</button></span>
+          </div>
+          <div id="ms-split-status" style="font-size:10px;color:var(--tl);margin-bottom:6px"></div>
+          <div id="ms-split-kpi" class="roi-kpi"></div>
+          <div class="g2" style="margin-bottom:8px">
+            <div><div style="font-size:10px;color:var(--tl);margin-bottom:4px">По місяцях: маркетинг / не маркетинг / не визначено</div><div class="cw" style="height:220px"><canvas id="ms-split-chart"></canvas></div></div>
+            <div><div style="font-size:10px;color:var(--tl);margin-bottom:4px">Ліди «не від маркетингу» по каналах</div><div class="cw" style="height:220px"><canvas id="ms-non-chart"></canvas></div></div>
+          </div>
+          <details class="roi-info">
+            <summary>⚙ Правила класифікації джерел (чернетка — умови дає Влад) · джерела за період</summary>
+            <div style="font-size:10px;color:var(--td);margin:6px 0">Клас визначається правилами з <code>data/marketing_rules.json</code> (зверху вниз, перше, що підійшло). Можна змінити клас джерела прямо тут — зміна діє лише в цьому браузері, поки її не закомітити: натисни «Скопіювати правила», встав у файл у репозиторії — і класифікація оновиться для всіх, включно з таблицею ROI, Meta і retention.
+              <a href="#" id="ms-rules-export" style="margin-left:6px;font-weight:700">📋 Скопіювати правила (JSON)</a> <a href="#" id="ms-rules-reset" style="margin-left:6px;color:#C0392B;display:none">✕ скинути мої зміни</a> <span id="ms-rules-msg" style="color:#1e7a6e;margin-left:6px"></span></div>
+            <div class="tw" style="max-height:380px;overflow:auto"><table class="tbl roi-tbl"><thead><tr><th>Джерело / UTM</th><th>Канал</th><th class="r">Лідів</th><th class="r">WON</th><th class="r">WON сума</th><th>Клас</th><th>Правило</th></tr></thead><tbody id="ms-src-table"></tbody></table></div>
+            <textarea id="ms-rules-json" style="display:none" readonly></textarea>
+          </details>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="ct" style="margin:0 0 6px">📘 Facebook + Instagram · <span class="ms-per" style="font-weight:500;color:var(--tl)"></span></div>
+          <div id="ms-meta-kpi" class="roi-kpi"></div>
+          <div class="cw" style="height:220px;margin-bottom:8px"><canvas id="ms-meta-chart"></canvas></div>
+          <div class="tw" style="max-height:340px;overflow:auto"><table class="tbl roi-tbl"><thead><tr><th>Канал / джерело</th><th>Кампанія</th><th class="r" title="Витрати Meta Ads">Вартість</th><th class="r" title="Заявки та розмови за даними Meta">Заявок (Meta)</th><th class="r" title="Угоди в Bitrix24, створені в періоді">Лідів у CRM</th><th class="r">CPL</th><th class="r">WON</th><th class="r">WON сума</th><th class="r">ROAS</th></tr></thead><tbody id="ms-meta-table"></tbody></table></div>
+          <div style="font-size:10px;color:var(--tl);margin-top:6px">Ліди — угоди Bitrix24 з utm_source facebook / ig / ID кампанії Meta, або з джерелом «Facebook/Instagram реклама ОПТ ФДМ», коментарі, Direct. Витрати й заявки за даними Meta — job <b>update-meta</b> (Meta Marketing API), прив'язка до CRM — за назвою або ID кампанії в utm_campaign.</div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="ct" style="margin:0 0 6px">🔁 Retention силами маркетингу: клієнти, що повернулись після паузи · <span class="ms-per" style="font-weight:500;color:var(--tl)"></span></div>
+          <div id="ms-react-kpi" class="roi-kpi"></div>
+          <div class="cw" style="height:220px"><canvas id="ms-react-chart"></canvas></div>
+          <div style="font-size:10px;color:var(--tl);margin-top:6px"><b>Повернення</b> — нова угода (будь-яка воронка, будь-яка стадія) клієнта, який уже купував, після ≥ 180 днів без угод і покупок. Якщо угода повернення прийшла з реклами / маркетингового джерела — це заслуга маркетингу. Виручка — WON клієнта за 365 днів від повернення. Клієнт = компанія угоди або контакт. Класи — ті самі правила, що вище.</div>
+        </div>
       </div>
       <div class="card" id="mkt-leadgen-trend-wrap" style="display:none;margin-bottom:12px">
         <div class="ct" style="margin-bottom:8px">Динаміка: звернення → кваліфіковані → WON, частка виручки від повторних покупців <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
@@ -3902,7 +3959,8 @@ window.LocLoader = (() => {
 <script src="js/finance_status.js?v=20261014"></script>
 <script src="js/channels_loader.js?v=20260930"></script>
 <script src="js/ga4_loader.js?v=20261014"></script>
-<script src="js/leadgen_loader.js?v=20261018"></script>
+<script src="js/mkt_split.js?v=20261019b"></script>
+<script src="js/leadgen_loader.js?v=20261019b"></script>
 <script src="js/shopfloor_loader.js?v=20261014b"></script>
 <script src="js/clients_loader.js?v=20261014b"></script>
 <script>
