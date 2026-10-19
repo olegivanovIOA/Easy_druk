@@ -26,19 +26,22 @@ jobs:
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         run: python fetch_strategy.py
 
-      - name: Commit strategy.json
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-strategy files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/strategy.json data/strategy_progress_history.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update strategy data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && exit 0
-            sleep $((i*3))
-          done
-          echo "::error::Не вдалось запушити strategy.json після 5 спроб"
-          exit 1
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/strategy.json data/strategy_progress_history.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-strategy data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-strategy
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-hr:
     runs-on: ubuntu-latest
@@ -60,17 +63,22 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: python fetch_hr.py
 
-      - name: Commit HR data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-hr files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/hr.json
-          git add data/hr_vacancies_history.json || true
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update HR data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/hr.json data/hr_vacancies_history.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-hr data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-hr
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-ads:
     runs-on: ubuntu-latest
@@ -91,19 +99,22 @@ jobs:
           ADS_SHEET_ID: ${{ secrets.ADS_SHEET_ID }}
         run: python fetch_ads.py
 
-      - name: Commit Ads data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-ads files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/ads.json
-          [ -f data/ads_campaigns_daily.json ] && git add data/ads_campaigns_daily.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update ads data [skip ci]"
-          ok=0
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
-          done
-          [ "$ok" = 1 ] || { echo "::error::Push ads data failed after 5 attempts"; exit 1; }
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/ads.json data/ads_campaigns_daily.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-ads data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-ads
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-ga4:
     runs-on: ubuntu-latest
@@ -124,19 +135,22 @@ jobs:
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
         run: python fetch_ga4.py
 
-      - name: Commit GA4 data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-ga4 files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          [ -f data/ga4.json ] || { echo "No ga4.json (secrets not set yet)"; exit 0; }
-          git add data/ga4.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update GA4 data [skip ci]"
-          ok=0
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
-          done
-          [ "$ok" = 1 ] || { echo "::error::Push GA4 data failed after 5 attempts"; exit 1; }
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/ga4.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-ga4 data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-ga4
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-meta:
     runs-on: ubuntu-latest
@@ -158,19 +172,22 @@ jobs:
           META_AD_ACCOUNT_IDS: ${{ secrets.META_AD_ACCOUNT_IDS }}
         run: python fetch_meta.py
 
-      - name: Commit Meta data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-meta files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          [ -f data/meta_ads.json ] || { echo "No meta_ads.json (secrets not set yet)"; exit 0; }
-          git add data/meta_ads.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update Meta ads data [skip ci]"
-          ok=0
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
-          done
-          [ "$ok" = 1 ] || { echo "::error::Push Meta data failed after 5 attempts"; exit 1; }
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/meta_ads.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-meta data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-meta
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-shopfloor:
     runs-on: ubuntu-latest
@@ -212,19 +229,24 @@ jobs:
           CAPACITY_API_KEY: ${{ secrets.CAPACITY_API_KEY }}
         run: python fetch_shopfloor.py
 
-      - name: Commit shop-floor data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-shopfloor files
         if: steps.gate.outputs.go == '1'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/shopfloor.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update shop-floor data [skip ci]"
-          ok=0
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
-          done
-          [ "$ok" = 1 ] || { echo "::error::Push shop-floor data failed after 5 attempts"; exit 1; }
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/shopfloor.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-shopfloor data
+        if: steps.gate.outputs.go == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-shopfloor
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-clients:
     runs-on: ubuntu-latest
@@ -282,19 +304,24 @@ jobs:
           path: .cache/touch.json
           key: clients-touch-${{ github.run_id }}
 
-      - name: Commit clients data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-clients files
         if: steps.gate.outputs.go == '1'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/clients.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update clients analytics [skip ci]"
-          ok=0
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
-          done
-          [ "$ok" = 1 ] || { echo "::error::Push clients data failed after 5 attempts"; exit 1; }
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/clients.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-clients data
+        if: steps.gate.outputs.go == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-clients
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-mql:
     runs-on: ubuntu-latest
@@ -315,16 +342,22 @@ jobs:
           MQL_SHEET_ID: ${{ secrets.MQL_SHEET_ID }}
         run: python fetch_mql.py
 
-      - name: Commit MQL data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-mql files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/mql_sql.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update MQL/SQL data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/mql_sql.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-mql data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-mql
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-sales:
     # v4.7 (24.09.2026): ВИМКНЕНО. Google-таблиця планувальника більше не джерело —
@@ -352,16 +385,22 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: python fetch_sales.py
 
-      - name: Commit Sales data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-sales files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/sales_planner.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update sales data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/sales_planner.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-sales data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-sales
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-capacity:
     runs-on: ubuntu-latest
@@ -381,16 +420,22 @@ jobs:
           CAPACITY_API_KEY: ${{ secrets.CAPACITY_API_KEY }}
         run: python fetch_capacity.py
 
-      - name: Commit Capacity data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-capacity files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/capacity.json data/capacity_history.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update capacity data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/capacity.json data/capacity_history.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-capacity data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-capacity
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-batches:
     runs-on: ubuntu-latest
@@ -410,16 +455,22 @@ jobs:
           CAPACITY_API_KEY: ${{ secrets.CAPACITY_API_KEY }}
         run: python fetch_batches.py
 
-      - name: Commit Batches data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-batches files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/batches_lots.json data/batches_history.json data/batches_monthly_history.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update batches data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/batches_lots.json data/batches_history.json data/batches_monthly_history.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-batches data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-batches
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-crm:
     runs-on: ubuntu-latest
@@ -440,16 +491,22 @@ jobs:
           BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
         run: python fetch_crm_deals.py
 
-      - name: Commit CRM deals data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-crm files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/crm_deals.json data/crm_monthly_history.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update CRM deals data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
-          done
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/crm_deals.json data/crm_monthly_history.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-crm data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-crm
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
 
   update-cf:
     runs-on: ubuntu-latest
@@ -470,13 +527,56 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: python fetch_cashflow.py
 
-      - name: Commit CF data
+      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
+      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
+      - name: Collect changed update-cf files
         run: |
+          mkdir -p _out
+          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
+          git status --porcelain -- data/cashflow.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-cf data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-cf
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
+
+  commit-all:
+    # v7.3: один коміт з даними всіх job'ів → одна збірка GitHub Pages на запуск
+    needs: [update-strategy, update-hr, update-ads, update-ga4, update-meta, update-shopfloor, update-clients, update-mql, update-sales, update-capacity, update-batches, update-crm, update-cf]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - name: Download data from jobs
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: data-*
+          path: _art
+          merge-multiple: true
+
+      - name: Commit all data (one commit)
+        run: |
+          [ -d _art ] && [ -n "$(ls -A _art)" ] || { echo "Немає нових даних"; exit 0; }
+          ls -la _art
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/cashflow.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update cashflow data [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
+          ok=0
+          for i in 1 2 3 4 5 6; do
+            # щоразу на свіжу верхівку гілки: файли цього запуску кладемо поверх (без конфліктів rebase)
+            git fetch -q origin main_root && git reset -q --hard origin/main_root
+            cp -f _art/* data/
+            git add data
+            if git diff --cached --quiet; then echo "No changes"; ok=1; break; fi
+            git commit -q -m "chore: update dashboard data ($(git diff --cached --name-only | sed 's#data/##' | tr '\n' ' ')) [skip ci]"
+            git push && ok=1 && break
+            sleep $((i*4))
           done
+          [ "$ok" = 1 ] || { echo "::error::Push data failed after 6 attempts"; exit 1; }
