@@ -138,6 +138,40 @@ jobs:
           done
           [ "$ok" = 1 ] || { echo "::error::Push GA4 data failed after 5 attempts"; exit 1; }
 
+  update-meta:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      # v7.0: витрати Facebook / Instagram. Без секретів — пропуск, job зелений.
+      - name: Fetch Meta (Facebook / Instagram) ads spend
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          META_AD_ACCOUNT_IDS: ${{ secrets.META_AD_ACCOUNT_IDS }}
+        run: python fetch_meta.py
+
+      - name: Commit Meta data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          [ -f data/meta_ads.json ] || { echo "No meta_ads.json (secrets not set yet)"; exit 0; }
+          git add data/meta_ads.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: update Meta ads data [skip ci]"
+          ok=0
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main_root && git push && ok=1 && break || sleep $((i*3))
+          done
+          [ "$ok" = 1 ] || { echo "::error::Push Meta data failed after 5 attempts"; exit 1; }
+
   update-shopfloor:
     runs-on: ubuntu-latest
     steps:
