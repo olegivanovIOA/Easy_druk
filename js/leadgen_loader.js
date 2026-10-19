@@ -564,7 +564,7 @@ window.LeadgenLoader = (() => {
       tile('ROMI по марже', sg(k.romiM), `(виручка × ${m}% − витрати) ÷ витрати`, c(k.romiM), 'Окупність реклами з урахуванням маржі: > 0% — реклама окупилась по валовому прибутку') +
       `<div class="roi-k roi-km"><div class="l">Маржа для ROMI</div><div class="v"><input type="number" id="roi-mgn" min="1" max="100" step="0.1" value="${m}">%</div>
         <div class="s">${src}${Math.abs(m - defMargin()) > 0.05 ? ` · <a href="#" id="roi-mgn-reset">скинути</a>` : ''}</div></div>` +
-      ((k.noUtmCost || k.noCostRev) ? `<div class="roi-kw">⚠ ROMI поки неточний:${k.noUtmCost ? ` <b>${fmt(k.noUtmCost)} ₴</b> витрат — ${k.noUtmN} кампаній без угод з UTM у Bitrix24 (виручка цих кампаній не видна, ROMI занижений);` : ''}${k.noCostRev ? ` <b>${fmt(k.noCostRev)} ₴</b> WON-виручки — ${k.noCostN} кампаній Google без даних про витрати (акаунт не прив'язаний до GA4, у ROMI не враховано).` : ''}</div>` : '');
+      ((k.noUtmCost || k.noCostRev) ? `<div class="roi-kw">⚠ ROMI поки неточний:${k.noUtmCost ? ` <b>${fmt(k.noUtmCost)} ₴</b> витрат — ${k.noUtmN} кампаній без угод з UTM у Bitrix24 (виручка цих кампаній не видна, ROMI занижений);` : ''}${k.noCostRev ? ` <b>${fmt(k.noCostRev)} ₴</b> WON-виручки — ${k.noCostN} кампаній Google без даних про витрати (назва utm_campaign не збігається з кампаніями Ads — див. «Стан джерел витрат» нижче; у ROMI не враховано).` : ''}</div>` : '');
     const inp = $('roi-mgn');
     if (inp) inp.onchange = () => { const v = parseFloat(String(inp.value).replace(',', '.')); if (v > 0 && v <= 100) { _mgn = v; lsSet(MGN_LS, v); renderRoi(); } };
     const rs = $('roi-mgn-reset');

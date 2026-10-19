@@ -78,17 +78,29 @@ window.MktSplit = (() => {
     const fD = d => d.split('-').reverse().join('.');
     const per = from === to ? fD(from) : `${fD(from)} – ${fD(to)}`;
     document.querySelectorAll('.ms-per').forEach(e => e.textContent = per);
-    try { renderSpend(api, months, from, to); } catch (e) { console.warn('[MktSplit spend]', e); }
+    try { renderSpend(api, months, from, to, all); } catch (e) { console.warn('[MktSplit spend]', e); }
     try { renderSplit(api, all, months, from, to); } catch (e) { console.warn('[MktSplit split]', e); }
     try { renderMeta(api, all, months, from, to); } catch (e) { console.warn('[MktSplit meta]', e); }
     try { renderReact(api, all, months, from, to); } catch (e) { console.warn('[MktSplit react]', e); }
   }
 
   const tile = (l, v, sub, col, tip) => `<div class="roi-k" title="${esc(tip || '')}"><div class="l">${l}</div><div class="v"${col ? ` style="color:${col}"` : ''}>${v}</div><div class="s">${sub || ''}</div></div>`;
-  const legendOpts = { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 9 } } };
+  const legendOpts = { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 9 }, filter: i => i.text !== 'Σ' } };
+  // v7.2: числа на стовпцях (chartjs-plugin-datalabels локально): сегменти — якщо помітні (≥ 7% висоти осі), зверху — сума стека
+  const DLP = () => window.ChartDataLabels ? [window.ChartDataLabels] : [];
+  const segDL = f => ({
+    display: ctx => { const ds = ctx.dataset, v = ds.data[ctx.dataIndex]; if (!v || ds.type === 'line') return false;
+      const ax = ctx.chart.scales[ds.yAxisID || 'y']; return ax && ax.max ? v / ax.max >= 0.07 : true; },
+    color: '#fff', font: { size: 9, weight: '700' }, anchor: 'center', align: 'center', clamp: true, formatter: v => f(v) });
+  const totalDS = (data, f, yAxisID) => ({ label: 'Σ', type: 'line', data, showLine: false, pointRadius: 0, pointHitRadius: 0, yAxisID: yAxisID || 'y',
+    datalabels: { display: ctx => !!ctx.dataset.data[ctx.dataIndex], align: 'top', anchor: 'end', offset: 1, color: '#2b3a2e', font: { size: 9, weight: '800' }, formatter: v => f(v) } });
+  const noSigma = { filter: i => i.dataset.label !== 'Σ' };
+  const nfmt = v => Math.round(v).toLocaleString('uk-UA');
+  // співвідношення a : b у зручному вигляді (18 : 1, 1 : 4.5)
+  const ratio = (a, b) => !a && !b ? '—' : !b ? `${nfmt(a)} : 0` : !a ? `0 : ${nfmt(b)}` : a >= b ? `${(a / b).toFixed(a / b >= 10 ? 0 : 1)} : 1` : `1 : ${(b / a).toFixed(b / a >= 10 ? 0 : 1)}`;
 
   // ── 1. Витрати по акаунтах ──
-  function renderSpend(api, months, from, to) {
+  function renderSpend(api, months, from, to, all) {
     const el = $('ms-spend-kpi'); if (!el) return;
     const fmt = api.fmt, acc = lsGet(SP_LS, 'all');
     const g = api.googleDaily('2000-01-01', api.today()), mt = api.metaDaily('2000-01-01', api.today());
@@ -116,18 +128,48 @@ window.MktSplit = (() => {
         : ukrSt && ukrSt.ok ? `⚠ <b>Ukr3d</b>: доступ до ресурсу GA4 ukr3dprint.com є, але вартості Ads там немає — перевір у ньому Admin → Product links → Google Ads links (має бути прив'язаний Ads-акаунт Ukr3d). `
         : `⚠ <b>Ukr3d</b>: витрати підтягнуться з ресурсу GA4 ukr3dprint.com (353447917) після оновлення update-ga4 (v7.1) — потрібен доступ «Viewer» для service account дашборду. `) : '') +
       (!hasMeta ? `Meta: додай секрети <code>META_ACCESS_TOKEN</code> і <code>META_AD_ACCOUNT_IDS</code> — job <b>update-meta</b> підтягне витрати по днях.` : '');
+    // v7.2: стан джерел витрат + угоди Google за період, яким не знайшлося вартості (і чому)
+    const st = $('ms-cost-status');
+    if (st && all) {
+      const last = arr => arr.length ? arr.reduce((m, r) => r.d > m ? r.d : m, '') : null;
+      const fD = d => d ? d.split('-').reverse().join('.') : '—';
+      const gE = g.filter(r => grp(r) === 'easy'), gU = g.filter(r => grp(r) === 'ukr3d');
+      const ok = (b, t) => `<span style="color:${b ? GD : R};font-weight:700">${b ? '✓' : '✗'}</span> ${t}`;
+      const costNames = new Set(g.filter(r => r.d >= from && r.d <= to).map(r => r.camp)), everNames = new Set(g.map(r => r.camp)), sn = all.srcNames, miss = {};
+      all.rows.forEach(r => {
+        if (!r.d || r.d < from || r.d > to || api.channelOf(r.us, r.s, sn).ch !== 'google') return;
+        const nm = api.campOf((r.uc || '').trim()); if (nm && costNames.has(nm)) return;
+        const x = miss[nm] || (miss[nm] = { nm, n: 0, ws: 0 }); x.n += r.n; x.ws += r.ws;
+      });
+      const why = nm => !nm || nm === '(not set)' ? 'кампанія не передала utm_campaign (часто Performance Max / автотеги) — вартість не прив\'язати'
+        : /^\d+$/.test(nm) ? 'в utm_campaign записано ID кампанії, а не назву — потрібна заміна шаблону UTM'
+        : /^gmb/i.test(nm) ? 'Google Business Profile (карти) — безкоштовний канал, вартості немає'
+        : everNames.has(nm) ? 'у цьому періоді кампанія не мала витрат (зупинена; лід прийшов пізніше за кліком) — вартість є в інших місяцях'
+        : 'стара / перейменована назва кампанії — потрібен відповідник поточній кампанії в Ads (аліас)';
+      const ms = Object.values(miss).sort((a, b) => b.ws - a.ws || b.n - a.n);
+      const mN = ms.reduce((s, x) => s + x.n, 0), mW = ms.reduce((s, x) => s + x.ws, 0);
+      st.innerHTML = `<div style="display:grid;gap:3px">
+        <div>${ok(gE.length, `<b>Google Ads EASY</b> (856-547-8539) → GA4 easy3dprint.com.ua — дані до ${fD(last(gE))}`)}</div>
+        <div>${ok(gU.length, `<b>Google Ads Ukr3d</b> (265-403-5891) → GA4 ukr3dprint.com — ${gU.length ? 'дані до ' + fD(last(gU)) : esc((ukrSt && (ukrSt.err || ukrSt.note)) || 'ще не надходять')}`)}</div>
+        <div>${ok(hasMeta, `<b>Meta (Facebook + Instagram)</b> — ${hasMeta ? 'Meta Ads API, дані до ' + fD(last(mt)) : 'не підключено: потрібен токен з ads_read (секрети META_ACCESS_TOKEN, META_AD_ACCOUNT_IDS)'}`)}</div>
+        <div style="color:var(--tl)">Без вартості за природою: дзвінки, пошта, сайт, форми, існуючі клієнти, холодні продажі, рекомендації, органіка — це не реклама, «—» у колонці «Вартість» для них нормальне.</div>
+        ${ms.length ? `<div style="margin-top:4px"><b>Угоди з utm_source=google за період без вартості:</b> ${mN} угод, ${fmt(mW)} ₴ WON — вони не потрапляють у ROAS/ROMI:</div>
+        <table class="roi-ddt" style="max-width:900px"><thead><tr><th>utm_campaign</th><th class="r">Угод</th><th class="r">WON сума</th><th>Чому немає вартості</th></tr></thead><tbody>` +
+          ms.slice(0, 15).map(x => `<tr><td>${esc(x.nm || '(порожньо)')}</td><td class="r">${x.n}</td><td class="r">${fmt(x.ws)}</td><td>${why(x.nm)}</td></tr>`).join('') + `</tbody></table>` : `<div>${ok(true, 'усі угоди з utm_source=google за період мають вартість кампанії')}</div>`}
+      </div>`;
+    }
     document.querySelectorAll('#ms-spend-acc button').forEach(b => {
       b.classList.toggle('on', b.dataset.v === acc);
-      b.onclick = () => { lsSet(SP_LS, b.dataset.v); renderSpend(api, months, from, to); };
+      b.onclick = () => { lsSet(SP_LS, b.dataset.v); renderSpend(api, months, from, to, all); };
     });
     const show = k => acc === 'all' || acc === k;
     const ds = [['easy', 'EASY (Google)', WH], ['ukr3d', 'Ukr3d (Google)', UKR], ['meta', 'Meta (FB+IG)', META]]
       .filter(([k]) => show(k)).map(([k, l, c]) => ({ label: l, data: months.map(m => Math.round(byM[m][k])), backgroundColor: c, borderRadius: 3, stack: 's' }));
-    if (acc === 'all') ds.push({ label: 'Разом', type: 'line', data: months.map(m => Math.round(byM[m].easy + byM[m].ukr3d + byM[m].meta)), borderColor: GD, backgroundColor: GD, pointRadius: 2, tension: .3 });
+    ds.push(totalDS(months.map(m => Math.round(ds.reduce((s, d) => s + (d.data[months.indexOf(m)] || 0), 0))), v => fmt(v)));
     const cur = api.today().slice(0, 7);
-    api.chart('ms-spend-chart', { type: 'bar', data: { labels: months.map(m => m + (m === cur ? '*' : '')), datasets: ds },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendOpts, datalabels: { display: false },
-        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt(c.parsed.y)} ₴` } } },
+    api.chart('ms-spend-chart', { type: 'bar', plugins: DLP(), data: { labels: months.map(m => m + (m === cur ? '*' : '')), datasets: ds },
+      options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 14 } }, plugins: { legend: legendOpts, datalabels: segDL(v => fmt(v)),
+        tooltip: Object.assign({ callbacks: { label: c => `${c.dataset.label}: ${fmt(c.parsed.y)} ₴` } }, noSigma) },
         scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: GRID }, ticks: { callback: v => fmt(v) } } } } });
   }
 
@@ -152,7 +194,11 @@ window.MktSplit = (() => {
     el.innerHTML = CLS.map(c => tile(LBL[c], P[c].n.toLocaleString('uk-UA') + ' лідів',
       `${N ? (P[c].n / N * 100).toFixed(0) : 0}% лідів · WON ${P[c].w} · ${fmt(P[c].ws)} ₴ (${WS ? (P[c].ws / WS * 100).toFixed(0) : 0}% виручки)`, CLS_C[c],
       c === 'unk' ? 'Джерела, щодо яких ще немає рішення (дзвінки, сайт, пошта, форми…) — Влад визначає умови' : '')).join('') +
-      tile('Конверсія в WON', CLS.map(c => p0(P[c].n ? P[c].w / P[c].n * 100 : null)).join(' / '), 'маркетинг / не маркетинг / не визначено');
+      tile('Конверсія в WON', CLS.map(c => p0(P[c].n ? P[c].w / P[c].n * 100 : null)).join(' / '), 'маркетинг / не маркетинг / не визначено') +
+      tile('Маркетинг : не маркетинг', ratio(P.mkt.n, P.non.n) + ' <span style="font-size:11px;font-weight:600">лідів</span>',
+        `WON ${ratio(P.mkt.w, P.non.w)} · виручка ${ratio(P.mkt.ws, P.non.ws)}<br>виручка на 1 лід: ${fmt(P.mkt.n ? P.mkt.ws / P.mkt.n : 0)} ₴ vs ${fmt(P.non.n ? P.non.ws / P.non.n : 0)} ₴` +
+        (P.mkt.ws && P.non.n && P.mkt.n ? ` → 1 лід не-маркетингу ≈ <b>${nfmt((P.non.ws / P.non.n) / (P.mkt.ws / P.mkt.n))}</b> лідів маркетингу` : ''), GD,
+        'Скільки маркетингових лідів / WON / виручки припадає на одиницю не-маркетингових. «Не визначено» не враховано.');
     const status = $('ms-split-status');
     if (status) status.innerHTML = `${esc((_raw && _raw.status) || '')}${_raw && _raw.updated ? ' · оновлено ' + esc(_raw.updated) : ''}${Object.keys(_ov).length ? ` · <b style="color:${RT}">${Object.keys(_ov).length} джерел перевизначено вручну у цьому браузері</b>` : ''}`;
 
@@ -163,21 +209,25 @@ window.MktSplit = (() => {
     });
     const cur = api.today().slice(0, 7), labels = months.map(m => m + (m === cur ? '*' : ''));
     const val = (m, c) => metric === 'ws' ? Math.round(byM[m][c].ws) : byM[m][c][metric];
-    api.chart('ms-split-chart', { type: 'bar', data: { labels, datasets: CLS.map(c => ({ label: LBL[c], data: months.map(m => val(m, c)), backgroundColor: CLS_C[c], borderRadius: 3, stack: 's', yAxisID: 'y' }))
+    api.chart('ms-split-chart', { type: 'bar', plugins: DLP(), data: { labels, datasets: CLS.map(c => ({ label: LBL[c], data: months.map(m => val(m, c)), backgroundColor: CLS_C[c], borderRadius: 3, stack: 's', yAxisID: 'y' }))
       .concat([{ label: '% від маркетингу', type: 'line', yAxisID: 'y1', borderColor: GD, backgroundColor: GD, pointRadius: 2, tension: .3, borderDash: [4, 3],
-        data: months.map(m => { const t = CLS.reduce((s, c) => s + val(m, c), 0); return t ? +(val(m, 'mkt') / t * 100).toFixed(1) : null; }) }]) },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendOpts, datalabels: { display: false },
-        tooltip: { callbacks: { label: c => c.dataset.yAxisID === 'y1' ? `${c.dataset.label}: ${c.parsed.y}%` : `${c.dataset.label}: ${metric === 'ws' ? fmt(c.parsed.y) + ' ₴' : c.parsed.y}` } } },
+        data: months.map(m => { const t = CLS.reduce((s, c) => s + val(m, c), 0); return t ? +(val(m, 'mkt') / t * 100).toFixed(1) : null; }) },
+        totalDS(months.map(m => CLS.reduce((s, c) => s + val(m, c), 0)), v => metric === 'ws' ? fmt(v) : nfmt(v))]) },
+      options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 14 } }, plugins: { legend: legendOpts, datalabels: segDL(v => metric === 'ws' ? fmt(v) : nfmt(v)),
+        tooltip: Object.assign({ callbacks: { label: c => c.dataset.yAxisID === 'y1' ? `${c.dataset.label}: ${c.parsed.y}%` : `${c.dataset.label}: ${metric === 'ws' ? fmt(c.parsed.y) + ' ₴' : c.parsed.y}`,
+          footer: it => { const i = it[0] && it[0].dataIndex, m = months[i]; return m ? `маркетинг : не маркетинг = ${ratio(val(m, 'mkt'), val(m, 'non'))}` : ''; } } }, noSigma) },
         scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: GRID }, ticks: { callback: v => metric === 'ws' ? fmt(v) : v.toLocaleString('uk-UA') } },
           y1: { position: 'right', beginAtZero: true, max: 100, grid: { drawOnChartArea: false }, ticks: { callback: v => v + '%' } } } } });
     // графік лідів «не від маркетингу» по каналах (пункт зустрічі)
     const top = Object.entries(nonCh).map(([k, v]) => [k, Object.values(v).reduce((a, b) => a + b, 0)]).sort((a, b) => b[1] - a[1]);
-    const PAL = [RT, '#B5651D', '#D9A441', '#8C6D46', '#C9B37E', GRY];
+    // v7.2: контрастні кольори (раніше відтінки однієї гами зливались)
+    const PAL = ['#E67E22', '#8E44AD', '#C0392B', '#2471A3', '#27AE60', '#7F8C8D'];
     const keys = top.slice(0, 5).map(x => x[0]);
     const ds2 = keys.map((k, i) => ({ label: k, data: months.map(m => nonCh[k][m] || 0), backgroundColor: PAL[i], borderRadius: 3, stack: 's' }));
     if (top.length > 5) ds2.push({ label: 'інші', data: months.map(m => top.slice(5).reduce((s, [k]) => s + (nonCh[k][m] || 0), 0)), backgroundColor: PAL[5], borderRadius: 3, stack: 's' });
-    api.chart('ms-non-chart', { type: 'bar', data: { labels, datasets: ds2 },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendOpts, datalabels: { display: false } },
+    ds2.push(totalDS(months.map((m, i) => ds2.reduce((s, d) => s + (d.data[i] || 0), 0)), nfmt));
+    api.chart('ms-non-chart', { type: 'bar', plugins: DLP(), data: { labels, datasets: ds2 },
+      options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 14 } }, plugins: { legend: legendOpts, datalabels: segDL(nfmt), tooltip: noSigma },
         scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: GRID } } } } });
 
     // таблиця джерел за період з класом і правилом (редагування — локально, експорт у JSON)
@@ -256,8 +306,8 @@ window.MktSplit = (() => {
       .map(([k, l, c]) => ({ label: l, data: months.map(m => byM[m][k]), backgroundColor: c, borderRadius: 3, stack: 's', yAxisID: 'y' }))
       .concat([{ label: 'WON-виручка, ₴', type: 'line', yAxisID: 'y1', data: months.map(m => Math.round(byM[m].ws)), borderColor: GD, backgroundColor: GD, pointRadius: 2, tension: .3 }]);
     if (hasMeta) ds.push({ label: 'Витрати Meta, ₴', type: 'line', yAxisID: 'y1', data: months.map(m => Math.round(byM[m].cost)), borderColor: R, backgroundColor: R, pointRadius: 2, tension: .3, borderDash: [4, 3] });
-    api.chart('ms-meta-chart', { type: 'bar', data: { labels: months.map(m => m + (m === cur ? '*' : '')), datasets: ds },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendOpts, datalabels: { display: false } },
+    api.chart('ms-meta-chart', { type: 'bar', plugins: DLP(), data: { labels: months.map(m => m + (m === cur ? '*' : '')), datasets: ds },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendOpts, datalabels: segDL(nfmt) },
         scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: GRID }, title: { display: true, text: 'ліди', font: { size: 9 } } },
           y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: v => fmt(v) } } } } });
     const tb = $('ms-meta-table'); if (!tb) return;
@@ -303,13 +353,13 @@ window.MktSplit = (() => {
       tile('Повернення: не маркетинг / не визначено', `${P.r.non.n} / ${P.r.unk.n}`, `виручка ${fmt(P.r.non.rev)} / ${fmt(P.r.unk.rev)} ₴`, RT) +
       tile('Нові клієнти від маркетингу', P.newM.toLocaleString('uk-UA'), `${p0(P.newAll ? P.newM / P.newAll * 100 : null)} нових клієнтів · купили ${P.newMp} · LTV-виручка ${fmt(P.newMrev)} ₴`, WH);
     const cur = api.today().slice(0, 7);
-    api.chart('ms-react-chart', { type: 'bar', data: { labels: months.map(m => m + (m === cur ? '*' : '')), datasets: [
+    api.chart('ms-react-chart', { type: 'bar', plugins: DLP(), data: { labels: months.map(m => m + (m === cur ? '*' : '')), datasets: [
       { label: 'Повернулись через маркетинг', data: months.map(m => byM[m].rm), backgroundColor: G, borderRadius: 3, stack: 's', yAxisID: 'y' },
       { label: 'Повернулись: не маркетинг', data: months.map(m => byM[m].rn), backgroundColor: RT, borderRadius: 3, stack: 's', yAxisID: 'y' },
       { label: 'Повернулись: не визначено', data: months.map(m => byM[m].ru), backgroundColor: GRY, borderRadius: 3, stack: 's', yAxisID: 'y' },
       { label: 'Нові клієнти від маркетингу', type: 'line', data: months.map(m => byM[m].nm), borderColor: WH, backgroundColor: WH, pointRadius: 2, tension: .3, yAxisID: 'y' },
       { label: 'Виручка повернень від маркетингу, ₴', type: 'line', data: months.map(m => Math.round(byM[m].revM)), borderColor: GD, backgroundColor: GD, borderDash: [4, 3], pointRadius: 2, tension: .3, yAxisID: 'y1' },
-    ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendOpts, datalabels: { display: false } },
+    ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendOpts, datalabels: segDL(nfmt) },
       scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: GRID }, title: { display: true, text: 'клієнтів', font: { size: 9 } } },
         y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: v => fmt(v) } } } } });
   }
