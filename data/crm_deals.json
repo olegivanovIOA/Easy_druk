@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-19T15:01:42Z",
+  "fetched_at": "2026-10-19T15:30:14Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -69,16 +69,16 @@
     {
       "source": "CALL",
       "name": "Звонок",
-      "reviewed": 451,
+      "reviewed": 461,
       "won": 11,
-      "lost": 419,
-      "junk": 45,
+      "lost": 429,
+      "junk": 46,
       "wonWholesale": 11,
       "wonRetail": 0,
       "revenue": 205195.52,
       "revenueWholesale": 205195.52,
       "revenueRetail": 0.0,
-      "winRate": 2.6,
+      "winRate": 2.5,
       "junkShare": 10.0,
       "avgCheck": 18654.14
     },
@@ -133,17 +133,17 @@
     {
       "source": "50",
       "name": "Задать вопрос онлайн",
-      "reviewed": 102,
+      "reviewed": 104,
       "won": 4,
-      "lost": 87,
+      "lost": 89,
       "junk": 8,
       "wonWholesale": 4,
       "wonRetail": 0,
       "revenue": 9400.0,
       "revenueWholesale": 9400.0,
       "revenueRetail": 0.0,
-      "winRate": 4.4,
-      "junkShare": 7.8,
+      "winRate": 4.3,
+      "junkShare": 7.7,
       "avgCheck": 2350.0
     },
     {
@@ -405,10 +405,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 877,
-      "clean": 819,
-      "qualified": 446,
-      "activeOrWon": 143,
+      "all": 876,
+      "clean": 817,
+      "qualified": 437,
+      "activeOrWon": 130,
       "won": 20,
       "wonSum": 2300022.2,
       "expectedSumActiveWon": 14281171.21
@@ -421,12 +421,12 @@
       },
       {
         "stage": "Не берет / не отвечает (более 3 попыток)",
-        "deals": 122,
+        "deals": 129,
         "sum": 0.0
       },
       {
         "stage": "Уже НЕ актуально (не озвучил запрос)",
-        "deals": 91,
+        "deals": 93,
         "sum": 0.0
       },
       {
@@ -441,22 +441,22 @@
       },
       {
         "stage": "НЕ можем реализовать запрос",
-        "deals": 69,
+        "deals": 70,
         "sum": 0.0
       },
       {
         "stage": "НЕ завершили первинний контакт",
-        "deals": 54,
+        "deals": 43,
         "sum": 0.0
       },
       {
         "stage": "ДУБЛЬ",
-        "deals": 38,
+        "deals": 39,
         "sum": 0.0
       },
       {
         "stage": "НЕ актуально",
-        "deals": 27,
+        "deals": 28,
         "sum": 0.0
       },
       {
@@ -540,11 +540,6 @@
         "sum": 4912.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 2,
-        "sum": 0.0
-      },
-      {
         "stage": "Виробництво  ЗАВЕРШЕНО",
         "deals": 1,
         "sum": 2089.0
@@ -591,7 +586,7 @@
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 97,
+        "deals": 96,
         "expectedSum": 10450.0,
         "won": 2,
         "wonSum": 3450.0
@@ -761,7 +756,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 769,
+        "deals": 768,
         "expectedSum": 12421229.21,
         "won": 12,
         "wonSum": 927012.2
@@ -3287,7 +3282,7 @@
         "us": "",
         "uc": "",
         "s": "50",
-        "n": 5,
+        "n": 4,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -3374,7 +3369,7 @@
       }
     ],
     "retention": {
-      "clientsInCohort": 808,
+      "clientsInCohort": 807,
       "returningClients": 80,
       "repeatBuyers": 30,
       "noClientLinked": 8,
@@ -3385,7 +3380,7 @@
         "winRate": 12.2
       },
       "new": {
-        "deals": 753,
+        "deals": 752,
         "won": 8,
         "wonSum": 9000.0,
         "winRate": 1.2
@@ -3417,7 +3412,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 570,
+        "total": 567,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -3426,10 +3421,10 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 2,
+            "count": 0,
             "sum": 0.0,
-            "reached": 570,
-            "lostHere": 504
+            "reached": 567,
+            "lostHere": 514
           },
           {
             "id": "40",
@@ -3437,16 +3432,16 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 64,
+            "reached": 53,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 54,
+            "count": 43,
             "sum": 0.0,
-            "reached": 64,
+            "reached": 53,
             "lostHere": 5
           },
           {
@@ -3468,21 +3463,21 @@
             "id": "16",
             "name": "ДУБЛЬ",
             "sem": "F",
-            "count": 37,
+            "count": 38,
             "sum": 0.0
           },
           {
             "id": "APOLOGY",
             "name": "Не берет / не отвечает (более 3 попыток)",
             "sem": "F",
-            "count": 122,
+            "count": 129,
             "sum": 0.0
           },
           {
             "id": "52",
             "name": "Уже НЕ актуально (не озвучил запрос)",
             "sem": "F",
-            "count": 91,
+            "count": 93,
             "sum": 0.0
           },
           {
@@ -3511,7 +3506,7 @@
       {
         "id": 24,
         "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-        "total": 311,
+        "total": 313,
         "method": "history",
         "v": 2,
         "wonDirect": 15,
@@ -3522,8 +3517,8 @@
             "sem": "P",
             "count": 4,
             "sum": 11206420.76,
-            "reached": 311,
-            "lostHere": 222
+            "reached": 313,
+            "lostHere": 224
           },
           {
             "id": "C24:PREPAYMENT_INVOIC",
@@ -3757,14 +3752,14 @@
             "id": "C24:APOLOGY",
             "name": "НЕ актуально",
             "sem": "F",
-            "count": 27,
+            "count": 28,
             "sum": 0.0
           },
           {
             "id": "C24:20",
             "name": "НЕ можем реализовать запрос",
             "sem": "F",
-            "count": 69,
+            "count": 70,
             "sum": 0.0
           },
           {
@@ -4182,7 +4177,7 @@
   "byUtm": [
     {
       "utm": "google",
-      "reviewed": 130,
+      "reviewed": 131,
       "won": 22,
       "revenue": 3273354.4
     },
@@ -4844,11 +4839,11 @@
     },
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 71
+      "count": 72
     },
     {
       "reason": "НЕ актуально",
-      "count": 39
+      "count": 40
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
@@ -4879,11 +4874,11 @@
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 132
+      "count": 139
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 94
+      "count": 96
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
@@ -4891,7 +4886,7 @@
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 38
+      "count": 39
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
@@ -4909,11 +4904,11 @@
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 132
+      "count": 139
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
-      "count": 94
+      "count": 96
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
@@ -4925,15 +4920,15 @@
     },
     {
       "reason": "НЕ можем реализовать запрос",
-      "count": 71
+      "count": 72
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 41
+      "count": 42
     },
     {
       "reason": "НЕ актуально",
-      "count": 39
+      "count": 40
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
@@ -4971,11 +4966,11 @@
         },
         {
           "reason": "НЕ можем реализовать запрос",
-          "count": 71
+          "count": 72
         },
         {
           "reason": "НЕ актуально",
-          "count": 39
+          "count": 40
         },
         {
           "reason": "НЕ отвечает (более 3-х попыток)",
@@ -4998,8 +4993,8 @@
           "count": 1
         }
       ],
-      "totalLost": 260,
-      "totalReviewed": 355
+      "totalLost": 262,
+      "totalReviewed": 357
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -5025,11 +5020,11 @@
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 132
+          "count": 139
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
-          "count": 94
+          "count": 96
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
@@ -5037,7 +5032,7 @@
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 38
+          "count": 39
         },
         {
           "reason": "ТЕСТОВЫЙ звонок",
@@ -5048,18 +5043,18 @@
           "count": 10
         }
       ],
-      "totalLost": 523,
-      "totalReviewed": 536
+      "totalLost": 533,
+      "totalReviewed": 546
     }
   },
   "totalReviewed": {
-    "wholesale": 355,
+    "wholesale": 357,
     "retail": 1,
-    "screening": 536,
-    "all": 892
+    "screening": 546,
+    "all": 904
   },
   "pipeline": {
-    "asOf": "2026-10-19T15:01:48Z",
+    "asOf": "2026-10-19T15:30:19Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
