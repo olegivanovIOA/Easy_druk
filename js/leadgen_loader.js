@@ -46,7 +46,7 @@ window.LeadgenLoader = (() => {
     } catch (e) { console.warn('[Leadgen]', e); }
     const months = monthsWithCohort();
     const ts = $('mkt-leadgen-updated');
-    if (ts && window.E3DFresh) ts.innerHTML = E3DFresh.html([{ ts: _cur && _cur.fetched_at, label: 'Bitrix24' }, { ts: _ads && _ads.fetched_at, label: 'Google Ads' }]);
+    if (ts && window.E3DFresh) ts.innerHTML = E3DFresh.html([{ ts: _cur && _cur.fetched_at, label: 'Bitrix24' }, { ts: _ga && _ga.fetched_at, label: 'GA4 / Google Ads' }]);
     if (!months.length) {
       root.innerHTML = `<div class="al al-b" style="font-size:11px"><div>ℹ Блок з'явиться після наступного запуску <b>update-crm</b> (v4.6 рахує угоди, створені в місяці: воронку, UTM-кампанії, retention).
         Для історії з січня — один раз запусти <b>Backfill CRM Monthly History</b>.</div></div>`;
@@ -59,6 +59,7 @@ window.LeadgenLoader = (() => {
     }
     // ROI-таблиця має власний період і не залежить від графіків нижче
     try { initRoi(); renderRoi(); } catch (e) { console.warn('[Leadgen ROI]', e); }
+    try { window.dispatchEvent(new Event('leadgen:ready')); } catch (e) {}
     render();
   }
 
@@ -661,6 +662,18 @@ window.LeadgenLoader = (() => {
     channelOf, bitrixRows, monthsWithCohort, googleDaily, metaDaily, accGroup, campOf, lastDay, today, fmt, chart,
     get ga() { return _ga; }, get meta() { return _meta; }, get clients() { return _cl; }, get adsAccOf() { return adsCost('1900-01-01', '1900-01-01').accOf || {}; },
     rerender: () => { try { renderRoi(); } catch (e) { console.warn(e); } },
+    // v7.4: угоди / WON / виручка Bitrix по Google-кампаніях (з аліасами і акаунтом) + точна вартість GA4 за період
+    crmGoogle: (from, to) => {
+      const bx = bitrixRows(from, to), ads = adsCost(from, to), out = {}, byDay = {};
+      const get = (acc, name) => out[acc + '|' + name] || (out[acc + '|' + name] = { acc, name, n: 0, w: 0, ws: 0, cost: 0 });
+      bx.rows.forEach(r => { const c = channelOf(r.us, r.s, bx.srcNames); if (c.ch !== 'google') return; const nm = bxKey(c, r.uc, ads);
+        const acc = /ukr/i.test(c.acc) ? 'ukr3d' : 'easy';
+        if (r.d) { const d = byDay[r.d] || (byDay[r.d] = { easy: { n: 0, w: 0, ws: 0 }, ukr3d: { n: 0, w: 0, ws: 0 } }); d[acc].n += r.n; d[acc].w += r.w; d[acc].ws += r.ws; }
+        if (!nm) return;
+        const x = get(acc, nm); x.n += r.n; x.w += r.w; x.ws += r.ws; });
+      googleDaily(from, to).forEach(r => { get(/ukr/i.test(r.acc) ? 'ukr3d' : 'easy', r.camp).cost += r.cost; });
+      return { rows: out, byDay, mode: ads.mode, gaps: bx.gaps };
+    },
   };
   return { load, api };
 })();

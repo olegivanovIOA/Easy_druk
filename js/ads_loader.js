@@ -1,286 +1,227 @@
 /**
- * ads_loader.js — Easy 3D Print Dashboard v1.2
- * Фільтри по кампанії/статусу/ROAS, тижневий/денний перемикач,
- * ROAS гістограма, алерти RED кампаній, рекомендації
+ * ads_loader.js — Easy 3D Print Dashboard v2.0 (20.10.2026)
+ * Блок «📣 Google Ads» на вкладці «Маркетинг».
+ *
+ * v2.0: Excel-скрипт Ads (Вадим, data/ads.json) більше не використовується — він перестав оновлюватись 10.10.2026
+ * і писав вартість у тисячах, а «цінність конверсії» = 1 шт. Тепер усе з прямих джерел:
+ *   - вартість / кліки / покази по днях і кампаніях — Google Analytics 4 (data/ga4.json → adsCost),
+ *     обидва акаунти: EASY (ресурс easy3dprint.com.ua) і Ukr3d (ресурс ukr3dprint.com);
+ *   - конверсії сайту — ключові події GA4 по кампаніях (data/ga4.json → traffic, google / cpc);
+ *   - ліди, WON і виручка — Bitrix24 за utm_campaign (через LeadgenLoader.api.crmGoogle, з аліасами назв);
+ *   - статус кампанії — власні прозорі правила по CRM (див. STATUS_RULES), а не «світлофор» скрипта.
+ * Персональних даних немає — лише агрегати.
  */
-
 window.AdsLoader = (() => {
-  const DATA_URL = 'data/ads.json';
-  let _data = null;
-  let _charts = {};
-  let _period = 'week';
+  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B', Y = '#C98A2B', GRID = '#f0f2ee';
+  const ACC = { easy: { l: 'EASY', c: '#3D7EA6' }, ukr3d: { l: 'Ukr3d', c: '#8E6CC0' } };
+  const LS = 'e3d_ads_v2';
+  const NOCAMP = new Set(['', '(not set)', '(organic)', '(direct)', '(referral)', '(none)']);
+  let _ga = null, _charts = {}, _st = { days: 30, acc: 'all' }, _loaded = null;
 
-  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B';
-  const GB = 'rgba(42,157,143,.15)', AB = 'rgba(69,123,157,.15)';
-  const GRID = '#f0f2ee';
+  const $ = id => document.getElementById(id);
+  const fmt = n => n == null || !isFinite(n) ? '—' : Math.round(n).toLocaleString('uk-UA');
+  const fmtK = n => n == null ? '—' : Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : Math.abs(n) >= 1e3 ? (n / 1e3).toFixed(0) + 'K' : String(Math.round(n));
+  const iso = d => d.toISOString().slice(0, 10);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const accOf = a => /ukr/i.test(a || '') ? 'ukr3d' : 'easy';
+  try { const v = JSON.parse(localStorage.getItem(LS) || 'null'); if (v) _st = Object.assign(_st, v); } catch (e) {}
+  const save = () => { try { localStorage.setItem(LS, JSON.stringify(_st)); } catch (e) {} };
 
-  async function load() {
-    try {
-      const r = await fetch(DATA_URL + '?t=' + Date.now());
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      _data = await r.json();
-      _initFilters();
-      render();
-    } catch (e) {
-      console.warn('[ADS] Помилка:', e);
-      const s = document.getElementById('ads-status');
-      if (s) s.textContent = '✗ Дані реклами недоступні';
-    }
+  // Статус кампанії за період (правила прозорі — показуються в підказці)
+  const STATUS_RULES = 'GREEN — ROAS з CRM ≥ 100% (виручка покрила витрати). RED — витрати ≥ 2 000 ₴, а лідів у CRM з цією utm_campaign немає (кампанія не дає звернень або не передає UTM). YELLOW — решта: ліди є, але виручка поки менша за витрати (угоди можуть ще закритися).';
+  function status(r) {
+    if (!(r.cost > 0)) return null;      // без витрат (органіка, Google Business Profile, (not set)) — статус не ставимо
+    if (r.cost > 0 && r.roas != null && r.roas >= 100) return 'GREEN';
+    if (r.cost >= 2000 && !r.n) return 'RED';
+    return 'YELLOW';
   }
 
-  function _initFilters() {
-    const sel = document.getElementById('ads-filter-campaign');
-    if (!sel || !_data) return;
-    sel.innerHTML = '<option value="all">Всі кампанії</option>';
-    (_data.analytics?.active || []).forEach(c => {
-      const o = document.createElement('option');
-      o.value = c.campaign;
-      o.textContent = c.campaign.length > 35 ? c.campaign.substring(0,33)+'…' : c.campaign;
-      sel.appendChild(o);
+  function load() {
+    if (_loaded) return _loaded;
+    _loaded = fetch('data/ga4.json?t=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null).then(g => {
+      _ga = g; initCtl(); render();
     });
+    return _loaded;
   }
+  window.addEventListener('leadgen:ready', () => { try { if (_ga) render(); } catch (e) { console.warn('[ADS]', e); } });
 
-  function _getFilters() {
-    return {
-      campaign: document.getElementById('ads-filter-campaign')?.value || 'all',
-      status:   document.getElementById('ads-filter-status')?.value   || 'all',
-      roas:     document.getElementById('ads-filter-roas')?.value     || 'all',
+  function initCtl() {
+    const sync = () => {
+      document.querySelectorAll('#ads-days button').forEach(b => b.classList.toggle('on', +b.dataset.v === _st.days));
+      document.querySelectorAll('#ads-acc button').forEach(b => b.classList.toggle('on', b.dataset.v === _st.acc));
     };
+    document.querySelectorAll('#ads-days button').forEach(b => b.onclick = () => { _st.days = +b.dataset.v; save(); sync(); render(); });
+    document.querySelectorAll('#ads-acc button').forEach(b => b.onclick = () => { _st.acc = b.dataset.v; save(); sync(); render(); });
+    sync();
   }
 
-  function _filterCampaigns(list) {
-    const f = _getFilters();
-    return list.filter(c => {
-      if (f.campaign !== 'all' && c.campaign !== f.campaign) return false;
-      if (f.status !== 'all' && c.traffic_light !== f.status) return false;
-      const rv = parseFloat(c.roas);
-      if (f.roas === 'profitable' && (isNaN(rv) || rv < 2)) return false;
-      if (f.roas === 'loss' && (isNaN(rv) || rv >= 1)) return false;
-      return true;
+  function range() {
+    const max = (_ga && (_ga.fetched_at || '').slice(0, 10)) || iso(new Date());
+    const to = new Date(max + 'T12:00:00Z'), from = new Date(to); from.setUTCDate(from.getUTCDate() - (_st.days - 1));
+    return [iso(from), iso(to)];
+  }
+
+  function data() {
+    const [from, to] = range(), accF = _st.acc;
+    const ok = r => accF === 'all' || accOf(r.a) === accF;
+    const ads = ((_ga && _ga.adsCost) || []).filter(r => r.d >= from && r.d <= to && ok(r));
+    // назви кампаній — через ті самі аліаси, що й у таблиці ROI (старі назви → поточні), щоб CRM і витрати збігались
+    const api0 = window.LeadgenLoader && LeadgenLoader.api, cof = api0 && api0.campOf ? api0.campOf : (x => x);
+    // кампанії (вартість / кліки / покази) — ключ: акаунт + назва
+    const camps = {};
+    const C = (acc, name) => camps[acc + '|' + name] || (camps[acc + '|' + name] = { acc, name, cost: 0, clk: 0, imp: 0, ke: null, n: 0, w: 0, ws: 0 });
+    ads.forEach(r => { const x = C(accOf(r.a), cof(r.c)); x.cost += r.cost || 0; x.clk += r.clk || 0; x.imp += r.imp || 0; });
+    // ключові події GA4 (ресурс EASY) по кампаніях google / cpc — для однакових назв в обох акаунтах відносимо до EASY
+    const keByName = {}, keByDay = {};
+    ((_ga && _ga.traffic) || []).forEach(t => {
+      if (t.d < from || t.d > to || NOCAMP.has(t.c) || !/google/i.test(t.s) || !/cpc|paid/i.test(t.m)) return;
+      keByName[cof(t.c)] = (keByName[cof(t.c)] || 0) + (t.ke || 0); keByDay[t.d] = (keByDay[t.d] || 0) + (t.ke || 0);
     });
-  }
-
-  function applyFilters() {
-    if (!_data) return;
-    _renderSummary();
-    _renderCampaignsTable();
-    _renderRoasChart();
-    _renderBudgetChart();
-  }
-
-  function setPeriod(period) {
-    _period = period;
-    ['week','day'].forEach(p => {
-      const btn = document.getElementById('ads-period-'+p);
-      if (btn) {
-        btn.style.background = p === period ? 'var(--g)' : 'transparent';
-        btn.style.color = p === period ? '#fff' : 'var(--tm)';
-      }
+    // ключові події є лише з ресурсу GA4 EASY (сайт easy3dprint.com.ua) — для кампаній Ukr3d «—»
+    Object.values(camps).forEach(x => { if (x.acc === 'easy') x.ke = keByName[x.name] || 0; });
+    // CRM (Bitrix24) — ліди, WON, виручка за utm_campaign; назви кампаній уже з аліасами
+    let crm = null;
+    try { const api = window.LeadgenLoader && LeadgenLoader.api; if (api && api.crmGoogle) crm = api.crmGoogle(from, to); } catch (e) { crm = null; }
+    if (crm) Object.values(crm.rows).forEach(c => {
+      if (accF !== 'all' && c.acc !== accF) return;
+      const x = camps[c.acc + '|' + c.name] || (c.n || c.w ? C(c.acc, c.name) : null); if (!x) return;
+      x.n += c.n; x.w += c.w; x.ws += c.ws;
     });
-    _renderFunnelChart();
-    _renderCtrChart();
-  }
-
-  // v4.9: скрипт Ads (Вадим) пише cost_uah у ТИСЯЧАХ, а ROAS рахує як конверсії/витрати
-  // (conv_value = к-сть конверсій) — обидва неправдоподібні. Поки скрипт не виправлено:
-  // вартість ×1000 (≈, округлено до тис.), ROAS/CPL зі скрипта не показуємо.
-  let _costScaled = false;
-  function _normalizeCosts() {
-    const a = _data && _data.analytics; if (!a || a._normalized) return;
-    const all = a.all || a.active || [];
-    const clicks = all.reduce((s, c) => s + (c.clicks || 0), 0), cost = all.reduce((s, c) => s + (c.cost_uah || 0), 0);
-    if (clicks > 500 && cost / clicks < 0.5) {
-      _costScaled = true;
-      const seen = new Set();
-      ['all', 'active', 'green', 'red'].forEach(k => (a[k] || []).forEach(c => { if (seen.has(c)) return; seen.add(c); c.cost_uah = (c.cost_uah || 0) * 1000; c.roas = 'N/A'; c.cpl = c.conversions ? String(Math.round(c.cost_uah / c.conversions)) : 'N/A'; }));
-      if (a.summary) { a.summary.total_cost_uah = (a.summary.total_cost_uah || 0) * 1000; a.summary.avg_roas = null; }
-    }
-    a._normalized = true;
+    const rows = Object.values(camps).map(x => Object.assign(x, {
+      ctr: x.imp ? x.clk / x.imp * 100 : null, cpc: x.clk ? x.cost / x.clk : null,
+      cpl: x.n && x.cost ? x.cost / x.n : null, roas: x.cost ? x.ws / x.cost * 100 : null,
+    }));
+    rows.forEach(r => r.status = crm ? status(r) : undefined);
+    // по днях
+    const days = {};
+    for (let d = new Date(from + 'T12:00:00Z'); iso(d) <= to; d.setUTCDate(d.getUTCDate() + 1)) days[iso(d)] = { cost: 0, clk: 0, imp: 0, ke: keByDay[iso(d)] || 0, n: 0, ws: 0 };
+    ads.forEach(r => { const d = days[r.d]; if (d) { d.cost += r.cost || 0; d.clk += r.clk || 0; d.imp += r.imp || 0; } });
+    if (crm) Object.entries(crm.byDay || {}).forEach(([d, v]) => { const x = days[d]; if (!x) return;
+      ['easy', 'ukr3d'].forEach(a => { if (accF === 'all' || accF === a) { x.n += v[a].n; x.ws += v[a].ws; } }); });
+    return { from, to, rows, days, crm: !!crm, accounts: [...new Set(((_ga && _ga.adsCost) || []).map(r => accOf(r.a)))] };
   }
 
   function render() {
-    if (!_data) return;
-    _normalizeCosts();
-    _renderSummary();
-    if (_costScaled) {
-      const st = document.getElementById('ads-status');
-      if (st) st.innerHTML = '⚠ Скрипт Google Ads пише вартість у тисячах грн — показано ×1000 (≈, округлення до тис.). ROAS зі скрипта некоректний (цінність конверсії = їх кількість) — не показується; реальний ROAS кампаній — у блоці «ROI кампаній» (виручка з Bitrix за UTM).';
+    if (!_ga || !_ga.adsCost) {
+      const s = $('ads-status'); if (s) s.innerHTML = '✗ Немає даних Google Analytics (data/ga4.json) — перевір job update-ga4.';
+      return;
     }
-    _renderAlertRed();
-    _renderRecommendations();
-    _renderFunnelChart();
-    _renderCtrChart();
-    _renderCampaignsTable();
-    _renderRoasChart();
-    _renderBudgetChart();
-    _updateTimestamp();
+    const D = data(), rows = D.rows.filter(r => r.cost > 0 || r.n);
+    const S = f => rows.reduce((s, r) => s + (r[f] || 0), 0);
+    const cost = S('cost'), clk = S('clk'), imp = S('imp'), n = S('n'), ws = S('ws');
+    const paidN = rows.filter(r => r.cost > 0).reduce((s, r) => s + r.n, 0), paidWs = rows.filter(r => r.cost > 0).reduce((s, r) => s + r.ws, 0);
+    const roas = cost ? paidWs / cost * 100 : null;
+    const red = rows.filter(r => r.status === 'RED');
+    const fD = d => d.split('-').reverse().join('.');
+    const set = (id, v, col) => { const e = $(id); if (e) { e.innerHTML = v; e.style.color = col || ''; } };
+    set('ads-cost-total', fmt(cost) + ' ₴');
+    set('ads-clicks-total', fmt(clk) + `<span style="font-size:10px;font-weight:600;color:var(--tl)"> · CTR ${imp ? (clk / imp * 100).toFixed(2) : '—'}%</span>`);
+    set('ads-cpc', clk ? fmt(cost / clk) + ' ₴' : '—');
+    set('ads-conv-total', D.crm ? fmt(n) + `<span style="font-size:10px;font-weight:600;color:var(--tl)"> · CPL ${paidN ? fmt(cost / paidN) : '—'} ₴</span>` : '…', D.crm ? GD : null);
+    set('ads-roas-avg', D.crm ? (roas != null ? roas.toFixed(0) + '%' : '—') + `<span style="font-size:10px;font-weight:600;color:var(--tl)"> · ${fmtK(ws)} ₴</span>` : '…',
+      roas == null ? null : roas >= 300 ? GD : roas >= 100 ? A : R);
+    set('ads-red-count', D.crm ? String(red.length) : '…', red.length ? R : GD);
+    const per = $('ads-period-note');
+    if (per) per.textContent = `${fD(D.from)} – ${fD(D.to)}` + (D.accounts.includes('ukr3d') ? '' : ' · Ukr3d: немає даних');
+    const ts = $('ads-updated-at');
+    if (ts) ts.innerHTML = window.E3DFresh ? E3DFresh.html([{ ts: _ga.fetched_at, label: 'GA4 / Google Ads' }]) : 'Оновлено: ' + (_ga.fetched_at || '—');
+    const st = $('ads-status');
+    if (st) st.innerHTML = `Джерела: вартість, кліки, покази — Google Ads через Google Analytics 4 (EASY — ресурс easy3dprint.com.ua, Ukr3d — ukr3dprint.com), точно в грн по днях; конверсії сайту — ключові події GA4; ліди, WON і виручка — Bitrix24 за utm_campaign (угоди, створені в періоді — свіжі ще закриватимуться, тому ROAS за останні дні росте). Excel-скрипт Ads більше не використовується (не оновлювався з 10.10.2026).`;
+    renderAlert(red); renderRecs(rows, D); renderDaily(D); renderTable(rows, D); renderBudget(rows);
   }
 
-  function _renderSummary() {
-    const allActive = _data.analytics?.active || [];
-    const filtered = _filterCampaigns(allActive);
-    const totalCost = filtered.reduce((s,c) => s+(c.cost_uah||0), 0);
-    const totalConv = filtered.reduce((s,c) => s+(parseFloat(c.conversions)||0), 0);
-    const roasVals = filtered.map(c=>parseFloat(c.roas)).filter(v=>!isNaN(v)&&v>0);
-    const avgRoas = roasVals.length ? (roasVals.reduce((a,b)=>a+b,0)/roasVals.length).toFixed(2) : null;
-    const redCount = filtered.filter(c=>c.traffic_light==='RED').length;
-    const funnel = _data.funnel || [];
-    const avgCtr = funnel.length ? (funnel.reduce((s,d)=>s+(d.ctr_pct||0),0)/funnel.length).toFixed(2) : null;
-
-    _set('ads-cost-total',   totalCost ? _fmt(totalCost)+' грн' : '—');
-    _set('ads-conv-total',   Math.round(totalConv) || '—');
-    _set('ads-roas-avg',     avgRoas ? avgRoas+'x' : '—');
-    _set('ads-active-count', filtered.length);
-    _set('ads-red-count',    redCount);
-    _set('ads-ctr-avg',      avgCtr ? avgCtr+'%' : '—');
-
-    const re = document.getElementById('ads-roas-avg');
-    if (re && avgRoas) re.style.color = avgRoas>=3?GD:avgRoas>=1?A:R;
-    const redEl = document.getElementById('ads-red-count');
-    if (redEl) redEl.style.color = redCount>0?R:GD;
+  function renderAlert(red) {
+    const el = $('ads-alert-red'), tx = $('ads-alert-red-text'); if (!el || !tx) return;
+    if (!red.length) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    tx.innerHTML = red.map(r => `<b>${esc(r.name)}</b> (${ACC[r.acc].l}, ${fmt(r.cost)} ₴, 0 лідів у CRM)`).join('; ') + ' — витрати без жодного ліда в CRM: перевір Final URL suffix з utm_campaign або зупини.';
   }
 
-  function _renderAlertRed() {
-    const alertEl = document.getElementById('ads-alert-red');
-    const textEl  = document.getElementById('ads-alert-red-text');
-    if (!alertEl||!textEl) return;
-    const reds = (_data.analytics?.active||[]).filter(c=>c.traffic_light==='RED'&&c.cost_uah>0);
-    if (!reds.length){alertEl.style.display='none';return;}
-    alertEl.style.display='';
-    textEl.innerHTML = reds.map(c=>`<b>${c.campaign}</b> (${_fmt(c.cost_uah)} грн, ROAS ${isNaN(parseFloat(c.roas))?'—':parseFloat(c.roas).toFixed(2)+'x'})`).join('; ') + ' — рекомендовано зупинити';
-  }
-
-  function _renderRecommendations() {
-    const el = document.getElementById('ads-recommendations');
-    if (!el||!_data) return;
-    const active = _data.analytics?.active||[];
+  function renderRecs(rows, D) {
+    const el = $('ads-recommendations'); if (!el) return;
+    if (!D.crm) { el.innerHTML = ''; return; }
     const recs = [];
-
-    [...active].filter(c=>parseFloat(c.roas)>=3&&c.cost_uah>0)
-      .sort((a,b)=>parseFloat(b.roas)-parseFloat(a.roas)).slice(0,2)
-      .forEach(c=>recs.push({t:'g',icon:'🚀',text:`<b>${c.campaign}</b> — ROAS ${parseFloat(c.roas).toFixed(2)}x. Рекомендовано збільшити бюджет.`}));
-
-    active.filter(c=>c.traffic_light==='RED'&&c.cost_uah>0)
-      .forEach(c=>recs.push({t:'r',icon:'🛑',text:`<b>${c.campaign}</b> — ${_fmt(c.cost_uah)} грн, ROAS ${isNaN(parseFloat(c.roas))?'0':parseFloat(c.roas).toFixed(2)}x. Зупинити або переглянути.`}));
-
-    const funnel = _data.funnel||[];
-    if (funnel.length>=14){
-      const last7=funnel.slice(-7), prev7=funnel.slice(-14,-7);
-      const cvr1=last7.reduce((s,d)=>s+(d.cvr_pct||0),0)/7;
-      const cvr0=prev7.reduce((s,d)=>s+(d.cvr_pct||0),0)/7;
-      const delta=cvr1-cvr0;
-      if(Math.abs(delta)>0.5) recs.push({t:delta>0?'g':'a',icon:delta>0?'📈':'📉',text:`CVR останні 7 днів: <b>${cvr1.toFixed(1)}%</b> (${delta>0?'+':''}${delta.toFixed(1)}% до попереднього тижня).`});
+    rows.filter(r => r.cost >= 1000 && r.roas >= 300).sort((a, b) => b.roas - a.roas).slice(0, 2)
+      .forEach(r => recs.push({ t: 'g', i: '🚀', x: `<b>${esc(r.name)}</b> (${ACC[r.acc].l}) — ROAS ${r.roas.toFixed(0)}% за ${_st.days} дн. Кандидат на збільшення бюджету.` }));
+    // RED-кампанії — окремим червоним алертом вище (ads-alert-red), тут не дублюємо
+    const ds = Object.entries(D.days).sort(([a], [b]) => a.localeCompare(b)).map(([, v]) => v);
+    if (ds.length >= 14) {
+      const sum = (a, f) => a.reduce((s, d) => s + d[f], 0), l7 = ds.slice(-7), p7 = ds.slice(-14, -7);
+      const ctr1 = sum(l7, 'imp') ? sum(l7, 'clk') / sum(l7, 'imp') * 100 : 0, ctr0 = sum(p7, 'imp') ? sum(p7, 'clk') / sum(p7, 'imp') * 100 : 0;
+      const cpl1 = sum(l7, 'n') ? sum(l7, 'cost') / sum(l7, 'n') : null, cpl0 = sum(p7, 'n') ? sum(p7, 'cost') / sum(p7, 'n') : null;
+      if (cpl1 && cpl0 && Math.abs(cpl1 / cpl0 - 1) > 0.25) recs.push({ t: cpl1 < cpl0 ? 'g' : 'a', i: cpl1 < cpl0 ? '📉' : '📈', x: `CPL останні 7 днів: <b>${fmt(cpl1)} ₴</b> проти ${fmt(cpl0)} ₴ тижнем раніше (${cpl1 < cpl0 ? '' : '+'}${((cpl1 / cpl0 - 1) * 100).toFixed(0)}%).` });
+      if (ctr0 && Math.abs(ctr1 - ctr0) > 1) recs.push({ t: ctr1 > ctr0 ? 'g' : 'a', i: ctr1 > ctr0 ? '📈' : '📉', x: `CTR останні 7 днів: <b>${ctr1.toFixed(2)}%</b> (${ctr1 > ctr0 ? '+' : ''}${(ctr1 - ctr0).toFixed(2)} п.п. до попереднього тижня).` });
     }
-
-    el.innerHTML = recs.map(r=>`<div class="al al-${r.t}" style="margin-bottom:6px"><span class="ic">${r.icon}</span><div style="font-size:12px">${r.text}</div></div>`).join('');
+    el.innerHTML = recs.map(r => `<div class="al al-${r.t}" style="margin-bottom:6px"><span class="ic">${r.i}</span><div style="font-size:12px">${r.x}</div></div>`).join('');
   }
 
-  function _getWeeklyFunnel() {
-    const funnel = _data.funnel||[];
-    const byWeek={};
-    funnel.forEach(d=>{
-      const dt=new Date(d.date);
-      const key=`${dt.getFullYear()}-${String(dt.getMonth()).padStart(2,'0')}-${Math.ceil(dt.getDate()/7)}`;
-      if(!byWeek[key]) byWeek[key]={clicks:0,leads:0,ctr:[],cvr:[]};
-      byWeek[key].clicks+=d.clicks||0;
-      byWeek[key].leads+=d.leads||0;
-      byWeek[key].ctr.push(d.ctr_pct||0);
-      byWeek[key].cvr.push(d.cvr_pct||0);
-    });
-    return Object.keys(byWeek).sort().map((k,i)=>({
-      label:'Тиж.'+(i+1),
-      clicks:byWeek[k].clicks,
-      leads:Math.round(byWeek[k].leads),
-      ctr:+(byWeek[k].ctr.reduce((a,b)=>a+b,0)/byWeek[k].ctr.length).toFixed(2),
-      cvr:+(byWeek[k].cvr.reduce((a,b)=>a+b,0)/byWeek[k].cvr.length).toFixed(2),
-    }));
+  function chart(id, cfg) {
+    const c = $(id); if (!c) return;
+    if (_charts[id]) { try { _charts[id].destroy(); } catch (e) {} }
+    _charts[id] = new Chart(c, cfg);
   }
 
-  function _renderFunnelChart() {
-    const canvas=document.getElementById('ads-funnel-chart');if(!canvas)return;
-    let data, labels, clicks, leads;
-    if(_period==='week'){
-      data=_getWeeklyFunnel();
-      labels=data.map(d=>d.label);clicks=data.map(d=>d.clicks);leads=data.map(d=>d.leads);
-    } else {
-      const f=(_data.funnel||[]).slice(-30);
-      labels=f.map(d=>{const dt=new Date(d.date);return(dt.getMonth()+1)+'/'+dt.getDate();});
-      clicks=f.map(d=>d.clicks||0);leads=f.map(d=>Math.round(d.leads||0));
-    }
-    if(_charts.funnel){try{_charts.funnel.destroy();}catch(e){}}
-    _charts.funnel=new Chart(canvas,{type:'bar',data:{labels,datasets:[
-      {label:'Кліки',data:clicks,backgroundColor:AB,borderColor:A,borderWidth:1.5,borderRadius:4,yAxisID:'y1'},
-      {label:'Ліди',data:leads,backgroundColor:GB,borderColor:G,borderWidth:1.5,borderRadius:4,yAxisID:'y'},
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{color:GRID}},y:{type:'linear',position:'left',beginAtZero:true,grid:{color:GRID},title:{display:true,text:'Ліди',font:{size:9},color:G}},y1:{type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false},title:{display:true,text:'Кліки',font:{size:9},color:A}}}}});
+  function renderDaily(D) {
+    const keys = Object.keys(D.days).sort();
+    let buckets = keys.map(k => [k]);
+    const weekly = keys.length > 45;
+    if (weekly) { buckets = []; for (let i = 0; i < keys.length; i += 7) buckets.push(keys.slice(i, i + 7)); }
+    const agg = (b, f) => b.reduce((s, k) => s + D.days[k][f], 0);
+    const labels = buckets.map(b => { const d = b[0].split('-'); return (weekly ? 'з ' : '') + d[2] + '.' + d[1]; });
+    const ttl = $('ads-daily-title'); if (ttl) ttl.textContent = weekly ? 'По тижнях — кліки, ліди CRM, конверсії GA4' : 'По днях — кліки, ліди CRM, конверсії GA4';
+    const ttl2 = $('ads-ctr-title'); if (ttl2) ttl2.textContent = weekly ? 'CTR% і CPC по тижнях' : 'CTR% і CPC по днях';
+    const lg = { position: 'top', labels: { usePointStyle: true, padding: 10, font: { size: 10 } } };
+    chart('ads-funnel-chart', { type: 'bar', data: { labels, datasets: [
+      { label: 'Кліки', data: buckets.map(b => agg(b, 'clk')), backgroundColor: 'rgba(69,123,157,.18)', borderColor: A, borderWidth: 1.5, borderRadius: 4, yAxisID: 'y1' },
+      { label: 'Ліди CRM (угоди з google UTM)', type: 'line', data: buckets.map(b => agg(b, 'n')), borderColor: G, backgroundColor: G, tension: .3, pointRadius: 2, yAxisID: 'y' },
+      { label: 'Конверсії GA4 (ключові події)', type: 'line', data: buckets.map(b => Math.round(agg(b, 'ke'))), borderColor: Y, backgroundColor: Y, borderDash: [4, 3], tension: .3, pointRadius: 2, yAxisID: 'y' },
+    ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: lg, datalabels: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { position: 'left', beginAtZero: true, grid: { color: GRID }, title: { display: true, text: 'ліди / конверсії', font: { size: 9 } } },
+        y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'кліки', font: { size: 9 } } } } } });
+    chart('ads-ctr-chart', { type: 'line', data: { labels, datasets: [
+      { label: 'CTR %', data: buckets.map(b => { const i = agg(b, 'imp'); return i ? +(agg(b, 'clk') / i * 100).toFixed(2) : null; }), borderColor: A, backgroundColor: A, tension: .3, pointRadius: 2, yAxisID: 'y' },
+      { label: 'CPC, ₴', data: buckets.map(b => { const c = agg(b, 'clk'); return c ? +(agg(b, 'cost') / c).toFixed(1) : null; }), borderColor: G, backgroundColor: G, tension: .3, pointRadius: 2, yAxisID: 'y1' },
+    ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: lg, datalabels: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: GRID }, ticks: { callback: v => v + '%' } },
+        y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: v => v + ' ₴' } } } } });
   }
 
-  function _renderCtrChart() {
-    const canvas=document.getElementById('ads-ctr-chart');if(!canvas)return;
-    let labels,ctrData,cvrData;
-    if(_period==='week'){
-      const data=_getWeeklyFunnel();
-      labels=data.map(d=>d.label);ctrData=data.map(d=>d.ctr);cvrData=data.map(d=>d.cvr);
-    } else {
-      const f=(_data.funnel||[]).slice(-30);
-      labels=f.map(d=>{const dt=new Date(d.date);return(dt.getMonth()+1)+'/'+dt.getDate();});
-      ctrData=f.map(d=>d.ctr_pct||0);cvrData=f.map(d=>d.cvr_pct||0);
-    }
-    if(_charts.ctr){try{_charts.ctr.destroy();}catch(e){}}
-    _charts.ctr=new Chart(canvas,{type:'line',data:{labels,datasets:[
-      {label:'CTR%',data:ctrData,borderColor:A,borderWidth:2,tension:.4,fill:false,pointRadius:3,pointBackgroundColor:A},
-      {label:'CVR%',data:cvrData,borderColor:G,borderWidth:2,tension:.4,fill:false,pointRadius:3,pointBackgroundColor:G},
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:10}}}},scales:{x:{grid:{color:GRID}},y:{grid:{color:GRID},ticks:{callback:v=>v+'%'},beginAtZero:true}}}});
+  function renderTable(rows, D) {
+    const el = $('ads-campaigns-table'); if (!el) return;
+    const ttl = $('ads-camp-title'); if (ttl) ttl.textContent = `📢 Кампанії Google Ads — ${_st.days} днів`;
+    if (!rows.length) { el.innerHTML = '<p style="color:var(--tl);font-size:12px;padding:12px">Немає кампаній з витратами за період</p>'; return; }
+    rows = rows.slice().sort((a, b) => b.cost - a.cost);
+    const LIGHT = { GREEN: ['#d4edda', '#0A3D20'], RED: ['#f8d7da', '#721c24'], YELLOW: ['#fff3cd', '#856404'] };
+    const rc = v => v == null ? 'var(--tl)' : v >= 300 ? GD : v >= 100 ? A : R;
+    const th = (t, tip, al) => `<th class="${al || 'r'}"${tip ? ` title="${esc(tip)}"` : ''}>${t}</th>`;
+    el.innerHTML = `<div class="tw" style="max-height:520px;overflow:auto"><table class="tbl"><thead><tr>
+      ${th('Акаунт', '', 'l')}${th('Кампанія', '', 'l')}${th('Витрати')}${th('Покази')}${th('Кліки')}${th('CTR')}${th('CPC')}
+      ${th('Конв. GA4', 'Ключові події GA4 сайту easy3dprint.com.ua (форми, дзвінки, месенджери) із сеансів цієї кампанії. Для Ukr3d — «—»: події сайту ukr3dprint.com поки не завантажуються')}
+      ${th('Лідів CRM', 'Угоди Bitrix24 з цією utm_campaign, створені в періоді')}${th('CPL', 'Витрати ÷ ліди CRM')}${th('WON', 'Успішні угоди з цих лідів')}${th('WON сума')}
+      ${th('ROAS', 'WON-виручка ÷ витрати × 100%. Угоди останніх днів ще закриватимуться — ROAS за свіжий період росте')}
+      ${th('Статус ⓘ', STATUS_RULES, 'c')}</tr></thead><tbody>` +
+      rows.map(r => { const lc = LIGHT[r.status] || LIGHT.YELLOW; return `<tr>
+        <td style="white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${ACC[r.acc].c};margin-right:5px"></span>${ACC[r.acc].l}</td>
+        <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.name)}">${esc(r.name)}</td>
+        <td class="r" style="font-weight:700">${fmt(r.cost)}</td><td class="r">${fmt(r.imp)}</td><td class="r">${fmt(r.clk)}</td>
+        <td class="r">${r.ctr != null ? r.ctr.toFixed(2) + '%' : '—'}</td><td class="r">${r.cpc != null ? r.cpc.toFixed(1) : '—'}</td>
+        <td class="r">${r.ke != null ? Math.round(r.ke) : '—'}</td>
+        <td class="r">${D.crm ? r.n : '…'}</td><td class="r">${r.cpl != null ? fmt(r.cpl) : '—'}</td><td class="r">${D.crm ? r.w : '…'}</td><td class="r">${D.crm ? fmtK(r.ws) : '…'}</td>
+        <td class="r" style="font-weight:700;color:${rc(r.roas)}">${D.crm && r.roas != null ? r.roas.toFixed(0) + '%' : '—'}</td>
+        <td class="c">${r.status === undefined ? '…' : r.status ? `<span style="background:${lc[0]};color:${lc[1]};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700" title="${esc(STATUS_RULES)}">${r.status}</span>` : '<span style="color:var(--tl)" title="Без витрат — статус не оцінюється">—</span>'}</td></tr>`; }).join('') +
+      `</tbody></table></div>`;
   }
 
-  function _renderCampaignsTable() {
-    const container=document.getElementById('ads-campaigns-table');if(!container)return;
-    const allActive=_data.analytics?.active||[];
-    const filtered=_filterCampaigns(allActive);
-    const countEl=document.getElementById('ads-camp-count');
-    if(countEl) countEl.textContent=`Показано: ${filtered.length} з ${allActive.length}`;
-    if(!filtered.length){container.innerHTML='<p style="color:var(--tl);font-size:12px;padding:12px">Немає кампаній за фільтром</p>';return;}
-    const sorted=[...filtered].sort((a,b)=>{
-      if(a.traffic_light==='RED'&&b.traffic_light!=='RED')return-1;
-      if(b.traffic_light==='RED'&&a.traffic_light!=='RED')return 1;
-      return(b.cost_uah||0)-(a.cost_uah||0);
-    });
-    const LIGHT={GREEN:{bg:'#d4edda',color:'#0A3D20'},RED:{bg:'#f8d7da',color:'#721c24'},YELLOW:{bg:'#fff3cd',color:'#856404'}};
-    const rows=sorted.map(c=>{
-      const lc=LIGHT[c.traffic_light]||LIGHT.YELLOW;
-      const rv=parseFloat(c.roas);
-      const rc=!isNaN(rv)?(rv>=3?GD:rv>=1?A:R):'var(--tl)';
-      const rt=!isNaN(rv)?rv.toFixed(2)+'x':'—';
-      return `<tr><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.campaign}">${c.campaign}</td><td style="text-align:right;font-weight:600">${_fmt(c.cost_uah)} грн</td><td style="text-align:center">${Math.round(parseFloat(c.conversions)||0)}</td><td style="text-align:right;font-weight:700;color:${rc}">${rt}</td><td style="text-align:right">${(c.clicks||0).toLocaleString('uk-UA')}</td><td style="text-align:center">${(c.ctr_pct||0).toFixed(2)}%</td><td style="text-align:center"><span style="background:${lc.bg};color:${lc.color};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">${c.traffic_light}</span></td></tr>`;
-    }).join('');
-    container.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:var(--s2)"><th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase">Кампанія</th><th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase">Витрати</th><th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase">Конв.</th><th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase">ROAS</th><th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase">Кліки</th><th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase">CTR</th><th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase">Статус</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  function renderBudget(rows) {
+    const top = rows.filter(r => r.cost > 0).sort((a, b) => b.cost - a.cost).slice(0, 10);
+    if (!$('ads-budget-chart')) return;
+    chart('ads-budget-chart', { type: 'bar', data: { labels: top.map(r => (r.name.length > 24 ? r.name.slice(0, 22) + '…' : r.name) + ' · ' + ACC[r.acc].l),
+      datasets: [{ label: 'Витрати, ₴', data: top.map(r => Math.round(r.cost)), backgroundColor: top.map(r => ACC[r.acc].c), borderRadius: 4 }] },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false },
+        tooltip: { callbacks: { label: c => fmt(c.parsed.x) + ' ₴' } } },
+        scales: { x: { grid: { color: GRID }, ticks: { callback: v => fmtK(v) } }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
   }
 
-  function _renderRoasChart() {
-    const canvas=document.getElementById('ads-roas-chart');if(!canvas)return;
-    const filtered=_filterCampaigns(_data.analytics?.active||[]).filter(c=>parseFloat(c.roas)>0&&c.cost_uah>0).sort((a,b)=>parseFloat(b.roas)-parseFloat(a.roas)).slice(0,12);
-    if(!filtered.length){canvas.parentElement.innerHTML='<p style="color:var(--tl);font-size:12px;padding:1rem">Немає даних ROAS</p>';return;}
-    const colors=filtered.map(c=>{const r=parseFloat(c.roas);return r>=3?'rgba(42,157,143,.8)':r>=1?'rgba(69,123,157,.7)':'rgba(192,57,43,.7)';});
-    if(_charts.roas){try{_charts.roas.destroy();}catch(e){}}
-    _charts.roas=new Chart(canvas,{type:'bar',data:{labels:filtered.map(c=>c.campaign.length>20?c.campaign.substring(0,18)+'…':c.campaign),datasets:[{label:'ROAS',data:filtered.map(c=>parseFloat(c.roas)),backgroundColor:colors,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.x.toFixed(2)+'x'}}},scales:{x:{grid:{color:GRID},title:{display:true,text:'ROAS',font:{size:9}},beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
-  }
-
-  function _renderBudgetChart() {
-    const canvas=document.getElementById('ads-budget-chart');if(!canvas)return;
-    const filtered=_filterCampaigns(_data.analytics?.active||[]).filter(c=>(c.cost_uah||0)>0).sort((a,b)=>b.cost_uah-a.cost_uah).slice(0,10);
-    if(!filtered.length){canvas.parentElement.innerHTML='<p style="color:var(--tl);font-size:12px;padding:1rem">Немає витрат</p>';return;}
-    const colors=filtered.map(c=>c.traffic_light==='RED'?'rgba(192,57,43,.75)':c.traffic_light==='GREEN'?'rgba(42,157,143,.75)':'rgba(69,123,157,.6)');
-    if(_charts.budget){try{_charts.budget.destroy();}catch(e){}}
-    _charts.budget=new Chart(canvas,{type:'bar',data:{labels:filtered.map(c=>c.campaign.length>22?c.campaign.substring(0,20)+'…':c.campaign),datasets:[{label:'Витрати, грн',data:filtered.map(c=>c.cost_uah),backgroundColor:colors,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>_fmt(ctx.parsed.x)+' грн'}}},scales:{x:{grid:{color:GRID},ticks:{callback:v=>_fmt(v)+' грн'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
-  }
-
-  function _set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
-  function _fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('uk-UA',{maximumFractionDigits:0});}
-  function _updateTimestamp(){
-    const el=document.getElementById('ads-updated-at');
-    if(!el||!_data?.fetched_at)return;
-    if(window.E3DFresh){el.innerHTML=E3DFresh.html(_data.fetched_at,'Google Ads');return;}
-    try{const d=new Date(_data.fetched_at);el.textContent='Оновлено: '+d.toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){}
-  }
-
-  return{load,applyFilters,setPeriod};
+  // сумісність зі старими викликами
+  return { load, render, applyFilters: render, setPeriod: () => render() };
 })();

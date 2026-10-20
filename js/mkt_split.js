@@ -10,7 +10,8 @@
  */
 window.MktSplit = (() => {
   const G = '#2A9D8F', GD = '#1e7a6e', WH = '#3D7EA6', RT = '#C98A2B', R = '#C0392B', GRY = '#9aa3ad', GRID = '#f0f2ee';
-  const UKR = '#8E6CC0', META = '#4267B2', IG = '#C13584';
+  // v7.4: кольори акаунтів однакові з кнопками фільтрів (EASY — синій, Ukr3d — фіолетовий, Meta — малиновий)
+  const UKR = '#8E6CC0', META = '#D6457A', FB = '#4267B2', IG = '#C13584';
   const OV_LS = 'e3d_mkt_rules_override_v1', SP_LS = 'e3d_mkt_spend_acc_v1', SPL_LS = 'e3d_mkt_split_metric_v1';
   const CLS = ['mkt', 'non', 'unk'];
   const CLS_C = { mkt: G, non: RT, unk: GRY };
@@ -296,13 +297,13 @@ window.MktSplit = (() => {
       x.cost = (x.cost || 0) + r.cost; x.lead += r.lead + r.msg;
     });
     el.innerHTML =
-      tile('Ліди FB + IG у CRM', P.n.toLocaleString('uk-UA'), `Facebook ${P.fb} · Instagram ${P.ig}`, META) +
+      tile('Ліди FB + IG у CRM', P.n.toLocaleString('uk-UA'), `Facebook ${P.fb} · Instagram ${P.ig}`, FB) +
       tile('WON', String(P.w), `конверсія ${p0(P.n ? P.w / P.n * 100 : null)}`) +
       tile('WON-виручка', fmt(P.ws) + ' ₴', 'угоди, створені в періоді', GD) +
       tile('Витрати Meta', hasMeta ? fmt(P.cost) + ' ₴' : 'не підключено', hasMeta ? `заявок за даними Meta: ${fmt(P.lead)}` : 'потрібен токен Meta API', hasMeta ? META : 'var(--tl)') +
       tile('CPL / ROAS', hasMeta && P.cost ? `${P.n ? fmt(P.cost / P.n) : '—'} ₴ / ${p0(P.ws / P.cost * 100)}` : '—', 'витрати ÷ ліди CRM / виручка ÷ витрати');
     const cur = api.today().slice(0, 7);
-    const ds = [['facebook', 'Facebook', META], ['instagram', 'Instagram', IG], ['meta', 'Meta (UTM = ID)', '#7F9CD6']]
+    const ds = [['facebook', 'Facebook', FB], ['instagram', 'Instagram', IG], ['meta', 'Meta (UTM = ID)', '#7F9CD6']]
       .map(([k, l, c]) => ({ label: l, data: months.map(m => byM[m][k]), backgroundColor: c, borderRadius: 3, stack: 's', yAxisID: 'y' }))
       .concat([{ label: 'WON-виручка, ₴', type: 'line', yAxisID: 'y1', data: months.map(m => Math.round(byM[m].ws)), borderColor: GD, backgroundColor: GD, pointRadius: 2, tension: .3 }]);
     if (hasMeta) ds.push({ label: 'Витрати Meta, ₴', type: 'line', yAxisID: 'y1', data: months.map(m => Math.round(byM[m].cost)), borderColor: R, backgroundColor: R, pointRadius: 2, tension: .3, borderDash: [4, 3] });

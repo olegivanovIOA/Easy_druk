@@ -6,7 +6,7 @@
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="data/static.js?v=20261019"></script>
+<script src="data/static.js?v=20261020"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
@@ -306,6 +306,13 @@ a{color:var(--gd);text-decoration:none}
 .roi-paid{display:inline-flex;align-items:center;gap:4px;color:var(--td);cursor:pointer;white-space:nowrap}
 #roi-q{font-size:11px;padding:3px 8px;border:1px solid var(--bd);border-radius:6px;background:transparent;color:var(--tx);width:190px}
 #roi-reset{font-size:10px;color:#C0392B;text-decoration:none;white-space:nowrap}
+/* v7.4: сортування таблиць «Маркетинг» кліком по заголовку; кольорові кнопки фільтрів = кольори графіків */
+#panel-crm table:not(.roi-ddt) thead th{cursor:pointer;user-select:none}
+#panel-crm table thead th:hover{color:var(--tx)}
+.ts-arr{font-size:9px;margin-left:3px;color:var(--tx)}
+.roi-seg button[style*="--c"]::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:0}
+.roi-seg button.on[style*="--c"]{background:var(--c);color:#fff;font-weight:700}
+.roi-seg button.on[style*="--c"]::before{background:#fff}
 .roi-cls{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
 .roi-row{cursor:pointer}.roi-row.open td{background:var(--s2)}
 .roi-dd>td{padding:4px 8px 10px 22px!important;background:var(--s2)}
@@ -1221,8 +1228,8 @@ a{color:var(--gd);text-decoration:none}
         </div>
         <div id="mkt-leadgen-roi-note" style="font-size:10px;color:var(--tl);margin-bottom:6px"></div>
         <div class="roi-flt" id="roi-filter">
-          <span class="roi-flt-l">Акаунт:</span><span class="roi-seg" id="roi-acc" title="Група рекламного акаунта: Google Ads EASY / Ukr3d, Meta (Facebook + Instagram) або джерела без реклами"><button type="button" data-v="all">Усі</button><button type="button" data-v="easy">EASY</button><button type="button" data-v="ukr3d">Ukr3d</button><button type="button" data-v="meta">Meta (FB+IG)</button><button type="button" data-v="none">Без реклами</button></span>
-          <span class="roi-flt-l">Ліди:</span><span class="roi-seg" id="roi-cls" title="Від маркетингу / не від маркетингу — за правилами data/marketing_rules.json (блок «Ліди від маркетингу» нижче)"><button type="button" data-v="all">Усі</button><button type="button" data-v="mkt">Маркетинг</button><button type="button" data-v="non">Не маркетинг</button><button type="button" data-v="unk">Не визначено</button></span>
+          <span class="roi-flt-l">Акаунт:</span><span class="roi-seg" id="roi-acc" title="Група рекламного акаунта: Google Ads EASY / Ukr3d, Meta (Facebook + Instagram) або джерела без реклами"><button type="button" data-v="all">Усі</button><button type="button" data-v="easy" style="--c:#3D7EA6">EASY</button><button type="button" data-v="ukr3d" style="--c:#8E6CC0">Ukr3d</button><button type="button" data-v="meta" style="--c:#D6457A">Meta (FB+IG)</button><button type="button" data-v="none" style="--c:#9aa3ad">Без реклами</button></span>
+          <span class="roi-flt-l">Ліди:</span><span class="roi-seg" id="roi-cls" title="Від маркетингу / не від маркетингу — за правилами data/marketing_rules.json (блок «Ліди від маркетингу» нижче)"><button type="button" data-v="all">Усі</button><button type="button" data-v="mkt" style="--c:#2A9D8F">Маркетинг</button><button type="button" data-v="non" style="--c:#C98A2B">Не маркетинг</button><button type="button" data-v="unk" style="--c:#9aa3ad">Не визначено</button></span>
         </div>
         <div class="roi-flt">
           <span class="roi-flt-l">Канал:</span><span id="roi-chips" class="roi-chips"></span>
@@ -1286,7 +1293,7 @@ a{color:var(--gd);text-decoration:none}
         <div class="card" style="margin-bottom:12px">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
             <div class="ct" style="margin:0">💸 Витрати на рекламу по акаунтах · <span class="ms-per" style="font-weight:500;color:var(--tl)"></span></div>
-            <span class="roi-seg" id="ms-spend-acc"><button type="button" data-v="all">Усі</button><button type="button" data-v="easy">EASY</button><button type="button" data-v="ukr3d">Ukr3d</button><button type="button" data-v="meta">Meta</button></span>
+            <span class="roi-seg" id="ms-spend-acc"><button type="button" data-v="all">Усі</button><button type="button" data-v="easy" style="--c:#3D7EA6">EASY</button><button type="button" data-v="ukr3d" style="--c:#8E6CC0">Ukr3d</button><button type="button" data-v="meta" style="--c:#D6457A">Meta</button></span>
           </div>
           <div id="ms-spend-kpi" class="roi-kpi"></div>
           <div class="cw" style="height:220px"><canvas id="ms-spend-chart"></canvas></div>
@@ -1372,52 +1379,53 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
-  <!-- ═══ Google Ads (сирі дані скрипта) — нижче, бо вартість у скрипті некоректна ═══ -->
+  <!-- ═══ v7.5: Google Ads — з GA4 (вартість/кліки/покази) + Bitrix24 (ліди/WON/виручка); Excel-скрипт Ads більше не використовується ═══ -->
   <div id="w-crm-funnel">
-
-    <!-- Заголовок -->
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <div class="sec" style="margin-bottom:9px">📣 Google Ads — реальні дані</div>
-      <span id="ads-updated-at" style="font-size:11px;color:var(--tl)">Завантаження…</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:9px">
+      <div class="sec" style="margin-bottom:0">📣 Google Ads <span id="ads-period-note" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span></div>
+      <div class="roi-ctl">
+        <span class="roi-seg" id="ads-acc"><button type="button" data-v="all">Усі</button><button type="button" data-v="easy" style="--c:#3D7EA6">EASY</button><button type="button" data-v="ukr3d" style="--c:#8E6CC0">Ukr3d</button></span>
+        <span class="roi-seg" id="ads-days"><button type="button" data-v="7">7 дн</button><button type="button" data-v="30">30 дн</button><button type="button" data-v="90">90 дн</button></span>
+        <span id="ads-updated-at" style="font-size:11px;color:var(--tl)">Завантаження…</span>
+      </div>
     </div>
 
-    <!-- 6 KPI карток -->
     <div class="g6" style="margin-bottom:14px">
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Витрати 30 днів</div><div class="krow-val" id="ads-cost-total">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Конверсії (ліди)</div><div class="krow-val g" id="ads-conv-total">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Avg ROAS</div><div class="krow-val" id="ads-roas-avg">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Активних кампаній</div><div class="krow-val" id="ads-active-count">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">RED кампанії</div><div class="krow-val r" id="ads-red-count">—</div><div class="krow-tgt">потребують уваги</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl">Null-атрибуція</div><div class="krow-val r">34 кл.</div><div class="krow-tgt">10.2M грн</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Витрати</div><div class="krow-val" id="ads-cost-total">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">Кліки</div><div class="krow-val" id="ads-clicks-total">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl">CPC (ціна кліка)</div><div class="krow-val" id="ads-cpc">—</div><div class="real-dot"></div></div>
+      <div class="krow" title="Угоди Bitrix24 з utm_source=google, створені в періоді; CPL — витрати ÷ ліди платних кампаній"><div class="krow-bar kb-g"></div><div class="krow-lbl">Ліди в CRM</div><div class="krow-val" id="ads-conv-total">—</div><div class="real-dot"></div></div>
+      <div class="krow" title="WON-виручка Bitrix24 угод платних кампаній ÷ витрати × 100%"><div class="krow-bar kb-g"></div><div class="krow-lbl">ROAS (CRM)</div><div class="krow-val" id="ads-roas-avg">—</div><div class="real-dot"></div></div>
+      <div class="krow" title="Витрати ≥ 2 000 ₴ і жодного ліда в CRM"><div class="krow-bar kb-r"></div><div class="krow-lbl">RED кампанії</div><div class="krow-val" id="ads-red-count">—</div><div class="krow-tgt">витрати без лідів</div><div class="real-dot"></div></div>
     </div>
 
-    <!-- Воронка + CTR/CVR -->
+    <div id="ads-alert-red" class="al al-r" style="display:none;margin-bottom:8px"><span class="ic">🛑</span><div id="ads-alert-red-text" style="font-size:12px"></div></div>
+    <div id="ads-recommendations" style="margin-bottom:8px"></div>
+
     <div class="g2" style="margin-bottom:14px">
       <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Воронка по днях — кліки та ліди</div>
-        <div class="cw ch180"><canvas id="ads-funnel-chart" role="img" aria-label="Воронка по днях"></canvas></div>
+        <div id="ads-daily-title" style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">По днях — кліки, ліди CRM, конверсії GA4</div>
+        <div class="cw ch180"><canvas id="ads-funnel-chart" role="img" aria-label="Кліки, ліди і конверсії по днях"></canvas></div>
       </div>
       <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">CTR% та CVR% по днях</div>
-        <div class="cw ch180"><canvas id="ads-ctr-chart" role="img" aria-label="CTR та CVR по днях"></canvas></div>
+        <div id="ads-ctr-title" style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">CTR% і CPC по днях</div>
+        <div class="cw ch180"><canvas id="ads-ctr-chart" role="img" aria-label="CTR і CPC по днях"></canvas></div>
       </div>
     </div>
 
-    <!-- Таблиця активних кампаній -->
     <div id="w-crm-camp">
-      <div class="sec">📢 Активні кампанії — 30 днів</div>
+      <div class="sec" id="ads-camp-title">📢 Кампанії Google Ads — 30 днів</div>
       <div class="card-flat" style="margin-bottom:14px">
         <div id="ads-campaigns-table"><p style="padding:12px;color:var(--tl);font-size:12px">Завантаження…</p></div>
       </div>
     </div>
 
-    <!-- Розподіл бюджету -->
     <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Розподіл бюджету по кампаніях (топ-10)</div>
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px">Розподіл бюджету по кампаніях (топ-10, колір — акаунт)</div>
       <div class="cw" style="height:260px"><canvas id="ads-budget-chart" role="img" aria-label="Розподіл бюджету"></canvas></div>
     </div>
 
-    <div id="ads-status" style="font-size:11px;color:var(--tl)"></div>
+    <div id="ads-status" style="font-size:10px;color:var(--tl);margin-bottom:10px"></div>
   </div>
 
   <!-- ═══ MQL→SQL АНАЛІТИКА ═══ -->
@@ -3352,13 +3360,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
     function fmtTs(iso){if(!iso)return'—';try{return new Date(iso).toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}}
     var ts=document.getElementById('tip-str');if(ts)ts.innerHTML=tipHTML('partial','Google Sheets','—',true);
-    var tc=document.getElementById('tip-crm');if(tc)tc.innerHTML=tipHTML('partial','Google Ads','—',true);
+    var tc=document.getElementById('tip-crm');if(tc)tc.innerHTML=tipHTML('partial','GA4 + Bitrix24','—',true);
     // CRM: статус 'live' після завантаження ads.json
     if(window.AdsLoader){
       Promise.resolve(window.AdsLoader.load()).then(function(){
-        fetch('data/ads.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+        fetch('data/ga4.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
           var tc2=document.getElementById('tip-crm');
-          if(tc2&&d.fetched_at)tc2.innerHTML=tipHTML('live','Google Ads',fmtTs(d.fetched_at),false);
+          if(tc2&&d.fetched_at)tc2.innerHTML=tipHTML('live','GA4 + Bitrix24',fmtTs(d.fetched_at),false);
           // Оновлюємо точку статусу на жовту → зелену
           var btn=document.querySelector('[data-tab="crm"]');
           if(btn){var dot=btn.querySelector('.e3d-dot');if(dot)dot.style.background='#16A34A';}
@@ -3954,15 +3962,16 @@ window.LocLoader = (() => {
 </script>
 <script src="js/hr_loader.js?v=20260930"></script>
 <script src="js/org_loader.js?v=20261012b"></script>
-<script src="js/ads_loader.js?v=20260930"></script>
+<script src="js/ads_loader.js?v=20261020b"></script>
 <script src="js/mql_loader.js?v=20260924"></script>
 <script src="js/sales_loader.js?v=20260930b"></script>
 <script src="js/funnels_loader.js?v=20260930e"></script>
 <script src="js/finance_status.js?v=20261014"></script>
 <script src="js/channels_loader.js?v=20260930"></script>
 <script src="js/ga4_loader.js?v=20261014"></script>
-<script src="js/mkt_split.js?v=20261019c"></script>
-<script src="js/leadgen_loader.js?v=20261019c"></script>
+<script src="js/table_sort.js?v=20261020"></script>
+<script src="js/mkt_split.js?v=20261020"></script>
+<script src="js/leadgen_loader.js?v=20261020b"></script>
 <script src="js/shopfloor_loader.js?v=20261014b"></script>
 <script src="js/clients_loader.js?v=20261014b"></script>
 <script>
