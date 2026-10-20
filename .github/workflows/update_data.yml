@@ -80,41 +80,8 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
-  update-ads:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main_root
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - run: pip install requests
-
-      - name: Fetch Ads data
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          ADS_SHEET_ID: ${{ secrets.ADS_SHEET_ID }}
-        run: python fetch_ads.py
-
-      # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск
-      # (раніше ~12 комітів/год → ~12 збірок GitHub Pages і черга)
-      - name: Collect changed update-ads files
-        run: |
-          mkdir -p _out
-          # лише файли, які цей job реально змінив — щоб не затерти свіжіші дані старою копією з checkout
-          git status --porcelain -- data/ads.json data/ads_campaigns_daily.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
-          ls -la _out
-
-      - name: Upload update-ads data
-        uses: actions/upload-artifact@v4
-        with:
-          name: data-update-ads
-          path: _out/
-          if-no-files-found: ignore
-          retention-days: 1
+  # v7.5: update-ads (Excel-скрипт Google Ads, Вадим) вимкнено — не оновлювався з 10.10.2026; вартість/кліки/покази
+  # беруться з GA4 (update-ga4), ліди/виручка — з Bitrix24. data/ads.json лишається як архів.
 
   update-ga4:
     runs-on: ubuntu-latest
@@ -546,7 +513,7 @@ jobs:
 
   commit-all:
     # v7.3: один коміт з даними всіх job'ів → одна збірка GitHub Pages на запуск
-    needs: [update-strategy, update-hr, update-ads, update-ga4, update-meta, update-shopfloor, update-clients, update-mql, update-sales, update-capacity, update-batches, update-crm, update-cf]
+    needs: [update-strategy, update-hr, update-ga4, update-meta, update-shopfloor, update-clients, update-mql, update-sales, update-capacity, update-batches, update-crm, update-cf]
     if: always()
     runs-on: ubuntu-latest
     steps:
