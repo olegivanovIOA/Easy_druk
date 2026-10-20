@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-20T04:55:06Z",
+  "fetched_at": "2026-10-20T05:14:13Z",
   "date": "2026-10-19",
   "range": {
     "from": "19.10.2026",
@@ -18,7 +18,7 @@
     "defectQty": 3,
     "defectPercent": 2.48,
     "defectWeightPercent": 2.48,
-    "totalPrintTimeMinutes": 551329.2000000001,
+    "totalPrintTimeMinutes": 567385.3,
     "materialCostUAH": 3611.54,
     "materialCostCoveragePercent": 100.0
   },
@@ -293,21 +293,21 @@
         "location": "4",
         "baseProductCode": "000708",
         "batchCount": 9,
-        "totalPrintTimeMinutes": 92771,
+        "totalPrintTimeMinutes": 101297,
         "shift": "SECOND"
       },
       {
         "location": "5",
         "baseProductCode": "000611",
         "batchCount": 1,
-        "totalPrintTimeMinutes": 3556.9,
+        "totalPrintTimeMinutes": 4736,
         "shift": "SECOND"
       },
       {
         "location": "5",
         "baseProductCode": "000718",
         "batchCount": 11,
-        "totalPrintTimeMinutes": 336384,
+        "totalPrintTimeMinutes": 342735,
         "shift": "SECOND"
       }
     ]
@@ -361,14 +361,14 @@
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
-          "totalPrintTimeMinutes": 92771,
-          "printTimeCoverage": 0.8889,
+          "totalPrintTimeMinutes": 101297,
+          "printTimeCoverage": 1,
           "plannedMachines": {
             "planned": 240,
             "estimated": 288
           },
-          "avgPartsPerMachine": 1.9,
-          "avgPartsPerMachineEstimated": 1.6,
+          "avgPartsPerMachine": 2.1,
+          "avgPartsPerMachineEstimated": 1.7,
           "qcDefectWeightPercent": null,
           "defectWeightCoverage": 0
         }
@@ -751,7 +751,12 @@
               "defectPercent": null,
               "qcCompleted": false,
               "unitWeightG": null,
-              "printTime": null,
+              "printTime": {
+                "perPartMinutes": 203,
+                "qty": 42,
+                "totalMinutes": 8526,
+                "source": "production_plans_daily"
+              },
               "plannedMachines": {
                 "planned": 240,
                 "estimated": 288
@@ -976,14 +981,14 @@
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
-          "totalPrintTimeMinutes": 3556.9,
+          "totalPrintTimeMinutes": 4736,
           "printTimeCoverage": 1,
           "plannedMachines": {
             "planned": 8,
             "estimated": 9.6
           },
-          "avgPartsPerMachine": 0,
-          "avgPartsPerMachineEstimated": 0,
+          "avgPartsPerMachine": 240,
+          "avgPartsPerMachineEstimated": 200,
           "qcDefectWeightPercent": null,
           "defectWeightCoverage": 0
         },
@@ -1002,14 +1007,14 @@
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
-          "totalPrintTimeMinutes": 336384,
+          "totalPrintTimeMinutes": 342735,
           "printTimeCoverage": 1,
           "plannedMachines": {
             "planned": 625,
             "estimated": 750
           },
-          "avgPartsPerMachine": 6.5,
-          "avgPartsPerMachineEstimated": 5.4,
+          "avgPartsPerMachine": 7.2,
+          "avgPartsPerMachineEstimated": 6,
           "qcDefectWeightPercent": null,
           "defectWeightCoverage": 0
         }
@@ -1138,8 +1143,8 @@
               "unitWeightG": 0.86,
               "printTime": {
                 "perPartMinutes": 2.467,
-                "qty": 1442,
-                "totalMinutes": 3556.9,
+                "qty": 1920,
+                "totalMinutes": 4736,
                 "source": "production_plans_daily"
               },
               "plannedMachines": {
@@ -1298,8 +1303,8 @@
               "unitWeightG": 22.66,
               "printTime": {
                 "perPartMinutes": 73,
-                "qty": 410,
-                "totalMinutes": 29930,
+                "qty": 497,
+                "totalMinutes": 36281,
                 "source": "production_plans_daily"
               },
               "plannedMachines": {
