@@ -20,6 +20,7 @@ v6.4: «перший дотик» (LTV реклами) — інкремента�
 якщо кешу немає, або TOUCH_FULL=1.
 """
 import hashlib, json, os, re, statistics, sys, time
+from urllib.parse import urlencode
 from collections import defaultdict, Counter
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -38,6 +39,8 @@ TOUCH_FULL_DAYS = int(os.environ.get("TOUCH_FULL_DAYS", "7"))
 TOUCH_CATS = (0, 24, 18, 32)
 KW = re.compile(r"індустр|индустр|галуз|отрасл|сфер[аиуе]|industry|вид діяльн|вид деятельн", re.I)
 TODAY = date.today()
+T0 = time.time()
+el = lambda: f"[{time.time() - T0:.0f} с]"   # v7.6: тривалість етапів у лозі
 
 
 def call(method, params=None):
@@ -59,6 +62,54 @@ def call(method, params=None):
     raise RuntimeError(f"{method}: не вдалося після 8 спроб ({last})")
 
 
+def call_batch(cmd):
+    """Bitrix batch (до 50 підзапитів за один HTTP-запит), POST, з тими самими повторами. → (result, result_error)."""
+    last = None
+    for a in range(8):
+        try:
+            r = requests.post(URL + "batch", json={"halt": 0, "cmd": cmd}, timeout=180)
+        except requests.RequestException as e:
+            last = e; time.sleep(float(os.environ.get("BX_RETRY_SLEEP", "1")) * (3 + 3 * a)); continue
+        if r.status_code >= 500 or "QUERY_LIMIT_EXCEEDED" in r.text:
+            last = f"HTTP {r.status_code}"; print(f"  ↻ batch: {last}, повтор {a + 1}/8"); time.sleep(float(os.environ.get("BX_RETRY_SLEEP", "1")) * (3 + 3 * a)); continue
+        r.raise_for_status()
+        j = r.json()
+        if "error" in j:
+            raise RuntimeError(f"batch: {j.get('error_description') or j['error']}")
+        res = j.get("result") or {}
+        time.sleep(float(os.environ.get("BX_SLEEP", "0.35")))
+        return res.get("result") or {}, res.get("result_error") or {}
+    raise RuntimeError(f"batch: не вдалося після 8 спроб ({last})")
+
+
+def list_all(method, params):
+    """v7.6: швидке вивантаження списку — перша сторінка звичайним запитом (дає total), решта сторінок
+    пачками по 50 через batch: ~2 500 записів за один HTTP-запит замість 50. Сортування ID ASC, дублікати відкидаються."""
+    base = dict(params); base["order[ID]"] = "ASC"
+    first = call(method, dict(base, start=0))
+    rows = list(first.get("result") or [])
+    total = int(first.get("total") or 0)
+    starts = list(range(50, total, 50))
+    for i in range(0, len(starts), 50):
+        grp = starts[i:i + 50]
+        cmd = {f"p{st}": method + "?" + urlencode(dict(base, start=st), doseq=True) for st in grp}
+        res, err = call_batch(cmd)
+        for st in grp:
+            k = f"p{st}"
+            if k in res and isinstance(res[k], list):
+                rows += res[k]
+            else:   # підзапит не вдався — добираємо окремо
+                if err.get(k):
+                    print(f"  ↻ {method} start={st}: {str(err.get(k))[:120]} — окремий запит")
+                rows += call(method, dict(base, start=st)).get("result") or []
+    seen, out = set(), []
+    for r in rows:
+        if r.get("ID") in seen:
+            continue
+        seen.add(r.get("ID")); out.append(r)
+    return out
+
+
 DEAL_IND = {}   # {code: (підпис, {id варіанта: назва})} — поля галузі/сфери в картці УГОДИ
 
 
@@ -75,33 +126,17 @@ def detect_deal_industry_fields():
 
 
 def won_deals(cat):
-    """Усі WON-угоди воронки — швидка пагінація через filter[>ID] + start=-1."""
-    out, last = [], 0
-    while True:
-        j = call("crm.deal.list", {"filter[CATEGORY_ID]": cat, "filter[STAGE_SEMANTIC_ID]": "S", "filter[>ID]": last,
-                                   "order[ID]": "ASC", "start": -1,
-                                   "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "OPPORTUNITY", "CLOSEDATE"] + list(DEAL_IND)})
-        rows = j.get("result") or []
-        out += rows
-        if len(rows) < 50:
-            return out
-        last = rows[-1]["ID"]
+    """Усі WON-угоди воронки. v7.6: batch-пагінація (у ~50 разів менше HTTP-запитів до Bitrix)."""
+    return list_all("crm.deal.list", {"filter[CATEGORY_ID]": cat, "filter[STAGE_SEMANTIC_ID]": "S",
+                                      "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "OPPORTUNITY", "CLOSEDATE"] + list(DEAL_IND)})
 
 
 def all_deals_touch(cat, since=None):
     """v6.3: угоди воронки (будь-яка стадія) — лише поля для «першого дотику». v6.4: since → тільки змінені після."""
-    out, last = [], 0
-    while True:
-        p = {"filter[CATEGORY_ID]": cat, "filter[>ID]": last, "order[ID]": "ASC", "start": -1,
-             "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "DATE_CREATE", "UTM_SOURCE", "UTM_CAMPAIGN", "SOURCE_ID"]}
-        if since:
-            p["filter[>DATE_MODIFY]"] = since
-        j = call("crm.deal.list", p)
-        rows = j.get("result") or []
-        out += rows
-        if len(rows) < 50:
-            return out
-        last = rows[-1]["ID"]
+    p = {"filter[CATEGORY_ID]": cat, "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "DATE_CREATE", "UTM_SOURCE", "UTM_CAMPAIGN", "SOURCE_ID"]}
+    if since:
+        p["filter[>DATE_MODIFY]"] = since
+    return list_all("crm.deal.list", p)   # v7.6: batch-пагінація
 
 
 def hkey(key):
@@ -135,7 +170,7 @@ def touch_deals():
     for cat in TOUCH_CATS:
         ds = all_deals_touch(cat, since)
         n += len(ds)
-        print(f"[CL] перший дотик: воронка {cat} — {len(ds)} угод")
+        print(f"[CL] {el()} перший дотик: воронка {cat} — {len(ds)} угод")
         for d in ds:
             co, ct = d.get("COMPANY_ID"), d.get("CONTACT_ID")
             key = ("c" + str(co)) if filled(co) else ("p" + str(ct)) if filled(ct) else None
@@ -247,7 +282,7 @@ def main():
     deals, skipped = [], 0
     for cat, grp in CATS.items():
         ds = won_deals(cat)
-        print(f"[CL] воронка {cat}: {len(ds)} WON за весь час")
+        print(f"[CL] {el()} воронка {cat}: {len(ds)} WON за весь час")
         for d in ds:
             dt = d10(d.get("CLOSEDATE"))
             if not dt or dt > TODAY + timedelta(days=1):
@@ -533,7 +568,7 @@ def main():
         return 1
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     a = ltv_out["all"]
-    print(f"[CL] ✓ {OUT}: клієнтів {len(cl)}, LTV сер. {a['avgRevenuePerClient']:,} / мед. {a['medianRevenuePerClient']:,} грн, "
+    print(f"[CL] {el()} ✓ {OUT}: клієнтів {len(cl)}, LTV сер. {a['avgRevenuePerClient']:,} / мед. {a['medianRevenuePerClient']:,} грн, "
           f"відтік B2B за рік {churn['wholesale']['annualChurnPct']}%, під ризиком {churn['all']['atRisk']['clients']}, "
           f"галузі: {industries and industries['field']} ({industries and industries['coverageRevenue12mPct']}% виручки)")
     return 0
