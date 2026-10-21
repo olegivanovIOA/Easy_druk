@@ -1,0 +1,42 @@
+name: Backfill CRM Monthly History
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Перерахувати ВСІ місяці (інакше — тільки відсутні/неповні, це швидко)'
+        type: boolean
+        default: false
+
+jobs:
+  backfill-crm-monthly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Backfill CRM monthly history (2026)
+        env:
+          BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
+          KEY_ACCOUNT_IDS: ${{ secrets.KEY_ACCOUNT_IDS }}   # v7.7: необов'язково — ручний список «слонів» (c<id компанії>,p<id контакту>)
+          FORCE: ${{ inputs.force }}
+        run: python backfill_crm_monthly.py
+
+      - name: Commit CRM monthly history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/crm_monthly_history.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: backfill CRM monthly history 2026"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main_root && git push && break || sleep $((i*3))
+          done
