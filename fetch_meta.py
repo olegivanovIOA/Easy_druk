@@ -31,6 +31,9 @@ BASE = os.environ.get("META_API_BASE", "https://graph.facebook.com").rstrip("/")
 NBU = os.environ.get("NBU_API_BASE", "https://bank.gov.ua").rstrip("/")
 SINCE = date.fromisoformat(os.environ.get("META_SINCE", "2026-01-01"))
 REFRESH = int(os.environ.get("META_REFRESH_DAYS", "35"))
+# v7.9: особисті рекламні акаунти — не враховуються (Олег, 21.10.2026): TEMOL, Ivan Voesh, Eugene Steshenko
+EXCLUDE = {a.strip().replace("act_", "") for a in (os.environ.get("META_EXCLUDE_ACCOUNT_IDS")
+           or "1317298875747493,271503790238361,372570236668313").replace(";", ",").split(",") if a.strip()}
 TODAY = date.today()
 
 LEAD_TYPES = ("lead", "onsite_conversion.lead_grouped", "offsite_conversion.fb_pixel_lead", "leadgen_grouped")
@@ -138,6 +141,9 @@ def act_sum(actions, types):
     return s
 
 
+_INFO = {}   # v7.9: {account_id: (назва, валюта)} з /me/adaccounts — щоб і акаунти без витрат мали назву
+
+
 def discover_accounts():
     """v7.7: усі рекламні акаунти, доступні токену. Повертає список ID без «act_»."""
     out = []
@@ -146,10 +152,13 @@ def discover_accounts():
     while True:
         for a in j.get("data") or []:
             st = a.get("account_status")
+            _INFO[str(a.get("account_id"))] = (a.get("name") or str(a.get("account_id")), a.get("currency") or "?")
             print(f"[META] акаунт {a.get('account_id')} «{a.get('name')}», {a.get('currency')}, статус {st}, "
                   f"витрачено за весь час {a.get('amount_spent')}")
             # 1 = активний, 2 = вимкнений, 3 = неоплата, 101 = закритий — беремо всі, крім закритих без витрат
-            if st != 101 or float(a.get("amount_spent") or 0) > 0:
+            if str(a.get("account_id")) in EXCLUDE:
+                print(f"[META]   ↳ виключено (особистий акаунт) — не враховується")
+            elif st != 101 or float(a.get("amount_spent") or 0) > 0:
                 out.append(str(a.get("account_id")))
         nxt = (j.get("paging") or {}).get("next")
         if not nxt:
@@ -162,6 +171,7 @@ def main():
     if not TOKEN:
         print("[META] META_ACCESS_TOKEN не задано — пропускаю (job зелений).")
         return 0
+    ACCS = [a for a in ACCS if a.replace("act_", "") not in EXCLUDE]
     if not ACCS:
         try:
             ACCS = discover_accounts()
@@ -201,7 +211,9 @@ def main():
                                  "lead": round(act_sum(x.get("actions"), LEAD_TYPES)),
                                  "msg": round(act_sum(x.get("actions"), MSG_TYPES))})
                 time.sleep(0.5)
-            accounts.append({"id": aid, "name": name or aid, "currency": curr or "?"})
+            nm0, cur0 = _INFO.get(aid, (None, None))
+            accounts.append({"id": aid, "name": name or nm0 or aid, "currency": curr or cur0 or "?",
+                             "spend": round(sum(r["spend"] for r in rows if r["aid"] == aid), 2)})
             print(f"[META] ✓ {name or aid}: +{len(rows) - n0} рядків з {start}")
         except Exception as e:
             errors.append(f"{aid}: {e}")
