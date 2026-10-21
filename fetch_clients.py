@@ -32,7 +32,8 @@ OUT = Path(__file__).parent / "data" / "clients.json"
 CATS = {24: "wholesale", 18: "retail", 32: "retail"}
 CHURN_DAYS = int(os.environ.get("CHURN_DAYS", "180"))
 RISK_FROM = int(os.environ.get("RISK_FROM_DAYS", "120"))
-REACT_GAP = int(os.environ.get("REACT_GAP_DAYS", "180"))   # v7.0: пауза, після якої угода = «повернення»
+REACT_GAP = int(os.environ.get("REACT_GAP_DAYS", "180"))
+KEY_ACCOUNT_MIN = float(os.environ.get("KEY_ACCOUNT_MIN", "1000000"))   # v7.7: «слон» — WON ≥ 1 млн за 12 міс   # v7.0: пауза, після якої угода = «повернення»
 IND_FIELD = os.environ.get("CLIENT_INDUSTRY_FIELD", "").strip()
 TOUCH_CACHE = Path(__file__).parent / ".cache" / "touch.json"
 TOUCH_FULL_DAYS = int(os.environ.get("TOUCH_FULL_DAYS", "7"))
@@ -488,7 +489,9 @@ def main():
         clh = {hkey(k): c for k, c in cl.items()}
         acq = defaultdict(lambda: {"n": 0, "p": 0, "rev": 0.0, "w": 0, "rev12": 0.0})
         for key, (dt, us, uc, src) in first.items():
-            a = acq[(dt.strftime("%Y-%m"), us.lower(), uc, src)]
+            c0 = clh.get(key)
+            kk = 1 if c0 and c0["rev12"] >= KEY_ACCOUNT_MIN else 0     # v7.7: клієнт-«слон»
+            a = acq[(dt.strftime("%Y-%m"), us.lower(), uc, src, kk)]
             a["n"] += 1
             c = clh.get(key)
             if c and c["rev"] > 0:
@@ -501,8 +504,8 @@ def main():
                     "LTV — уся WON-виручка клієнта за весь час",
             "fields": "m=місяць першої угоди, us/uc=utm_source/utm_campaign, s=SOURCE_ID (якщо без UTM), "
                       "n=нових клієнтів, p=з них купили (WON), rev=їхня WON-виручка за весь час, w=WON-угод, rev12=виручка за 12 міс",
-            "rows": sorted([{"m": k[0], "us": k[1], "uc": k[2], "s": k[3], "n": v["n"], "p": v["p"],
-                             "rev": round(v["rev"]), "w": v["w"], "rev12": round(v["rev12"])}
+            "rows": sorted([dict({"m": k[0], "us": k[1], "uc": k[2], "s": k[3], "n": v["n"], "p": v["p"],
+                                  "rev": round(v["rev"]), "w": v["w"], "rev12": round(v["rev12"])}, **({"k": 1} if k[4] else {}))
                             for k, v in acq.items()], key=lambda r: (r["m"], r["us"], r["uc"]))}
         withU = sum(1 for v in first.values() if v[1])
         print(f"[CL] перший дотик: {len(first)} клієнтів, з UTM у першій угоді — {withU}")
@@ -523,6 +526,7 @@ def main():
         for d in deals:
             wons[hkey(d["k"])].append((d["dt"], d["amt"]))
         rx = defaultdict(lambda: {"n": 0, "p": 0, "rev": 0.0, "w": 0})
+        clh2 = {hkey(k): c for k, c in cl.items()}
         n_ev = 0
         for hk, ts in touches.items():
             wl = sorted(wons.get(hk, []))
@@ -536,7 +540,8 @@ def main():
                     last = max([w[0] for w in prior_won] + ([last_act] if last_act else []))
                     if (dt - last).days >= REACT_GAP:
                         win = [w for w in wl if dt <= w[0] < dt + timedelta(days=365)]
-                        a = rx[(dt.strftime("%Y-%m"), us.lower(), uc, src)]
+                        c0 = clh2.get(hk)
+                        a = rx[(dt.strftime("%Y-%m"), us.lower(), uc, src, 1 if c0 and c0["rev12"] >= KEY_ACCOUNT_MIN else 0)]
                         a["n"] += 1
                         n_ev += 1
                         if win:
@@ -550,8 +555,9 @@ def main():
                     "виручка — WON клієнта за 365 днів від повернення",
             "fields": "m=місяць повернення, us/uc=utm_source/utm_campaign угоди повернення, s=SOURCE_ID, n=повернень, "
                       "p=з них купили, w=WON-угод, rev=WON-виручка за 365 днів",
-            "rows": sorted([{"m": k[0], "us": k[1], "uc": k[2], "s": k[3], "n": v["n"], "p": v["p"], "w": v["w"],
-                             "rev": round(v["rev"])} for k, v in rx.items()], key=lambda r: (r["m"], r["us"], r["uc"]))}
+            "rows": sorted([dict({"m": k[0], "us": k[1], "uc": k[2], "s": k[3], "n": v["n"], "p": v["p"], "w": v["w"],
+                                  "rev": round(v["rev"])}, **({"k": 1} if k[4] else {})) for k, v in rx.items()],
+                           key=lambda r: (r["m"], r["us"], r["uc"]))}
         print(f"[CL] повернення після паузы ≥{REACT_GAP} дн: {n_ev} подій")
     except Exception as e:
         print(f"[CL] ⚠ повернення клієнтів не пораховано: {e}")

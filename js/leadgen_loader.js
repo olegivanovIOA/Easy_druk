@@ -229,7 +229,7 @@ window.LeadgenLoader = (() => {
       if (mTo < from || mFrom > to) return;
       const daily = m.cohort.byCampaignDaily;
       if (daily) {
-        daily.forEach(r => { if (r.d >= from && r.d <= to) out.push({ d: r.d, us: r.us, uc: r.uc, s: r.s, n: r.n, e: r.e, w: r.w, ws: r.ws }); });
+        daily.forEach(r => { if (r.d >= from && r.d <= to) out.push({ d: r.d, us: r.us, uc: r.uc, s: r.s, t: r.t || '', n: r.n, e: r.e, w: r.w, ws: r.ws }); });
       } else if (mFrom >= from && mTo <= to) {
         (m.cohort.byCampaign || []).forEach(c => {
           const [us, uc] = c.key.split(' / ');
@@ -308,7 +308,7 @@ window.LeadgenLoader = (() => {
   const accGroup = (ch, acc) => ch === 'google' ? (/ukr/i.test(acc || '') ? 'ukr3d' : 'easy') : META_CH.has(ch) ? 'meta' : 'none';
   const ACC_LBL = { all: 'Усі', easy: 'EASY', ukr3d: 'Ukr3d', meta: 'Meta (FB+IG)', none: 'Без реклами' };
   const CLS_LBL = { all: 'Усі', mkt: 'Маркетинг', non: 'Не маркетинг', unk: 'Не визначено' };
-  const cls = (us, uc, sname, ch) => window.MktSplit ? MktSplit.classify(us, uc, sname, ch) : 'unk';
+  const cls = (us, uc, sname, ch, t) => window.MktSplit ? MktSplit.classify(us, uc, sname, ch, t) : 'unk';
 
   function initRoi() {
     const t = today();
@@ -399,7 +399,7 @@ window.LeadgenLoader = (() => {
     const keyOf = r => { const c = channelOf(r.us, r.s, bx.srcNames); const n = bxKey(c, r.uc, ads); const x = row(c.ch, c.acc, n); x._c = c; return x; };
     bx.rows.forEach(r => {
       const x = keyOf(r); x.deals += r.n; x.exp += r.e; x.won += r.w; x.wonSum += r.ws;
-      x.cl[cls(r.us, r.uc, bx.srcNames[r.s] || r.s, x.ch)] += r.n;
+      x.cl[cls(r.us, r.uc, bx.srcNames[r.s] || r.s, x.ch, r.t)] += r.n;
       if (r.d) { const b = B(x, r.d); b.n += r.n; b.w += r.w; b.ws += r.ws; }
     });
     // CPL/CAC/ROAS рахуємо лише за дні, де є вартість Ads — інакше річні угоди

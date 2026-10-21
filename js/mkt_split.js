@@ -55,8 +55,20 @@ window.MktSplit = (() => {
     }
     return { cls: _def, i: -1, why: 'за замовчуванням' };
   }
-  function classify(us, uc, sname, ch) {
+  // v7.7: правила за КЛІЄНТОМ мають пріоритет над джерелом (Влад / Олег, 21.10.2026):
+  //   t='k' — клієнт-«слон» (WON ≥ 1 млн ₴ за 12 міс, напр. клієнт №1) → завжди «не маркетинг», хоч би як менеджер позначив джерело;
+  //   t='r' — повторна угода (прапорець Bitrix «Повторна угода»): без рекламної UTM → «не маркетинг»,
+  //           з UTM-міткою → за правилами джерел (клієнт повернувся через рекламу — заслуга маркетингу);
+  //   ''    — перша угода клієнта → за правилами джерел.
+  function clientRule(t, us) {
+    const c = (_raw && _raw.clients) || {};
+    if (t === 'k') return { cls: CLS.includes(c.key) ? c.key : 'non', why: 'ключовий клієнт («слон», WON ≥ 1 млн ₴ за 12 міс) — не заслуга маркетингу' };
+    if (t === 'r' && !(us || '').trim()) return { cls: CLS.includes(c.repeatNoUtm) ? c.repeatNoUtm : 'non', why: 'повторна угода без рекламної UTM-мітки' };
+    return null;
+  }
+  function classify(us, uc, sname, ch, t) {
     if (!_rules.length) setRules(null);
+    const cr = clientRule(t, us); if (cr) return cr.cls;
     const o = _ov[srcKey(us, sname)];
     return CLS.includes(o) ? o : match(us, uc, sname, ch).cls;
   }
@@ -179,15 +191,21 @@ window.MktSplit = (() => {
     const el = $('ms-split-kpi'); if (!el) return;
     const fmt = api.fmt, sn = all.srcNames;
     const byM = {}; months.forEach(m => byM[m] = { mkt: empty(), non: empty(), unk: empty() });
-    const nonCh = {}, srcP = {}, P = { mkt: empty(), non: empty(), unk: empty() };
+    const nonCh = {}, srcP = {}, P = { mkt: empty(), non: empty(), unk: empty() }, K = empty(), RU = empty(), RN = empty();
+    let typed = false;
     all.rows.forEach(r => {
-      const name = sn[r.s] || r.s || '', ch = api.channelOf(r.us, r.s, sn).ch, c = classify(r.us, r.uc, name, ch);
+      const name = sn[r.s] || r.s || '', ch = api.channelOf(r.us, r.s, sn).ch, c = classify(r.us, r.uc, name, ch, r.t);
+      if (r.t) typed = true;
       const m = byM[ym(r.d || '')]; if (m) { m[c].n += r.n; m[c].w += r.w; m[c].ws += r.ws; }
       if (c === 'non' && r.d) { const k = ch; (nonCh[k] || (nonCh[k] = {}))[ym(r.d)] = ((nonCh[k] || {})[ym(r.d)] || 0) + r.n; }
       if (r.d && r.d >= from && r.d <= to) {
         P[c].n += r.n; P[c].w += r.w; P[c].ws += r.ws;
-        const key = srcKey(r.us, name);
-        const x = srcP[key] || (srcP[key] = { key, lbl: (r.us || '').trim() ? 'UTM: ' + r.us.trim().toLowerCase() : (name || 'не вказано'), ch, n: 0, w: 0, ws: 0, us: r.us, uc: r.uc, name });
+        const g = r.t === 'k' ? K : r.t === 'r' ? ((r.us || '').trim() ? RU : RN) : null;
+        if (g) { g.n += r.n; g.w += r.w; g.ws += r.ws; }
+        const ckey = srcKey(r.us, name), t = r.t === 'k' ? 'k' : (r.t === 'r' && !(r.us || '').trim()) ? 'r' : '';
+        const key = ckey + '|' + t;
+        const x = srcP[key] || (srcP[key] = { key, ckey, t, lbl: ((r.us || '').trim() ? 'UTM: ' + r.us.trim().toLowerCase() : (name || 'не вказано')) +
+          (t === 'k' ? ' · «слон»' : t === 'r' ? ' · повторна' : ''), ch, n: 0, w: 0, ws: 0, us: r.us, uc: r.uc, name });
         x.n += r.n; x.w += r.w; x.ws += r.ws;
       }
     });
@@ -199,7 +217,14 @@ window.MktSplit = (() => {
       tile('Маркетинг : не маркетинг', ratio(P.mkt.n, P.non.n) + ' <span style="font-size:11px;font-weight:600">лідів</span>',
         `WON ${ratio(P.mkt.w, P.non.w)} · виручка ${ratio(P.mkt.ws, P.non.ws)}<br>виручка на 1 лід: ${fmt(P.mkt.n ? P.mkt.ws / P.mkt.n : 0)} ₴ vs ${fmt(P.non.n ? P.non.ws / P.non.n : 0)} ₴` +
         (P.mkt.ws && P.non.n && P.mkt.n ? ` → 1 лід не-маркетингу ≈ <b>${nfmt((P.non.ws / P.non.n) / (P.mkt.ws / P.mkt.n))}</b> лідів маркетингу` : ''), GD,
-        'Скільки маркетингових лідів / WON / виручки припадає на одиницю не-маркетингових. «Не визначено» не враховано.');
+        'Скільки маркетингових лідів / WON / виручки припадає на одиницю не-маркетингових. «Не визначено» не враховано.') +
+      (typed ? tile('Ключові клієнти («слони»)', K.n.toLocaleString('uk-UA') + ' лідів',
+        `WON ${K.w} · ${fmt(K.ws)} ₴ (${WS ? (K.ws / WS * 100).toFixed(0) : 0}% виручки) — завжди «не маркетинг»`, RT,
+        'Клієнти з WON-виручкою ≥ 1 млн ₴ за 12 місяців (у т.ч. клієнт №1) + ручний список. Їхні угоди не зараховуються маркетингу, незалежно від «Джерела» в Bitrix') +
+      tile('Повторні угоди', (RN.n + RU.n).toLocaleString('uk-UA'),
+        `без UTM → не маркетинг: ${RN.n} · з рекламною UTM → за джерелом: ${RU.n} (WON ${RU.w}, ${fmt(RU.ws)} ₴)`, null,
+        'Прапорець Bitrix «Повторна угода» (IS_RETURN_CUSTOMER). Повторна угода з UTM-міткою реклами = клієнт повернувся через рекламу — заслуга маркетингу')
+      : `<div class="roi-kw" style="color:var(--td);background:var(--s2);border-color:var(--bd)">ℹ Розподіл «слони / повторні / перші угоди» з'явиться після оновлення update-crm (v7.7); для місяців до жовтня — після одного запуску «Backfill CRM Monthly History».</div>`);
     const status = $('ms-split-status');
     if (status) status.innerHTML = `${esc((_raw && _raw.status) || '')}${_raw && _raw.updated ? ' · оновлено ' + esc(_raw.updated) : ''}${Object.keys(_ov).length ? ` · <b style="color:${RT}">${Object.keys(_ov).length} джерел перевизначено вручну у цьому браузері</b>` : ''}`;
 
@@ -235,7 +260,10 @@ window.MktSplit = (() => {
     const tb = $('ms-src-table'); if (!tb) return;
     const arr = Object.values(srcP).sort((a, b) => b.n - a.n);
     tb.innerHTML = arr.length ? arr.map(x => {
-      const m = match(x.us, x.uc, x.name, x.ch), o = _ov[x.key], c = CLS.includes(o) ? o : m.cls;
+      const cr = clientRule(x.t, x.us);
+      if (cr) return `<tr><td><span class="roi-cls" style="background:${CLS_C[cr.cls]}"></span>${esc(x.lbl)}</td><td style="color:var(--tl)">${esc(x.ch)}</td>
+        <td class="r">${x.n}</td><td class="r">${x.w}</td><td class="r">${fmt(x.ws)}</td><td>${LBL[cr.cls]}</td><td style="color:var(--tl);font-size:10px">${esc(cr.why)}</td></tr>`;
+      const m = match(x.us, x.uc, x.name, x.ch), o = _ov[x.ckey], c = CLS.includes(o) ? o : m.cls;
       return `<tr><td><span class="roi-cls" style="background:${CLS_C[c]}"></span>${esc(x.lbl)}</td><td style="color:var(--tl)">${esc(x.ch)}</td>
         <td class="r">${x.n}</td><td class="r">${x.w}</td><td class="r">${fmt(x.ws)}</td>
         <td><select class="ms-sel" data-key="${esc(x.key)}">${CLS.map(k => `<option value="${k}"${k === c ? ' selected' : ''}>${LBL[k]}</option>`).join('')}</select>${o ? ' <span class="ms-ov" title="Перевизначено вручну в цьому браузері">✎</span>' : ''}</td>
@@ -244,7 +272,7 @@ window.MktSplit = (() => {
     tb.onchange = ev => {
       const s = ev.target.closest('.ms-sel'); if (!s) return;
       const x = srcP[s.dataset.key], base = match(x.us, x.uc, x.name, x.ch).cls;
-      if (s.value === base) delete _ov[s.dataset.key]; else _ov[s.dataset.key] = s.value;
+      if (s.value === base) delete _ov[x.ckey]; else _ov[x.ckey] = s.value;
       lsSet(OV_LS, _ov); api.rerender();
     };
     const ex = $('ms-rules-export');
@@ -331,7 +359,7 @@ window.MktSplit = (() => {
       return;
     }
     const c0 = $('ms-react-chart'); if (c0) c0.parentElement.style.display = '';
-    const kind = (r) => classify(r.us, r.uc, sn[r.s] || r.s || '', api.channelOf(r.us, r.s, sn).ch);
+    const kind = (r) => classify(r.us, r.uc, sn[r.s] || r.s || '', api.channelOf(r.us, r.s, sn).ch, r.k ? 'k' : '');
     const byM = {}; months.forEach(m => byM[m] = { rm: 0, rn: 0, ru: 0, nm: 0, revM: 0 });
     const mA = from.slice(0, 7), mB = to.slice(0, 7);
     const P = { r: { mkt: { n: 0, p: 0, rev: 0 }, non: { n: 0, p: 0, rev: 0 }, unk: { n: 0, p: 0, rev: 0 } }, newM: 0, newMp: 0, newMrev: 0, newAll: 0 };

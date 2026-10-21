@@ -8,7 +8,8 @@ fetch_meta.py — v7.0: витрати Facebook / Instagram (Meta Marketing API)
 
 Секрети GitHub (Settings → Secrets → Actions):
   META_ACCESS_TOKEN    — токен системного користувача Business Manager з правом ads_read на рекламні акаунти
-  META_AD_ACCOUNT_IDS  — ID рекламних акаунтів через кому (з «act_» або без), напр. 1234567890,9876543210
+  META_AD_ACCOUNT_IDS  — (необов'язково) ID рекламних акаунтів через кому (з «act_» або без). v7.7: якщо не задано —
+                         беруться всі акаунти, доступні токену (/me/adaccounts), з активними або колишніми витратами
 Необов'язково (env): META_API_VERSION (v23.0), META_SINCE (2026-01-01), META_REFRESH_DAYS (35 — скільки днів
 перезавантажувати щоразу: Meta доуточнює конверсії заднім числом).
 
@@ -137,10 +138,40 @@ def act_sum(actions, types):
     return s
 
 
+def discover_accounts():
+    """v7.7: усі рекламні акаунти, доступні токену. Повертає список ID без «act_»."""
+    out = []
+    j = get(f"{BASE}/{VER}/me/adaccounts", {"access_token": TOKEN, "limit": 100,
+                                             "fields": "account_id,name,currency,account_status,amount_spent"})
+    while True:
+        for a in j.get("data") or []:
+            st = a.get("account_status")
+            print(f"[META] акаунт {a.get('account_id')} «{a.get('name')}», {a.get('currency')}, статус {st}, "
+                  f"витрачено за весь час {a.get('amount_spent')}")
+            # 1 = активний, 2 = вимкнений, 3 = неоплата, 101 = закритий — беремо всі, крім закритих без витрат
+            if st != 101 or float(a.get("amount_spent") or 0) > 0:
+                out.append(str(a.get("account_id")))
+        nxt = (j.get("paging") or {}).get("next")
+        if not nxt:
+            return out
+        j = get(nxt)
+
+
 def main():
-    if not TOKEN or not ACCS:
-        print("[META] META_ACCESS_TOKEN / META_AD_ACCOUNT_IDS не задані — пропускаю (job зелений).")
+    global ACCS
+    if not TOKEN:
+        print("[META] META_ACCESS_TOKEN не задано — пропускаю (job зелений).")
         return 0
+    if not ACCS:
+        try:
+            ACCS = discover_accounts()
+        except Exception as e:
+            print(f"::error::Meta: токен не працює або немає права ads_read — {e}")
+            return 1
+        if not ACCS:
+            print("::warning::Meta: токену не доступний жоден рекламний акаунт — перевір, що системному користувачу/"
+                  "користувачу токена надано доступ до рекламних акаунтів у Business Manager")
+            return 0
     old = {}
     try:
         old = json.loads(OUT.read_text(encoding="utf-8"))

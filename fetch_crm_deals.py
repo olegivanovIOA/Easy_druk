@@ -460,7 +460,8 @@ def fetch_created_deals(category_id, date_from, date_to):
             "filter[>=DATE_CREATE]": date_from.isoformat(),
             "filter[<DATE_CREATE]": (date_to + timedelta(days=1)).isoformat(),
             "select[]": ["ID", "STAGE_ID", "STAGE_SEMANTIC_ID", "OPPORTUNITY", "CURRENCY_ID", "DATE_CREATE",
-                         "SOURCE_ID", "UTM_SOURCE", "UTM_CAMPAIGN", "COMPANY_ID", "CONTACT_ID"],
+                         "SOURCE_ID", "UTM_SOURCE", "UTM_CAMPAIGN", "COMPANY_ID", "CONTACT_ID",
+                         "IS_RETURN_CUSTOMER"],   # v7.7: прапорець Bitrix «Повторна угода» (Y/N)
             "start": start,
         }
         r = requests.get(WEBHOOK_URL + "crm.deal.list", params=params, timeout=30)
@@ -478,19 +479,131 @@ def fetch_created_deals(category_id, date_from, date_to):
     return deals
 
 
+# ══ v7.7: «слони» — ключові клієнти (Влад/Олег, 21.10.2026) ══
+# Клієнт = компанія угоди, інакше контакт. «Слон» — WON-виручка ≥ KEY_ACCOUNT_MIN за останні 365 днів
+# у воронках 24/18/32, плюс ручний список KEY_ACCOUNT_IDS (секрет GitHub, напр. «c123,p456»; число без
+# префікса = компанія). Контакти, що фігурують в угодах компанії-«слона», теж вважаються «слоном»
+# (одна компанія — багато контактних осіб). Лише в пам'яті: ID клієнтів у JSON не потрапляють.
+KEY_ACCOUNT_MIN = float(os.environ.get("KEY_ACCOUNT_MIN", "1000000"))
+CAMPAIGN_DAILY_V = 2   # v7.7: рядки byCampaignDaily мають поле t ('' перша угода / 'r' повторна / 'k' «слон»)
+_KEYS = None
+
+
+def _bx_get(method, params, tries=6):
+    for a in range(tries):
+        try:
+            r = requests.get(WEBHOOK_URL + method, params=params, timeout=60)
+            if r.status_code >= 500 or "QUERY_LIMIT_EXCEEDED" in r.text:
+                raise RuntimeError(f"HTTP {r.status_code}")
+            r.raise_for_status()
+            j = r.json()
+            if "error" in j:
+                raise RuntimeError(j.get("error_description") or j["error"])
+            return j
+        except Exception as e:
+            if a == tries - 1:
+                raise
+            print(f"  ↻ {method}: {e}, повтор {a + 1}/{tries}")
+            time.sleep(3 * (a + 1))
+
+
+def _bx_list(method, params):
+    """Швидке вивантаження: перша сторінка дає total, решта — пачками по 50 сторінок через batch."""
+    from urllib.parse import urlencode
+    base = dict(params); base["order[ID]"] = "ASC"
+    first = _bx_get(method, dict(base, start=0))
+    rows, total = list(first.get("result") or []), int(first.get("total") or 0)
+    starts = list(range(50, total, 50))
+    for i in range(0, len(starts), 50):
+        grp = starts[i:i + 50]
+        cmd = {f"p{st}": method + "?" + urlencode(dict(base, start=st), doseq=True) for st in grp}
+        res = {}
+        for a in range(6):
+            try:
+                r = requests.post(WEBHOOK_URL + "batch", json={"halt": 0, "cmd": cmd}, timeout=180)
+                if r.status_code >= 500:
+                    raise RuntimeError(f"HTTP {r.status_code}")
+                r.raise_for_status()
+                res = ((r.json().get("result") or {}).get("result")) or {}
+                break
+            except Exception as e:
+                print(f"  ↻ batch: {e}, повтор {a + 1}/6"); time.sleep(3 * (a + 1))
+        for st in grp:
+            part = res.get(f"p{st}")
+            rows += part if isinstance(part, list) else (_bx_get(method, dict(base, start=st)).get("result") or [])
+        time.sleep(0.3)
+    seen, out = set(), []
+    for r in rows:
+        if r.get("ID") not in seen:
+            seen.add(r.get("ID")); out.append(r)
+    return out
+
+
+def _ckey(d):
+    co, ct = str(d.get("COMPANY_ID") or "0"), str(d.get("CONTACT_ID") or "0")
+    return ("c" + co) if co not in ("0", "") else ("p" + ct) if ct not in ("0", "") else None
+
+
+def key_accounts():
+    """Множина ключів клієнтів-«слонів» ('c<id>' / 'p<id>'). Рахується один раз за запуск."""
+    global _KEYS
+    if _KEYS is not None:
+        return _KEYS
+    keys, rev, contacts_of = set(), {}, {}
+    since = (date.today() - timedelta(days=365)).isoformat()
+    try:
+        for cat in (24, 18, 32):
+            for d in _bx_list("crm.deal.list", {"filter[CATEGORY_ID]": cat, "filter[STAGE_SEMANTIC_ID]": "S",
+                                                "filter[>=CLOSEDATE]": since,
+                                                "select[]": ["ID", "COMPANY_ID", "CONTACT_ID", "OPPORTUNITY"]}):
+                k = _ckey(d)
+                if not k:
+                    continue
+                rev[k] = rev.get(k, 0.0) + _num(d.get("OPPORTUNITY"))
+                ct = str(d.get("CONTACT_ID") or "0")
+                if k.startswith("c") and ct not in ("0", ""):
+                    contacts_of.setdefault(k, set()).add("p" + ct)
+        keys = {k for k, v in rev.items() if v >= KEY_ACCOUNT_MIN}
+    except Exception as e:
+        print(f"[CRM] ⚠ «слони» не пораховано автоматично: {e}")
+    for t in (os.environ.get("KEY_ACCOUNT_IDS") or "").replace(";", ",").replace(" ", ",").split(","):
+        t = t.strip().lower()
+        if t:
+            keys.add(t if t[0] in "cp" else "c" + t)
+    for k in list(keys):
+        keys |= contacts_of.get(k, set())
+    _KEYS = keys
+    print(f"[CRM] «слони» (WON ≥ {KEY_ACCOUNT_MIN:,.0f} грн за 365 днів + ручний список): "
+          f"{sum(1 for k in keys if k.startswith('c'))} компаній, {sum(1 for k in keys if k.startswith('p'))} контактів")
+    return keys
+
+
+def deal_type(d, keys):
+    """'' — перша угода клієнта, 'r' — повторна (прапорець Bitrix IS_RETURN_CUSTOMER), 'k' — клієнт-«слон»."""
+    k = _ckey(d)
+    ct = str(d.get("CONTACT_ID") or "0")
+    if (k and k in keys) or (ct not in ("0", "") and "p" + ct in keys):
+        return "k"
+    return "r" if str(d.get("IS_RETURN_CUSTOMER") or "").upper() == "Y" else ""
+
+
 # ══ v5.0: щоденна розбивка UTM-кампаній (для довільного періоду на дашборді) ══
 # Компактні рядки на (день створення, utm_source, utm_campaign, SOURCE_ID):
 #   d — дата, us/uc — UTM source/campaign, s — SOURCE_ID (для угод без UTM),
 #   n — нових угод, e — очікувана сума (не відмовлені), w — WON, ws — WON сума.
 # Тільки агрегати, без ID угод і клієнтів.
-def rollup_campaign_daily(deals, sem, is_won):
+def rollup_campaign_daily(deals, sem, is_won, keys=None):
+    keys = key_accounts() if keys is None else keys
     m = {}
     for d in deals:
+        t = deal_type(d, keys)
         k = ((d.get("DATE_CREATE") or "")[:10],
              (d.get("UTM_SOURCE") or "").strip(),
              (d.get("UTM_CAMPAIGN") or "").strip(),
-             d.get("SOURCE_ID") or "")
+             d.get("SOURCE_ID") or "", t)
         a = m.setdefault(k, {"d": k[0], "us": k[1], "uc": k[2], "s": k[3], "n": 0, "e": 0.0, "w": 0, "ws": 0.0})
+        if t:
+            a["t"] = t
         a["n"] += 1
         amt = _num(d.get("OPPORTUNITY"))
         if sem(d) != "F":
@@ -502,7 +615,7 @@ def rollup_campaign_daily(deals, sem, is_won):
     for a in m.values():
         a["e"], a["ws"] = round(a["e"], 2), round(a["ws"], 2)
         out.append(a)
-    return sorted(out, key=lambda x: (x["d"], x["us"], x["uc"], x["s"]))
+    return sorted(out, key=lambda x: (x["d"], x["us"], x["uc"], x["s"], x.get("t", "")))
 
 
 def compute_campaign_daily(month_start, month_end):
@@ -823,7 +936,8 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
 
     print(f"[CRM] ✓ Когорта: {funnel} | retention: {retention['returningClients']}/{retention['clientsInCohort']} клієнтів повернулись")
     return {"funnel": funnel, "byStage": by_stage, "bySource": by_source, "byCampaign": by_campaign,
-            "byCampaignDaily": by_campaign_daily,
+            "byCampaignDaily": by_campaign_daily, "campaignDailyV": CAMPAIGN_DAILY_V,
+            "keyAccounts": {"companies": sum(1 for k in key_accounts() if k.startswith("c")), "minRevenue12m": KEY_ACCOUNT_MIN},
             "retention": retention, "staleBigDeals": stale[:10],
             "pipelines": build_pipelines(deals, stage_lists, fetch_histories(month_start)),
             "definitions": {

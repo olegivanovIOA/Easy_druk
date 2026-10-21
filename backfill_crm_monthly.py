@@ -79,11 +79,14 @@ def main():
                     print(f"[Backfill CRM] ＋ {month_key}: додано воронки по стадіях")
                 except Exception as e:
                     print(f"[Backfill CRM] ⚠ {month_key}: воронки не додано: {e}")
-            if prev.get("cohort") is not None and prev["cohort"].get("byCampaignDaily") is None:
+            if prev.get("cohort") is not None and (prev["cohort"].get("byCampaignDaily") is None
+                                                   or prev["cohort"].get("campaignDailyV", 1) < 2):
+                # v7.7: перерахунок з типом угоди (перша / повторна / «слон») — версія 2
                 # v5.0: щоденна розбивка UTM-кампаній — дешевий доповнювальний прохід
                 try:
                     from fetch_crm_deals import compute_campaign_daily
                     prev["cohort"]["byCampaignDaily"] = compute_campaign_daily(month_start, month_end)
+                    prev["cohort"]["campaignDailyV"] = 2
                     print(f"[Backfill CRM] ＋ {month_key}: додано щоденну розбивку кампаній "
                           f"({len(prev['cohort']['byCampaignDaily'])} рядків)")
                 except Exception as e:
