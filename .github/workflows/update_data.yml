@@ -456,6 +456,7 @@ jobs:
       - name: Fetch CRM deals (Bitrix24, поточний місяць)
         env:
           BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
+          KEY_ACCOUNT_IDS: ${{ secrets.KEY_ACCOUNT_IDS }}   # v7.7: необов'язково — ручний список «слонів» (c<id компанії>,p<id контакту>)
         run: python fetch_crm_deals.py
 
       # v7.3: дані не комітимо тут — віддаємо job «commit-all», який робить ОДИН коміт на весь запуск

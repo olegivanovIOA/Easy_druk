@@ -26,6 +26,7 @@ jobs:
       - name: Backfill CRM monthly history (2026)
         env:
           BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
+          KEY_ACCOUNT_IDS: ${{ secrets.KEY_ACCOUNT_IDS }}   # v7.7: необов'язково — ручний список «слонів» (c<id компанії>,p<id контакту>)
           FORCE: ${{ inputs.force }}
         run: python backfill_crm_monthly.py
 
