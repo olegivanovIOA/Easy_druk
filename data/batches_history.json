@@ -9893,13 +9893,13 @@
           "name": "Локація 4",
           "batches": 5,
           "lots": 1,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectWeightPercent": null,
+          "acceptedQty": 266,
+          "defectQty": 8,
+          "defectPercent": 3.01,
+          "defectWeightPercent": 3.01,
           "totalPrintTimeMinutes": 53998,
-          "materialCostUAH": null,
-          "materialCostCoveragePercent": null
+          "materialCostUAH": 15800.4,
+          "materialCostCoveragePercent": 100.0
         },
         "5": {
           "name": "Локація 5",
@@ -9917,16 +9917,26 @@
       "company": {
         "batches": 7,
         "lots": 2,
-        "acceptedQty": 0,
-        "defectQty": 0,
-        "defectPercent": null,
-        "defectWeightPercent": null,
+        "acceptedQty": 266,
+        "defectQty": 8,
+        "defectPercent": 3.01,
+        "defectWeightPercent": 3.01,
         "totalPrintTimeMinutes": 59219.9,
-        "materialCostUAH": null,
-        "materialCostCoveragePercent": null
+        "materialCostUAH": 15800.4,
+        "materialCostCoveragePercent": 100.0
       },
-      "lots": []
+      "lots": [
+        {
+          "location": "4",
+          "acceptedQty": 266,
+          "batchCount": 5,
+          "defectPercent": 3.01,
+          "printerModels": [
+            "P2S"
+          ]
+        }
+      ]
     }
   ],
-  "updated_at": "2026-10-21T05:37:39Z"
+  "updated_at": "2026-10-21T10:28:11Z"
 }
