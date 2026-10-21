@@ -53,6 +53,14 @@ def main():
         ps = c.get("pipelines") or []
         return bool(ps) and all(p.get("method") == "history" and p.get("v", 1) >= 2 for p in ps)
     force = os.environ.get("FORCE", "").strip() in ("1", "true", "yes")
+
+    def save():
+        # v7.8: запис після КОЖНОГО місяця — якщо job обірве тайм-аут, пораховане не пропаде
+        history["months"] = sorted(months_out.values(), key=lambda m: m["month"])
+        history["updated_at"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+        OUTPUT.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    T0 = time.time()
     today = date.today()
     cur_year, cur_month = YEAR_START.year, YEAR_START.month
     while date(cur_year, cur_month, 1) <= today:
@@ -87,7 +95,8 @@ def main():
                     from fetch_crm_deals import compute_campaign_daily
                     prev["cohort"]["byCampaignDaily"] = compute_campaign_daily(month_start, month_end)
                     prev["cohort"]["campaignDailyV"] = 2
-                    print(f"[Backfill CRM] ＋ {month_key}: додано щоденну розбивку кампаній "
+                    save()
+                    print(f"[Backfill CRM] [{time.time() - T0:.0f} с] ＋ {month_key}: додано щоденну розбивку кампаній "
                           f"({len(prev['cohort']['byCampaignDaily'])} рядків)")
                 except Exception as e:
                     print(f"[Backfill CRM] ⚠ {month_key}: щоденну розбивку не додано: {e}")
@@ -100,6 +109,7 @@ def main():
         try:
             result = process_month(month_start, month_end, month_key, complete)
             months_out[month_key] = result
+            save()
             print(f"[Backfill CRM] ✓ {month_key}: ОПТ {result['wholesale']['deals']} угод, "
                   f"Роздріб {result['retail']['deals']} угод · {time.time() - t0:.0f} с")
         except Exception as e:

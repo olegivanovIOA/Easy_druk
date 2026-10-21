@@ -453,30 +453,15 @@ def _num(v):
 
 
 def fetch_created_deals(category_id, date_from, date_to):
-    deals, start = [], 0
-    while True:
-        params = {
-            "filter[CATEGORY_ID]": category_id,
-            "filter[>=DATE_CREATE]": date_from.isoformat(),
-            "filter[<DATE_CREATE]": (date_to + timedelta(days=1)).isoformat(),
-            "select[]": ["ID", "STAGE_ID", "STAGE_SEMANTIC_ID", "OPPORTUNITY", "CURRENCY_ID", "DATE_CREATE",
-                         "SOURCE_ID", "UTM_SOURCE", "UTM_CAMPAIGN", "COMPANY_ID", "CONTACT_ID",
-                         "IS_RETURN_CUSTOMER"],   # v7.7: прапорець Bitrix «Повторна угода» (Y/N)
-            "start": start,
-        }
-        r = requests.get(WEBHOOK_URL + "crm.deal.list", params=params, timeout=30)
-        r.raise_for_status()
-        payload = r.json()
-        if "error" in payload:
-            raise RuntimeError(f"Bitrix24 error: {payload.get('error_description', payload['error'])}")
-        batch = payload.get("result", [])
-        deals.extend(batch)
-        nxt = payload.get("next")
-        if nxt is None or not batch:
-            break
-        start = nxt
-        time.sleep(0.5)
-    return deals
+    """v7.8: batch-пагінація (до 2 500 угод за HTTP-запит) замість сторінок по 50 з паузою 0,5 с."""
+    return _bx_list("crm.deal.list", {
+        "filter[CATEGORY_ID]": category_id,
+        "filter[>=DATE_CREATE]": date_from.isoformat(),
+        "filter[<DATE_CREATE]": (date_to + timedelta(days=1)).isoformat(),
+        "select[]": ["ID", "STAGE_ID", "STAGE_SEMANTIC_ID", "OPPORTUNITY", "CURRENCY_ID", "DATE_CREATE",
+                     "SOURCE_ID", "UTM_SOURCE", "UTM_CAMPAIGN", "COMPANY_ID", "CONTACT_ID",
+                     "IS_RETURN_CUSTOMER"],   # v7.7: прапорець Bitrix «Повторна угода» (Y/N)
+    })
 
 
 # ══ v7.7: «слони» — ключові клієнти (Влад/Олег, 21.10.2026) ══
