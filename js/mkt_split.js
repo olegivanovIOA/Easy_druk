@@ -164,7 +164,9 @@ window.MktSplit = (() => {
       st.innerHTML = `<div style="display:grid;gap:3px">
         <div>${ok(gE.length, `<b>Google Ads EASY</b> (856-547-8539) → GA4 easy3dprint.com.ua — дані до ${fD(last(gE))}`)}</div>
         <div>${ok(gU.length, `<b>Google Ads Ukr3d</b> (265-403-5891) → GA4 ukr3dprint.com — ${gU.length ? 'дані до ' + fD(last(gU)) : esc((ukrSt && (ukrSt.err || ukrSt.note)) || 'ще не надходять')}`)}</div>
-        <div>${ok(hasMeta, `<b>Meta (Facebook + Instagram)</b> — ${hasMeta ? 'Meta Ads API, дані до ' + fD(last(mt)) : 'не підключено: потрібен токен з ads_read (секрети META_ACCESS_TOKEN, META_AD_ACCOUNT_IDS)'}`)}</div>
+        <div>${(() => { const ms = api.meta && api.meta.status, bad = ms && ms.ok === false;
+          return ok(hasMeta && !bad, `<b>Meta (Facebook + Instagram)</b> — ${hasMeta ? 'Meta Ads API (Ukr3DPrint2, Easy3DPrint), дані до ' + fD(last(mt)) : 'не підключено: потрібен токен з ads_read (секрет META_ACCESS_TOKEN)'}` +
+            (bad ? ` · <b style="color:${R}">⚠ ${esc(ms.msg)}</b> (з ${fD((ms.at || '').slice(0, 10))}) — показані останні отримані дані` : '')); })()}</div>
         <div style="color:var(--tl)">Без вартості за природою: дзвінки, пошта, сайт, форми, існуючі клієнти, холодні продажі, рекомендації, органіка — це не реклама, «—» у колонці «Вартість» для них нормальне.</div>
         ${ms.length ? `<div style="margin-top:4px"><b>Угоди з utm_source=google за період без вартості:</b> ${mN} угод, ${fmt(mW)} ₴ WON — вони не потрапляють у ROAS/ROMI:</div>
         <table class="roi-ddt" style="max-width:900px"><thead><tr><th>utm_campaign</th><th class="r">Угод</th><th class="r">WON сума</th><th>Чому немає вартості</th></tr></thead><tbody>` +

@@ -176,8 +176,21 @@ def main():
         try:
             ACCS = discover_accounts()
         except Exception as e:
-            print(f"::error::Meta: токен не працює або немає права ads_read — {e}")
-            return 1
+            # v7.9: токен прострочено / без прав — не валимо job щогодини червоним; лишаємо старі дані і пишемо
+            # причину в meta_ads.json → status, дашборд покаже її в «Стан джерел витрат»
+            msg = str(e)
+            print(f"::warning::Meta: токен не працює або немає права ads_read — {msg}")
+            try:
+                old = json.loads(OUT.read_text(encoding="utf-8"))
+            except Exception:
+                old = None
+            if old is not None:
+                expired = "expired" in msg.lower() or "code 190" in msg
+                old["status"] = {"ok": False, "at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                                 "msg": "токен Meta прострочений — потрібен новий (бажано безстроковий токен системного користувача)"
+                                        if expired else "Meta API: " + msg[:200]}
+                OUT.write_text(json.dumps(old, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            return 0
         if not ACCS:
             print("::warning::Meta: токену не доступний жоден рекламний акаунт — перевір, що системному користувачу/"
                   "користувачу токена надано доступ до рекламних акаунтів у Business Manager")
@@ -227,6 +240,7 @@ def main():
     out = {"fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
            "from": rows[0]["d"] if rows else None, "to": TODAY.isoformat(), "apiVersion": VER,
            "accounts": accounts or old.get("accounts") or [], "errors": errors,
+           "status": {"ok": not errors, "at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "msg": "; ".join(errors)[:300]},
            "fields": "d=дата, a=акаунт, cid/c=ID і назва кампанії, spend=витрати в грн (НБУ), spendCur=у валюті акаунта, "
                      "imp=покази, clk=кліки, lead=заявки (lead-форми/піксель), msg=почато розмов",
            "rows": rows}
