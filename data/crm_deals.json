@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-21T15:53:27Z",
+  "fetched_at": "2026-10-21T19:53:14Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -405,10 +405,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 999,
-      "clean": 929,
-      "qualified": 495,
-      "activeOrWon": 149,
+      "all": 1001,
+      "clean": 931,
+      "qualified": 497,
+      "activeOrWon": 151,
       "won": 35,
       "wonSum": 2696773.2,
       "expectedSumActiveWon": 14296437.22
@@ -500,6 +500,11 @@
         "sum": 0.0
       },
       {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 10,
+        "sum": 0.0
+      },
+      {
         "stage": "Згода підтверджена",
         "deals": 8,
         "sum": 485501.25
@@ -512,11 +517,6 @@
       {
         "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
         "deals": 7,
-        "sum": 0.0
-      },
-      {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-        "deals": 6,
         "sum": 0.0
       },
       {
@@ -540,11 +540,6 @@
         "sum": 7600.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 3,
-        "sum": 0.0
-      },
-      {
         "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
         "deals": 2,
         "sum": 530.01
@@ -553,6 +548,11 @@
         "stage": "Виробництво  ЗАВЕРШЕНО",
         "deals": 2,
         "sum": 2250.0
+      },
+      {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 1,
+        "sum": 0.0
       },
       {
         "stage": "Друк неможливий",
@@ -577,7 +577,7 @@
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
-        "deals": 51,
+        "deals": 52,
         "expectedSum": 443935.0,
         "won": 1,
         "wonSum": 373850.0
@@ -609,7 +609,7 @@
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 113,
+        "deals": 114,
         "expectedSum": 5000.0,
         "won": 2,
         "wonSum": 3450.0
@@ -771,7 +771,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 883,
+        "deals": 884,
         "expectedSum": 12435195.22,
         "won": 23,
         "wonSum": 944053.2
@@ -843,7 +843,7 @@
       {
         "key": "google / performance_max",
         "name": "google / performance_max",
-        "deals": 5,
+        "deals": 6,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -3753,7 +3753,7 @@
         "us": "",
         "uc": "",
         "s": "50",
-        "n": 13,
+        "n": 14,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -3827,6 +3827,16 @@
         "e": 0.0,
         "w": 0,
         "ws": 0.0
+      },
+      {
+        "d": "2026-10-21",
+        "us": "google",
+        "uc": "performance_max",
+        "s": "24",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
       }
     ],
     "campaignDailyV": 2,
@@ -3835,7 +3845,7 @@
       "minRevenue12m": 1000000.0
     },
     "retention": {
-      "clientsInCohort": 921,
+      "clientsInCohort": 923,
       "returningClients": 93,
       "repeatBuyers": 34,
       "noClientLinked": 8,
@@ -3846,7 +3856,7 @@
         "winRate": 15.3
       },
       "new": {
-        "deals": 855,
+        "deals": 857,
         "won": 17,
         "wonSum": 24681.0,
         "winRate": 2.2
@@ -3878,7 +3888,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 642,
+        "total": 644,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -3887,18 +3897,18 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 3,
+            "count": 1,
             "sum": 0.0,
-            "reached": 642,
+            "reached": 644,
             "lostHere": 585
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 6,
+            "count": 10,
             "sum": 0.0,
-            "reached": 54,
+            "reached": 58,
             "lostHere": 0
           },
           {
@@ -5724,7 +5734,7 @@
     "all": 1037
   },
   "pipeline": {
-    "asOf": "2026-10-21T15:53:32Z",
+    "asOf": "2026-10-21T19:53:21Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
