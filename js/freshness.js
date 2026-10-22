@@ -120,5 +120,24 @@ window.E3DFresh = (() => {
     document.addEventListener('DOMContentLoaded', () => { renderAll(); setInterval(renderAll, 5 * 60 * 1000); });
   }
 
-  return { fmt, html, render, renderAll, ageHours, toDate };
+  // v7.16: банер «дані застаріли» для блоків, джерело яких тимчасово не оновлюється
+  // stale(el, ts, {what, why, maxDays}) — показує банер, якщо даним ≥ maxDays днів (за замовчуванням 7); повертає true, якщо застаріли
+  function stale(el, ts, o) {
+    o = o || {};
+    if (typeof el === 'string') el = document.getElementById(el);
+    if (!el) return false;
+    const old = el.querySelector(':scope > .e3d-stale'); if (old) old.remove();
+    const d = toDate(ts); if (!d) return false;
+    const days = Math.floor((Date.now() - d.getTime()) / 864e5);
+    if (days < (o.maxDays || 7)) return false;
+    const b = document.createElement('div');
+    b.className = 'e3d-stale';
+    b.style.cssText = 'display:flex;gap:8px;align-items:baseline;font-size:11px;padding:6px 10px;margin:0 0 8px;border:1px solid rgba(201,138,43,.45);background:rgba(201,138,43,.10);border-radius:8px;color:#7a4e0b';
+    b.innerHTML = '<span>⏸</span><div><b>Дані тимчасово не оновлюються — застаріли.</b> Останні за ' + d.toLocaleDateString('uk-UA') +
+      ' (' + days + ' дн. тому)' + (o.what ? ' · ' + o.what : '') + (o.why ? '. ' + o.why : '') + '</div>';
+    el.insertBefore(b, el.firstChild);
+    return true;
+  }
+
+  return { fmt, html, render, renderAll, ageHours, toDate, stale };
 })();

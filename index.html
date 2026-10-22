@@ -6,12 +6,12 @@
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="data/static.js?v=20261020"></script>
+<script src="data/static.js?v=20261022"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
 <script src="js/data_layer.js"></script>
-<script src="js/freshness.js?v=20261001"></script>
+<script src="js/freshness.js?v=20261022"></script>
 <script src="js/widgets.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -440,7 +440,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.15</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.17</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -1765,7 +1765,7 @@ function buildStatic(){
     setT('cc-c',calc+' можна');
     setT('cc-n',no+' немає');
     const bar=document.getElementById('cv-bar');if(bar)bar.style.width=pct.toFixed(1)+'%';
-    const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · звірено з реєстром 01.10.2026`;
+    const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · звірено з реєстром 22.10.2026`;
     const regTitle=document.getElementById('reg-header-title');if(regTitle)regTitle.textContent=`📋 Покриття метрик · ${total} · ${reg.length} розділів`;
   }catch(e){}
   _renderCovByBar(reg);
@@ -2216,7 +2216,12 @@ async function loadPlanWeek(){
     }});
 
     const genDate=pw.generated_at?new Date(pw.generated_at).toLocaleDateString('uk-UA'):'';
-    set('planweek-status', genDate?`Дані станом на ${genDate} · ручний імпорт`:'');
+    // v7.16: ручний імпорт планування не оновлюється — чесно позначаємо
+    const isStale=window.E3DFresh&&E3DFresh.stale&&E3DFresh.stale(document.querySelector('#w-prod-planweek .card-flat'),pw.generated_at,
+      {what:'ручний імпорт «Планування по локаціям», план до '+(pw.dates[pw.dates.length-1]||'').split('-').reverse().join('.'),
+       why:'Оновиться, коли планування друку наперед підключиться автоматично (API планування)'});
+    if(isStale&&dot) dot.className='ld warn';
+    set('planweek-status', genDate?(isStale?`⏸ застаріло · станом на ${genDate}`:`Дані станом на ${genDate} · ручний імпорт`):'');
   }catch(e){console.warn('[PlanWeek]',e.message);}
 }
 
@@ -3857,6 +3862,74 @@ window.LocLoader = (() => {
     return (x) => a + b * Math.log(x);
   }
 
+  // ── v7.17: ключові точки на графіках з кількома кривими (локальні макс/мін, рекорди періоду, поточне значення) ──
+  // Підписи розставляє плагін після малювання: пріоритет «зараз» → рекорди → локальні екстремуми; кожен підпис пробує
+  // кілька позицій навколо точки і НЕ малюється, якщо перетинається з уже поставленими (або виходить за межі графіка).
+  function keyIdx(data, prom, win) {
+    const n = data.length, out = {}, W = Math.max(win || 5, Math.round(n / 15));
+    const v = i => data[i] == null ? null : +data[i];
+    for (let i = 0; i < n; i++) {
+      const x = v(i); if (x == null) continue;
+      let mx = -Infinity, mn = Infinity, lo = Infinity, hi = -Infinity;
+      for (let j = Math.max(0, i - W); j <= Math.min(n - 1, i + W); j++) { const y = v(j); if (y == null || j === i) continue; mx = Math.max(mx, y); mn = Math.min(mn, y); }
+      for (let j = Math.max(0, i - 3 * W); j <= Math.min(n - 1, i + 3 * W); j++) { const y = v(j); if (y == null) continue; lo = Math.min(lo, y); hi = Math.max(hi, y); }
+      if (x >= mx && x - lo >= prom) out[i] = { t: 'max', p: x - lo }; else if (x <= mn && hi - x >= prom) out[i] = { t: 'min', p: hi - x };
+    }
+    // не більше K локальних екстремумів на криву (найвиразніші) — щоб при 5–6 кривих графік не тонув у підписах
+    const K = Math.max(2, Math.round(n / 30));
+    Object.keys(out).map(Number).sort((a, b) => out[b].p - out[a].p).slice(K).forEach(i => delete out[i]);
+    const ks = Object.keys(out).map(Number).sort((a, b) => a - b);
+    for (let a = 0; a < ks.length; a++) for (let b = a + 1; b < ks.length && ks[b] - ks[a] <= W; b++) {
+      const i = ks[a], j = ks[b]; if (out[i] && out[j] && out[i].t === out[j].t) delete out[out[i].p >= out[j].p ? j : i];
+    }
+    let gi = -1, li = -1, last = -1;
+    data.forEach((x, i) => { if (x == null) return; last = i; if (gi < 0 || x > data[gi]) gi = i; if (li < 0 || x < data[li]) li = i; });
+    if (gi >= 0) out[gi] = { t: 'gmax', p: 1e9 }; if (li >= 0 && li !== gi) out[li] = { t: 'gmin', p: 1e9 };
+    if (last >= n - 2) out[last] = { t: 'cur', p: 2e9 };    // «зараз» — лише якщо локація активна (є значення за останні 2 дні; брак за сьогодні ще не пораховано)
+    return out;
+  }
+  const kpPlugin = {
+    id: 'e3dKeyPoints',
+    afterDatasetsDraw(chart, args, o) {
+      const ctx = chart.ctx, area = chart.chartArea, fmtV = (o && o.fmt) || (v => Math.round(v) + '%');
+      const cands = [];
+      chart.data.datasets.forEach((ds, di) => {
+        if (!ds._kp || !chart.isDatasetVisible(di)) return;
+        const meta = chart.getDatasetMeta(di);
+        Object.entries(ds._kp).forEach(([i, k]) => {
+          const el = meta.data[+i], v = ds.data[+i]; if (!el || v == null || isNaN(el.x) || isNaN(el.y)) return;
+          const pr = k.t === 'cur' ? 3 : (k.t === 'gmax' || k.t === 'gmin') ? 2 : 1;
+          cands.push({ x: el.x, y: el.y, v, t: k.t, pr, p: k.p, c: ds.borderColor });
+        });
+      });
+      cands.sort((a, b) => b.pr - a.pr || b.p - a.p);
+      const placed = [], G = 4, hit = (b) => placed.some(q => b.x < q.x + q.w + G && b.x + b.w + G > q.x && b.y < q.y + q.h + G && b.y + b.h + G > q.y);
+      ctx.save(); ctx.font = '700 9px system-ui, -apple-system, Segoe UI, sans-serif'; ctx.textBaseline = 'middle';
+      cands.forEach(c => {
+        const txt = (c.t === 'cur' ? 'зараз ' : '') + fmtV(c.v), w = ctx.measureText(txt).width + 6, h = 12;
+        const low = c.t === 'min' || c.t === 'gmin';
+        const tries = c.t === 'cur'
+          ? [0, -13, 13, -26, 26, -39, 39, -52, 52].map(d => [6, -h / 2 + d]).concat([[-w / 2, -h - 5], [-w - 6, -h / 2 - 13], [-w - 6, -h / 2 + 13]])
+          : low ? [[-w / 2, 5], [4, 3], [-w - 4, 3], [-w / 2, -h - 5]] : [[-w / 2, -h - 5], [4, -h - 3], [-w - 4, -h - 3], [-w / 2, 5]];
+        for (const [dx, dy] of tries) {
+          const b = { x: c.x + dx, y: c.y + dy, w, h };
+          const right = c.t === 'cur' ? chart.width - 2 : area.right;
+          if (b.x < area.left || b.x + w > right || b.y < area.top - 2 || b.y + h > area.bottom) continue;
+          if (hit(b)) continue;
+          placed.push(b);
+          ctx.beginPath(); ctx.arc(c.x, c.y, c.t === 'cur' ? 4 : 3, 0, Math.PI * 2); ctx.fillStyle = c.c; ctx.fill();
+          ctx.lineWidth = 1.5; ctx.strokeStyle = '#fff'; ctx.stroke();
+          if (Math.abs(dy + h / 2) > 10 && c.t === 'cur') { ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(dx > 0 ? b.x : b.x + w, b.y + h / 2); ctx.strokeStyle = c.c; ctx.lineWidth = .8; ctx.stroke(); }
+          ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.strokeStyle = c.c; ctx.lineWidth = 1;
+          ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(b.x, b.y, w, h, 3); else ctx.rect(b.x, b.y, w, h); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = c.c; ctx.fillText(txt, b.x + 3, b.y + h / 2 + .5);
+          break;
+        }
+      });
+      ctx.restore();
+    },
+  };
+
   function buildLineChart(canvasId, field, yFmt, opts) {
     opts = opts || {};
     const canvas = document.getElementById(canvasId);
@@ -3907,6 +3980,8 @@ window.LocLoader = (() => {
         order: 2,
         _locNum: num,
         _role: 'main',
+        // v7.17: ключові точки; поріг перепаду — 15 п.п. для завантаженості, для % браку — від розмаху кривої
+        _kp: keyIdx(data, opts.threshold != null ? Math.max(2, 0.3 * ((Math.max(...data.filter(v => v != null)) || 0) - (Math.min(...data.filter(v => v != null)) || 0))) : 15, 5),
       };
       if (opts.threshold != null) {
         // точки, що перевищують поріг — виділяємо збільшеним маркером у кольорі локації
@@ -3938,10 +4013,13 @@ window.LocLoader = (() => {
     _charts[canvasId] = new Chart(canvas, {
       type: 'line',
       data: { labels, datasets },
+      plugins: [kpPlugin],
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: { padding: { top: 16, right: 64 } },
         plugins: {
+          e3dKeyPoints: { fmt: v => (Math.abs(v) < 10 && v % 1 ? v.toFixed(1) : Math.round(v)) + '%' },
           legend: {
             position: 'top',
             onClick: (e, legendItem, legend) => {
@@ -4036,7 +4114,7 @@ window.LocLoader = (() => {
 <script src="js/mkt_split.js?v=20261022c"></script>
 <script src="js/leadgen_loader.js?v=20261022d"></script>
 <script src="js/shopfloor_loader.js?v=20261014b"></script>
-<script src="js/clients_loader.js?v=20261014b"></script>
+<script src="js/clients_loader.js?v=20261022"></script>
 <script>
 // v4.5: зміна складу локацій у /api/capacity. Дашборд нічого не фільтрує —
 // показує те, що віддає API. Якщо набір локацій змінився (напр. 23.09: зникли

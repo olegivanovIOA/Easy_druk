@@ -227,7 +227,7 @@ window.E3D_STATIC = {
     // реєстру, і не рухає це число (потребує зв'язку партія↔угода на рівні
     // моделі принтера, якого ще немає — див. Group A у нотатках проєкту).
     { section:'Якість та брак',                 total:13, yes:7 ,part:3 ,calc:1,  no:2 },
-    { section:'Продажі ОПТ (B2B)',              total:16, yes:8 ,part:6 ,calc:2,  no:0 },
+    { section:'Продажі ОПТ (B2B)',              total:16, yes:9 ,part:6 ,calc:1,  no:0 },   // v7.16: частка топ-5 клієнтів calc→yes
     { section:'Продажі Роздріб (B2C)',          total:9, yes:4 ,part:4 ,calc:0,  no:1 },
     { section:'CRM та Маркетинг',               total:20, yes:17 ,part:3 ,calc:0,  no:0},
     // ↑ v7.5 (20.10.2026): CPC calc→yes — блок Google Ads тепер з GA4 (витрати/кліки/покази EASY + Ukr3d) і Bitrix24.
@@ -238,7 +238,7 @@ window.E3D_STATIC = {
     // WON) — реально автоматизовано на дашборді 25.08.2026, но→так. У самому
     // реєстрі (Google Drive) досі стоїть "Ні" — не оновлювали там, дашборд тут
     // випереджає застарілий сорс.
-    { section:'Аналіз клієнтів',                total:12, yes:6 ,part:4 ,calc:1,  no:1 },
+    { section:'Аналіз клієнтів',                total:12, yes:7 ,part:4 ,calc:0,  no:1 },   // v7.16: HHI calc→yes
     { section:'Фінанси та P&L',                 total:14, yes:11 ,part:1 ,calc:0,  no:2 },
     // ↑ v4.10 (01.10.2026): запущено P&L Easy v1 (PnL_Easy.gs → fetch_pnl.py → pnl.json, щогодини)
     // — Собівартість (COGS) calc→yes, Операційні витрати (OpEx) part→yes, Чистий прибуток calc→yes

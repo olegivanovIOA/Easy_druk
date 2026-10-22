@@ -346,7 +346,17 @@ def main():
             # класична формула: сер. чек × покупок/рік × тривалість життя (роки, за клієнтами, що вже пішли)
             "ltvFormula": round(avg_check12 * freq12 * life_years) if avg_check12 and freq12 and life_years else None,
             "top10Share12m": top_share([c["rev12"] for c in act], 0.10),
+            # v7.16: концентрація виручки за 12 міс — частка топ-1 / топ-5 клієнтів і індекс Херфіндаля (HHI, 0–10 000)
+            **conc([c["rev12"] for c in act]),
         }
+
+    def conc(vals):
+        vals = sorted((v for v in vals if v > 0), reverse=True)
+        tot = sum(vals)
+        if not tot:
+            return {"top1Share12m": None, "top5Share12m": None, "hhi12m": None}
+        return {"top1Share12m": round(vals[0] / tot * 100, 1), "top5Share12m": round(sum(vals[:5]) / tot * 100, 1),
+                "hhi12m": round(sum((v / tot * 100) ** 2 for v in vals))}
 
     def top_share(vals, q):
         vals = sorted((v for v in vals if v > 0), reverse=True)
