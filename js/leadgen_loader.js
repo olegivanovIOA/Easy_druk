@@ -673,9 +673,10 @@ window.LeadgenLoader = (() => {
     // v7.4: угоди / WON / виручка Bitrix по Google-кампаніях (з аліасами і акаунтом) + точна вартість GA4 за період
     crmGoogle: (from, to) => {
       const bx = bitrixRows(from, to), ads = adsCost(from, to), out = {}, byDay = {};
-      const get = (acc, name) => out[acc + '|' + name] || (out[acc + '|' + name] = { acc, name, n: 0, w: 0, ws: 0, cost: 0 });
+      const get = (acc, name) => out[acc + '|' + name] || (out[acc + '|' + name] = { acc, name, n: 0, w: 0, ws: 0, cost: 0, nk: 0 });
       // v7.10: угоди «слонів» (клієнт №1 тощо) не зараховуються рекламі — у блоці Google Ads їх немає
-      bx.rows.forEach(r => { const c = channelOf(r.us, r.s, bx.srcNames); if (c.ch !== 'google' || r.t === 'k') return; const nm = bxKey(c, r.uc, ads);
+      bx.rows.forEach(r => { const c = channelOf(r.us, r.s, bx.srcNames); if (c.ch !== 'google') return; const nm = bxKey(c, r.uc, ads);
+        if (r.t === 'k') { if (nm) get(/ukr/i.test(c.acc) ? 'ukr3d' : 'easy', nm).nk += r.n; return; }   // лише лічильник, у ліди/ROAS не йде
         const acc = /ukr/i.test(c.acc) ? 'ukr3d' : 'easy';
         if (r.d) { const d = byDay[r.d] || (byDay[r.d] = { easy: { n: 0, w: 0, ws: 0 }, ukr3d: { n: 0, w: 0, ws: 0 } }); d[acc].n += r.n; d[acc].w += r.w; d[acc].ws += r.ws; }
         if (!nm) return;

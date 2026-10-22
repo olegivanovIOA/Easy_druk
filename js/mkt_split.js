@@ -397,48 +397,66 @@ window.MktSplit = (() => {
         y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: v => fmt(v) } } } } });
   }
 
-  // ── 5. v7.12: ТОП клієнтів, залучених або повернутих маркетингом (без назв — псевдоніми) ──
+  // ── 5. v7.12–7.13: ТОП клієнтів — від маркетингу (зліва) і НЕ від маркетингу (справа), без назв — псевдоніми ──
   const TOP_LS = 'e3d_mkt_top_v1';
   function renderTop(api, all, from, to) {
-    const tb = $('ms-top-table'), kp = $('ms-top-kpi'); if (!tb) return;
+    const tbM = $('ms-top-table'), tbN = $('ms-topn-table'), kpM = $('ms-top-kpi'), kpN = $('ms-topn-kpi'); if (!tbM) return;
     const tc = api.clients && api.clients.topClients;
     if (!tc || !tc.rows) {
-      tb.innerHTML = `<tr><td colspan="11" style="color:var(--tl);font-weight:400">Таблиця з'явиться після нічного запуску <b>update-clients</b> з v7.12.</td></tr>`;
-      if (kp) kp.innerHTML = ''; return;
+      [tbM, tbN].forEach(tb => { if (tb) tb.innerHTML = `<tr><td colspan="8" style="color:var(--tl);font-weight:400">Таблиця з'явиться після нічного запуску <b>update-clients</b> з v7.13.</td></tr>`; });
+      [kpM, kpN].forEach(k => { if (k) k.innerHTML = ''; }); return;
     }
-    const st = Object.assign({ per: 'all', more: false }, lsGet(TOP_LS, {}));
+    const st = Object.assign({ per: 'all', more: false, moreN: false }, lsGet(TOP_LS, {}));
     document.querySelectorAll('#ms-top-per button').forEach(b => { b.classList.toggle('on', b.dataset.v === st.per);
       b.onclick = () => { lsSet(TOP_LS, Object.assign(st, { per: b.dataset.v })); renderTop(api, all, from, to); }; });
     const sn = all.srcNames, fmt = api.fmt, mA = from.slice(0, 7), mB = to.slice(0, 7);
     const inPer = m => st.per === 'all' || (m >= mA && m <= mB);
     const cl = (e, t) => classify(e.us, e.uc, sn[e.s] || e.s || '', api.channelOf(e.us, e.s, sn).ch, t);
     const chan = e => { const c = api.channelOf(e.us, e.s, sn); return { ch: c.ch, acc: c.acc, camp: (e.uc || '').trim() }; };
-    const rows = [];
+    const M = [], N = [];
     tc.rows.forEach(r => {
-      const acq = cl(r.ft, '') === 'mkt' && inPer(r.ft.m);
-      const ret = (r.ra || []).filter(e => cl(e, 'r') === 'mkt' && inPer(e.m));
-      if (!acq && !ret.length) return;
-      const ev = acq ? r.ft : ret[ret.length - 1];
-      rows.push(Object.assign({}, r, { acq, ret: ret.length, how: acq && ret.length ? 'залучено + повернуто' : acq ? 'залучено' : 'повернуто',
-        when: ev.m, src: chan(ev), attr: acq ? r.rev : ret.reduce((s, e) => s + e.rev, 0) }));
+      if (!r.k) {
+        const acq = cl(r.ft, '') === 'mkt' && inPer(r.ft.m);
+        const ret = (r.ra || []).filter(e => cl(e, 'r') === 'mkt' && inPer(e.m));
+        const acqAny = cl(r.ft, '') === 'mkt', retAny = (r.ra || []).some(e => cl(e, 'r') === 'mkt');
+        if (acq || ret.length) {
+          const ev = acq ? r.ft : ret[ret.length - 1];
+          M.push(Object.assign({}, r, { acq, ret: ret.length, how: acq && ret.length ? 'залучено + повернуто' : acq ? 'залучено' : 'повернуто',
+            hc: acq ? G : WH, when: ev.m, src: chan(ev), attr: acq ? r.rev : ret.reduce((s, e) => s + e.rev, 0) }));
+          return;
+        }
+        if (acqAny || retAny) return;   // заслуга маркетингу поза обраним періодом — у «не від маркетингу» не показуємо
+      }
+      if (!inPer(r.ft.m)) return;
+      const c = r.k ? 'key' : cl(r.ft, '');
+      N.push(Object.assign({}, r, { how: r.k ? '🐘 ключовий клієнт' : c === 'unk' ? 'не визначено' : 'не від маркетингу',
+        hc: r.k ? R : c === 'unk' ? GRY : RT, when: r.ft.m, src: chan(r.ft), attr: r.rev }));
     });
-    rows.sort((a, b) => b.attr - a.attr);
-    const tot = rows.reduce((s, r) => s + r.attr, 0), top10 = rows.slice(0, 10).reduce((s, r) => s + r.attr, 0);
-    if (kp) kp.innerHTML =
-      tile('Клієнтів від маркетингу', rows.length.toLocaleString('uk-UA'), `залучено ${rows.filter(r => r.acq).length} · повернуто ${rows.filter(r => r.ret).length}`, G) +
-      tile('Їхня виручка', fmt(tot) + ' ₴', 'залучені — уся WON-виручка; повернуті — 365 днів після повернення', GD) +
-      tile('Частка ТОП-10', p0(tot ? top10 / tot * 100 : null), 'концентрація виручки від маркетингу') +
-      tile('Середня виручка на клієнта', rows.length ? fmt(tot / rows.length) + ' ₴' : '—', 'атрибутована маркетингу');
-    const show = st.more ? rows : rows.slice(0, 30);
-    tb.innerHTML = show.length ? show.map((r, i) => `<tr>
-        <td class="r" style="color:var(--tl)">${i + 1}</td><td style="font-family:monospace">${esc(r.id)}</td>
-        <td><span class="roi-cls" style="background:${r.acq ? G : WH}"></span>${r.how}</td>
-        <td><span class="roi-ch">${esc(r.src.ch)}</span>${r.src.acc ? `<span class="roi-acc"> / ${esc(r.src.acc)}</span>` : ''}${r.src.camp ? `<div style="font-size:10px;color:var(--tl)">${esc(r.src.camp)}</div>` : ''}</td>
-        <td>${r.when}</td><td>${esc(r.ind || '—')}</td><td>${r.g === 'w' ? 'ОПТ' : 'Роздріб'}</td>
-        <td class="r">${r.w}</td><td class="r" style="font-weight:700">${fmt(r.attr)}</td><td class="r">${fmt(r.rev12)}</td><td>${r.lw}</td></tr>`).join('') +
-      (rows.length > 30 ? `<tr><td colspan="11" style="text-align:center"><a href="#" id="ms-top-more">${st.more ? 'показати ТОП-30' : `показати всіх (${rows.length})`}</a></td></tr>` : '')
-      : `<tr><td colspan="11" style="color:var(--tl);font-weight:400">Немає клієнтів від маркетингу за обраний період</td></tr>`;
-    const mo = $('ms-top-more'); if (mo) mo.onclick = ev => { ev.preventDefault(); lsSet(TOP_LS, Object.assign(st, { more: !st.more })); renderTop(api, all, from, to); };
+    const kpis = (rows, el, lbl, col) => {
+      const tot = rows.reduce((s, r) => s + r.attr, 0), top10 = rows.slice(0, 10).reduce((s, r) => s + r.attr, 0);
+      if (el) el.innerHTML = tile(lbl, rows.length.toLocaleString('uk-UA'), '', col) +
+        tile('Їхня виручка', fmt(tot) + ' ₴', '', GD) + tile('Частка ТОП-10', p0(tot ? top10 / tot * 100 : null), 'концентрація') +
+        tile('На клієнта', rows.length ? fmt(tot / rows.length) + ' ₴' : '—', 'середня виручка');
+    };
+    M.sort((a, b) => b.attr - a.attr); N.sort((a, b) => b.attr - a.attr);
+    kpis(M, kpM, 'Клієнтів від маркетингу', G);
+    if (kpM) kpM.querySelector('.roi-k .s').textContent = `залучено ${M.filter(r => r.acq).length} · повернуто ${M.filter(r => r.ret).length}`;
+    kpis(N, kpN, 'Клієнтів не від маркетингу', RT);
+    if (kpN) kpN.querySelector('.roi-k .s').textContent = `у т.ч. «слонів» ${N.filter(r => r.k).length}` + (N.length >= 280 ? ' · ТОП-300 за виручкою' : '');
+    const table = (tb, rows, moreKey, linkId) => {
+      if (!tb) return;
+      const show = st[moreKey] ? rows : rows.slice(0, 30);
+      tb.innerHTML = show.length ? show.map((r, i) => `<tr>
+          <td class="r" style="color:var(--tl)">${i + 1}</td>
+          <td style="font-family:monospace" title="${esc((r.ind ? 'Галузь: ' + r.ind + ' · ' : '') + 'перша покупка ' + r.fw + ' · остання ' + r.lw)}">${esc(r.id)}</td>
+          <td><span class="roi-cls" style="background:${r.hc}"></span>${r.how}<div style="font-size:10px;color:var(--tl)">${esc(r.src.ch)}${r.src.acc ? ' / ' + esc(r.src.acc) : ''}${r.src.camp ? ' · ' + esc(r.src.camp) : ''}</div></td>
+          <td>${r.when}</td><td>${r.g === 'w' ? 'ОПТ' : 'Роздріб'}</td>
+          <td class="r">${r.w}</td><td class="r" style="font-weight:700">${fmt(r.attr)}</td><td class="r">${fmt(r.rev12)}</td></tr>`).join('') +
+        (rows.length > 30 ? `<tr><td colspan="8" style="text-align:center"><a href="#" id="${linkId}">${st[moreKey] ? 'показати ТОП-30' : `показати всіх (${rows.length})`}</a></td></tr>` : '')
+        : `<tr><td colspan="8" style="color:var(--tl);font-weight:400">Немає клієнтів за обраний період</td></tr>`;
+      const mo = $(linkId); if (mo) mo.onclick = ev => { ev.preventDefault(); lsSet(TOP_LS, Object.assign(st, { [moreKey]: !st[moreKey] })); renderTop(api, all, from, to); };
+    };
+    table(tbM, M, 'more', 'ms-top-more'); table(tbN, N, 'moreN', 'ms-topn-more');
   }
 
   return { setRules, classify, render };

@@ -596,8 +596,9 @@ def main():
         for hk, x in per.items():
             rev = sum(a for _, a in x["w"])
             rev12 = sum(a for dt, a in x["w"] if dt > y12)
-            if rev <= 0 or rev12 >= KEY_ACCOUNT_MIN or hk in manual:
+            if rev <= 0:
                 continue
+            slon = rev12 >= KEY_ACCOUNT_MIN or hk in manual   # v7.13: «слони» — лише в таблиці «не від маркетингу»
             ts = sorted(tch.get(hk, []), key=lambda t: (t[0], not t[1]))
             if not ts:
                 continue
@@ -613,20 +614,25 @@ def main():
                         ra.append({"m": dt.strftime("%Y-%m"), "us": us.lower(), "uc": uc, "s": src,
                                    "rev": round(sum(a for d2, a in wl if dt <= d2 < dt + timedelta(days=365)))})
                 last_act = dt if last_act is None or dt > last_act else last_act
-            if not is_mkt(ft["us"], ft["s"]) and not ra:
-                continue
-            out_rows.append({"id": "#" + hk[:6], "g": "w" if x["grp"].most_common(1)[0][0] == "wholesale" else "r",
+            cand = is_mkt(ft["us"], ft["s"]) or bool(ra)
+            out_rows.append({"_c": cand and not slon, "id": "#" + hk[:6], **({"k": 1} if slon else {}), "g": "w" if x["grp"].most_common(1)[0][0] == "wholesale" else "r",
                              "ind": x["ind"].most_common(1)[0][0] if x["ind"] else None,
                              "rev": round(rev), "rev12": round(rev12), "w": len(wl),
                              "fw": wl[0][0].strftime("%Y-%m"), "lw": wl[-1][0].strftime("%Y-%m"),
                              "ft": ft, "ra": ra[-5:]})
+        # v7.13: усі кандидати «від маркетингу» + ТОП-300 за виручкою (для таблиці «не від маркетингу»)
         out_rows.sort(key=lambda r: -max([r["rev"]] + [e["rev"] for e in r["ra"]]))
-        top_clients = {"note": "клієнти без назв (псевдонім — частина солоного хешу); перша угода або повернення після паузи "
-                               f"≥{REACT_GAP} дн з UTM / маркетинговим джерелом; «слони» виключені",
+        by_rev = sorted(out_rows, key=lambda r: -r["rev"])[:300]
+        keep = {id(r) for r in by_rev} | {id(r) for r in out_rows if r["_c"]}
+        out_rows = [r for r in out_rows if id(r) in keep]
+        for r in out_rows:
+            r.pop("_c", None)
+        top_clients = {"note": "клієнти без назв (псевдонім — частина солоного хешу): усі кандидати «від маркетингу» (перша угода або "
+                               f"повернення після паузи ≥{REACT_GAP} дн з UTM / маркетинговим джерелом) + ТОП-300 за виручкою; k=1 — «слон»",
                        "fields": "id псевдонім, g w=ОПТ/r=Роздріб, ind галузь, rev WON за весь час, rev12 за 12 міс, w к-сть WON, "
                                  "fw/lw перша/остання покупка, ft перший дотик {m,us,uc,s}, ra повернення [{m,us,uc,s,rev за 365 дн}]",
-                       "rows": out_rows[:300]}
-        print(f"[CL] ТОП клієнтів від маркетингу: {len(out_rows)} кандидатів (у файлі {min(300, len(out_rows))})")
+                       "rows": out_rows}
+        print(f"[CL] ТОП клієнтів (маркетинг / не маркетинг): у файлі {len(out_rows)} клієнтів")
     except Exception as e:
         print(f"[CL] ⚠ ТОП клієнтів не пораховано: {e}")
 

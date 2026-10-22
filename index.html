@@ -313,6 +313,12 @@ a{color:var(--gd);text-decoration:none}
 .roi-seg button[style*="--c"]::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:0}
 .roi-seg button.on[style*="--c"]{background:var(--c);color:#fff;font-weight:700}
 .roi-seg button.on[style*="--c"]::before{background:#fff}
+.sig-box{border:1px solid var(--bd);border-radius:8px;background:var(--s2);padding:4px 10px 6px;margin-bottom:10px;font-size:11px}
+.sig-h{display:flex;align-items:center;gap:10px;padding:2px 0 4px;color:var(--td)}
+.sig-c{font-weight:700}.sig-x{margin-left:auto;font-size:10px;color:var(--tl);text-decoration:none}.sig-x:hover{color:var(--tx)}
+.sig-l{display:flex;gap:6px;align-items:baseline;padding:2px 0 2px 6px;border-left:3px solid transparent;line-height:1.35}
+.sig-l.sig-r{border-left-color:#C0392B}.sig-l.sig-g{border-left-color:#2A9D8F}.sig-l.sig-a{border-left-color:#C98A2B}
+.sig-l.sig-r b{color:#C0392B}
 .roi-cls{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
 .roi-row{cursor:pointer}.roi-row.open td{background:var(--s2)}
 .roi-dd>td{padding:4px 8px 10px 22px!important;background:var(--s2)}
@@ -434,7 +440,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v4.11</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.14</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -1333,20 +1339,31 @@ a{color:var(--gd);text-decoration:none}
           <div class="cw" style="height:220px"><canvas id="ms-react-chart"></canvas></div>
           <div style="font-size:10px;color:var(--tl);margin-top:6px"><b>Повернення</b> — нова угода (будь-яка воронка, будь-яка стадія) клієнта, який уже купував, після ≥ 180 днів без угод і покупок. Якщо угода повернення прийшла з реклами / маркетингового джерела — це заслуга маркетингу. Виручка — WON клієнта за 365 днів від повернення. Клієнт = компанія угоди або контакт. Класи — ті самі правила, що вище.</div>
         </div>
-        <div class="card" style="margin-bottom:12px">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-            <div class="ct" style="margin:0">🏆 ТОП клієнтів, залучених або повернутих маркетингом</div>
-            <span class="roi-seg" id="ms-top-per"><button type="button" data-v="all">Весь час</button><button type="button" data-v="period">Період ROI</button></span>
-          </div>
-          <div id="ms-top-kpi" class="roi-kpi"></div>
-          <div class="tw" style="max-height:560px;overflow:auto"><table class="tbl roi-tbl"><thead><tr>
-            <th class="r">#</th><th title="Псевдонім клієнта (незворотний хеш) — назви на публічному дашборді не показуємо">Клієнт</th><th>Як прийшов</th><th>Канал / кампанія</th>
-            <th title="Місяць першої угоди (залучено) або повернення після паузи ≥ 180 днів">Коли</th><th>Галузь</th><th>Група</th>
-            <th class="r" title="WON-угод за весь час">WON</th><th class="r" title="Залучені — уся WON-виручка клієнта; повернуті — WON за 365 днів після повернення">Виручка від маркетингу</th>
-            <th class="r">Виручка 12 міс</th><th title="Місяць останньої покупки">Остання покупка</th>
-          </tr></thead><tbody id="ms-top-table"></tbody></table></div>
-          <div style="font-size:10px;color:var(--tl);margin-top:6px"><b>Залучено</b> — перша угода клієнта прийшла з маркетингового джерела (рекламна UTM, реклама FB/IG, виставка, розсилка… — за правилами вище). <b>Повернуто</b> — клієнт, що вже купував, після паузи ≥ 180 днів повернувся угодою з рекламною UTM-міткою. Ключові клієнти («слони», у т.ч. клієнт №1) виключені. Назв немає: репозиторій дашборда публічний.</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:4px 0 6px">
+          <div class="ct" style="margin:0">🏆 ТОП клієнтів: від маркетингу vs не від маркетингу</div>
+          <span class="roi-seg" id="ms-top-per"><button type="button" data-v="all">Весь час</button><button type="button" data-v="period">Період ROI</button></span>
         </div>
+        <div class="g2" style="margin-bottom:12px;align-items:start">
+          <div class="card">
+            <div class="ct" style="margin:0 0 6px;color:#1e7a6e">✅ Залучені або повернуті маркетингом</div>
+            <div id="ms-top-kpi" class="roi-kpi"></div>
+            <div class="tw" style="max-height:560px;overflow:auto"><table class="tbl roi-tbl" style="font-size:11px"><thead><tr>
+              <th class="r">#</th><th title="Псевдонім клієнта (незворотний хеш); наведи — галузь, перша й остання покупка">Клієнт</th><th>Як прийшов · канал / кампанія</th>
+              <th title="Місяць першої угоди або повернення після паузи ≥ 180 днів">Коли</th><th>Група</th>
+              <th class="r" title="WON-угод за весь час">WON</th><th class="r" title="Залучені — уся WON-виручка клієнта; повернуті — WON за 365 днів після повернення">Виручка</th><th class="r">12 міс</th>
+            </tr></thead><tbody id="ms-top-table"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin:0 0 6px;color:#C98A2B">🤝 Не від маркетингу (продажі, існуючі, «слони», не визначено)</div>
+            <div id="ms-topn-kpi" class="roi-kpi"></div>
+            <div class="tw" style="max-height:560px;overflow:auto"><table class="tbl roi-tbl" style="font-size:11px"><thead><tr>
+              <th class="r">#</th><th title="Псевдонім клієнта (незворотний хеш); наведи — галузь, перша й остання покупка">Клієнт</th><th>Як прийшов · канал / кампанія</th>
+              <th title="Місяць першої угоди або повернення після паузи ≥ 180 днів">Коли</th><th>Група</th>
+              <th class="r" title="WON-угод за весь час">WON</th><th class="r" title="Уся WON-виручка клієнта за весь час">Виручка</th><th class="r">12 міс</th>
+            </tr></thead><tbody id="ms-topn-table"></tbody></table></div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--tl);margin:-6px 0 12px"><b>Залучено</b> — перша угода клієнта з маркетингового джерела (рекламна UTM, реклама FB/IG, виставка, розсилка… — за правилами вище). <b>Повернуто</b> — клієнт, що вже купував, після паузи ≥ 180 днів повернувся угодою з рекламною UTM-міткою. <b>Не від маркетингу</b> — решта клієнтів (ТОП-300 за виручкою): холодні та вихідні продажі, існуючі клієнти, рекомендації, а також ключові клієнти («слони», у т.ч. клієнт №1) — вони тут завжди, хоч би яке джерело стояло в угоді. «Не визначено» — дзвінки / сайт / пошта, поки Влад не дасть правило. Назв немає: репозиторій дашборда публічний.</div>
       </div>
       <div class="card" id="mkt-leadgen-trend-wrap" style="display:none;margin-bottom:12px">
         <div class="ct" style="margin-bottom:8px">Динаміка: звернення → кваліфіковані → WON, частка виручки від повторних покупців <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
@@ -1413,8 +1430,8 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow" title="Витрати ≥ 2 000 ₴ і жодного ліда в CRM"><div class="krow-bar kb-r"></div><div class="krow-lbl">RED кампанії</div><div class="krow-val" id="ads-red-count">—</div><div class="krow-tgt">витрати без лідів</div><div class="real-dot"></div></div>
     </div>
 
-    <div id="ads-alert-red" class="al al-r" style="display:none;margin-bottom:8px"><span class="ic">🛑</span><div id="ads-alert-red-text" style="font-size:12px"></div></div>
-    <div id="ads-recommendations" style="margin-bottom:8px"></div>
+    
+    <div id="ads-recommendations"></div>
 
     <div class="g2" style="margin-bottom:14px">
       <div class="card">
@@ -3976,7 +3993,7 @@ window.LocLoader = (() => {
 </script>
 <script src="js/hr_loader.js?v=20260930"></script>
 <script src="js/org_loader.js?v=20261012b"></script>
-<script src="js/ads_loader.js?v=20261020b"></script>
+<script src="js/ads_loader.js?v=20261022d"></script>
 <script src="js/mql_loader.js?v=20260924"></script>
 <script src="js/sales_loader.js?v=20260930b"></script>
 <script src="js/funnels_loader.js?v=20260930e"></script>
@@ -3984,8 +4001,8 @@ window.LocLoader = (() => {
 <script src="js/channels_loader.js?v=20260930"></script>
 <script src="js/ga4_loader.js?v=20261014"></script>
 <script src="js/table_sort.js?v=20261020"></script>
-<script src="js/mkt_split.js?v=20261022b"></script>
-<script src="js/leadgen_loader.js?v=20261022b"></script>
+<script src="js/mkt_split.js?v=20261022c"></script>
+<script src="js/leadgen_loader.js?v=20261022d"></script>
 <script src="js/shopfloor_loader.js?v=20261014b"></script>
 <script src="js/clients_loader.js?v=20261014b"></script>
 <script>

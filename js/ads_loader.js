@@ -69,7 +69,7 @@ window.AdsLoader = (() => {
     const api0 = window.LeadgenLoader && LeadgenLoader.api, cof = api0 && api0.campOf ? api0.campOf : (x => x);
     // кампанії (вартість / кліки / покази) — ключ: акаунт + назва
     const camps = {};
-    const C = (acc, name) => camps[acc + '|' + name] || (camps[acc + '|' + name] = { acc, name, cost: 0, clk: 0, imp: 0, ke: null, n: 0, w: 0, ws: 0 });
+    const C = (acc, name) => camps[acc + '|' + name] || (camps[acc + '|' + name] = { acc, name, cost: 0, clk: 0, imp: 0, ke: null, n: 0, w: 0, ws: 0, nk: 0 });
     ads.forEach(r => { const x = C(accOf(r.a), cof(r.c)); x.cost += r.cost || 0; x.clk += r.clk || 0; x.imp += r.imp || 0; });
     // ключові події GA4 (ресурс EASY) по кампаніях google / cpc — для однакових назв в обох акаунтах відносимо до EASY
     const keByName = {}, keByDay = {};
@@ -84,8 +84,8 @@ window.AdsLoader = (() => {
     try { const api = window.LeadgenLoader && LeadgenLoader.api; if (api && api.crmGoogle) crm = api.crmGoogle(from, to); } catch (e) { crm = null; }
     if (crm) Object.values(crm.rows).forEach(c => {
       if (accF !== 'all' && c.acc !== accF) return;
-      const x = camps[c.acc + '|' + c.name] || (c.n || c.w ? C(c.acc, c.name) : null); if (!x) return;
-      x.n += c.n; x.w += c.w; x.ws += c.ws;
+      const x = camps[c.acc + '|' + c.name] || (c.n || c.w ? C(c.acc, c.name) : null); if (!x) return;   // nk — ліди «слонів» (лише довідково)
+      x.n += c.n; x.w += c.w; x.ws += c.ws; x.nk += c.nk || 0;
     });
     const rows = Object.values(camps).map(x => Object.assign(x, {
       ctr: x.imp ? x.clk / x.imp * 100 : null, cpc: x.clk ? x.cost / x.clk : null,
@@ -127,32 +127,34 @@ window.AdsLoader = (() => {
     if (ts) ts.innerHTML = window.E3DFresh ? E3DFresh.html([{ ts: _ga.fetched_at, label: 'GA4 / Google Ads' }]) : 'Оновлено: ' + (_ga.fetched_at || '—');
     const st = $('ads-status');
     if (st) st.innerHTML = `Джерела: вартість, кліки, покази — Google Ads через Google Analytics 4 (EASY — ресурс easy3dprint.com.ua, Ukr3d — ukr3dprint.com), точно в грн по днях; конверсії сайту — ключові події GA4; ліди, WON і виручка — Bitrix24 за utm_campaign (угоди, створені в періоді — свіжі ще закриватимуться, тому ROAS за останні дні росте). Excel-скрипт Ads більше не використовується (не оновлювався з 10.10.2026).`;
-    renderAlert(red); renderRecs(rows, D); renderDaily(D); renderTable(rows, D); renderBudget(rows);
+    renderSignals(red, rows, D); renderDaily(D); renderTable(rows, D); renderBudget(rows);
   }
 
-  function renderAlert(red) {
-    const el = $('ads-alert-red'), tx = $('ads-alert-red-text'); if (!el || !tx) return;
-    if (!red.length) { el.style.display = 'none'; return; }
-    el.style.display = '';
-    tx.innerHTML = red.map(r => `<b>${esc(r.name)}</b> (${ACC[r.acc].l}, ${fmt(r.cost)} ₴, 0 лідів у CRM)`).join('; ') + ' — витрати без жодного ліда в CRM: перевір Final URL suffix з utm_campaign або зупини.';
-  }
-
-  function renderRecs(rows, D) {
+  // v7.14: усі сигнали — в одному компактному блоці; «✕ сховати» ховає до перезавантаження сторінки
+  let _sigHidden = false;
+  function renderSignals(red, rows, D) {
     const el = $('ads-recommendations'); if (!el) return;
+    const old = $('ads-alert-red'); if (old) old.style.display = 'none';
     if (!D.crm) { el.innerHTML = ''; return; }
-    const recs = [];
+    const items = [];
+    red.forEach(r => items.push({ t: 'r', i: '🛑', x: `<b>${esc(r.name)}</b> (${ACC[r.acc].l}) — ${fmt(r.cost)} ₴, 0 лідів у CRM` +
+      (r.nk ? ` <span style="color:var(--tl)">(+${r.nk} від «слонів» — не рахуються)</span>` : '') + ` → перевір utm_campaign у Final URL suffix або зупини` }));
     rows.filter(r => r.cost >= 1000 && r.roas >= 300).sort((a, b) => b.roas - a.roas).slice(0, 2)
-      .forEach(r => recs.push({ t: 'g', i: '🚀', x: `<b>${esc(r.name)}</b> (${ACC[r.acc].l}) — ROAS ${r.roas.toFixed(0)}% за ${_st.days} дн. Кандидат на збільшення бюджету.` }));
-    // RED-кампанії — окремим червоним алертом вище (ads-alert-red), тут не дублюємо
+      .forEach(r => items.push({ t: 'g', i: '🚀', x: `<b>${esc(r.name)}</b> (${ACC[r.acc].l}) — ROAS ${r.roas.toFixed(0)}% за ${_st.days} дн → кандидат на збільшення бюджету` }));
     const ds = Object.entries(D.days).sort(([a], [b]) => a.localeCompare(b)).map(([, v]) => v);
     if (ds.length >= 14) {
       const sum = (a, f) => a.reduce((s, d) => s + d[f], 0), l7 = ds.slice(-7), p7 = ds.slice(-14, -7);
       const ctr1 = sum(l7, 'imp') ? sum(l7, 'clk') / sum(l7, 'imp') * 100 : 0, ctr0 = sum(p7, 'imp') ? sum(p7, 'clk') / sum(p7, 'imp') * 100 : 0;
       const cpl1 = sum(l7, 'n') ? sum(l7, 'cost') / sum(l7, 'n') : null, cpl0 = sum(p7, 'n') ? sum(p7, 'cost') / sum(p7, 'n') : null;
-      if (cpl1 && cpl0 && Math.abs(cpl1 / cpl0 - 1) > 0.25) recs.push({ t: cpl1 < cpl0 ? 'g' : 'a', i: cpl1 < cpl0 ? '📉' : '📈', x: `CPL останні 7 днів: <b>${fmt(cpl1)} ₴</b> проти ${fmt(cpl0)} ₴ тижнем раніше (${cpl1 < cpl0 ? '' : '+'}${((cpl1 / cpl0 - 1) * 100).toFixed(0)}%).` });
-      if (ctr0 && Math.abs(ctr1 - ctr0) > 1) recs.push({ t: ctr1 > ctr0 ? 'g' : 'a', i: ctr1 > ctr0 ? '📈' : '📉', x: `CTR останні 7 днів: <b>${ctr1.toFixed(2)}%</b> (${ctr1 > ctr0 ? '+' : ''}${(ctr1 - ctr0).toFixed(2)} п.п. до попереднього тижня).` });
+      if (cpl1 && cpl0 && Math.abs(cpl1 / cpl0 - 1) > 0.25) items.push({ t: cpl1 < cpl0 ? 'g' : 'a', i: cpl1 < cpl0 ? '📉' : '📈', x: `CPL за 7 днів: <b>${fmt(cpl1)} ₴</b> проти ${fmt(cpl0)} ₴ тижнем раніше (${cpl1 < cpl0 ? '' : '+'}${((cpl1 / cpl0 - 1) * 100).toFixed(0)}%)` });
+      if (ctr0 && Math.abs(ctr1 - ctr0) > 1) items.push({ t: ctr1 > ctr0 ? 'g' : 'a', i: ctr1 > ctr0 ? '📈' : '📉', x: `CTR за 7 днів: <b>${ctr1.toFixed(2)}%</b> (${ctr1 > ctr0 ? '+' : ''}${(ctr1 - ctr0).toFixed(2)} п.п. до попереднього тижня)` });
     }
-    el.innerHTML = recs.map(r => `<div class="al al-${r.t}" style="margin-bottom:6px"><span class="ic">${r.i}</span><div style="font-size:12px">${r.x}</div></div>`).join('');
+    if (!items.length || _sigHidden) { el.innerHTML = ''; return; }
+    const cnt = t => items.filter(x => x.t === t).length;
+    el.innerHTML = `<div class="sig-box"><div class="sig-h"><b>Сигнали</b>${cnt('r') ? ` <span class="sig-c" style="color:${R}">🛑 ${cnt('r')}</span>` : ''}${cnt('g') ? ` <span class="sig-c" style="color:${GD}">🚀/📈 ${cnt('g')}</span>` : ''}${cnt('a') ? ` <span class="sig-c" style="color:${Y}">⚠ ${cnt('a')}</span>` : ''}
+        <a href="#" class="sig-x" title="Сховати до перезавантаження сторінки">✕ сховати</a></div>` +
+      items.map(x => `<div class="sig-l sig-${x.t}"><span>${x.i}</span><div>${x.x}</div></div>`).join('') + `</div>`;
+    const bx = el.querySelector('.sig-x'); if (bx) bx.onclick = ev => { ev.preventDefault(); _sigHidden = true; el.innerHTML = ''; };
   }
 
   function chart(id, cfg) {
