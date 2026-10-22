@@ -305,6 +305,7 @@ window.LeadgenLoader = (() => {
   }
   // група акаунта: EASY / Ukr3d (Google) · Meta (Facebook + Instagram) · без реклами
   const META_CH = new Set(['facebook', 'instagram', 'meta']);
+  const slonAcc = (acc, k) => k ? (acc ? acc + ' · ' : '') + '«слон»' : acc;
   const accGroup = (ch, acc) => ch === 'google' ? (/ukr/i.test(acc || '') ? 'ukr3d' : 'easy') : META_CH.has(ch) ? 'meta' : 'none';
   const ACC_LBL = { all: 'Усі', easy: 'EASY', ukr3d: 'Ukr3d', meta: 'Meta (FB+IG)', none: 'Без реклами' };
   const CLS_LBL = { all: 'Усі', mkt: 'Маркетинг', non: 'Не маркетинг', unk: 'Не визначено' };
@@ -396,7 +397,8 @@ window.LeadgenLoader = (() => {
     const bk = d => byDay ? d : d.slice(0, 7);
     const B = (x, d) => x.b[bk(d)] || (x.b[bk(d)] = { n: 0, w: 0, ws: 0, cost: 0, ses: 0 });
     const accOf = ads.accOf || {};
-    const keyOf = r => { const c = channelOf(r.us, r.s, bx.srcNames); const n = bxKey(c, r.uc, ads); const x = row(c.ch, c.acc, n); x._c = c; return x; };
+    // v7.10: угоди клієнтів-«слонів» — окремим рядком «… · «слон»» без вартості: їхня виручка не потрапляє в ROAS/ROMI кампанії
+    const keyOf = r => { const c = channelOf(r.us, r.s, bx.srcNames); const n = bxKey(c, r.uc, ads); const x = row(c.ch, slonAcc(c.acc, r.t === 'k'), n); x._c = c; return x; };
     bx.rows.forEach(r => {
       const x = keyOf(r); x.deals += r.n; x.exp += r.e; x.won += r.w; x.wonSum += r.ws;
       x.cl[cls(r.us, r.uc, bx.srcNames[r.s] || r.s, x.ch, r.t)] += r.n;
@@ -418,7 +420,7 @@ window.LeadgenLoader = (() => {
     // інакше окремий рядок «meta / акаунт»
     const md = metaDaily(from, to), metaOk = !!(_meta && _meta.rows);
     if (md.length) {
-      const fb = Object.values(rows).filter(r => META_CH.has(r.ch) && r.name);
+      const fb = Object.values(rows).filter(r => META_CH.has(r.ch) && r.name && !/«слон»/.test(r.acc));
       const byName = {}; fb.forEach(r => { const l = r.name.toLowerCase(); if (!byName[l] || r.deals > byName[l].deals) byName[l] = r; });
       md.forEach(m => {
         const x = byName[(m.camp || '').toLowerCase()] || byName[String(m.cid)] || row('meta', m.acc || 'Meta', m.camp || m.cid);
@@ -437,13 +439,18 @@ window.LeadgenLoader = (() => {
     // v7.1: сеанси GA4 не знають акаунта — якщо однакова назва кампанії є і в EASY, і в Ukr3d, рядку Ukr3d сеанси не приписуємо
     const easyNames = new Set(Object.values(rows).filter(r => r.ch === 'google' && !/ukr/i.test(r.acc)).map(r => r.name));
     Object.values(rows).forEach(r => {
-      r.ses = gaOk && r.name && !NOCAMP.has(r.name) && !(r.ch === 'google' && /ukr/i.test(r.acc) && easyNames.has(r.name)) ? (sesMap[r.ch + '|' + r.name] || 0) : null; r.cr = r.ses ? r.deals / r.ses * 100 : null;
+      r.ses = gaOk && r.name && !NOCAMP.has(r.name) && !/«слон»/.test(r.acc) && !(r.ch === 'google' && /ukr/i.test(r.acc) && easyNames.has(r.name)) ? (sesMap[r.ch + '|' + r.name] || 0) : null; r.cr = r.ses ? r.deals / r.ses * 100 : null;
       if (r.ses) Object.entries(sesB[r.ch + '|' + r.name] || {}).forEach(([b, v]) => { (r.b[b] || (r.b[b] = { n: 0, w: 0, ws: 0, cost: 0, ses: 0 })).ses += v; });
       // клас рядка — за більшістю угод; рядок лише з витратами = реклама → маркетинг
       const c = r.cl; r.cls = (c.mkt + c.non + c.unk) ? Object.keys(c).sort((a, b) => c[b] - c[a])[0] : 'mkt';
       r.ag = accGroup(r.ch, r.acc);
     });
     const siteDeals = bx.rows.reduce((s, r) => { const c = channelOf(r.us, r.s, bx.srcNames).ch; return s + ((r.us || r.uc || c === 'сайт' || c === 'форма') ? r.n : 0); }, 0);
+    // v7.11: угоди клієнтів-«слонів» (клієнт №1 тощо) з таблиці ROI прибрано повністю — менеджери можуть помилково
+    // ставити їм рекламні UTM / джерела; у таблиці лишається тільки підсумок у примітці
+    const slon = Object.values(rows).filter(r => /«слон»/.test(r.acc));
+    const slonN = slon.reduce((s, r) => s + r.deals, 0), slonWs = slon.reduce((s, r) => s + r.wonSum, 0);
+    slon.forEach(r => delete rows[r.k]);
     const arr = Object.values(rows).filter(r => r.deals || r.cost).map(r => Object.assign(r, {
       cpl: cmpOk && r.cost && r.cd ? r.cost / r.cd : null,
       cac: cmpOk && r.cost && r.cw ? r.cost / r.cw : null,
@@ -497,6 +504,7 @@ window.LeadgenLoader = (() => {
     if (partial) costNote += cmpOk ? ` <b>CPL / CAC / ROAS — лише за ${fmtD(ads.cFrom)} – ${fmtD(ads.cTo)}</b> (дні з вартістю), щоб угоди й витрати були за той самий період.`
       : ` CPL / CAC / ROAS не показані: за дні з вартістю ще немає розбивки угод по днях.`;
     if (note) note.innerHTML = `<b>${per}</b> · Угоди/виручка — Bitrix24, створені в періоді. ${costNote} ${metaOk ? `Витрати Facebook/Instagram — Meta Ads API${md.length ? '' : ' (за період витрат немає)'}.` : 'Витрат Facebook/Instagram поки немає (Meta API не підключено).'} Клік по рядку — деталізація ${byDay ? 'по днях' : 'по місяцях'}.` +
+      (slonN ? ` <span title="Клієнти з WON ≥ 1 млн ₴ за 12 міс (у т.ч. клієнт №1) + ручний список KEY_ACCOUNT_IDS — завжди «не маркетинг», хоч би яке джерело чи UTM стояли в угоді">🐘 Угоди ключових клієнтів («слонів», у т.ч. клієнт №1) виключено з таблиці: <b>${slonN}</b> угод, WON <b>${fmt(slonWs)} ₴</b>.</span>` : '') +
       (bx.gaps.length ? ` <span style="color:${R}">⚠ Для ${bx.gaps.join(', ')} ще немає розбивки по днях — запусти один раз «Backfill CRM Monthly History».</span>` : '');
 
     const tb = $('mkt-leadgen-roi-table'); if (!tb) return;
@@ -541,7 +549,7 @@ window.LeadgenLoader = (() => {
         <td class="r" style="color:${mc(romiR)}" title="(WON сума − вартість) ÷ вартість, лише платні рядки">${romiTxt(romiR)}</td>
         <td class="r" style="color:${mc(romiM)}" title="(WON сума × маржа − вартість) ÷ вартість, лише платні рядки">${romiTxt(romiM)}</td></tr>` : '';
       // v6.3: що спотворює ROMI — витрати без угод з UTM і виручка кампаній без даних про витрати
-      const noUtm = paid.filter(r => !r.deals && (r.ses || 0) >= 30), noCost = arr.filter(r => !r.cost && r.ch === 'google' && r.name && r.wonSum);
+      const noUtm = paid.filter(r => !r.deals && (r.ses || 0) >= 30), noCost = arr.filter(r => !r.cost && r.ch === 'google' && r.name && r.wonSum && !/«слон»/.test(r.acc));
       renderRomiKpi({ cost, pws, roas, romiR, romiM, paidRows: paid.length, filtered, cmpOk,
         noUtmCost: S(noUtm, 'cost'), noUtmN: noUtm.length, noCostRev: S(noCost, 'wonSum'), noCostN: noCost.length });
     }
@@ -590,11 +598,11 @@ window.LeadgenLoader = (() => {
     const row = (ch, acc, name) => { const k = ch + '|' + acc + '|' + name; return rows[k] || (rows[k] = { ch, acc, name, n: 0, p: 0, rev: 0, w: 0, cost: null }); };
     acq.filter(r => r.m >= mA && r.m <= mB).forEach(r => {
       const c = channelOf(r.us, r.s, srcNames);
-      const nm = bxKey(c, r.uc, ads), x = row(c.ch, c.acc, nm); x.n += r.n; x.p += r.p; x.rev += r.rev; x.w += r.w;
+      const nm = bxKey(c, r.uc, ads), x = row(c.ch, slonAcc(c.acc, !!r.k), nm); x.n += r.n; x.p += r.p; x.rev += r.rev; x.w += r.w;
     });
     Object.values(ads.map || {}).forEach(a => { if (a.cost > 0) { const x = row('google', a.acc || 'EASY', a.camp); x.cost = (x.cost || 0) + a.cost; } });
     const m = marginPct() / 100;
-    let arr = Object.values(rows).filter(r => (r.n || r.cost) && (!sel.size || sel.has(r.ch)) && (!_roiF.paid || r.cost)
+    let arr = Object.values(rows).filter(r => (r.n || r.cost) && !/«слон»/.test(r.acc) && (!sel.size || sel.has(r.ch)) && (!_roiF.paid || r.cost)
       && (!ql || (r.ch + ' ' + r.acc + ' ' + r.name).toLowerCase().includes(ql)))
       .map(r => Object.assign(r, { conv: r.n ? r.p / r.n * 100 : null, ltv: r.p ? r.rev / r.p : null,
         cac: r.cost && r.p ? r.cost / r.p : null, ratio: r.cost && r.p ? (r.rev / r.p) / (r.cost / r.p) : null,
@@ -666,7 +674,8 @@ window.LeadgenLoader = (() => {
     crmGoogle: (from, to) => {
       const bx = bitrixRows(from, to), ads = adsCost(from, to), out = {}, byDay = {};
       const get = (acc, name) => out[acc + '|' + name] || (out[acc + '|' + name] = { acc, name, n: 0, w: 0, ws: 0, cost: 0 });
-      bx.rows.forEach(r => { const c = channelOf(r.us, r.s, bx.srcNames); if (c.ch !== 'google') return; const nm = bxKey(c, r.uc, ads);
+      // v7.10: угоди «слонів» (клієнт №1 тощо) не зараховуються рекламі — у блоці Google Ads їх немає
+      bx.rows.forEach(r => { const c = channelOf(r.us, r.s, bx.srcNames); if (c.ch !== 'google' || r.t === 'k') return; const nm = bxKey(c, r.uc, ads);
         const acc = /ukr/i.test(c.acc) ? 'ukr3d' : 'easy';
         if (r.d) { const d = byDay[r.d] || (byDay[r.d] = { easy: { n: 0, w: 0, ws: 0 }, ukr3d: { n: 0, w: 0, ws: 0 } }); d[acc].n += r.n; d[acc].w += r.w; d[acc].ws += r.ws; }
         if (!nm) return;

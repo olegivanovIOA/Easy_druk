@@ -95,6 +95,7 @@ window.MktSplit = (() => {
     try { renderSplit(api, all, months, from, to); } catch (e) { console.warn('[MktSplit split]', e); }
     try { renderMeta(api, all, months, from, to); } catch (e) { console.warn('[MktSplit meta]', e); }
     try { renderReact(api, all, months, from, to); } catch (e) { console.warn('[MktSplit react]', e); }
+    try { renderTop(api, all, from, to); } catch (e) { console.warn('[MktSplit top]', e); }
   }
 
   const tile = (l, v, sub, col, tip) => `<div class="roi-k" title="${esc(tip || '')}"><div class="l">${l}</div><div class="v"${col ? ` style="color:${col}"` : ''}>${v}</div><div class="s">${sub || ''}</div></div>`;
@@ -308,6 +309,7 @@ window.MktSplit = (() => {
     const byM = {}; months.forEach(m => byM[m] = { facebook: 0, instagram: 0, meta: 0, w: 0, ws: 0, cost: 0 });
     const P = { n: 0, w: 0, ws: 0, cost: 0, lead: 0, fb: 0, ig: 0 }, rows = {};
     all.rows.forEach(r => {
+      if (r.t === 'k') return;   // v7.11: угоди «слонів» (клієнт №1 тощо) — не результат реклами FB/IG
       const c = api.channelOf(r.us, r.s, sn), k = sub(c.ch, r.us); if (!k) return;
       const m = byM[ym(r.d || '')]; if (m) { m[k] += r.n; m.w += r.w; m.ws += r.ws; }
       if (r.d >= from && r.d <= to) {
@@ -393,6 +395,50 @@ window.MktSplit = (() => {
     ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendOpts, datalabels: segDL(nfmt) },
       scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: GRID }, title: { display: true, text: 'клієнтів', font: { size: 9 } } },
         y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: v => fmt(v) } } } } });
+  }
+
+  // ── 5. v7.12: ТОП клієнтів, залучених або повернутих маркетингом (без назв — псевдоніми) ──
+  const TOP_LS = 'e3d_mkt_top_v1';
+  function renderTop(api, all, from, to) {
+    const tb = $('ms-top-table'), kp = $('ms-top-kpi'); if (!tb) return;
+    const tc = api.clients && api.clients.topClients;
+    if (!tc || !tc.rows) {
+      tb.innerHTML = `<tr><td colspan="11" style="color:var(--tl);font-weight:400">Таблиця з'явиться після нічного запуску <b>update-clients</b> з v7.12.</td></tr>`;
+      if (kp) kp.innerHTML = ''; return;
+    }
+    const st = Object.assign({ per: 'all', more: false }, lsGet(TOP_LS, {}));
+    document.querySelectorAll('#ms-top-per button').forEach(b => { b.classList.toggle('on', b.dataset.v === st.per);
+      b.onclick = () => { lsSet(TOP_LS, Object.assign(st, { per: b.dataset.v })); renderTop(api, all, from, to); }; });
+    const sn = all.srcNames, fmt = api.fmt, mA = from.slice(0, 7), mB = to.slice(0, 7);
+    const inPer = m => st.per === 'all' || (m >= mA && m <= mB);
+    const cl = (e, t) => classify(e.us, e.uc, sn[e.s] || e.s || '', api.channelOf(e.us, e.s, sn).ch, t);
+    const chan = e => { const c = api.channelOf(e.us, e.s, sn); return { ch: c.ch, acc: c.acc, camp: (e.uc || '').trim() }; };
+    const rows = [];
+    tc.rows.forEach(r => {
+      const acq = cl(r.ft, '') === 'mkt' && inPer(r.ft.m);
+      const ret = (r.ra || []).filter(e => cl(e, 'r') === 'mkt' && inPer(e.m));
+      if (!acq && !ret.length) return;
+      const ev = acq ? r.ft : ret[ret.length - 1];
+      rows.push(Object.assign({}, r, { acq, ret: ret.length, how: acq && ret.length ? 'залучено + повернуто' : acq ? 'залучено' : 'повернуто',
+        when: ev.m, src: chan(ev), attr: acq ? r.rev : ret.reduce((s, e) => s + e.rev, 0) }));
+    });
+    rows.sort((a, b) => b.attr - a.attr);
+    const tot = rows.reduce((s, r) => s + r.attr, 0), top10 = rows.slice(0, 10).reduce((s, r) => s + r.attr, 0);
+    if (kp) kp.innerHTML =
+      tile('Клієнтів від маркетингу', rows.length.toLocaleString('uk-UA'), `залучено ${rows.filter(r => r.acq).length} · повернуто ${rows.filter(r => r.ret).length}`, G) +
+      tile('Їхня виручка', fmt(tot) + ' ₴', 'залучені — уся WON-виручка; повернуті — 365 днів після повернення', GD) +
+      tile('Частка ТОП-10', p0(tot ? top10 / tot * 100 : null), 'концентрація виручки від маркетингу') +
+      tile('Середня виручка на клієнта', rows.length ? fmt(tot / rows.length) + ' ₴' : '—', 'атрибутована маркетингу');
+    const show = st.more ? rows : rows.slice(0, 30);
+    tb.innerHTML = show.length ? show.map((r, i) => `<tr>
+        <td class="r" style="color:var(--tl)">${i + 1}</td><td style="font-family:monospace">${esc(r.id)}</td>
+        <td><span class="roi-cls" style="background:${r.acq ? G : WH}"></span>${r.how}</td>
+        <td><span class="roi-ch">${esc(r.src.ch)}</span>${r.src.acc ? `<span class="roi-acc"> / ${esc(r.src.acc)}</span>` : ''}${r.src.camp ? `<div style="font-size:10px;color:var(--tl)">${esc(r.src.camp)}</div>` : ''}</td>
+        <td>${r.when}</td><td>${esc(r.ind || '—')}</td><td>${r.g === 'w' ? 'ОПТ' : 'Роздріб'}</td>
+        <td class="r">${r.w}</td><td class="r" style="font-weight:700">${fmt(r.attr)}</td><td class="r">${fmt(r.rev12)}</td><td>${r.lw}</td></tr>`).join('') +
+      (rows.length > 30 ? `<tr><td colspan="11" style="text-align:center"><a href="#" id="ms-top-more">${st.more ? 'показати ТОП-30' : `показати всіх (${rows.length})`}</a></td></tr>` : '')
+      : `<tr><td colspan="11" style="color:var(--tl);font-weight:400">Немає клієнтів від маркетингу за обраний період</td></tr>`;
+    const mo = $('ms-top-more'); if (mo) mo.onclick = ev => { ev.preventDefault(); lsSet(TOP_LS, Object.assign(st, { more: !st.more })); renderTop(api, all, from, to); };
   }
 
   return { setRules, classify, render };

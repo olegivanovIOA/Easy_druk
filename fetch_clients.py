@@ -426,6 +426,7 @@ def main():
 
     # ── Галузі: поле угоди (напр. «Сфера применения») або компанії — беремо найкраще заповнене ──
     industries = None
+    ind_fn = None   # v7.12: угода → [галузі] (для ТОП клієнтів)
     tot12 = sum(c["rev12"] for c in cl.values()) or 1
     d12 = [d for d in deals if d["dt"] > y12]
     best = None   # (покриття, тип, код, підпис, функція: угода → [галузі] або None)
@@ -452,6 +453,7 @@ def main():
         print(f"[CL] ⚠ галузі компаній: {e}")
     if best:
         cov, src, field, flabel, fn = best
+        ind_fn = fn
         def ind_rows(sel):
             agg = defaultdict(lambda: {"clients": set(), "deals": 0, "rev": 0.0})
             ds = [d for d in d12 if sel(d)]
@@ -562,11 +564,77 @@ def main():
     except Exception as e:
         print(f"[CL] ⚠ повернення клієнтів не пораховано: {e}")
 
+    # ── v7.12: ТОП клієнтів, залучених або повернутих маркетингом (Олег, 22.10.2026) ──
+    #    Без назв і ID: клієнт = псевдонім (6 символів солоного хешу, незворотний). Тут — кандидати: перша угода або
+    #    повернення після паузи з UTM-міткою чи «маркетинговим» джерелом; остаточний клас рахує дашборд за
+    #    data/marketing_rules.json. «Слони» (WON ≥ 1 млн за 12 міс + KEY_ACCOUNT_IDS) не потрапляють узагалі.
+    top_clients = None
+    try:
+        rules = json.loads((Path(__file__).parent / "data" / "marketing_rules.json").read_text(encoding="utf-8"))
+        mkt_src = [re.compile(r["src"], re.I) for r in rules.get("rules", []) if r.get("class") == "mkt" and r.get("src")]
+        src_names = {s0["STATUS_ID"]: s0.get("NAME") or "" for s0 in call("crm.status.list", {"filter[ENTITY_ID]": "SOURCE"}).get("result", [])}
+        cand_src = {sid for sid, nm in src_names.items() if any(rx.search(nm) for rx in mkt_src)}
+        manual = set()
+        for t in (os.environ.get("KEY_ACCOUNT_IDS") or "").replace(";", ",").replace(" ", ",").split(","):
+            t = t.strip().lower()
+            if t:
+                manual.add(hkey(t if t[0] in "cp" else "c" + t))
+        is_mkt = lambda us, src: bool((us or "").strip()) or src in cand_src
+        per = {}
+        for d in deals:
+            hk = hkey(d["k"])
+            x = per.setdefault(hk, {"w": [], "ind": Counter(), "grp": Counter()})
+            x["w"].append((d["dt"], d["amt"]))
+            x["grp"][d["grp"]] += d["amt"] or 1
+            if ind_fn:
+                for ind in (ind_fn(d) or []):
+                    x["ind"][ind] += d["amt"] or 1
+        tch = defaultdict(list)
+        for hk, ds, us, uc, src in touch_deals().values():
+            tch[hk].append((date.fromisoformat(ds), us, uc, src))
+        out_rows = []
+        for hk, x in per.items():
+            rev = sum(a for _, a in x["w"])
+            rev12 = sum(a for dt, a in x["w"] if dt > y12)
+            if rev <= 0 or rev12 >= KEY_ACCOUNT_MIN or hk in manual:
+                continue
+            ts = sorted(tch.get(hk, []), key=lambda t: (t[0], not t[1]))
+            if not ts:
+                continue
+            f = ts[0]
+            ft = {"m": f[0].strftime("%Y-%m"), "us": f[1].lower(), "uc": f[2], "s": f[3]}
+            wl = sorted(x["w"])
+            ra, last_act = [], None
+            for dt, us, uc, src in ts:
+                prior = [w for w in wl if w[0] < dt]
+                if prior:
+                    last = max([w[0] for w in prior] + ([last_act] if last_act else []))
+                    if (dt - last).days >= REACT_GAP and is_mkt(us, src):
+                        ra.append({"m": dt.strftime("%Y-%m"), "us": us.lower(), "uc": uc, "s": src,
+                                   "rev": round(sum(a for d2, a in wl if dt <= d2 < dt + timedelta(days=365)))})
+                last_act = dt if last_act is None or dt > last_act else last_act
+            if not is_mkt(ft["us"], ft["s"]) and not ra:
+                continue
+            out_rows.append({"id": "#" + hk[:6], "g": "w" if x["grp"].most_common(1)[0][0] == "wholesale" else "r",
+                             "ind": x["ind"].most_common(1)[0][0] if x["ind"] else None,
+                             "rev": round(rev), "rev12": round(rev12), "w": len(wl),
+                             "fw": wl[0][0].strftime("%Y-%m"), "lw": wl[-1][0].strftime("%Y-%m"),
+                             "ft": ft, "ra": ra[-5:]})
+        out_rows.sort(key=lambda r: -max([r["rev"]] + [e["rev"] for e in r["ra"]]))
+        top_clients = {"note": "клієнти без назв (псевдонім — частина солоного хешу); перша угода або повернення після паузи "
+                               f"≥{REACT_GAP} дн з UTM / маркетинговим джерелом; «слони» виключені",
+                       "fields": "id псевдонім, g w=ОПТ/r=Роздріб, ind галузь, rev WON за весь час, rev12 за 12 міс, w к-сть WON, "
+                                 "fw/lw перша/остання покупка, ft перший дотик {m,us,uc,s}, ra повернення [{m,us,uc,s,rev за 365 дн}]",
+                       "rows": out_rows[:300]}
+        print(f"[CL] ТОП клієнтів від маркетингу: {len(out_rows)} кандидатів (у файлі {min(300, len(out_rows))})")
+    except Exception as e:
+        print(f"[CL] ⚠ ТОП клієнтів не пораховано: {e}")
+
     out = {"fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "asOf": TODAY.isoformat(),
            "firstDeal": first_all.isoformat(), "dealsUsed": len(deals), "dealsSkipped": skipped, "clients": len(cl),
            "params": {"churnDays": CHURN_DAYS, "riskFromDays": RISK_FROM},
            "ltv": ltv_out, "cohorts": cohorts, "rfm": rfm, "rfmGrid": grid, "churn": churn, "industries": industries,
-           "acquisition": acquisition, "reactivation": reactivation,
+           "acquisition": acquisition, "reactivation": reactivation, "topClients": top_clients,
            "privacy": "лише агрегати; ID/назви клієнтів не зберігаються"}
     blob = json.dumps(out, ensure_ascii=False)
     if re.search(r'"(c|p)\d{2,}"', blob):

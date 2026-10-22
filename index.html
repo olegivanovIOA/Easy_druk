@@ -1333,6 +1333,20 @@ a{color:var(--gd);text-decoration:none}
           <div class="cw" style="height:220px"><canvas id="ms-react-chart"></canvas></div>
           <div style="font-size:10px;color:var(--tl);margin-top:6px"><b>Повернення</b> — нова угода (будь-яка воронка, будь-яка стадія) клієнта, який уже купував, після ≥ 180 днів без угод і покупок. Якщо угода повернення прийшла з реклами / маркетингового джерела — це заслуга маркетингу. Виручка — WON клієнта за 365 днів від повернення. Клієнт = компанія угоди або контакт. Класи — ті самі правила, що вище.</div>
         </div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+            <div class="ct" style="margin:0">🏆 ТОП клієнтів, залучених або повернутих маркетингом</div>
+            <span class="roi-seg" id="ms-top-per"><button type="button" data-v="all">Весь час</button><button type="button" data-v="period">Період ROI</button></span>
+          </div>
+          <div id="ms-top-kpi" class="roi-kpi"></div>
+          <div class="tw" style="max-height:560px;overflow:auto"><table class="tbl roi-tbl"><thead><tr>
+            <th class="r">#</th><th title="Псевдонім клієнта (незворотний хеш) — назви на публічному дашборді не показуємо">Клієнт</th><th>Як прийшов</th><th>Канал / кампанія</th>
+            <th title="Місяць першої угоди (залучено) або повернення після паузи ≥ 180 днів">Коли</th><th>Галузь</th><th>Група</th>
+            <th class="r" title="WON-угод за весь час">WON</th><th class="r" title="Залучені — уся WON-виручка клієнта; повернуті — WON за 365 днів після повернення">Виручка від маркетингу</th>
+            <th class="r">Виручка 12 міс</th><th title="Місяць останньої покупки">Остання покупка</th>
+          </tr></thead><tbody id="ms-top-table"></tbody></table></div>
+          <div style="font-size:10px;color:var(--tl);margin-top:6px"><b>Залучено</b> — перша угода клієнта прийшла з маркетингового джерела (рекламна UTM, реклама FB/IG, виставка, розсилка… — за правилами вище). <b>Повернуто</b> — клієнт, що вже купував, після паузи ≥ 180 днів повернувся угодою з рекламною UTM-міткою. Ключові клієнти («слони», у т.ч. клієнт №1) виключені. Назв немає: репозиторій дашборда публічний.</div>
+        </div>
       </div>
       <div class="card" id="mkt-leadgen-trend-wrap" style="display:none;margin-bottom:12px">
         <div class="ct" style="margin-bottom:8px">Динаміка: звернення → кваліфіковані → WON, частка виручки від повторних покупців <span style="font-weight:500;color:var(--tl);font-size:10px">(* — місяць триває)</span></div>
@@ -3970,8 +3984,8 @@ window.LocLoader = (() => {
 <script src="js/channels_loader.js?v=20260930"></script>
 <script src="js/ga4_loader.js?v=20261014"></script>
 <script src="js/table_sort.js?v=20261020"></script>
-<script src="js/mkt_split.js?v=20261021b"></script>
-<script src="js/leadgen_loader.js?v=20261021"></script>
+<script src="js/mkt_split.js?v=20261022b"></script>
+<script src="js/leadgen_loader.js?v=20261022b"></script>
 <script src="js/shopfloor_loader.js?v=20261014b"></script>
 <script src="js/clients_loader.js?v=20261014b"></script>
 <script>
