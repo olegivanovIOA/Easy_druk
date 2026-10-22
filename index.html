@@ -440,7 +440,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.14</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.15</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -708,7 +708,7 @@ a{color:var(--gd);text-decoration:none}
     <div class="sec">📉 Завантаженість парку та виконання плану</div>
     <div class="g2">
       <div class="card-flat">
-        <div class="ct" style="padding:8px 10px 0">Завантаженість парку — 2026 (зважено по всіх локаціях)</div>
+        <div class="ct" style="padding:8px 10px 0">Завантаженість парку — 2026 (зважено по всіх локаціях) <span style="font-size:10px;font-weight:500;color:var(--tl)">· <span style="color:#1e7a6e">●</span> макс. <span style="color:#C0392B">●</span> мін. <span style="color:#264653">●</span> зараз</span></div>
         <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="fleet-util-chart"></canvas></div>
       </div>
       <div class="card-flat">
@@ -2115,7 +2115,39 @@ async function loadProdData(){
         if(!tot) return null;
         return ls.reduce((s,l)=>s+(l.total||0)*(l.util||0),0)/tot;
       });
-      safeChart('fleet-util-chart',{type:'line',data:{labels,datasets:[{label:'Завантаженість парку, %',data,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,pointRadius:days.length>40?0:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID},ticks:{autoSkip:true,maxTicksLimit:12,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}});
+      // v7.15: ключові точки — локальні максимуми/мінімуми (вікно ±5 днів, перепад ≥ 12 п.п.), рекорди року і поточне значення
+      const kp=(()=>{
+        const W=5,PROM=12,n=data.length,out={};
+        const v=i=>data[i]==null?null:data[i];
+        for(let i=0;i<n;i++){
+          const x=v(i); if(x==null) continue;
+          let mx=-1,mn=101,lo=101,hi=-1;
+          for(let j=Math.max(0,i-W);j<=Math.min(n-1,i+W);j++){const y=v(j); if(y==null||j===i) continue; mx=Math.max(mx,y); mn=Math.min(mn,y);}
+          for(let j=Math.max(0,i-3*W);j<=Math.min(n-1,i+3*W);j++){const y=v(j); if(y==null) continue; lo=Math.min(lo,y); hi=Math.max(hi,y);}
+          if(x>=mx&&x-lo>=PROM) out[i]='max'; else if(x<=mn&&hi-x>=PROM) out[i]='min';
+        }
+        // сусідні однотипні точки ближче ніж W днів — лишаємо найвиразнішу
+        const ks=Object.keys(out).map(Number).sort((a,b)=>a-b);
+        for(let a=0;a<ks.length;a++)for(let b=a+1;b<ks.length&&ks[b]-ks[a]<=W;b++){
+          const i=ks[a],j=ks[b]; if(out[i]&&out[j]&&out[i]===out[j]){ const keepJ=out[i]==='max'?v(j)>v(i):v(j)<v(i); delete out[keepJ?i:j]; }
+        }
+        let gmx=-1,gmn=101,imx=-1,imn=-1;
+        data.forEach((x,i)=>{ if(x==null) return; if(x>gmx){gmx=x;imx=i;} if(x<gmn){gmn=x;imn=i;} });
+        if(imx>=0) out[imx]='max'; if(imn>=0) out[imn]='min';
+        for(let i=n-1;i>=0;i--) if(v(i)!=null){ out[i]='cur'; break; }
+        return out;
+      })();
+      const KC={max:'#1e7a6e',min:'#C0392B',cur:'#264653'};
+      const DLf=window.ChartDataLabels;
+      safeChart('fleet-util-chart',{type:'line',plugins:DLf?[DLf]:[],data:{labels,datasets:[{label:'Завантаженість парку, %',data,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,
+        pointRadius:data.map((_,i)=>kp[i]?(kp[i]==='cur'?4.5:3.5):(days.length>40?0:2)),
+        pointBackgroundColor:data.map((_,i)=>kp[i]?KC[kp[i]]:G),pointBorderColor:'#fff',pointBorderWidth:data.map((_,i)=>kp[i]?1.5:0),
+        datalabels:{display:c=>!!kp[c.dataIndex],align:c=>kp[c.dataIndex]==='min'?'bottom':'top',offset:3,clamp:true,
+          color:c=>KC[kp[c.dataIndex]]||G,font:c=>({size:kp[c.dataIndex]==='cur'?10:9,weight:'700'}),
+          formatter:(x,c)=>x==null?'':(kp[c.dataIndex]==='cur'?'зараз ':'')+Math.round(x)+'%',
+          backgroundColor:c=>kp[c.dataIndex]==='cur'?'rgba(255,255,255,.85)':null,borderRadius:3,padding:{top:1,bottom:1,left:3,right:3}}}]},
+        options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:14,bottom:4,right:36}},plugins:{legend:{display:false},
+          tooltip:{callbacks:{afterLabel:c=>kp[c.dataIndex]==='max'?'локальний максимум':kp[c.dataIndex]==='min'?'локальний мінімум':kp[c.dataIndex]==='cur'?'поточне значення':''}}},scales:{x:{grid:{color:GRID},ticks:{autoSkip:true,maxTicksLimit:12,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}});
     }
   }catch(e){console.warn('[Prod]',e.message);}
 
