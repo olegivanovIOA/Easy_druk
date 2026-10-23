@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-23T10:26:28Z",
+  "fetched_at": "2026-10-23T10:52:31Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -85,9 +85,9 @@
     {
       "source": "CALL",
       "name": "Звонок",
-      "reviewed": 577,
+      "reviewed": 578,
       "won": 27,
-      "lost": 531,
+      "lost": 532,
       "junk": 54,
       "wonWholesale": 27,
       "wonRetail": 0,
@@ -95,7 +95,7 @@
       "revenueWholesale": 252421.52,
       "revenueRetail": 0.0,
       "winRate": 4.8,
-      "junkShare": 9.4,
+      "junkShare": 9.3,
       "avgCheck": 9348.95
     },
     {
@@ -405,13 +405,13 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 1100,
-      "clean": 1024,
-      "qualified": 538,
-      "activeOrWon": 156,
+      "all": 1105,
+      "clean": 1029,
+      "qualified": 542,
+      "activeOrWon": 160,
       "won": 37,
       "wonSum": 2899483.2,
-      "expectedSumActiveWon": 14691614.43
+      "expectedSumActiveWon": 16642618.43
     },
     "byStage": [
       {
@@ -426,7 +426,7 @@
       },
       {
         "stage": "ОШИБСЯ (запрос не по теме)",
-        "deals": 109,
+        "deals": 110,
         "sum": 0.0
       },
       {
@@ -451,7 +451,7 @@
       },
       {
         "stage": "НЕ завершили первинний контакт",
-        "deals": 40,
+        "deals": 42,
         "sum": 0.0
       },
       {
@@ -480,14 +480,14 @@
         "sum": 1812.0
       },
       {
-        "stage": "Потрібно більше часу для прийняття рішення",
-        "deals": 14,
-        "sum": 107192.0
-      },
-      {
         "stage": "НЕ устраивают сроки",
         "deals": 14,
         "sum": 0.0
+      },
+      {
+        "stage": "Потрібно більше часу для прийняття рішення",
+        "deals": 13,
+        "sum": 107191.0
       },
       {
         "stage": "УМОВИ озвучені",
@@ -511,8 +511,13 @@
       },
       {
         "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 4,
+        "deals": 6,
         "sum": 0.0
+      },
+      {
+        "stage": "Очікуємо ОРИГІНАЛ",
+        "deals": 5,
+        "sum": 1958605.0
       },
       {
         "stage": "3D Модель готова",
@@ -528,11 +533,6 @@
         "stage": "Друк АУТСОРС",
         "deals": 4,
         "sum": 118405.0
-      },
-      {
-        "stage": "Очікуємо ОРИГІНАЛ",
-        "deals": 4,
-        "sum": 7600.0
       },
       {
         "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
@@ -586,14 +586,14 @@
         "key": "RECOMMENDATION",
         "name": "По рекомендации",
         "deals": 4,
-        "expectedSum": 340612.0,
+        "expectedSum": 2291616.0,
         "won": 1,
         "wonSum": 340600.0
       },
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 585,
+        "deals": 587,
         "expectedSum": 282409.26,
         "won": 12,
         "wonSum": 20091.0
@@ -609,7 +609,7 @@
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 140,
+        "deals": 143,
         "expectedSum": 5000.0,
         "won": 2,
         "wonSum": 3450.0
@@ -763,8 +763,8 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 973,
-        "expectedSum": 12683362.43,
+        "deals": 978,
+        "expectedSum": 14634366.43,
         "won": 25,
         "wonSum": 1135963.2
       },
@@ -3506,7 +3506,7 @@
         "uc": "",
         "s": "RECOMMENDATION",
         "n": 1,
-        "e": 1.0,
+        "e": 1951005.0,
         "w": 0,
         "ws": 0.0,
         "t": "r"
@@ -4000,7 +4000,7 @@
         "us": "",
         "uc": "",
         "s": "50",
-        "n": 3,
+        "n": 6,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -4010,7 +4010,7 @@
         "us": "",
         "uc": "",
         "s": "CALL",
-        "n": 14,
+        "n": 16,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -4053,7 +4053,7 @@
       "minRevenue12m": 1000000.0
     },
     "retention": {
-      "clientsInCohort": 1007,
+      "clientsInCohort": 1012,
       "returningClients": 93,
       "repeatBuyers": 31,
       "noClientLinked": 8,
@@ -4064,7 +4064,7 @@
         "winRate": 14.8
       },
       "new": {
-        "deals": 949,
+        "deals": 954,
         "won": 18,
         "wonSum": 25881.0,
         "winRate": 2.1
@@ -4096,7 +4096,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 705,
+        "total": 710,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -4105,10 +4105,10 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 4,
+            "count": 6,
             "sum": 0.0,
-            "reached": 705,
-            "lostHere": 648
+            "reached": 710,
+            "lostHere": 649
           },
           {
             "id": "40",
@@ -4116,16 +4116,16 @@
             "sem": "P",
             "count": 3,
             "sum": 0.0,
-            "reached": 53,
+            "reached": 55,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 40,
+            "count": 42,
             "sum": 0.0,
-            "reached": 50,
+            "reached": 52,
             "lostHere": 5
           },
           {
@@ -4168,7 +4168,7 @@
             "id": "50",
             "name": "ОШИБСЯ (запрос не по теме)",
             "sem": "F",
-            "count": 109,
+            "count": 110,
             "sum": 0.0
           },
           {
@@ -4235,8 +4235,8 @@
             "id": "C24:UC_HKB5Y6",
             "name": "Потрібно більше часу для прийняття рішення",
             "sem": "P",
-            "count": 14,
-            "sum": 107192.0,
+            "count": 13,
+            "sum": 107191.0,
             "reached": 76,
             "lostHere": 0
           },
@@ -4246,7 +4246,7 @@
             "sem": "P",
             "count": 8,
             "sum": 719350.25,
-            "reached": 62,
+            "reached": 63,
             "lostHere": 0
           },
           {
@@ -4255,7 +4255,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 54,
+            "reached": 55,
             "lostHere": 0
           },
           {
@@ -4264,16 +4264,16 @@
             "sem": "P",
             "count": 4,
             "sum": 118405.0,
-            "reached": 54,
+            "reached": 55,
             "lostHere": 0
           },
           {
             "id": "C24:2",
             "name": "Очікуємо ОРИГІНАЛ",
             "sem": "P",
-            "count": 4,
-            "sum": 7600.0,
-            "reached": 50,
+            "count": 5,
+            "sum": 1958605.0,
+            "reached": 51,
             "lostHere": 0
           },
           {
@@ -5798,7 +5798,7 @@
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 109
+      "count": 110
     },
     {
       "reason": "ДУБЛЬ",
@@ -5828,7 +5828,7 @@
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 109
+      "count": 110
     },
     {
       "reason": "ДОРОГО",
@@ -5952,7 +5952,7 @@
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 109
+          "count": 110
         },
         {
           "reason": "ДУБЛЬ",
@@ -5967,23 +5967,23 @@
           "count": 10
         }
       ],
-      "totalLost": 667,
-      "totalReviewed": 678
+      "totalLost": 668,
+      "totalReviewed": 679
     }
   },
   "totalReviewed": {
     "wholesale": 462,
     "retail": 1,
-    "screening": 678,
-    "all": 1141
+    "screening": 679,
+    "all": 1142
   },
   "pipeline": {
-    "asOf": "2026-10-23T10:26:34Z",
+    "asOf": "2026-10-23T10:52:37Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
         "deals": 128,
-        "sum": 138698302.02,
+        "sum": 140649306.02,
         "stale": 26,
         "staleSum": 78412828.01,
         "stages": [
@@ -6009,8 +6009,8 @@
           },
           {
             "stage": "Потрібно більше часу для прийняття рішення",
-            "deals": 38,
-            "sum": 908794.01
+            "deals": 37,
+            "sum": 908793.01
           },
           {
             "stage": "Згода підтверджена",
@@ -6024,8 +6024,8 @@
           },
           {
             "stage": "Очікуємо ОРИГІНАЛ",
-            "deals": 4,
-            "sum": 7600.0
+            "deals": 5,
+            "sum": 1958605.0
           },
           {
             "stage": "3D Модель готова",
