@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-25T08:02:07Z",
+  "fetched_at": "2026-10-25T10:03:23Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -405,10 +405,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 1185,
-      "clean": 1104,
-      "qualified": 585,
-      "activeOrWon": 183,
+      "all": 1188,
+      "clean": 1107,
+      "qualified": 588,
+      "activeOrWon": 186,
       "won": 38,
       "wonSum": 2923363.2,
       "expectedSumActiveWon": 16704607.44
@@ -490,6 +490,11 @@
         "sum": 0.0
       },
       {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 13,
+        "sum": 0.0
+      },
+      {
         "stage": "Потрібно більше часу для прийняття рішення",
         "deals": 12,
         "sum": 107101.0
@@ -506,11 +511,6 @@
       },
       {
         "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-        "deals": 10,
-        "sum": 0.0
-      },
-      {
-        "stage": "НОВИЙ лід ( не оброблений )",
         "deals": 10,
         "sum": 0.0
       },
@@ -582,7 +582,7 @@
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
-        "deals": 62,
+        "deals": 64,
         "expectedSum": 457285.0,
         "won": 1,
         "wonSum": 384650.0
@@ -614,7 +614,7 @@
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 164,
+        "deals": 165,
         "expectedSum": 9074.0,
         "won": 2,
         "wonSum": 3450.0
@@ -768,7 +768,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 1048,
+        "deals": 1050,
         "expectedSum": 14649410.44,
         "won": 25,
         "wonSum": 1135963.2
@@ -944,6 +944,14 @@
       {
         "key": "google / search_miltech_Main",
         "name": "google / search_miltech_Main",
+        "deals": 1,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / search_3d_print_Kharkiv",
+        "name": "google / search_3d_print_Kharkiv",
         "deals": 1,
         "expectedSum": 0.0,
         "won": 0,
@@ -4247,7 +4255,27 @@
         "d": "2026-10-25",
         "us": "",
         "uc": "",
+        "s": "24",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-10-25",
+        "us": "",
+        "uc": "",
         "s": "50",
+        "n": 2,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-10-25",
+        "us": "google",
+        "uc": "search_3d_print_Kharkiv",
+        "s": "24",
         "n": 1,
         "e": 0.0,
         "w": 0,
@@ -4260,7 +4288,7 @@
       "minRevenue12m": 1000000.0
     },
     "retention": {
-      "clientsInCohort": 1083,
+      "clientsInCohort": 1086,
       "returningClients": 95,
       "repeatBuyers": 32,
       "noClientLinked": 9,
@@ -4271,7 +4299,7 @@
         "winRate": 15.2
       },
       "new": {
-        "deals": 1028,
+        "deals": 1031,
         "won": 18,
         "wonSum": 25881.0,
         "winRate": 2.0
@@ -4303,7 +4331,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 761,
+        "total": 764,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -4312,9 +4340,9 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 10,
+            "count": 13,
             "sum": 0.0,
-            "reached": 761,
+            "reached": 764,
             "lostHere": 690
           },
           {
@@ -6209,7 +6237,7 @@
     "all": 1209
   },
   "pipeline": {
-    "asOf": "2026-10-25T08:02:13Z",
+    "asOf": "2026-10-25T10:03:28Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
