@@ -137,6 +137,11 @@ window.AdsLoader = (() => {
     const old = $('ads-alert-red'); if (old) old.style.display = 'none';
     if (!D.crm) { el.innerHTML = ''; return; }
     const items = [];
+    // v7.18: обрив UTM у CRM — першим рядком (без нього всі 🛑 нижче — наслідок, а не проблема кампаній)
+    try { const api = window.LeadgenLoader && LeadgenLoader.api, h = api && api.utmHealth ? api.utmHealth() : null;
+      if (h && h.drop) items.push({ t: 'r', i: '🛑', x: `<b>UTM перестали доходити в CRM${h.since ? ' ~з ' + h.since.slice(8) + '.' + h.since.slice(5, 7) : ''}</b>: ` +
+        h.lost.map(x => `${esc(x.name)} ${x.base.toFixed(0)}% → ${x.cur.toFixed(0)}%`).join(', ') + ` угод з UTM → червоні кампанії нижче, найімовірніше, через це, а не через рекламу. ` +
+        (h.calls ? 'Перевір передачу UTM у коллтрекінгу (Ringostat → Bitrix24)' : 'Перевір, як ці джерела передають utm_* у Bitrix24') }); } catch (e) { console.warn(e); }
     red.forEach(r => items.push({ t: 'r', i: '🛑', x: `<b>${esc(r.name)}</b> (${ACC[r.acc].l}) — ${fmt(r.cost)} ₴, 0 лідів у CRM` +
       (r.nk ? ` <span style="color:var(--tl)">(+${r.nk} від «слонів» — не рахуються)</span>` : '') + ` → перевір utm_campaign у Final URL suffix або зупини` }));
     rows.filter(r => r.cost >= 1000 && r.roas >= 300).sort((a, b) => b.roas - a.roas).slice(0, 2)

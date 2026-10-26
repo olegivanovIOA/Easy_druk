@@ -156,11 +156,18 @@ window.LeadgenLoader = (() => {
   };
   // v7.1: будь-яка назва акаунта Ukr3d (ukr3dprint.com, ukr3d…) → 'ukr3d', як в аліасах кампаній
   const accNorm = a => /ukr/i.test(a || '') ? 'ukr3d' : (a || 'GA');
-  const campOf = uc => CAMP_ALIAS[uc] ? CAMP_ALIAS[uc][0] : uc;
+  // v7.18: звірка назв кампаній БЕЗ урахування регістру (Remarketing_b2b у Bitrix = remarketing_b2b у Google Ads)
+  const ALIAS_LC = {}; Object.keys(CAMP_ALIAS).forEach(k => { ALIAS_LC[k.toLowerCase()] = CAMP_ALIAS[k]; });
+  const aliasOf = uc => CAMP_ALIAS[uc] || (uc ? ALIAS_LC[String(uc).toLowerCase()] : null);
+  const campOf = uc => { const a = aliasOf(uc); return a ? a[0] : uc; };
   // канал/акаунт/назва для рядка Bitrix (UTM): google-кампанії — з урахуванням аліасів і акаунта з GA4
   const bxKey = (c, uc, ads) => {
-    const al = CAMP_ALIAS[uc], name = al ? al[0] : (uc || '');
+    const al = aliasOf(uc); let name = al ? al[0] : (uc || '');
     if (c.ch === 'google' && name) {
+      if (!al && !ads.known.has(name)) {   // та сама кампанія в Ads, але інший регістр / пробіли — беремо назву з Ads
+        if (!ads._lc) { ads._lc = {}; ads.known.forEach(k => { if (k) ads._lc[String(k).toLowerCase().trim()] = k; }); }
+        const hit = ads._lc[name.toLowerCase().trim()]; if (hit) name = hit;
+      }
       if (al && al[1]) c.acc = al[1];
       else if (ads.known.has(name)) c.acc = (ads.accOf || {})[name] || 'EASY';
     }
@@ -506,6 +513,7 @@ window.LeadgenLoader = (() => {
     if (note) note.innerHTML = `<b>${per}</b> · Угоди/виручка — Bitrix24, створені в періоді. ${costNote} ${metaOk ? `Витрати Facebook/Instagram — Meta Ads API${md.length ? '' : ' (за період витрат немає)'}.` : 'Витрат Facebook/Instagram поки немає (Meta API не підключено).'} Клік по рядку — деталізація ${byDay ? 'по днях' : 'по місяцях'}.` +
       (slonN ? ` <span title="Клієнти з WON ≥ 1 млн ₴ за 12 міс (у т.ч. клієнт №1) + ручний список KEY_ACCOUNT_IDS — завжди «не маркетинг», хоч би яке джерело чи UTM стояли в угоді">🐘 Угоди ключових клієнтів («слонів», у т.ч. клієнт №1) виключено з таблиці: <b>${slonN}</b> угод, WON <b>${fmt(slonWs)} ₴</b>.</span>` : '') +
       (bx.gaps.length ? ` <span style="color:${R}">⚠ Для ${bx.gaps.join(', ')} ще немає розбивки по днях — запусти один раз «Backfill CRM Monthly History».</span>` : '');
+    if (note) { let h = null; try { h = utmHealth(); } catch (e) { console.warn(e); } if (h && h.drop) note.insertAdjacentHTML('afterbegin', utmHealthHtml(h)); }
 
     const tb = $('mkt-leadgen-roi-table'); if (!tb) return;
     const rc = v => v == null ? 'var(--tl)' : v >= 300 ? GD : v >= 100 ? WH : R;
@@ -665,11 +673,64 @@ window.LeadgenLoader = (() => {
     });
   }
 
+  // v7.18: «здоров'я» UTM — яка частка нових угод Bitrix має UTM-мітки, загалом і ПО ДЖЕРЕЛАХ (дзвінки, форми сайту…).
+  // Не залежить від вибраного періоду: останні 14 днів проти попередніх 56. Сигнал — коли джерело, яке раніше стабільно
+  // отримувало UTM (≥30% угод), втратило їх більш ніж на 60%; дата обриву — по угодах саме цих джерел.
+  function utmHealth() {
+    const end = today(), from = addDays(end, -119), bx = bitrixRows(from, end), day = {}, bySrc = {};
+    bx.rows.forEach(r => { if (!r.d || r.t === 'k') return; const u = (r.us || r.uc) ? r.n : 0, s = r.s || '—';
+      const d = day[r.d] || (day[r.d] = { n: 0, u: 0, g: 0, s: {} }); d.n += r.n; d.u += u;
+      if (u && channelOf(r.us, r.s, bx.srcNames).ch === 'google') d.g += r.n;
+      const ds = d.s[s] || (d.s[s] = { n: 0, u: 0 }); ds.n += r.n; ds.u += u; bySrc[s] = 1; });
+    const ks = Object.keys(day).sort(); if (ks.length < 30) return null;
+    const last = ks[ks.length - 1], c14 = addDays(last, -13), c70 = addDays(last, -69), pTo = addDays(c14, -1);
+    const agg = (a, b, src) => ks.filter(k => k >= a && k <= b).reduce((t, k) => { const x = src ? (day[k].s[src] || { n: 0, u: 0 }) : day[k];
+      t.n += x.n; t.u += x.u; t.g += x.g || 0; return t; }, { n: 0, u: 0, g: 0 });
+    const L = agg(c14, last), P = agg(c70, pTo);
+    if (L.n < 30 || P.n < 100) return null;
+    const pc = x => x.n ? x.u / x.n * 100 : 0, nm = s => s === 'CALL' ? 'Дзвінки' : (bx.srcNames[s] || s);
+    const res = { last, cur: pc(L), base: pc(P), gCur: L.n ? L.g / L.n * 100 : 0, gBase: P.n ? P.g / P.n * 100 : 0, nCur: L.n,
+      lost: [], ok: [], drop: false, since: null, calls: false };
+    Object.keys(bySrc).forEach(s => {
+      if (s === '—') return;
+      const p = agg(c70, pTo, s), l = agg(c14, last, s), it = { s, name: nm(s), base: pc(p), cur: pc(l), n: l.n, u: l.u, pn: p.n };
+      if (p.n >= 40 && it.base >= 30 && l.n >= 20 && it.cur < it.base * 0.4) res.lost.push(it);
+      else if (l.n >= 10 && it.base >= 30 && it.cur >= 30) res.ok.push(it);
+    });
+    res.lost.sort((x, y) => y.n - x.n); res.ok.sort((x, y) => y.n - x.n);
+    res.drop = res.lost.length > 0; res.calls = res.lost.some(x => x.s === 'CALL');
+    if (res.drop) {      // дата обриву — точка найсильнішої зміни частки UTM у джерелах, що втратили мітки (зважено на кількість угод; ≥7 днів з кожного боку)
+      const set = new Set(res.lost.map(x => x.s)), dd = ks.map(k => Object.entries(day[k].s).reduce((t, [s, x]) => set.has(s) ? (t.n += x.n, t.u += x.u, t) : t, { n: 0, u: 0 }));
+      let best = -1; for (let i = 7; i <= ks.length - 7; i++) {
+        const sum = arr => arr.reduce((t, x) => (t.n += x.n, t.u += x.u, t), { n: 0, u: 0 }), A = sum(dd.slice(0, i)), B = sum(dd.slice(i));
+        const dlt = (A.n ? A.u / A.n : 0) - (B.n ? B.u / B.n : 0), sc = dlt > 0 ? A.n * B.n * dlt * dlt : 0;
+        if (sc > best) { best = sc; res.since = ks[i]; }
+      }
+    }
+    return res;
+  }
+  function utmHealthHtml(h, compact) {
+    if (!h || !h.drop) return '';
+    const fD = d => d.slice(8) + '.' + d.slice(5, 7), esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const lost = h.lost.map(x => `<b>${esc(x.name)}</b> — ${x.base.toFixed(0)}% → <b>${x.cur.toFixed(0)}%</b> (${x.u} з ${x.n} угод за 14 днів)`).join('; ');
+    const ok = h.ok.slice(0, 3).map(x => `${esc(x.name)} ${x.cur.toFixed(0)}%`).join(', ');
+    const what = h.calls
+      ? `коллтрекінг / телефонію (Ringostat → Bitrix24): чи підміняються номери на сайті для рекламного трафіку і чи передаються utm_* у поля угоди. Тест: відкрий сайт з <code>?utm_source=test&amp;utm_campaign=test</code>, подзвони на показаний номер і подивись поля UTM в угоді`
+      : `як ці джерела створюють угоди (форма / віджет Bitrix на сайті, інтеграція) і чи передають utm_*. Тест: відкрий сайт з <code>?utm_source=test&amp;utm_campaign=test</code>, залиш заявку й подивись поля UTM в угоді`;
+    return `<div class="utm-drop" style="margin:6px 0 8px;padding:7px 10px;border-radius:8px;background:#f8d7da;color:#721c24;font-size:11.5px;line-height:1.45">` +
+      `🛑 <b>UTM-мітки перестали доходити в Bitrix24${h.since ? ' приблизно з ' + fD(h.since) : ''}</b> — частка угод з UTM: ${lost}.` +
+      (ok ? ` Інші джерела мітки отримують (${ok}).` : '') +
+      ` Загалом UTM мають ${h.cur.toFixed(0)}% нових угод за 14 днів (раніше ${h.base.toFixed(0)}%).` +
+      (compact ? '' : ` Реклама при цьому працює — угоди падають у «без UTM», кампанії отримують «⚠ UTM не доходить у CRM» і занижений ROAS.`) +
+      ` Перевір ${what}.</div>`;
+  }
+
   // v7.0: спільні функції для js/mkt_split.js (витрати по акаунтах, маркетинг / не маркетинг, Meta, повернення клієнтів)
   const api = {
     channelOf, bitrixRows, monthsWithCohort, googleDaily, metaDaily, accGroup, campOf, lastDay, today, fmt, chart,
     get ga() { return _ga; }, get meta() { return _meta; }, get clients() { return _cl; }, get adsAccOf() { return adsCost('1900-01-01', '1900-01-01').accOf || {}; },
     rerender: () => { try { renderRoi(); } catch (e) { console.warn(e); } },
+    utmHealth, utmHealthHtml,
     // v7.4: угоди / WON / виручка Bitrix по Google-кампаніях (з аліасами і акаунтом) + точна вартість GA4 за період
     crmGoogle: (from, to) => {
       const bx = bitrixRows(from, to), ads = adsCost(from, to), out = {}, byDay = {};
