@@ -212,7 +212,7 @@ window.E3D_STATIC = {
   // лоти з браком >X%, витрата сировини/год, LTV, RFM, відтік, опер. CF, обслуговування, конверсія сайту та ін.
   // v6.2.1: галузі з поля угоди «Сфера применения» (заповнене 100%) — #82, #122–124 → так.
   metrics_coverage: [
-    { section:'Виробництво — Локації',         total:19, yes:5 ,part:8 ,calc:3,  no:3 },
+    { section:'Виробництво — Локації',         total:19, yes:7 ,part:8 ,calc:2,  no:2 },   // v7.19: Гант — теор. потужність calc→yes, % завант. part→yes, плановий простій no→part
     { section:'Виробництво — Принтери',         total:16, yes:3 ,part:9 ,calc:3,  no:1 },
     { section:'Виробництво — Партії (Batch)',   total:27, yes:12 ,part:7 ,calc:5,  no:3 },
     { section:'Юніт-економіка',                 total:1, yes:0 ,part:0 ,calc:1,  no:0 },

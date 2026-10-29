@@ -6,12 +6,12 @@
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="data/static.js?v=20261022"></script>
+<script src="data/static.js?v=20261029"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
 <script src="js/data_layer.js"></script>
-<script src="js/freshness.js?v=20261022"></script>
+<script src="js/freshness.js?v=20261029"></script>
 <script src="js/widgets.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -440,7 +440,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.18</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.19</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -775,13 +775,10 @@ a{color:var(--gd);text-decoration:none}
   </div>
   <div id="w-prod-planweek">
     <div class="sec" style="justify-content:space-between">
-      <span>📅 План друку по локаціях — горизонт планування<span class="ld" id="planweek-live-dot" style="margin-left:2px"></span></span>
+      <span>📅 План завантаження парку — Гант машин<span class="ld" id="planweek-live-dot" style="margin-left:2px"></span></span>
       <span id="planweek-status" style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--tl)"></span>
     </div>
-    <div class="card-flat">
-      <div style="font-size:10px;color:var(--tl);padding:8px 10px 0">Заплановано деталей до друку, шт/добу · глибина різна по локаціях (залежить від заповненого плану)</div>
-      <div class="cw" style="height:220px;padding:6px 10px 10px"><canvas id="planweek-chart"></canvas></div>
-    </div>
+    <div class="card-flat" id="gantt-root"><div style="font-size:11px;color:var(--tl);padding:12px">Завантаження плану…</div></div>
   </div>
 </div>
 
@@ -1765,7 +1762,7 @@ function buildStatic(){
     setT('cc-c',calc+' можна');
     setT('cc-n',no+' немає');
     const bar=document.getElementById('cv-bar');if(bar)bar.style.width=pct.toFixed(1)+'%';
-    const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · звірено з реєстром 22.10.2026`;
+    const note=document.getElementById('cv-note');if(note)note.textContent=`${covered} з ${total} метрик (Так+Частково) · звірено з реєстром 29.10.2026`;
     const regTitle=document.getElementById('reg-header-title');if(regTitle)regTitle.textContent=`📋 Покриття метрик · ${total} · ${reg.length} розділів`;
   }catch(e){}
   _renderCovByBar(reg);
@@ -2185,44 +2182,10 @@ async function loadProdData(){
   await loadPlanWeek();
 }
 
-// ── План друку по локаціях на горизонт планування (з ручного експорту Планування по локаціям) ──
+// ── v7.19: план завантаження парку — з планового Ганта машин (API /api/gantt → data/gantt.json), js/gantt_loader.js ──
+// (ручний імпорт plan_week.json більше не використовується)
 async function loadPlanWeek(){
-  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  try{
-    const r=await fetch('data/plan_week.json?t='+Date.now());
-    if(!r.ok) throw new Error('no plan_week.json');
-    const pw=await r.json();
-    const dot=document.getElementById('planweek-live-dot'); if(dot) dot.className='ld ok';
-
-    const O='#BA7517';
-    const locColors={'1':G,'2':A,'4':R,'5':B,'6':O};
-    const locNames={'1':'Локація 1','2':'Локація 2','4':'Локація 4','5':'Локація 5','6':'Локація 6'};
-
-    const labels=pw.dates.map(d=>d.slice(5));
-    const datasets=Object.keys(pw.locations).sort((a,b)=>+a-+b).map(loc=>({
-      label:locNames[loc]||('Локація '+loc),
-      data:pw.locations[loc],
-      borderColor:locColors[loc]||'#999',
-      backgroundColor:(locColors[loc]||'#999')+'22',
-      borderWidth:2,tension:.25,
-      spanGaps:false,
-      pointRadius:pw.dates.length>25?0:2,
-    }));
-
-    safeChart('planweek-chart',{type:'line',data:{labels,datasets},options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:8,font:{size:10}}}},
-      scales:{x:{grid:{display:false},ticks:{autoSkip:true,maxTicksLimit:15,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true}}
-    }});
-
-    const genDate=pw.generated_at?new Date(pw.generated_at).toLocaleDateString('uk-UA'):'';
-    // v7.16: ручний імпорт планування не оновлюється — чесно позначаємо
-    const isStale=window.E3DFresh&&E3DFresh.stale&&E3DFresh.stale(document.querySelector('#w-prod-planweek .card-flat'),pw.generated_at,
-      {what:'ручний імпорт «Планування по локаціям», план до '+(pw.dates[pw.dates.length-1]||'').split('-').reverse().join('.'),
-       why:'Оновиться, коли планування друку наперед підключиться автоматично (API планування)'});
-    if(isStale&&dot) dot.className='ld warn';
-    set('planweek-status', genDate?(isStale?`⏸ застаріло · станом на ${genDate}`:`Дані станом на ${genDate} · ручний імпорт`):'');
-  }catch(e){console.warn('[PlanWeek]',e.message);}
+  try{ if(window.GanttLoader) await GanttLoader.load(); }catch(e){console.warn('[Gantt]',e.message);}
 }
 
 // ── ЯКІСТЬ — реальні дані з того самого фіду capacity.json/capacity_history.json ──
@@ -3297,7 +3260,7 @@ const WKEY='e3d_widget_prefs_v1';
 const WCAT=[
   {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
   {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
-  {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-planweek',tab:'prod',label:'План друку на тиждень'},
+  {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-planweek',tab:'prod',label:'План завантаження парку (Гант)'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
   {id:'sales-funnels',tab:'sales',label:'Воронки CRM по стадіях'},{id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
   {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},{id:'mkt-leadgen',tab:'crm',label:'Лідогенерація, ROI, retention'},{id:'mkt-channels',tab:'crm',label:'Канали залучення (Bitrix24)'},
@@ -4115,6 +4078,7 @@ window.LocLoader = (() => {
 <script src="js/leadgen_loader.js?v=20261026b"></script>
 <script src="js/shopfloor_loader.js?v=20261014b"></script>
 <script src="js/clients_loader.js?v=20261022"></script>
+<script src="js/gantt_loader.js?v=20261029"></script>
 <script>
 // v4.5: зміна складу локацій у /api/capacity. Дашборд нічого не фільтрує —
 // показує те, що віддає API. Якщо набір локацій змінився (напр. 23.09: зникли

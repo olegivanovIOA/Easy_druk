@@ -77,8 +77,8 @@ window.E3DFresh = (() => {
     ceo:  [{ url: 'data/cashflow.json', label: 'CF' }, { url: 'data/pnl.json', label: 'P&L' }, { url: 'data/crm_deals.json', label: 'Bitrix' },
            { url: 'data/hr.json', label: 'HR' }, { url: 'data/capacity.json', label: 'Парк' }],
     str:  [{ url: 'data/strategy.json', label: 'Спринти', key: 'ts' }],
-    // plan_week.json (ручний експорт) свідомо НЕ показуємо — планування скоро підключиться через API
-    prod: [{ url: 'data/capacity.json', label: 'Парк' }, { url: 'data/batches_lots.json', label: 'Партії' }],
+    // v7.19: план завантаження — з API Ганта (gantt.json) замість ручного plan_week.json
+    prod: [{ url: 'data/capacity.json', label: 'Парк' }, { url: 'data/gantt.json', label: 'План (Гант)' }, { url: 'data/batches_lots.json', label: 'Партії' }],
     qual: [{ url: 'data/batches_lots.json', label: 'Партії/ОТК' }, { url: 'data/crm_deals.json', label: 'Bitrix' }],
     loc:  [{ url: 'data/capacity.json', label: 'Парк' }],
   };
