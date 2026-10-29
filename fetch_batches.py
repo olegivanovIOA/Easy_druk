@@ -102,6 +102,43 @@ def material_cost_for_location(loc):
             "materialCostCoveragePercent": coverage_pct}
 
 
+def rollup_materials(locations_payload, top_colors=12):
+    """v7.21: сировина по партіях — кг надрукованого (прийняті + брак) за типом пластику і кольором,
+    кг у браку. Вага = к-сть × unitWeightG; партії без каліброваної ваги не вгадуємо — вони
+    лише зменшують покриття (coveragePercent — частка деталей з відомою вагою)."""
+    types, colors = {}, {}
+    qty_all = qty_w = 0
+    batches_w = 0
+    for loc in locations_payload or []:
+        for pm in loc.get("printerModels", []) or []:
+            for b in pm.get("batches", []) or []:
+                acc, dfc = b.get("acceptedQty") or 0, b.get("defectQty") or 0
+                qty_all += acc + dfc
+                w = b.get("unitWeightG")
+                if not w or not (acc + dfc):
+                    continue
+                qty_w += acc + dfc
+                batches_w += 1
+                mat = b.get("material") or {}
+                t = (mat.get("type") or "Невідомо").strip() or "Невідомо"
+                col = (mat.get("color") or "").strip().upper() or "—"
+                kg, dkg = (acc + dfc) * w / 1000, dfc * w / 1000
+                a = types.setdefault(t, {"type": t, "kg": 0.0, "defectKg": 0.0, "batches": 0})
+                a["kg"] += kg; a["defectKg"] += dkg; a["batches"] += 1
+                c = colors.setdefault(t + "|" + col, {"type": t, "color": col, "kg": 0.0, "defectKg": 0.0})
+                c["kg"] += kg; c["defectKg"] += dkg
+    rnd = lambda x: {k: (round(v, 2) if isinstance(v, float) else v) for k, v in x.items()}
+    total = sum(a["kg"] for a in types.values())
+    return {
+        "kg": round(total, 2),
+        "defectKg": round(sum(a["defectKg"] for a in types.values()), 2),
+        "batchesWithWeight": batches_w,
+        "coveragePercent": round(qty_w / qty_all * 100, 1) if qty_all else None,
+        "byType": [rnd(a) for a in sorted(types.values(), key=lambda a: -a["kg"])],
+        "byColor": [rnd(c) for c in sorted(colors.values(), key=lambda c: -c["kg"])[:top_colors]],
+    }
+
+
 def rollup_location(loc):
     """Денний підсумок по одній локації з відповіді /lots — для history-файлу.
     Зважено по acceptedQty (а не проста середня по ЛОТах), щоб великі ЛОТи не
@@ -124,7 +161,11 @@ def rollup_location(loc):
         if weight_qty_sum else None
     )
 
+    mats = rollup_materials([loc], top_colors=0)
     return {
+        "materialKg": mats["kg"],
+        "materialDefectKg": mats["defectKg"],
+        "materialByType": {a["type"]: a["kg"] for a in mats["byType"]},
         "batches":  loc.get("totals", {}).get("batches", 0),
         "lots":     loc.get("totals", {}).get("lots", 0),
         "acceptedQty": accepted,
@@ -413,6 +454,7 @@ def main():
         "worstBestLots": rollup_worst_best_lots(locations),
         "plannedVsEstimated": rollup_planned_vs_estimated(locations),
         "pendingQC": rollup_pending_qc(locations),
+        "materials": rollup_materials(locations),
         "locations": locations,
     }
 

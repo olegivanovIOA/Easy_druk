@@ -515,5 +515,6 @@ window.Shopfloor = (() => {
     done[id] = 1;
     load().then(() => fns.forEach(fn => { try { fn(); } catch (e) { console.warn('[Shopfloor]', id, e); } }));
   }
-  return { onTab };
+  // v7.21: дані для js/ops_metrics.js — без повторного завантаження тих самих файлів
+  return { onTab, load, get: () => ({ D, CAP, BH, BMH, HR, CH }) };
 })();

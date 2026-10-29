@@ -6,7 +6,7 @@
 <title>Easy 3D Print · Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="data/static.js?v=20261029"></script>
+<script src="data/static.js?v=20261029b"></script>
 <script src="js/scoring.js"></script>
 <script src="js/sheets_loader.js?v=1778586309"></script>
 <script src="js/strategy_scoring.js?v=1778586309"></script>
@@ -440,7 +440,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.20</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.21</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -549,6 +549,19 @@ a{color:var(--gd);text-decoration:none}
     </div>
   </div>
 
+  <!-- v7.21: ВИРОБНИЦТВО — план (Гант) і ефективність -->
+  <div id="w-ceo-prod">
+    <div class="sec">🏭 Виробництво — план і ефективність</div>
+    <div class="g6" style="margin-bottom:14px">
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Планове завантаження парку на найближчі 7 днів за Гантом машин (зайняті планом машино-зміни ÷ робочий парк)">План завантаження 7 дн</div><div class="krow-val" id="ceo-ops-plan7">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl" title="Перша зміна, де вільно ≥5% робочого парку — найраніший старт великого замовлення (д — день, н — ніч)">Вільне вікно ≥5% парку</div><div class="krow-val" id="ceo-ops-win">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="OEE = доступність (без ремонту/ТО) × завантаженість × якість (1 − брак ОТК), середнє за 30 днів, зважено по парку">OEE A×P×Q (30 дн)</div><div class="krow-val" id="ceo-ops-oee">—</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Скільки справних машин у середньому стоять без завдань щодня (30 дн): простій мінус ремонт/ТО/резерв">Машин без завдань / добу</div><div class="krow-val" id="ceo-ops-idle">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" title="Пластик, надрукований у поточному місяці (прийняті + брак, за каліброваною вагою деталей)">Сировина, кг (міс.)</div><div class="krow-val" id="ceo-ops-mat">—</div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl" title="Операторо-змін на добу: потрібно під план Ганта на 7 днів / фактично виходить (30 дн)">Оператори: план / факт</div><div class="krow-val" id="ceo-ops-ppl">—</div><div class="real-dot"></div></div>
+    </div>
+  </div>
+
   <!-- БЛОК 4: СТРАТЕГІЯ -->
   <div id="w-ceo-strategy">
     <div class="sec">🎯 Стратегія 2026 — прогрес</div>
@@ -556,7 +569,7 @@ a{color:var(--gd);text-decoration:none}
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">% виконання стратегії</div><div class="krow-val g" id="ceo-pp">—</div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-g"></div><div class="krow-lbl">Принтерів (парк)</div><div class="krow-val g" id="ceo-fleet-total">—</div><div class="krow-tgt">Ціль: <b>10 000</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-a"></div><div class="krow-lbl">Активних локацій</div><div class="krow-val" id="ceo-loc-count">—</div><div class="real-dot"></div></div>
-      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Спрощений OEE = завантаженість парку × (1 − % браку), сьогодні. Без Availability/Performance — журналу простоїв немає">OEE спрощ. (сьогодні)</div><div class="krow-val r" id="ceo-oee">—</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="real-dot"></div></div>
+      <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="OEE = доступність (робочий парк без ремонту/ТО, Гант) × завантаженість парку × (1 − брак ОТК), сьогодні. Поки Гант не завантажився — без доступності">OEE (сьогодні)</div><div class="krow-val r" id="ceo-oee">—</div><div class="krow-tgt">Ціль: <b>80%+</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-r"></div><div class="krow-lbl" title="Брак ОТК з початку поточного місяця: браковані / прийняті деталі (batches_history, щоденно)">% Браку (міс., ОТК)</div><div class="krow-val r" id="ceo-defect">—</div><div class="krow-tgt">Ціль: <b>&lt;9%</b></div><div class="real-dot"></div></div>
       <div class="krow"><div class="krow-bar kb-b"></div><div class="krow-lbl" id="ceo-ebitda-lbl" title="EBITDA / Дохід за повні місяці YTD — з P&L Easy v1 (фолбек: CashFlow)">EBITDA-маржа YTD</div><div class="krow-val" id="ceo-ebitda-pct">—</div><div class="real-dot"></div></div>
     </div>
@@ -568,7 +581,7 @@ a{color:var(--gd);text-decoration:none}
         <div class="pr"><div class="pn">Диверсифікація ТОП-2 ≤70%</div><div class="pbw"><div class="pb" style="width:0%;background:var(--red)" id="ceo-div-bar"></div></div><div class="pv r" id="ceo-div-val">—</div></div>
         <div class="pr"><div class="pn">Штат → 200 осіб</div><div class="pbw"><div class="pb" style="width:67%;background:var(--amb)" id="ceo-staff-bar"></div></div><div class="pv" id="ceo-staff-val">—</div></div>
         <div class="pr"><div class="pn">Парк принтерів → 10K</div><div class="pbw"><div class="pb" style="width:0%;background:var(--b)" id="ceo-fleet-bar"></div></div><div class="pv b" id="ceo-fleet-val">—</div></div>
-        <div class="pr"><div class="pn">OEE спрощ. → 80%+</div><div class="pbw"><div class="pb" style="width:0%;background:var(--amb)" id="ceo-oee-bar"></div></div><div class="pv" style="color:var(--amb)" id="ceo-oee-val">—</div></div>
+        <div class="pr"><div class="pn">OEE → 80%+</div><div class="pbw"><div class="pb" style="width:0%;background:var(--amb)" id="ceo-oee-bar"></div></div><div class="pv" style="color:var(--amb)" id="ceo-oee-val">—</div></div>
         <div class="pr"><div class="pn">Плинність → &lt;5%</div><div class="pbw"><div class="pb" style="width:36%;background:var(--red)" id="ceo-turn-bar"></div></div><div class="pv r" id="ceo-turn-val">—</div></div>
       </div>
       <div class="card">
@@ -772,6 +785,10 @@ a{color:var(--gd);text-decoration:none}
         <div class="krow tbd"><div class="krow-bar kb-b"></div><div class="krow-lbl">Маржинальність партії</div><div class="krow-val x">TBD</div><div class="tbd-lbl">потрібна виручка/партію — нема в API</div></div>
       </div>
     </div>
+  </div>
+  <div id="w-prod-ops">
+    <div class="sec">📊 Ефективність парку — OEE · простої · сировина · люди</div>
+    <div id="ops-root"><div class="card-flat" style="font-size:11px;color:var(--tl);padding:12px">Розрахунок метрик…</div></div>
   </div>
   <div id="w-prod-planweek">
     <div class="sec" style="justify-content:space-between">
@@ -2018,7 +2035,7 @@ async function syncFleetStats(){
   {const util=totalMachines?locs.reduce((s,l)=>s+(l.machines?.total||0)*(l.machines?.utilizationPercent||0),0)/totalMachines:null;
    const bp=locs.reduce((s,l)=>s+(l.batches?.parts||0),0), bd=locs.reduce((s,l)=>s+(l.batches?.defectParts||0),0);
    const oee=(util!=null)?util*(1-(bp?bd/bp:0)):null;
-   if(oee!=null){set('ceo-oee',oee.toFixed(1)+'%');set('ceo-oee-val',oee.toFixed(1)+'%');const b=document.getElementById('ceo-oee-bar');if(b)b.style.width=Math.min(oee/80*100,100)+'%';
+   if(oee!=null&&!(window.E3DOps&&E3DOps.ready)){set('ceo-oee',oee.toFixed(1)+'%');set('ceo-oee-val',oee.toFixed(1)+'%');const b=document.getElementById('ceo-oee-bar');if(b)b.style.width=Math.min(oee/80*100,100)+'%';
      const e=document.getElementById('ceo-oee');if(e)e.style.color=oee>=80?G:oee>=60?A:R;}}
   const g1note=document.getElementById('ceo-g1-note');
   if(g1note) g1note.textContent=`~${totalMachines.toLocaleString('uk-UA')} з 5 000 принтерів · ${locs.length} локацій`;
@@ -3281,9 +3298,9 @@ function staticS2(){return[{project_id:1,project:'Система планува�
 // ── WIDGET MANAGER ────────────────────────────────────
 const WKEY='e3d_widget_prefs_v1';
 const WCAT=[
-  {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},
+  {id:'ceo-kpi',tab:'ceo',label:'Пульс компанії (12 KPI)'},{id:'ceo-cov',tab:'ceo',label:'КПІ Діджиталізації'},{id:'ceo-charts',tab:'ceo',label:'Динаміка та концентрація'},{id:'ceo-goals',tab:'ceo',label:'Стратегічні цілі'},{id:'ceo-prod',tab:'ceo',label:'Виробництво — план і ефективність'},
   {id:'str-goals',tab:'str',label:'Річні цілі SMART + прогрес'},{id:'str-gantt',tab:'str',label:'Часова шкала (Ганта)'},{id:'str-forecast',tab:'str',label:'Прогноз виконання до 2026'},{id:'str-nofocus',tab:'str',label:'Проекти не в фокусі'},{id:'str-pers',tab:'str',label:'Скоринг по учасниках'},{id:'str-s2',tab:'str',label:'Поточний спринт'},{id:'str-s1',tab:'str',label:'Спринт 1 — підсумок'},{id:'str-scoring',tab:'str',label:'Скорінг цілей 2026'},
-  {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-planweek',tab:'prod',label:'План завантаження парку (Гант)'},
+  {id:'prod-trend',tab:'prod',label:'Завантаженість парку та виконання плану'},{id:'prod-cap',tab:'prod',label:'Потужність та завантаженість'},{id:'prod-ops',tab:'prod',label:'Ефективність: OEE, простої, сировина, люди'},{id:'prod-planweek',tab:'prod',label:'План завантаження парку (Гант)'},
   {id:'qual-kpi',tab:'qual',label:'Показники браку'},{id:'qual-trend',tab:'qual',label:'Динаміка браку'},
   {id:'sales-funnels',tab:'sales',label:'Воронки CRM по стадіях'},{id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
   {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},{id:'mkt-leadgen',tab:'crm',label:'Лідогенерація, ROI, retention'},{id:'mkt-channels',tab:'crm',label:'Канали залучення (Bitrix24)'},
@@ -3324,6 +3341,7 @@ function go(id,btn){
   setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
   if(window.Shopfloor) window.Shopfloor.onTab(id);   // v6.0: дані цеху (брак/зміни/ТО) — нові блоки в кінці вкладок
   if(window.ClientsView) window.ClientsView.onTab(id); // v6.2: LTV / RFM / відтік / галузі (Продажі)
+  if(window.E3DOps) window.E3DOps.onTab(id);          // v7.21: OEE, простої, сировина, люди під план, Гант на CEO/Локаціях
   if(id==='str'&&window.E3D_STRATEGY){
     E3D_STRATEGY.render();
     try{ buildForecast(); }catch(e){}
@@ -3368,6 +3386,7 @@ function restoreTab(){
       panel.classList.add('active');
       if(window.Shopfloor) window.Shopfloor.onTab(saved);   // v6.0
       if(window.ClientsView) window.ClientsView.onTab(saved); // v6.2
+      if(window.E3DOps) window.E3DOps.onTab(saved);           // v7.21
       if(saved==='loc'&&window.LocLoader&&!panel.dataset.loaded){
         window.LocLoader.load();panel.dataset.loaded='1';
       }
@@ -3771,8 +3790,10 @@ window.LocLoader = (() => {
           </div>
         </div>
         ${warn}
+        <div class="loc-plan" data-loc="${num}"></div>
       </div>`;
     }).join('');
+    if (window.E3DOps) { E3DOps.fillCards(); E3DOps.onTab('loc'); }   // v7.21: план Ганта 7 дн і OEE у картці
   }
 
   function updateStatus() {
@@ -4134,7 +4155,8 @@ window.LocLoader = (() => {
 <script src="js/table_sort.js?v=20261020"></script>
 <script src="js/mkt_split.js?v=20261022c"></script>
 <script src="js/leadgen_loader.js?v=20261026b"></script>
-<script src="js/shopfloor_loader.js?v=20261014b"></script>
+<script src="js/shopfloor_loader.js?v=20261029"></script>
+<script src="js/ops_metrics.js?v=20261029"></script>
 <script src="js/clients_loader.js?v=20261022"></script>
 <script src="js/gantt_loader.js?v=20261029"></script>
 <script>

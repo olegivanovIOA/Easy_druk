@@ -31,7 +31,7 @@ import requests
 
 from fetch_batches import (
     rollup_company, rollup_by_printer_model, rollup_by_product,
-    rollup_defect_cost_ranking, rollup_by_shift,
+    rollup_defect_cost_ranking, rollup_by_shift, rollup_materials, location_key,
 )
 
 API_URL    = os.environ.get("BATCHES_API_URL", "https://easy3dprint.pp.ua/api/batches/external/lots")
@@ -78,6 +78,9 @@ def rollup_month(payload):
         "byProduct": by_product[:10],  # тільки топ-10 по обсягу — за рік деталей забагато, щоб тримати все
         "defectCostRanking": rollup_defect_cost_ranking(by_product)[:10],
         "byShift": rollup_by_shift(locations),
+        # v7.21: сировина за місяць — компанія і по локаціях (кг за типом/кольором, кг у браку)
+        "materials": rollup_materials(locations),
+        "materialsByLocation": {location_key(l.get("location")): rollup_materials([l], top_colors=6) for l in locations},
     }
 
 
