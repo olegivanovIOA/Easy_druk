@@ -404,6 +404,41 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
+  update-gantt:
+    # v7.19: плановий Гант машин (easy3dprint.pp.ua /api/gantt) → data/gantt.json + gantt_history.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main_root
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Fetch Gantt plan (План завантаження парку)
+        env:
+          GANTT_API_KEY: ${{ secrets.GANTT_API_KEY }}
+          CAPACITY_API_KEY: ${{ secrets.CAPACITY_API_KEY }}
+        run: python fetch_gantt.py
+
+      - name: Collect changed update-gantt files
+        run: |
+          mkdir -p _out
+          # нові файли (перший запуск) git status показує як «??» — їх теж забираємо
+          git status --porcelain --untracked-files=all -- data/gantt.json data/gantt_history.json | awk '{print $2}' | while read f; do [ -f "$f" ] && cp "$f" _out/; done
+          ls -la _out
+
+      - name: Upload update-gantt data
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-update-gantt
+          path: _out/
+          if-no-files-found: ignore
+          retention-days: 1
+
   update-batches:
     runs-on: ubuntu-latest
     steps:
@@ -514,7 +549,7 @@ jobs:
 
   commit-all:
     # v7.3: один коміт з даними всіх job'ів → одна збірка GitHub Pages на запуск
-    needs: [update-strategy, update-hr, update-ga4, update-meta, update-shopfloor, update-clients, update-mql, update-sales, update-capacity, update-batches, update-crm, update-cf]
+    needs: [update-strategy, update-hr, update-ga4, update-meta, update-shopfloor, update-clients, update-mql, update-sales, update-capacity, update-gantt, update-batches, update-crm, update-cf]
     if: always()
     runs-on: ubuntu-latest
     steps:
