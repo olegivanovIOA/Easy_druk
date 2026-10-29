@@ -440,7 +440,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.19</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.20</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -708,8 +708,8 @@ a{color:var(--gd);text-decoration:none}
     <div class="sec">📉 Завантаженість парку та виконання плану</div>
     <div class="g2">
       <div class="card-flat">
-        <div class="ct" style="padding:8px 10px 0">Завантаженість парку — 2026 (зважено по всіх локаціях) <span style="font-size:10px;font-weight:500;color:var(--tl)">· <span style="color:#1e7a6e">●</span> макс. <span style="color:#C0392B">●</span> мін. <span style="color:#264653">●</span> зараз</span></div>
-        <div class="cw" style="height:150px;padding:4px 10px 6px"><canvas id="fleet-util-chart"></canvas></div>
+        <div class="ct" style="padding:8px 10px 0">Завантаженість парку — 2026 (зважено по всіх локаціях) <span style="font-size:10px;font-weight:500;color:var(--tl)">· <span style="color:#1e7a6e">●</span> макс. <span style="color:#C0392B">●</span> мін. <span style="color:#264653">●</span> зараз · <span style="color:#BA7517">╌</span> тренд · <span style="color:#264653">┈</span> середнє за місяць</span> <span id="fleet-trend-note" style="font-size:10px;font-weight:600"></span></div>
+        <div class="cw" style="height:170px;padding:4px 10px 6px"><canvas id="fleet-util-chart"></canvas></div>
       </div>
       <div class="card-flat">
         <div class="ct" style="padding:8px 10px 0">Кількість принтерів по локаціях (сьогодні)</div>
@@ -1667,6 +1667,8 @@ a{color:var(--gd);text-decoration:none}
       <span id="loc-trend-status"></span>
       <span style="cursor:help" title="Поріг браку 7.5% — пунктир, дні вище порогу — обведені чорним · товстий пунктир — логарифмічний тренд (клік по локації в легенді ховає і лінію, і її тренд) · шкала браку обрізана на 25% — окремі викиди вище можуть не вміститись">ⓘ пояснення графіків</span>
     </div>
+    <!-- v7.20: середня завантаженість по місяцях + лінійний тренд по кожній локації -->
+    <div class="card-flat" id="loc-month-avg" style="margin-top:8px"></div>
   </div>
 </div>
 
@@ -2136,15 +2138,36 @@ async function loadProdData(){
       })();
       const KC={max:'#1e7a6e',min:'#C0392B',cur:'#264653'};
       const DLf=window.ChartDataLabels;
+      // v7.20: середнє за місяць (сходинка, підпис «Ø» посередині місяця; поточна доба не входить — вона ще неповна)
+      //        і лінійний тренд за весь період (нахил — у п.п. за 30 днів)
+      const todayIso=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+      const mAvg={};days.forEach((d,i)=>{const v=data[i];if(v==null||d.date===todayIso)return;const m=d.date.slice(0,7);(mAvg[m]||(mAvg[m]={s:0,n:0,idx:[]})).s+=v;mAvg[m].n++;});
+      days.forEach((d,i)=>{const m=mAvg[d.date.slice(0,7)];if(m)m.idx.push(i);});
+      const avgData=days.map(d=>{const m=mAvg[d.date.slice(0,7)];return m&&m.n?+(m.s/m.n).toFixed(1):null;});
+      const avgMid=new Set(Object.values(mAvg).filter(m=>m.n).map(m=>m.idx[Math.floor(m.idx.length/2)]));
+      const pts=data.map((v,i)=>[i,v]).filter(([i,v])=>v!=null&&days[i].date!==todayIso);
+      let trendData=null,slope=null;
+      if(pts.length>=10){const n=pts.length,mx=pts.reduce((a,p)=>a+p[0],0)/n,my=pts.reduce((a,p)=>a+p[1],0)/n;
+        const b=pts.reduce((a,p)=>a+(p[0]-mx)*(p[1]-my),0)/pts.reduce((a,p)=>a+(p[0]-mx)**2,0),a0=my-b*mx;
+        // x — порядковий номер дня в історії; переводимо нахил у п.п./30 календарних днів
+        const span=(new Date(days[pts[n-1][0]].date)-new Date(days[pts[0][0]].date))/864e5||1;slope=b*(pts[n-1][0]-pts[0][0])/span*30;
+        trendData=data.map((_,i)=>+(a0+b*i).toFixed(1));}
+      const tn=document.getElementById('fleet-trend-note');
+      if(tn&&slope!=null){tn.textContent=`тренд ${slope>0?'+':''}${slope.toFixed(1)} п.п./міс`;tn.style.color=slope>=0?'#1e7a6e':'#C0392B';}
       safeChart('fleet-util-chart',{type:'line',plugins:DLf?[DLf]:[],data:{labels,datasets:[{label:'Завантаженість парку, %',data,borderColor:G,backgroundColor:GB,borderWidth:2,tension:.3,fill:true,
         pointRadius:data.map((_,i)=>kp[i]?(kp[i]==='cur'?4.5:3.5):(days.length>40?0:2)),
         pointBackgroundColor:data.map((_,i)=>kp[i]?KC[kp[i]]:G),pointBorderColor:'#fff',pointBorderWidth:data.map((_,i)=>kp[i]?1.5:0),
         datalabels:{display:c=>!!kp[c.dataIndex],align:c=>kp[c.dataIndex]==='min'?'bottom':'top',offset:3,clamp:true,
           color:c=>KC[kp[c.dataIndex]]||G,font:c=>({size:kp[c.dataIndex]==='cur'?10:9,weight:'700'}),
           formatter:(x,c)=>x==null?'':(kp[c.dataIndex]==='cur'?'зараз ':'')+Math.round(x)+'%',
-          backgroundColor:c=>kp[c.dataIndex]==='cur'?'rgba(255,255,255,.85)':null,borderRadius:3,padding:{top:1,bottom:1,left:3,right:3}}}]},
+          backgroundColor:c=>kp[c.dataIndex]==='cur'?'rgba(255,255,255,.85)':null,borderRadius:3,padding:{top:1,bottom:1,left:3,right:3}}},
+        ...(trendData?[{label:'Тренд',data:trendData,borderColor:'#BA7517',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false,tension:0,datalabels:{display:false}}]:[]),
+        {label:'Середнє за місяць',data:avgData,borderColor:'#264653',borderWidth:1.5,borderDash:[2,3],pointRadius:0,fill:false,stepped:'middle',
+          datalabels:{display:c=>avgMid.has(c.dataIndex),align:'top',offset:2,clamp:true,color:'#264653',font:{size:9,weight:'700'},
+            formatter:(x,c)=>{const d=days[c.dataIndex];return x==null?'':'Ø '+['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][+d.date.slice(5,7)-1]+' '+Math.round(x)+'%';},
+            backgroundColor:'rgba(255,255,255,.85)',borderRadius:3,padding:{top:1,bottom:1,left:3,right:3}}}]},
         options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:14,bottom:4,right:36}},plugins:{legend:{display:false},
-          tooltip:{callbacks:{afterLabel:c=>kp[c.dataIndex]==='max'?'локальний максимум':kp[c.dataIndex]==='min'?'локальний мінімум':kp[c.dataIndex]==='cur'?'поточне значення':''}}},scales:{x:{grid:{color:GRID},ticks:{autoSkip:true,maxTicksLimit:12,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}});
+          tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.raw==null?null:` ${c.dataset.label}: ${(+c.raw).toFixed(1)}%`,afterLabel:c=>c.datasetIndex!==0?'':kp[c.dataIndex]==='max'?'локальний максимум':kp[c.dataIndex]==='min'?'локальний мінімум':kp[c.dataIndex]==='cur'?'поточне значення':''}}},scales:{x:{grid:{color:GRID},ticks:{autoSkip:true,maxTicksLimit:12,font:{size:9}}},y:{grid:{color:GRID},beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}});
     }
   }catch(e){console.warn('[Prod]',e.message);}
 
@@ -4024,7 +4047,42 @@ window.LocLoader = (() => {
     });
   }
 
+  // ── v7.20: середня завантаженість по місяцях (усі дні історії, без поточної неповної доби) + тренд п.п./міс ──
+  function renderMonthAvg() {
+    const box = document.getElementById('loc-month-avg'); if (!box) return;
+    const all = (_history && _history.days) || [];
+    const todayIso = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+    const days = all.filter(d => d.date !== todayIso && Object.values(d.locations || {}).some(l => (l.util || 0) > 0));
+    if (days.length < 5) { box.innerHTML = ''; return; }
+    const MS = ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру'];
+    const months = [...new Set(days.map(d => d.date.slice(0, 7)))].sort();
+    const keys = _trendLocKeys(all);   // «до DD.MM» — за повною історією (з сьогоднішнім днем)
+    // так само, як графік «Завантаженість парку» на Виробництві: Σ(парк × util) / Σ парк
+    const fleet = d => { const ls = Object.values(d.locations || {}); const t = ls.reduce((a, l) => a + (l.total || 0), 0);
+      return t ? ls.reduce((a, l) => a + (l.total || 0) * (l.util || 0), 0) / t : null; };
+    const series = keys.map(({ num, lastSeen }) => ({ name: _trendLocLabel(num, lastSeen, all), c: (LOC_COLORS[num] || { line: '#999' }).line,
+      v: days.map(d => { const l = d.locations && d.locations[num]; return l && l.util != null ? +l.util : null; }) }));
+    series.push({ name: 'Парк (зважено)', c: '#264653', v: days.map(fleet), bold: true });
+    const byM = v => months.map(m => { let s = 0, n = 0; days.forEach((d, i) => { if (d.date.slice(0, 7) === m && v[i] != null) { s += v[i]; n++; } }); return n ? { a: s / n, n } : null; });
+    const slope = v => {   // лінійна регресія по календарних днях → п.п. за 30 днів
+      const p = []; days.forEach((d, i) => { if (v[i] != null) p.push([new Date(d.date) / 864e5, v[i]]); });
+      if (p.length < 10) return null; const n = p.length, mx = p.reduce((a, q) => a + q[0], 0) / n, my = p.reduce((a, q) => a + q[1], 0) / n;
+      const den = p.reduce((a, q) => a + (q[0] - mx) ** 2, 0); return den ? p.reduce((a, q) => a + (q[0] - mx) * (q[1] - my), 0) / den * 30 : null; };
+    const bg = v => v == null ? 'transparent' : v >= 80 ? 'rgba(42,157,143,.28)' : v >= 60 ? 'rgba(42,157,143,.14)' : v >= 40 ? 'rgba(186,117,23,.16)' : 'rgba(192,57,43,.14)';
+    const cur = todayIso.slice(0, 7), last = days[days.length - 1].date;
+    const rows = series.map(s => { const mv = byM(s.v), sl = slope(s.v);
+      return `<tr${s.bold ? ' style="font-weight:700;border-top:1.5px solid var(--bd)"' : ''}><td style="text-align:left;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${s.c};margin-right:6px"></span>${s.name}</td>` +
+        mv.map((x, i) => { const p = i ? mv[i - 1] : null, dl = x && p ? x.a - p.a : null;
+          return `<td style="background:${bg(x && x.a)};text-align:center" title="${x ? x.n + ' дн з даними' : 'немає даних'}">${x ? Math.round(x.a) + '%' : '—'}${dl != null && Math.abs(dl) >= 1 ? `<span style="font-size:9px;font-weight:600;margin-left:3px;color:${dl > 0 ? '#1e7a6e' : '#C0392B'}">${dl > 0 ? '▲' : '▼'}${Math.abs(dl).toFixed(0)}</span>` : ''}</td>`; }).join('') +
+        `<td style="text-align:right;font-weight:700;color:${sl == null ? 'var(--tl)' : sl >= 0 ? '#1e7a6e' : '#C0392B'}">${sl == null ? '—' : (sl > 0 ? '+' : '') + sl.toFixed(1)}</td></tr>`; }).join('');
+    box.innerHTML = `<div class="ct" style="padding:8px 10px 0">Середня завантаженість по місяцях, % <span style="font-size:10px;font-weight:500;color:var(--tl)">· середнє денних значень · ▲▼ — зміна до попереднього місяця, п.п. · тренд — лінійний, п.п. за 30 днів (за всю історію)${months.includes(cur) ? ` · ${MS[+cur.slice(5) - 1]} — по ${last.slice(8, 10)}.${last.slice(5, 7)}, без поточної доби` : ''}</span></div>
+      <div style="overflow-x:auto;padding:4px 10px 10px"><table style="width:100%;border-collapse:separate;border-spacing:0 2px;font-size:11px">
+      <thead><tr><th style="text-align:left;font-size:10px;color:var(--tl);font-weight:600">Локація</th>${months.map(m => `<th style="font-size:10px;color:var(--tl);font-weight:600;text-align:center">${MS[+m.slice(5) - 1]}${m === cur ? '*' : ''}</th>`).join('')}<th style="font-size:10px;color:var(--tl);font-weight:600;text-align:right">Тренд, п.п./міс</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+  }
+
   function renderCharts() {
+    renderMonthAvg();
     buildLineChart('loc-util-chart', 'util', v => v + '%');
     buildLineChart('loc-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD, yMax: 25 });
     buildLineChart('qual-defect-chart', 'defectPct', v => v + '%', { threshold: DEFECT_THRESHOLD, yMax: 25 });
