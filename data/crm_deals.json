@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-29T10:40:58Z",
+  "fetched_at": "2026-10-29T11:42:43Z",
   "month": "2026-10",
   "bySource": [
     {
@@ -69,17 +69,17 @@
     {
       "source": "CALL",
       "name": "Звонок",
-      "reviewed": 751,
+      "reviewed": 756,
       "won": 42,
-      "lost": 687,
-      "junk": 70,
+      "lost": 692,
+      "junk": 71,
       "wonWholesale": 42,
       "wonRetail": 0,
       "revenue": 332355.52,
       "revenueWholesale": 332355.52,
       "revenueRetail": 0.0,
-      "winRate": 5.8,
-      "junkShare": 9.3,
+      "winRate": 5.7,
+      "junkShare": 9.4,
       "avgCheck": 7913.23
     },
     {
@@ -133,17 +133,17 @@
     {
       "source": "50",
       "name": "Задать вопрос онлайн",
-      "reviewed": 234,
+      "reviewed": 239,
       "won": 13,
-      "lost": 210,
+      "lost": 214,
       "junk": 22,
       "wonWholesale": 13,
       "wonRetail": 0,
       "revenue": 39615.0,
       "revenueWholesale": 39615.0,
       "revenueRetail": 0.0,
-      "winRate": 5.8,
-      "junkShare": 9.4,
+      "winRate": 5.7,
+      "junkShare": 9.2,
       "avgCheck": 3047.31
     },
     {
@@ -453,13 +453,13 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 1529,
-      "clean": 1413,
-      "qualified": 730,
+      "all": 1538,
+      "clean": 1421,
+      "qualified": 733,
       "activeOrWon": 215,
       "won": 54,
       "wonSum": 3309562.4,
-      "expectedSumActiveWon": 24312458.89
+      "expectedSumActiveWon": 24316417.89
     },
     "byStage": [
       {
@@ -469,7 +469,7 @@
       },
       {
         "stage": "Не берет / не отвечает (более 3 попыток)",
-        "deals": 242,
+        "deals": 245,
         "sum": 0.0
       },
       {
@@ -479,7 +479,7 @@
       },
       {
         "stage": "ОШИБСЯ (запрос не по теме)",
-        "deals": 139,
+        "deals": 140,
         "sum": 0.0
       },
       {
@@ -494,17 +494,17 @@
       },
       {
         "stage": "ДУБЛЬ",
-        "deals": 70,
+        "deals": 71,
         "sum": 0.0
       },
       {
         "stage": "НЕ завершили первинний контакт",
-        "deals": 57,
+        "deals": 55,
         "sum": 0.0
       },
       {
         "stage": "НЕ актуально",
-        "deals": 53,
+        "deals": 55,
         "sum": 1045.0
       },
       {
@@ -534,17 +534,17 @@
       },
       {
         "stage": "НЕ устраивают сроки",
-        "deals": 22,
+        "deals": 23,
         "sum": 0.0
       },
       {
         "stage": "Потрібно більше часу для прийняття рішення",
-        "deals": 19,
-        "sum": 107100.0
+        "deals": 21,
+        "sum": 108897.0
       },
       {
         "stage": "Некорректные контакты для связи",
-        "deals": 14,
+        "deals": 15,
         "sum": 0.0
       },
       {
@@ -559,28 +559,23 @@
       },
       {
         "stage": "Очікуємо ОРИГІНАЛ",
-        "deals": 9,
-        "sum": 4380745.0
+        "deals": 10,
+        "sum": 4382557.0
+      },
+      {
+        "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
+        "deals": 10,
+        "sum": 0.0
       },
       {
         "stage": "НОВА угода (цільовий запит)",
         "deals": 8,
-        "sum": 15286645.2
-      },
-      {
-        "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
-        "deals": 8,
-        "sum": 0.0
+        "sum": 15286995.2
       },
       {
         "stage": "Виробництво  ЗАВЕРШЕНО",
         "deals": 5,
         "sum": 3035.03
-      },
-      {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-        "deals": 4,
-        "sum": 0.0
       },
       {
         "stage": "Друк АУТСОРС",
@@ -601,6 +596,11 @@
         "stage": "Угода УСПІШНА",
         "deals": 2,
         "sum": 1940.4
+      },
+      {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 1,
+        "sum": 0.0
       }
     ],
     "bySource": [
@@ -631,23 +631,23 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 755,
-        "expectedSum": 265545.27,
+        "deals": 759,
+        "expectedSum": 266707.27,
         "won": 22,
         "wonSum": 55992.0
       },
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 243,
-        "expectedSum": 11230.0,
+        "deals": 246,
+        "expectedSum": 14027.0,
         "won": 5,
         "wonSum": 9680.0
       },
       {
         "key": "WEBFORM",
         "name": "CRM-форма",
-        "deals": 34,
+        "deals": 36,
         "expectedSum": 4300.0,
         "won": 3,
         "wonSum": 4300.0
@@ -809,8 +809,8 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 1305,
-        "expectedSum": 22253031.89,
+        "deals": 1310,
+        "expectedSum": 22256990.89,
         "won": 40,
         "wonSum": 1517762.4
       },
@@ -873,7 +873,7 @@
       {
         "key": "google / performance_max",
         "name": "google / performance_max",
-        "deals": 26,
+        "deals": 27,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -897,7 +897,7 @@
       {
         "key": "www.google.com / (organic)",
         "name": "www.google.com / (organic)",
-        "deals": 13,
+        "deals": 15,
         "expectedSum": 2000.0,
         "won": 0,
         "wonSum": 0.0
@@ -921,7 +921,7 @@
       {
         "key": "google / search_3d_print_Kyiv",
         "name": "google / search_3d_print_Kyiv",
-        "deals": 8,
+        "deals": 9,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -4737,7 +4737,7 @@
         "uc": "",
         "s": "50",
         "n": 16,
-        "e": 0.0,
+        "e": 1797.0,
         "w": 0,
         "ws": 0.0
       },
@@ -5291,8 +5291,8 @@
         "us": "",
         "uc": "",
         "s": "50",
-        "n": 8,
-        "e": 0.0,
+        "n": 11,
+        "e": 1000.0,
         "w": 0,
         "ws": 0.0
       },
@@ -5301,8 +5301,8 @@
         "us": "",
         "uc": "",
         "s": "CALL",
-        "n": 4,
-        "e": 0.0,
+        "n": 6,
+        "e": 1812.0,
         "w": 0,
         "ws": 0.0
       },
@@ -5312,7 +5312,7 @@
         "uc": "",
         "s": "CALL",
         "n": 1,
-        "e": 650.0,
+        "e": 0.0,
         "w": 0,
         "ws": 0.0,
         "t": "r"
@@ -5372,6 +5372,26 @@
       {
         "d": "2026-10-29",
         "us": "google",
+        "uc": "performance_max",
+        "s": "WEBFORM",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-10-29",
+        "us": "google",
+        "uc": "search_3d_print_Kyiv",
+        "s": "WEBFORM",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-10-29",
+        "us": "google",
         "uc": "search_3d_print_Main",
         "s": "CALL",
         "n": 2,
@@ -5394,7 +5414,7 @@
         "us": "www.google.com",
         "uc": "(organic)",
         "s": "CALL",
-        "n": 1,
+        "n": 3,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -5406,7 +5426,7 @@
       "minRevenue12m": 1000000.0
     },
     "retention": {
-      "clientsInCohort": 1400,
+      "clientsInCohort": 1409,
       "returningClients": 114,
       "repeatBuyers": 40,
       "noClientLinked": 10,
@@ -5414,10 +5434,10 @@
         "deals": 192,
         "won": 25,
         "wonSum": 3246950.4,
-        "winRate": 15.4
+        "winRate": 15.3
       },
       "new": {
-        "deals": 1337,
+        "deals": 1346,
         "won": 29,
         "wonSum": 62612.0,
         "winRate": 2.4
@@ -5449,7 +5469,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 982,
+        "total": 983,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -5460,25 +5480,25 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 982,
-            "lostHere": 911
+            "reached": 983,
+            "lostHere": 917
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 4,
+            "count": 1,
             "sum": 0.0,
-            "reached": 71,
+            "reached": 66,
             "lostHere": 0
           },
           {
             "id": "41",
             "name": "НЕ завершили первинний контакт",
             "sem": "P",
-            "count": 57,
+            "count": 55,
             "sum": 0.0,
-            "reached": 67,
+            "reached": 65,
             "lostHere": 5
           },
           {
@@ -5500,14 +5520,14 @@
             "id": "16",
             "name": "ДУБЛЬ",
             "sem": "F",
-            "count": 68,
+            "count": 69,
             "sum": 0.0
           },
           {
             "id": "APOLOGY",
             "name": "Не берет / не отвечает (более 3 попыток)",
             "sem": "F",
-            "count": 242,
+            "count": 245,
             "sum": 0.0
           },
           {
@@ -5521,14 +5541,14 @@
             "id": "50",
             "name": "ОШИБСЯ (запрос не по теме)",
             "sem": "F",
-            "count": 139,
+            "count": 140,
             "sum": 0.0
           },
           {
             "id": "UC_IQCW19",
             "name": "Некорректные контакты для связи",
             "sem": "F",
-            "count": 14,
+            "count": 15,
             "sum": 0.0
           },
           {
@@ -5543,7 +5563,7 @@
       {
         "id": 24,
         "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-        "total": 550,
+        "total": 558,
         "method": "history",
         "v": 2,
         "wonDirect": 47,
@@ -5553,17 +5573,17 @@
             "name": "НОВА угода (цільовий запит)",
             "sem": "P",
             "count": 8,
-            "sum": 15286645.2,
-            "reached": 550,
-            "lostHere": 395
+            "sum": 15286995.2,
+            "reached": 558,
+            "lostHere": 398
           },
           {
             "id": "C24:PREPAYMENT_INVOIC",
             "name": "ОЧІКУЄМО матеріали (фото / модель / ...)",
             "sem": "P",
-            "count": 8,
+            "count": 10,
             "sum": 0.0,
-            "reached": 147,
+            "reached": 152,
             "lostHere": 0
           },
           {
@@ -5572,7 +5592,7 @@
             "sem": "P",
             "count": 10,
             "sum": 1000.0,
-            "reached": 139,
+            "reached": 142,
             "lostHere": 3
           },
           {
@@ -5581,16 +5601,16 @@
             "sem": "P",
             "count": 24,
             "sum": 0.0,
-            "reached": 126,
+            "reached": 129,
             "lostHere": 0
           },
           {
             "id": "C24:UC_HKB5Y6",
             "name": "Потрібно більше часу для прийняття рішення",
             "sem": "P",
-            "count": 19,
-            "sum": 107100.0,
-            "reached": 102,
+            "count": 21,
+            "sum": 108897.0,
+            "reached": 105,
             "lostHere": 0
           },
           {
@@ -5599,7 +5619,7 @@
             "sem": "P",
             "count": 11,
             "sum": 1116899.26,
-            "reached": 83,
+            "reached": 84,
             "lostHere": 0
           },
           {
@@ -5608,7 +5628,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 72,
+            "reached": 73,
             "lostHere": 0
           },
           {
@@ -5617,16 +5637,16 @@
             "sem": "P",
             "count": 3,
             "sum": 102072.0,
-            "reached": 72,
+            "reached": 73,
             "lostHere": 0
           },
           {
             "id": "C24:2",
             "name": "Очікуємо ОРИГІНАЛ",
             "sem": "P",
-            "count": 9,
-            "sum": 4380745.0,
-            "reached": 69,
+            "count": 10,
+            "sum": 4382557.0,
+            "reached": 70,
             "lostHere": 0
           },
           {
@@ -5789,7 +5809,7 @@
             "id": "C24:APOLOGY",
             "name": "НЕ актуально",
             "sem": "F",
-            "count": 53,
+            "count": 55,
             "sum": 1045.0
           },
           {
@@ -5817,7 +5837,7 @@
             "id": "C24:14",
             "name": "НЕ устраивают сроки",
             "sem": "F",
-            "count": 22,
+            "count": 23,
             "sum": 0.0
           },
           {
@@ -6214,7 +6234,7 @@
   "byUtm": [
     {
       "utm": "google",
-      "reviewed": 222,
+      "reviewed": 226,
       "won": 40,
       "revenue": 3744785.4
     },
@@ -6238,7 +6258,7 @@
     },
     {
       "utm": "(direct)",
-      "reviewed": 2,
+      "reviewed": 3,
       "won": 0,
       "revenue": 0.0
     },
@@ -7269,7 +7289,7 @@
     },
     {
       "reason": "НЕ актуально",
-      "count": 68
+      "count": 70
     },
     {
       "reason": "НЕ отвечает (более 3-х попыток)",
@@ -7281,7 +7301,7 @@
     },
     {
       "reason": "НЕ устраивают сроки",
-      "count": 23
+      "count": 24
     },
     {
       "reason": "ДУБЛЬ",
@@ -7308,7 +7328,7 @@
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 252
+      "count": 255
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -7316,11 +7336,11 @@
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 139
+      "count": 140
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 69
+      "count": 70
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
@@ -7328,7 +7348,7 @@
     },
     {
       "reason": "Некорректные контакты для связи",
-      "count": 14
+      "count": 15
     }
   ],
   "lossReasonsTotal": [
@@ -7338,7 +7358,7 @@
     },
     {
       "reason": "Не берет / не отвечает (более 3 попыток)",
-      "count": 252
+      "count": 255
     },
     {
       "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -7346,7 +7366,7 @@
     },
     {
       "reason": "ОШИБСЯ (запрос не по теме)",
-      "count": 139
+      "count": 140
     },
     {
       "reason": "ДОРОГО",
@@ -7358,11 +7378,11 @@
     },
     {
       "reason": "ДУБЛЬ",
-      "count": 73
+      "count": 74
     },
     {
       "reason": "НЕ актуально",
-      "count": 68
+      "count": 70
     },
     {
       "reason": "ТЕСТОВЫЙ звонок",
@@ -7378,11 +7398,11 @@
     },
     {
       "reason": "НЕ устраивают сроки",
-      "count": 23
+      "count": 24
     },
     {
       "reason": "Некорректные контакты для связи",
-      "count": 14
+      "count": 15
     },
     {
       "reason": "НЕ устроило качество",
@@ -7412,7 +7432,7 @@
         },
         {
           "reason": "НЕ актуально",
-          "count": 68
+          "count": 70
         },
         {
           "reason": "НЕ отвечает (более 3-х попыток)",
@@ -7424,7 +7444,7 @@
         },
         {
           "reason": "НЕ устраивают сроки",
-          "count": 23
+          "count": 24
         },
         {
           "reason": "ДУБЛЬ",
@@ -7443,8 +7463,8 @@
           "count": 1
         }
       ],
-      "totalLost": 439,
-      "totalReviewed": 611
+      "totalLost": 442,
+      "totalReviewed": 615
     },
     "18": {
       "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -7470,7 +7490,7 @@
         },
         {
           "reason": "Не берет / не отвечает (более 3 попыток)",
-          "count": 252
+          "count": 255
         },
         {
           "reason": "Уже НЕ актуально (не озвучил запрос)",
@@ -7478,11 +7498,11 @@
         },
         {
           "reason": "ОШИБСЯ (запрос не по теме)",
-          "count": 139
+          "count": 140
         },
         {
           "reason": "ДУБЛЬ",
-          "count": 69
+          "count": 70
         },
         {
           "reason": "ТЕСТОВЫЙ звонок",
@@ -7490,37 +7510,37 @@
         },
         {
           "reason": "Некорректные контакты для связи",
-          "count": 14
+          "count": 15
         }
       ],
-      "totalLost": 930,
-      "totalReviewed": 937
+      "totalLost": 936,
+      "totalReviewed": 943
     }
   },
   "totalReviewed": {
-    "wholesale": 611,
+    "wholesale": 615,
     "retail": 2,
-    "screening": 937,
-    "all": 1550
+    "screening": 943,
+    "all": 1560
   },
   "pipeline": {
-    "asOf": "2026-10-29T10:41:05Z",
+    "asOf": "2026-10-29T11:42:51Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
-        "deals": 157,
-        "sum": 147059983.48,
+        "deals": 163,
+        "sum": 147067092.48,
         "stale": 27,
         "staleSum": 78408608.01,
         "stages": [
           {
             "stage": "НОВА угода (цільовий запит)",
             "deals": 16,
-            "sum": 62895658.17
+            "sum": 62896008.17
           },
           {
             "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
-            "deals": 9,
+            "deals": 11,
             "sum": 0.0
           },
           {
@@ -7535,8 +7555,8 @@
           },
           {
             "stage": "Потрібно більше часу для прийняття рішення",
-            "deals": 43,
-            "sum": 107102.01
+            "deals": 45,
+            "sum": 108899.01
           },
           {
             "stage": "Згода підтверджена",
@@ -7550,8 +7570,8 @@
           },
           {
             "stage": "Очікуємо ОРИГІНАЛ",
-            "deals": 9,
-            "sum": 4380745.0
+            "deals": 10,
+            "sum": 4382557.0
           },
           {
             "stage": "3D Модель готова",
@@ -7565,8 +7585,8 @@
           },
           {
             "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
-            "deals": 2,
-            "sum": 2000.0
+            "deals": 3,
+            "sum": 5150.0
           }
         ]
       },
