@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-01T11:58:13Z",
+  "fetched_at": "2026-11-01T15:40:31Z",
   "month": "2026-11",
   "bySource": [
     {
@@ -37,10 +37,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 15,
-      "clean": 15,
-      "qualified": 15,
-      "activeOrWon": 15,
+      "all": 19,
+      "clean": 19,
+      "qualified": 19,
+      "activeOrWon": 19,
       "won": 0,
       "wonSum": 0,
       "expectedSumActiveWon": 0.0
@@ -48,7 +48,12 @@
     "byStage": [
       {
         "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 15,
+        "deals": 16,
+        "sum": 0.0
+      },
+      {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 3,
         "sum": 0.0
       }
     ],
@@ -56,7 +61,7 @@
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 8,
+        "deals": 9,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -64,6 +69,14 @@
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
+        "deals": 3,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "CALL",
+        "name": "Звонок",
         "deals": 3,
         "expectedSum": 0.0,
         "won": 0,
@@ -86,16 +99,16 @@
         "wonSum": 0.0
       },
       {
-        "key": "CALL",
-        "name": "Звонок",
+        "key": "UC_LJ05D6",
+        "name": "Электронная почта sales@easy3dprint.com.ua",
         "deals": 1,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
       },
       {
-        "key": "UC_LJ05D6",
-        "name": "Электронная почта sales@easy3dprint.com.ua",
+        "key": "UC_C5YUHA",
+        "name": "Электронная почта ukr3dprint@gmail.com",
         "deals": 1,
         "expectedSum": 0.0,
         "won": 0,
@@ -106,7 +119,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 13,
+        "deals": 15,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -114,6 +127,14 @@
       {
         "key": "google / search_3d_print_Main",
         "name": "google / search_3d_print_Main",
+        "deals": 2,
+        "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "www.google.com / (organic)",
+        "name": "www.google.com / (organic)",
         "deals": 2,
         "expectedSum": 0.0,
         "won": 0,
@@ -146,7 +167,17 @@
         "us": "",
         "uc": "",
         "s": "50",
-        "n": 8,
+        "n": 9,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-11-01",
+        "us": "",
+        "uc": "",
+        "s": "UC_C5YUHA",
+        "n": 1,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -190,6 +221,16 @@
         "e": 0.0,
         "w": 0,
         "ws": 0.0
+      },
+      {
+        "d": "2026-11-01",
+        "us": "www.google.com",
+        "uc": "(organic)",
+        "s": "CALL",
+        "n": 2,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
       }
     ],
     "campaignDailyV": 2,
@@ -198,18 +239,18 @@
       "minRevenue12m": 1000000.0
     },
     "retention": {
-      "clientsInCohort": 15,
-      "returningClients": 2,
+      "clientsInCohort": 19,
+      "returningClients": 3,
       "repeatBuyers": 0,
       "noClientLinked": 0,
       "returning": {
-        "deals": 2,
+        "deals": 3,
         "won": 0,
         "wonSum": 0,
         "winRate": null
       },
       "new": {
-        "deals": 13,
+        "deals": 16,
         "won": 0,
         "wonSum": 0,
         "winRate": null
@@ -241,7 +282,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 15,
+        "total": 19,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -250,18 +291,18 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 15,
+            "count": 16,
             "sum": 0.0,
-            "reached": 15,
+            "reached": 19,
             "lostHere": 0
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 0,
+            "count": 3,
             "sum": 0.0,
-            "reached": 0,
+            "reached": 3,
             "lostHere": 0
           },
           {
@@ -1278,7 +1319,7 @@
     "all": 2
   },
   "pipeline": {
-    "asOf": "2026-11-01T11:58:19Z",
+    "asOf": "2026-11-01T15:40:37Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
