@@ -119646,13 +119646,29 @@
       }
     },
     {
-      "fetched_at": "2026-11-01T20:02:30Z",
+      "fetched_at": "2026-11-02T00:07:12Z",
       "month": "2026-11",
       "bySource": [
         {
           "source": "50",
           "name": "Задать вопрос онлайн",
-          "reviewed": 1,
+          "reviewed": 4,
+          "won": 0,
+          "lost": 0,
+          "junk": 0,
+          "wonWholesale": 0,
+          "wonRetail": 0,
+          "revenue": 0.0,
+          "revenueWholesale": 0.0,
+          "revenueRetail": 0.0,
+          "winRate": null,
+          "junkShare": 0.0,
+          "avgCheck": null
+        },
+        {
+          "source": "CALL",
+          "name": "Звонок",
+          "reviewed": 3,
           "won": 0,
           "lost": 0,
           "junk": 0,
@@ -119684,10 +119700,10 @@
       ],
       "cohort": {
         "funnel": {
-          "all": 24,
-          "clean": 24,
-          "qualified": 24,
-          "activeOrWon": 24,
+          "all": 27,
+          "clean": 27,
+          "qualified": 27,
+          "activeOrWon": 27,
           "won": 0,
           "wonSum": 0,
           "expectedSumActiveWon": 0.0
@@ -119695,7 +119711,7 @@
         "byStage": [
           {
             "stage": "НОВИЙ лід ( не оброблений )",
-            "deals": 21,
+            "deals": 24,
             "sum": 0.0
           },
           {
@@ -119708,7 +119724,7 @@
           {
             "key": "50",
             "name": "Задать вопрос онлайн",
-            "deals": 12,
+            "deals": 13,
             "expectedSum": 0.0,
             "won": 0,
             "wonSum": 0.0
@@ -119730,6 +119746,14 @@
             "wonSum": 0.0
           },
           {
+            "key": "UC_LJ05D6",
+            "name": "Электронная почта sales@easy3dprint.com.ua",
+            "deals": 3,
+            "expectedSum": 0.0,
+            "won": 0,
+            "wonSum": 0.0
+          },
+          {
             "key": "UC_V2N0RN",
             "name": "Электронная почта shop@easy3dprint.com.ua",
             "deals": 1,
@@ -119740,14 +119764,6 @@
           {
             "key": "43",
             "name": "Instagram реклама ОПТ ФДМ",
-            "deals": 1,
-            "expectedSum": 0.0,
-            "won": 0,
-            "wonSum": 0.0
-          },
-          {
-            "key": "UC_LJ05D6",
-            "name": "Электронная почта sales@easy3dprint.com.ua",
             "deals": 1,
             "expectedSum": 0.0,
             "won": 0,
@@ -119774,7 +119790,7 @@
           {
             "key": "— / —",
             "name": "— / —",
-            "deals": 18,
+            "deals": 21,
             "expectedSum": 0.0,
             "won": 0,
             "wonSum": 0.0
@@ -119858,7 +119874,7 @@
             "us": "",
             "uc": "",
             "s": "UC_LJ05D6",
-            "n": 1,
+            "n": 2,
             "e": 0.0,
             "w": 0,
             "ws": 0.0
@@ -119922,6 +119938,26 @@
             "e": 0.0,
             "w": 0,
             "ws": 0.0
+          },
+          {
+            "d": "2026-11-02",
+            "us": "",
+            "uc": "",
+            "s": "50",
+            "n": 1,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
+          },
+          {
+            "d": "2026-11-02",
+            "us": "",
+            "uc": "",
+            "s": "UC_LJ05D6",
+            "n": 1,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
           }
         ],
         "campaignDailyV": 2,
@@ -119930,18 +119966,18 @@
           "minRevenue12m": 1000000.0
         },
         "retention": {
-          "clientsInCohort": 24,
-          "returningClients": 3,
+          "clientsInCohort": 27,
+          "returningClients": 4,
           "repeatBuyers": 0,
           "noClientLinked": 0,
           "returning": {
-            "deals": 3,
+            "deals": 4,
             "won": 0,
             "wonSum": 0,
             "winRate": null
           },
           "new": {
-            "deals": 21,
+            "deals": 23,
             "won": 0,
             "wonSum": 0,
             "winRate": null
@@ -119973,7 +120009,7 @@
           {
             "id": 0,
             "title": "ЛИДЫ (первинний скринінг)",
-            "total": 24,
+            "total": 27,
             "method": "history",
             "v": 2,
             "wonDirect": 0,
@@ -119982,9 +120018,9 @@
                 "id": "NEW",
                 "name": "НОВИЙ лід ( не оброблений )",
                 "sem": "P",
-                "count": 21,
+                "count": 24,
                 "sum": 0.0,
-                "reached": 24,
+                "reached": 27,
                 "lostHere": 0
               },
               {
@@ -120737,7 +120773,7 @@
       },
       "byUtm": [],
       "from": "2026-11-01",
-      "to": "2026-11-01",
+      "to": "2026-11-02",
       "complete": false,
       "wholesale": {
         "deals": 0,
@@ -120974,7 +121010,7 @@
           "group": "wholesale",
           "reasons": [],
           "totalLost": 0,
-          "totalReviewed": 0
+          "totalReviewed": 3
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -121000,16 +121036,16 @@
             }
           ],
           "totalLost": 1,
-          "totalReviewed": 2
+          "totalReviewed": 5
         }
       },
       "totalReviewed": {
-        "wholesale": 0,
+        "wholesale": 3,
         "retail": 0,
-        "screening": 2,
-        "all": 2
+        "screening": 5,
+        "all": 8
       }
     }
   ],
-  "updated_at": "2026-11-01T20:02:36Z"
+  "updated_at": "2026-11-02T00:07:18Z"
 }
