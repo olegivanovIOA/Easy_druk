@@ -4811,50 +4811,52 @@
       "from": "2026-11-01",
       "to": "2026-11-01",
       "complete": false,
-      "defectCostTotalUAH": 0,
+      "defectCostTotalUAH": 367.52,
       "totals": {
-        "batches": 29,
-        "lots": 21
+        "batches": 74,
+        "lots": 41
       },
       "company": {
-        "materialKg": 0,
-        "materialDefectKg": 0,
-        "materialByType": {},
-        "batches": 29,
-        "lots": 21,
-        "acceptedQty": 0,
-        "defectQty": 0,
-        "defectPercent": null,
-        "defectWeightPercent": null,
-        "totalPrintTimeMinutes": 517090.8,
-        "materialCostUAH": null,
-        "materialCostCoveragePercent": null
+        "materialKg": 96.25,
+        "materialDefectKg": 1.11,
+        "materialByType": {
+          "PETG": 96.25
+        },
+        "batches": 74,
+        "lots": 41,
+        "acceptedQty": 3046,
+        "defectQty": 22,
+        "defectPercent": 0.72,
+        "defectWeightPercent": 0.72,
+        "totalPrintTimeMinutes": 1388187.8,
+        "materialCostUAH": 31394.16,
+        "materialCostCoveragePercent": 100.0
       },
       "byPrinterModel": [
         {
           "printerModel": "P2S",
-          "batches": 7,
-          "acceptedQty": 0,
+          "batches": 20,
+          "acceptedQty": 1370,
           "defectQty": 0,
-          "defectPercent": null
+          "defectPercent": 0.0
         },
         {
           "printerModel": "P1S",
-          "batches": 18,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null
-        },
-        {
-          "printerModel": "A2L",
-          "batches": 2,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null
+          "batches": 44,
+          "acceptedQty": 948,
+          "defectQty": 22,
+          "defectPercent": 2.32
         },
         {
           "printerModel": "A1 mini",
-          "batches": 2,
+          "batches": 7,
+          "acceptedQty": 728,
+          "defectQty": 0,
+          "defectPercent": 0.0
+        },
+        {
+          "printerModel": "A2L",
+          "batches": 3,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null
@@ -4862,19 +4864,51 @@
       ],
       "byProduct": [
         {
-          "baseProductCode": "000755",
-          "batches": 3,
-          "acceptedQty": 0,
+          "baseProductCode": "112167",
+          "batches": 9,
+          "acceptedQty": 1113,
           "defectQty": 0,
-          "defectPercent": null,
+          "defectPercent": 0.0,
+          "defectCostUAH": 0.0
+        },
+        {
+          "baseProductCode": "000758",
+          "batches": 3,
+          "acceptedQty": 817,
+          "defectQty": 16,
+          "defectPercent": 1.96,
+          "defectCostUAH": 185.36
+        },
+        {
+          "baseProductCode": "000760",
+          "batches": 7,
+          "acceptedQty": 728,
+          "defectQty": 0,
+          "defectPercent": 0.0,
           "defectCostUAH": 0.0
         },
         {
           "baseProductCode": "000756",
-          "batches": 2,
-          "acceptedQty": 0,
+          "batches": 4,
+          "acceptedQty": 158,
           "defectQty": 0,
-          "defectPercent": null,
+          "defectPercent": 0.0,
+          "defectCostUAH": 0.0
+        },
+        {
+          "baseProductCode": "000731",
+          "batches": 1,
+          "acceptedQty": 131,
+          "defectQty": 6,
+          "defectPercent": 4.58,
+          "defectCostUAH": 182.16
+        },
+        {
+          "baseProductCode": "000755",
+          "batches": 5,
+          "acceptedQty": 99,
+          "defectQty": 0,
+          "defectPercent": 0.0,
           "defectCostUAH": 0.0
         },
         {
@@ -4887,7 +4921,7 @@
         },
         {
           "baseProductCode": "000719",
-          "batches": 3,
+          "batches": 5,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
@@ -4903,46 +4937,31 @@
         },
         {
           "baseProductCode": "000724",
-          "batches": 1,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
-        },
-        {
-          "baseProductCode": "000730",
-          "batches": 1,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
-        },
-        {
-          "baseProductCode": "000734",
-          "batches": 2,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
-        },
-        {
-          "baseProductCode": "000736",
-          "batches": 2,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectCostUAH": 0.0
-        },
-        {
-          "baseProductCode": "000737",
-          "batches": 1,
+          "batches": 4,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
           "defectCostUAH": 0.0
         }
       ],
-      "defectCostRanking": [],
+      "defectCostRanking": [
+        {
+          "baseProductCode": "000758",
+          "batches": 3,
+          "acceptedQty": 817,
+          "defectQty": 16,
+          "defectPercent": 1.96,
+          "defectCostUAH": 185.36
+        },
+        {
+          "baseProductCode": "000731",
+          "batches": 1,
+          "acceptedQty": 131,
+          "defectQty": 6,
+          "defectPercent": 4.58,
+          "defectCostUAH": 182.16
+        }
+      ],
       "byShift": [
         {
           "shift": "FIRST",
@@ -4953,36 +4972,102 @@
         },
         {
           "shift": "SECOND",
-          "lots": 8,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null
+          "lots": 28,
+          "acceptedQty": 3046,
+          "defectQty": 22,
+          "defectPercent": 0.72
         }
       ],
       "materials": {
-        "kg": 0,
-        "defectKg": 0,
-        "batchesWithWeight": 0,
-        "coveragePercent": null,
-        "byType": [],
-        "byColor": []
+        "kg": 96.25,
+        "defectKg": 1.11,
+        "batchesWithWeight": 9,
+        "coveragePercent": 100.0,
+        "byType": [
+          {
+            "type": "PETG",
+            "kg": 96.25,
+            "defectKg": 1.11,
+            "batches": 9
+          }
+        ],
+        "byColor": [
+          {
+            "type": "PETG",
+            "color": "#80FF80",
+            "kg": 71.3,
+            "defectKg": 0.56
+          },
+          {
+            "type": "PETG",
+            "color": "#808004",
+            "kg": 12.6,
+            "defectKg": 0.55
+          },
+          {
+            "type": "PETG",
+            "color": "#00FF00",
+            "kg": 8.59,
+            "defectKg": 0.0
+          },
+          {
+            "type": "PETG",
+            "color": "#FCE300",
+            "kg": 3.75,
+            "defectKg": 0.0
+          }
+        ]
       },
       "materialsByLocation": {
         "4": {
-          "kg": 0,
-          "defectKg": 0,
-          "batchesWithWeight": 0,
-          "coveragePercent": null,
-          "byType": [],
-          "byColor": []
+          "kg": 12.34,
+          "defectKg": 0.0,
+          "batchesWithWeight": 3,
+          "coveragePercent": 100.0,
+          "byType": [
+            {
+              "type": "PETG",
+              "kg": 12.34,
+              "defectKg": 0.0,
+              "batches": 3
+            }
+          ],
+          "byColor": [
+            {
+              "type": "PETG",
+              "color": "#00FF00",
+              "kg": 8.59,
+              "defectKg": 0.0
+            },
+            {
+              "type": "PETG",
+              "color": "#FCE300",
+              "kg": 3.75,
+              "defectKg": 0.0
+            }
+          ]
         },
         "5": {
-          "kg": 0,
-          "defectKg": 0,
-          "batchesWithWeight": 0,
-          "coveragePercent": null,
-          "byType": [],
-          "byColor": []
+          "kg": 12.6,
+          "defectKg": 0.55,
+          "batchesWithWeight": 1,
+          "coveragePercent": 100.0,
+          "byType": [
+            {
+              "type": "PETG",
+              "kg": 12.6,
+              "defectKg": 0.55,
+              "batches": 1
+            }
+          ],
+          "byColor": [
+            {
+              "type": "PETG",
+              "color": "#808004",
+              "kg": 12.6,
+              "defectKg": 0.55
+            }
+          ]
         },
         "6": {
           "kg": 0,
@@ -4993,15 +5078,29 @@
           "byColor": []
         },
         "101": {
-          "kg": 0,
-          "defectKg": 0,
-          "batchesWithWeight": 0,
-          "coveragePercent": null,
-          "byType": [],
-          "byColor": []
+          "kg": 71.3,
+          "defectKg": 0.56,
+          "batchesWithWeight": 5,
+          "coveragePercent": 100.0,
+          "byType": [
+            {
+              "type": "PETG",
+              "kg": 71.3,
+              "defectKg": 0.56,
+              "batches": 5
+            }
+          ],
+          "byColor": [
+            {
+              "type": "PETG",
+              "color": "#80FF80",
+              "kg": 71.3,
+              "defectKg": 0.56
+            }
+          ]
         }
       }
     }
   ],
-  "updated_at": "2026-11-02T00:06:34Z"
+  "updated_at": "2026-11-02T07:02:18Z"
 }
