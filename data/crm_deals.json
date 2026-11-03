@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-03T15:42:19Z",
+  "fetched_at": "2026-11-03T21:25:28Z",
   "month": "2026-11",
   "bySource": [
     {
@@ -261,10 +261,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 142,
-      "clean": 126,
-      "qualified": 81,
-      "activeOrWon": 40,
+      "all": 147,
+      "clean": 131,
+      "qualified": 86,
+      "activeOrWon": 45,
       "won": 0,
       "wonSum": 0,
       "expectedSumActiveWon": 631477.0
@@ -306,18 +306,28 @@
         "sum": 0.0
       },
       {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 6,
+        "sum": 0.0
+      },
+      {
         "stage": "ДОРОГО",
         "deals": 6,
         "sum": 0.0
       },
       {
-        "stage": "НОВИЙ лід ( не оброблений )",
+        "stage": "УМОВИ озвучені",
         "deals": 5,
         "sum": 0.0
       },
       {
-        "stage": "УМОВИ озвучені",
-        "deals": 5,
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 4,
+        "sum": 0.0
+      },
+      {
+        "stage": "Іде РОЗРАХУНОК",
+        "deals": 3,
         "sum": 0.0
       },
       {
@@ -341,11 +351,6 @@
         "sum": 0.0
       },
       {
-        "stage": "Іде РОЗРАХУНОК",
-        "deals": 2,
-        "sum": 0.0
-      },
-      {
         "stage": "Потрібно більше часу для прийняття рішення",
         "deals": 2,
         "sum": 1.0
@@ -357,11 +362,6 @@
       },
       {
         "stage": "Некорректные контакты для связи",
-        "deals": 1,
-        "sum": 0.0
-      },
-      {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
         "deals": 1,
         "sum": 0.0
       },
@@ -383,8 +383,16 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 46,
+        "deals": 48,
         "expectedSum": 7786.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "UC_LJ05D6",
+        "name": "Электронная почта sales@easy3dprint.com.ua",
+        "deals": 12,
+        "expectedSum": 14360.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -393,14 +401,6 @@
         "name": "Сайт easy3dprint.com.ua",
         "deals": 10,
         "expectedSum": 0.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
-        "key": "UC_LJ05D6",
-        "name": "Электронная почта sales@easy3dprint.com.ua",
-        "deals": 10,
-        "expectedSum": 14360.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -433,6 +433,14 @@
         "name": "Электронная почта shop@easy3dprint.com.ua",
         "deals": 2,
         "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "—",
+        "name": "Не вказано",
+        "deals": 2,
+        "expectedSum": 1330.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -499,21 +507,13 @@
         "expectedSum": 1.0,
         "won": 0,
         "wonSum": 0.0
-      },
-      {
-        "key": "—",
-        "name": "Не вказано",
-        "deals": 1,
-        "expectedSum": 1330.0,
-        "won": 0,
-        "wonSum": 0.0
       }
     ],
     "byCampaign": [
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 96,
+        "deals": 99,
         "expectedSum": 17427.0,
         "won": 0,
         "wonSum": 0.0
@@ -553,7 +553,7 @@
       {
         "key": "google / search_dynamic_Main",
         "name": "google / search_dynamic_Main",
-        "deals": 4,
+        "deals": 5,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -563,6 +563,14 @@
         "name": "google / search_3d_print_Kyiv",
         "deals": 2,
         "expectedSum": 0.0,
+        "won": 0,
+        "wonSum": 0.0
+      },
+      {
+        "key": "google / (not set)",
+        "name": "google / (not set)",
+        "deals": 2,
+        "expectedSum": 1550.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -603,14 +611,6 @@
         "name": "(direct) / (direct)",
         "deals": 1,
         "expectedSum": 0.0,
-        "won": 0,
-        "wonSum": 0.0
-      },
-      {
-        "key": "google / (not set)",
-        "name": "google / (not set)",
-        "deals": 1,
-        "expectedSum": 1550.0,
         "won": 0,
         "wonSum": 0.0
       },
@@ -1010,7 +1010,7 @@
         "us": "",
         "uc": "",
         "s": "CALL",
-        "n": 7,
+        "n": 8,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -1041,7 +1041,7 @@
         "us": "",
         "uc": "",
         "s": "UC_LJ05D6",
-        "n": 4,
+        "n": 6,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -1065,6 +1065,17 @@
         "e": 0.0,
         "w": 0,
         "ws": 0.0
+      },
+      {
+        "d": "2026-11-03",
+        "us": "google",
+        "uc": "(not set)",
+        "s": "",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0,
+        "t": "r"
       },
       {
         "d": "2026-11-03",
@@ -1152,7 +1163,7 @@
         "us": "google",
         "uc": "search_dynamic_Main",
         "s": "CALL",
-        "n": 1,
+        "n": 2,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -1184,24 +1195,24 @@
       "minRevenue12m": 1000000.0
     },
     "retention": {
-      "clientsInCohort": 136,
-      "returningClients": 16,
-      "repeatBuyers": 5,
+      "clientsInCohort": 141,
+      "returningClients": 18,
+      "repeatBuyers": 6,
       "noClientLinked": 1,
       "returning": {
-        "deals": 19,
+        "deals": 21,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
       },
       "new": {
-        "deals": 123,
+        "deals": 126,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
       },
       "repeatPurchase": {
-        "deals": 5,
+        "deals": 6,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
@@ -1227,7 +1238,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 103,
+        "total": 107,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -1236,18 +1247,18 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 5,
+            "count": 6,
             "sum": 0.0,
-            "reached": 103,
+            "reached": 107,
             "lostHere": 68
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 1,
+            "count": 4,
             "sum": 0.0,
-            "reached": 30,
+            "reached": 33,
             "lostHere": 5
           },
           {
@@ -1321,7 +1332,7 @@
       {
         "id": 24,
         "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-        "total": 46,
+        "total": 47,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -1332,7 +1343,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 46,
+            "reached": 47,
             "lostHere": 28
           },
           {
@@ -1341,16 +1352,16 @@
             "sem": "P",
             "count": 3,
             "sum": 0.0,
-            "reached": 18,
+            "reached": 19,
             "lostHere": 0
           },
           {
             "id": "C24:EXECUTING",
             "name": "Іде РОЗРАХУНОК",
             "sem": "P",
-            "count": 2,
+            "count": 3,
             "sum": 0.0,
-            "reached": 15,
+            "reached": 16,
             "lostHere": 0
           },
           {
@@ -2469,11 +2480,11 @@
     "all": 168
   },
   "pipeline": {
-    "asOf": "2026-11-03T15:42:24Z",
+    "asOf": "2026-11-03T21:25:33Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
-        "deals": 142,
+        "deals": 143,
         "sum": 148531507.72,
         "stale": 27,
         "staleSum": 78411858.01,
@@ -2490,7 +2501,7 @@
           },
           {
             "stage": "Іде РОЗРАХУНОК",
-            "deals": 20,
+            "deals": 21,
             "sum": 0.0
           },
           {
