@@ -14488,20 +14488,20 @@
       "locations": {
         "4": {
           "name": "Локація 4",
-          "materialKg": 9.37,
-          "materialDefectKg": 0.46,
+          "materialKg": 17.12,
+          "materialDefectKg": 0.62,
           "materialByType": {
-            "PLA": 7.45,
-            "PETG": 1.92
+            "PLA": 10.39,
+            "PETG": 6.72
           },
           "batches": 9,
           "lots": 3,
-          "acceptedQty": 231,
-          "defectQty": 13,
-          "defectPercent": 5.63,
-          "defectWeightPercent": 5.63,
+          "acceptedQty": 393,
+          "defectQty": 16,
+          "defectPercent": 4.07,
+          "defectWeightPercent": 4.07,
           "totalPrintTimeMinutes": 38240,
-          "materialCostUAH": 3092.98,
+          "materialCostUAH": 5661.44,
           "materialCostCoveragePercent": 100.0
         },
         "5": {
@@ -14512,13 +14512,13 @@
             "PETG": 23.85,
             "TPU": 13.9
           },
-          "batches": 7,
-          "lots": 5,
+          "batches": 10,
+          "lots": 7,
           "acceptedQty": 598,
           "defectQty": 29,
           "defectPercent": 4.85,
           "defectWeightPercent": 4.52,
-          "totalPrintTimeMinutes": 108686,
+          "totalPrintTimeMinutes": 174998,
           "materialCostUAH": 21141.84,
           "materialCostCoveragePercent": 100.0
         },
@@ -14541,53 +14541,64 @@
         },
         "101": {
           "name": "Локація 101",
-          "materialKg": 0,
-          "materialDefectKg": 0,
-          "materialByType": {},
+          "materialKg": 3.89,
+          "materialDefectKg": 0.29,
+          "materialByType": {
+            "PETG": 3.89
+          },
           "batches": 1,
           "lots": 1,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectWeightPercent": null,
+          "acceptedQty": 340,
+          "defectQty": 27,
+          "defectPercent": 7.94,
+          "defectWeightPercent": 7.94,
           "totalPrintTimeMinutes": 12543,
-          "materialCostUAH": null,
-          "materialCostCoveragePercent": null
+          "materialCostUAH": 1188.2,
+          "materialCostCoveragePercent": 100.0
         }
       },
       "company": {
-        "materialKg": 67.94,
-        "materialDefectKg": 2.74,
+        "materialKg": 79.58,
+        "materialDefectKg": 3.19,
         "materialByType": {
-          "PETG": 46.6,
+          "PETG": 55.29,
           "TPU": 13.9,
-          "PLA": 7.45
+          "PLA": 10.39
         },
-        "batches": 25,
-        "lots": 17,
-        "acceptedQty": 1481,
-        "defectQty": 57,
-        "defectPercent": 3.85,
-        "defectWeightPercent": 3.71,
-        "totalPrintTimeMinutes": 215695.0,
-        "materialCostUAH": 30961.51,
+        "batches": 28,
+        "lots": 19,
+        "acceptedQty": 1983,
+        "defectQty": 87,
+        "defectPercent": 4.39,
+        "defectWeightPercent": 4.29,
+        "totalPrintTimeMinutes": 282007.0,
+        "materialCostUAH": 34718.16,
         "materialCostCoveragePercent": 100.0
       },
       "lots": [
         {
           "location": "4",
-          "acceptedQty": 31,
+          "acceptedQty": 101,
           "batchCount": 4,
-          "defectPercent": 0,
+          "defectPercent": 1.98,
           "printerModels": [
             "P2S"
           ]
         },
         {
           "location": "4",
-          "acceptedQty": 200,
+          "acceptedQty": 284,
           "batchCount": 4,
-          "defectPercent": 6.5,
+          "defectPercent": 4.58,
+          "printerModels": [
+            "P2S"
+          ]
+        },
+        {
+          "location": "4",
+          "acceptedQty": 8,
+          "batchCount": 1,
+          "defectPercent": 12.5,
           "printerModels": [
             "P2S"
           ]
@@ -14708,9 +14719,18 @@
           "printerModels": [
             "A2L"
           ]
+        },
+        {
+          "location": "101",
+          "acceptedQty": 340,
+          "batchCount": 1,
+          "defectPercent": 7.94,
+          "printerModels": [
+            "A1 mini"
+          ]
         }
       ]
     }
   ],
-  "updated_at": "2026-11-04T08:25:13Z"
+  "updated_at": "2026-11-04T13:11:40Z"
 }
