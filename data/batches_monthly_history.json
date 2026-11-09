@@ -4811,28 +4811,28 @@
       "from": "2026-11-01",
       "to": "2026-11-08",
       "complete": false,
-      "defectCostTotalUAH": 45613.79,
+      "defectCostTotalUAH": 46008.79,
       "totals": {
         "batches": 536,
         "lots": 322
       },
       "company": {
-        "materialKg": 3191.47,
-        "materialDefectKg": 128.23,
+        "materialKg": 3205.27,
+        "materialDefectKg": 129.34,
         "materialByType": {
-          "PETG": 3119.53,
+          "PETG": 3128.75,
           "TPU": 44.43,
-          "PLA": 14.07,
-          "ABS": 13.44
+          "ABS": 18.02,
+          "PLA": 14.07
         },
         "batches": 536,
         "lots": 322,
-        "acceptedQty": 237285,
-        "defectQty": 6724,
-        "defectPercent": 2.83,
-        "defectWeightPercent": 2.82,
+        "acceptedQty": 238929,
+        "defectQty": 6807,
+        "defectPercent": 2.85,
+        "defectWeightPercent": 2.83,
         "totalPrintTimeMinutes": 8969763.199999997,
-        "materialCostUAH": 1040240.53,
+        "materialCostUAH": 1045032.07,
         "materialCostCoveragePercent": 100.0
       },
       "byPrinterModel": [
@@ -4853,14 +4853,14 @@
         {
           "printerModel": "P1S",
           "batches": 300,
-          "acceptedQty": 42562,
-          "defectQty": 2195,
+          "acceptedQty": 44177,
+          "defectQty": 2278,
           "defectPercent": 5.16
         },
         {
           "printerModel": "A2L",
           "batches": 48,
-          "acceptedQty": 33895,
+          "acceptedQty": 33924,
           "defectQty": 423,
           "defectPercent": 1.25
         }
@@ -4893,7 +4893,7 @@
         {
           "baseProductCode": "49051",
           "batches": 1,
-          "acceptedQty": 9150,
+          "acceptedQty": 9179,
           "defectQty": 0,
           "defectPercent": 0.0,
           "defectCostUAH": 0.0
@@ -5040,22 +5040,22 @@
         {
           "shift": "SECOND",
           "lots": 175,
-          "acceptedQty": 154224,
-          "defectQty": 4260,
-          "defectPercent": 2.76
+          "acceptedQty": 155868,
+          "defectQty": 4343,
+          "defectPercent": 2.79
         }
       ],
       "materials": {
-        "kg": 3191.47,
-        "defectKg": 128.23,
-        "batchesWithWeight": 489,
+        "kg": 3205.27,
+        "defectKg": 129.34,
+        "batchesWithWeight": 492,
         "coveragePercent": 100.0,
         "byType": [
           {
             "type": "PETG",
-            "kg": 3119.53,
-            "defectKg": 122.65,
-            "batches": 466
+            "kg": 3128.75,
+            "defectKg": 123.56,
+            "batches": 467
           },
           {
             "type": "TPU",
@@ -5064,24 +5064,24 @@
             "batches": 9
           },
           {
+            "type": "ABS",
+            "kg": 18.02,
+            "defectKg": 0.45,
+            "batches": 11
+          },
+          {
             "type": "PLA",
             "kg": 14.07,
             "defectKg": 0.59,
             "batches": 5
-          },
-          {
-            "type": "ABS",
-            "kg": 13.44,
-            "defectKg": 0.25,
-            "batches": 9
           }
         ],
         "byColor": [
           {
             "type": "PETG",
             "color": "#808004",
-            "kg": 1165.64,
-            "defectKg": 48.81
+            "kg": 1174.86,
+            "defectKg": 49.73
           },
           {
             "type": "PETG",
@@ -5138,16 +5138,16 @@
             "defectKg": 0.84
           },
           {
+            "type": "ABS",
+            "color": "#000000",
+            "kg": 18.02,
+            "defectKg": 0.45
+          },
+          {
             "type": "PETG",
             "color": "#FF0000",
             "kg": 17.44,
             "defectKg": 0.0
-          },
-          {
-            "type": "PETG",
-            "color": "#FFFF80",
-            "kg": 14.46,
-            "defectKg": 0.19
           }
         ]
       },
@@ -5211,16 +5211,16 @@
           ]
         },
         "5": {
-          "kg": 1371.39,
-          "defectKg": 69.65,
-          "batchesWithWeight": 240,
+          "kg": 1385.2,
+          "defectKg": 70.77,
+          "batchesWithWeight": 243,
           "coveragePercent": 100.0,
           "byType": [
             {
               "type": "PETG",
-              "kg": 1313.53,
-              "defectKg": 64.67,
-              "batches": 222
+              "kg": 1322.75,
+              "defectKg": 65.58,
+              "batches": 223
             },
             {
               "type": "TPU",
@@ -5230,17 +5230,17 @@
             },
             {
               "type": "ABS",
-              "kg": 13.44,
-              "defectKg": 0.25,
-              "batches": 9
+              "kg": 18.02,
+              "defectKg": 0.45,
+              "batches": 11
             }
           ],
           "byColor": [
             {
               "type": "PETG",
               "color": "#808004",
-              "kg": 1165.64,
-              "defectKg": 48.81
+              "kg": 1174.86,
+              "defectKg": 49.73
             },
             {
               "type": "PETG",
@@ -5263,8 +5263,8 @@
             {
               "type": "ABS",
               "color": "#000000",
-              "kg": 13.44,
-              "defectKg": 0.25
+              "kg": 18.02,
+              "defectKg": 0.45
             },
             {
               "type": "PETG",
@@ -5351,5 +5351,5 @@
       }
     }
   ],
-  "updated_at": "2026-11-09T13:31:14Z"
+  "updated_at": "2026-11-09T14:12:14Z"
 }
