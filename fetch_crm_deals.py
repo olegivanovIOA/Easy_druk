@@ -839,6 +839,24 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
               "wonSum": round(sum(_num(d.get("OPPORTUNITY")) for d in won), 2),
               "expectedSumActiveWon": round(sum(_num(d.get("OPPORTUNITY")) for d in active_won), 2)}
 
+    # v7.22: з яких стадій складається кожен крок воронки — для пояснень під плитками на дашборді
+    def top_stages(lst, n=4):
+        cnt = {}
+        for d in lst:
+            k = sname(d) or "?"
+            cnt[k] = cnt.get(k, 0) + 1
+        items = sorted(cnt.items(), key=lambda kv: -kv[1])
+        return {"n": len(lst), "top": [[k, v] for k, v in items[:n]], "other": sum(v for _, v in items[n:])}
+    ids = lambda lst: {id(d) for d in lst}
+    s_clean, s_q, s_aw, s_won = ids(clean), ids(qualified), ids(active_won), ids(won)
+    funnel_steps = {
+        "clean": top_stages([d for d in deals if id(d) not in s_clean]),          # відняли: дублі, тести
+        "qualified": top_stages([d for d in clean if id(d) not in s_q]),          # відняли: «не ліди»
+        "activeOrWon": top_stages([d for d in qualified if id(d) not in s_aw]),   # відняли: бізнес-відмови
+        "inWork": top_stages([d for d in active_won if id(d) not in s_won], 5),   # ще в роботі
+        "won": top_stages(won, 3),
+    }
+
     # ── 2. Стадії (як таблиця "Все сделки по статусу") ──
     st = {}
     for d in deals:
@@ -920,7 +938,7 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
         print(f"[CRM] ⚠ stale deals: {e}")
 
     print(f"[CRM] ✓ Когорта: {funnel} | retention: {retention['returningClients']}/{retention['clientsInCohort']} клієнтів повернулись")
-    return {"funnel": funnel, "byStage": by_stage, "bySource": by_source, "byCampaign": by_campaign,
+    return {"funnel": funnel, "funnelSteps": funnel_steps, "byStage": by_stage, "bySource": by_source, "byCampaign": by_campaign,
             "byCampaignDaily": by_campaign_daily, "campaignDailyV": CAMPAIGN_DAILY_V,
             "keyAccounts": {"companies": sum(1 for k in key_accounts() if k.startswith("c")), "minRevenue12m": KEY_ACCOUNT_MIN},
             "retention": retention, "staleBigDeals": stale[:10],

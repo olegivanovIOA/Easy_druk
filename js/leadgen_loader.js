@@ -89,25 +89,48 @@ window.LeadgenLoader = (() => {
   }
 
   // ── 1. Воронка кваліфікації лідів ──
+  // v7.22: під кожною плиткою — коротке пояснення: що це і які стадії Bitrix відняли на цьому кроці.
+  // Розбивка по стадіях — з cohort.funnelSteps (fetch_crm_deals.py); для місяців без неї (до бекфілу) —
+  // з byStage за тими самими ознаками назв стадій, що й у Python.
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
+  const DUP_M = ['дубл', 'тестов'];
+  const NQ_M = ['спам', 'мусор', 'ошиб', 'некоррект', 'не берет', 'не бере', 'не отвечает', 'не відповідає', 'не завершили'];
+  const shortSt = n => { const t = String(n || '?').replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim(); return t.length > 26 ? t.slice(0, 25) + '…' : t; };
+  function stepsOf(c) {
+    if (c.funnelSteps) return c.funnelSteps;
+    const bs = c.byStage || [], top = arr => { const a = arr.slice().sort((x, y) => y.deals - x.deals); return { n: a.reduce((t, x) => t + x.deals, 0), top: a.slice(0, 4).map(x => [x.stage, x.deals]), other: a.slice(4).reduce((t, x) => t + x.deals, 0) }; };
+    const has = (st, ms) => ms.some(m => String(st).toLowerCase().includes(m));
+    return { clean: top(bs.filter(x => has(x.stage, DUP_M))), qualified: top(bs.filter(x => !has(x.stage, DUP_M) && has(x.stage, NQ_M))), approx: true };
+  }
+  const listSt = st => st && st.top && st.top.length ? st.top.map(([k, v]) => `${esc(shortSt(k))} <b>${v.toLocaleString('uk-UA')}</b>`).join(' · ') + (st.other ? ` · інші ${st.other}` : '') : '';
+
   function renderFunnel(c, pc, m) {
     const el = $('mkt-leadgen-funnel'); if (!el) return;
-    const f = c.funnel, pf = pc && pc.funnel;
+    const f = c.funnel, pf = pc && pc.funnel, S = stepsOf(c);
+    const inWork = f.activeOrWon - f.won;
     const steps = [
-      ['Усі звернення', 'all', 'усі угоди 4 воронок, створені в місяці'],
-      ['Без дублів і тестів', 'clean', c.definitions && c.definitions.clean],
-      ['Кваліфіковані', 'qualified', c.definitions && c.definitions.qualified],
-      ['В роботі + успішні', 'activeOrWon', 'не відмовлені'],
-      ['Успішні (WON)', 'won', c.definitions && c.definitions.won],
+      ['Усі звернення', 'all', 'усі угоди 4 воронок, створені в місяці',
+        `усі угоди, створені в ${m.month} у воронках 0 / 24 / 18 / 32`],
+      ['Без дублів і тестів', 'clean', c.definitions && c.definitions.clean,
+        `мінус <b>${(f.all - f.clean).toLocaleString('uk-UA')}</b> на стадіях дубль / тест${S.clean && S.clean.top.length ? ': ' + listSt(S.clean) : ''}`],
+      ['Кваліфіковані', 'qualified', c.definitions && c.definitions.qualified,
+        `мінус <b>${(f.clean - f.qualified).toLocaleString('uk-UA')}</b> «не лідів»${S.qualified && S.qualified.top.length ? ': ' + listSt(S.qualified) : ' (спам, помилкові, недодзвон…)'}. Сюди входять і ще не оброблені`],
+      ['В роботі + успішні', 'activeOrWon', 'не відмовлені',
+        `мінус <b>${(f.qualified - f.activeOrWon).toLocaleString('uk-UA')}</b> бізнес-відмов${S.activeOrWon && S.activeOrWon.top.length ? ': ' + listSt(S.activeOrWon) : ' (дорого, не актуально, не можемо реалізувати…)'}`],
+      ['Успішні (WON)', 'won', c.definitions && c.definitions.won,
+        `стадія «успішна» у воронках 24 / 18 / 32 (WON воронки 0 — лише скринінг). Ще <b>${inWork.toLocaleString('uk-UA')}</b> у роботі${S.inWork && S.inWork.top.length ? ': ' + listSt(S.inWork) : ''}${m.complete === false || inWork > f.won ? ' — WON цього місяця ще зростатиме' : ''}`],
     ];
-    el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">` + steps.map(([lbl, k, tip], i) => {
+    el.innerHTML = `<div style="font-size:10.5px;color:var(--tl);margin:0 0 6px;line-height:1.5">ℹ️ <b>Як рахується:</b> угоди Bitrix, <b>створені в ${m.month}</b>, за їхньою <b>поточною стадією</b> (оновлення щогодини) — числа змінюються, коли менеджери переводять угоди. Кожен крок = попередній мінус угоди на стадіях, вказаних під плиткою. ▲▼ — до попереднього місяця${m.complete === false ? ` — <b style="color:${R}">місяць триває: неповний місяць порівнюється з повним, тож ▼ тут очікуване</b>` : ''}.</div>` +
+      `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">` + steps.map(([lbl, k, tip, expl], i) => {
       const v = f[k], prevStep = i ? f[steps[i - 1][1]] : null;
       const conv = i ? pct(v, prevStep) : null;
       const w = f.all ? Math.max(8, v / f.all * 100) : 0;
-      return `<div class="krow" style="flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px" title="${tip || ''}">
-        <div class="krow-lbl" style="white-space:normal">${lbl}</div>
+      return `<div class="krow" style="flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:4px;padding:10px 12px" title="${tip || ''}">
+        <div class="krow-lbl" style="white-space:normal;flex:0 0 auto">${lbl}</div>
         <div style="font-size:20px;font-weight:800;color:var(--tx)">${v.toLocaleString('uk-UA')}${delta(v, pf && pf[k])}</div>
         <div style="height:5px;width:100%;background:var(--bd);border-radius:3px"><div style="height:5px;width:${w}%;background:${i === 4 ? G : WH};border-radius:3px"></div></div>
         <div style="font-size:10px;color:var(--tl)">${i ? 'з попер. кроку: <b>' + p1(conv) + '</b>' : m.month + (m.complete === false ? ' · триває' : '')}</div>
+        <div style="font-size:9.5px;color:var(--tm);line-height:1.4;border-top:1px dashed var(--bd);padding-top:4px;width:100%">${expl}</div>
       </div>`;
     }).join('') + `</div>
       <div style="font-size:10px;color:var(--tl);margin-top:6px">Очікувана сума (в роботі + успішні): <b>${fmt(f.expectedSumActiveWon)} грн</b> · фактична (WON): <b>${fmt(f.wonSum)} грн</b> · наскрізна конверсія звернення→WON: <b>${p1(pct(f.won, f.all))}</b>${delta(pct(f.won, f.all), pf && pct(pf.won, pf.all))}</div>`;
