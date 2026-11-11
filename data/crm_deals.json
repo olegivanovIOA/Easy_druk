@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-11T16:50:10Z",
+  "fetched_at": "2026-11-11T23:16:16Z",
   "month": "2026-11",
   "bySource": [
     {
@@ -357,13 +357,13 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 632,
-      "clean": 585,
-      "qualified": 333,
-      "activeOrWon": 98,
+      "all": 636,
+      "clean": 589,
+      "qualified": 337,
+      "activeOrWon": 102,
       "won": 3,
       "wonSum": 5231.0,
-      "expectedSumActiveWon": 6296611.22
+      "expectedSumActiveWon": 6298461.22
     },
     "funnelSteps": {
       "clean": {
@@ -425,7 +425,7 @@
         "other": 27
       },
       "inWork": {
-        "n": 95,
+        "n": 99,
         "top": [
           [
             "НЕ завершили первинний контакт",
@@ -440,15 +440,15 @@
             17
           ],
           [
-            "Згода підтверджена",
+            "НЕ додзвонилися (потрібно перетелефонувати )",
             8
           ],
           [
-            "ОЧІКУЄМО матеріали (фото / модель / ...)",
+            "Згода підтверджена",
             8
           ]
         ],
-        "other": 26
+        "other": 30
       },
       "won": {
         "n": 3,
@@ -542,6 +542,11 @@
         "sum": 0.0
       },
       {
+        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
+        "deals": 8,
+        "sum": 0.0
+      },
+      {
         "stage": "Згода підтверджена",
         "deals": 8,
         "sum": 78804.0
@@ -549,11 +554,6 @@
       {
         "stage": "ОЧІКУЄМО матеріали (фото / модель / ...)",
         "deals": 8,
-        "sum": 0.0
-      },
-      {
-        "stage": "НЕ додзвонилися (потрібно перетелефонувати )",
-        "deals": 6,
         "sum": 0.0
       },
       {
@@ -573,8 +573,13 @@
       },
       {
         "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
-        "deals": 3,
-        "sum": 4101.0
+        "deals": 4,
+        "sum": 5951.0
+      },
+      {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 2,
+        "sum": 0.0
       },
       {
         "stage": "Сделка УСПЕШНА",
@@ -590,11 +595,6 @@
         "stage": "3D Модель готова",
         "deals": 2,
         "sum": 2427.0
-      },
-      {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 1,
-        "sum": 0.0
       },
       {
         "stage": "Виробництво  ЗАВЕРШЕНО",
@@ -619,7 +619,7 @@
       {
         "key": "CALL",
         "name": "Звонок",
-        "deals": 258,
+        "deals": 259,
         "expectedSum": 429598.0,
         "won": 1,
         "wonSum": 1550.0
@@ -627,15 +627,15 @@
       {
         "key": "PARTNER",
         "name": "Существующий клиент",
-        "deals": 10,
-        "expectedSum": 2867995.0,
+        "deals": 11,
+        "expectedSum": 2869845.0,
         "won": 1,
         "wonSum": 1000.0
       },
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 192,
+        "deals": 193,
         "expectedSum": 452.0,
         "won": 0,
         "wonSum": 0.0
@@ -651,7 +651,7 @@
       {
         "key": "UC_LJ05D6",
         "name": "Электронная почта sales@easy3dprint.com.ua",
-        "deals": 35,
+        "deals": 36,
         "expectedSum": 76145.01,
         "won": 0,
         "wonSum": 0.0
@@ -773,8 +773,8 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 415,
-        "expectedSum": 5259540.22,
+        "deals": 419,
+        "expectedSum": 5261390.22,
         "won": 1,
         "wonSum": 2681.0
       },
@@ -1155,6 +1155,17 @@
         "e": 0.0,
         "w": 0,
         "ws": 0.0
+      },
+      {
+        "d": "2026-11-02",
+        "us": "",
+        "uc": "",
+        "s": "PARTNER",
+        "n": 1,
+        "e": 1850.0,
+        "w": 0,
+        "ws": 0.0,
+        "t": "r"
       },
       {
         "d": "2026-11-02",
@@ -2954,7 +2965,7 @@
         "us": "",
         "uc": "",
         "s": "50",
-        "n": 15,
+        "n": 16,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -2964,7 +2975,7 @@
         "us": "",
         "uc": "",
         "s": "CALL",
-        "n": 11,
+        "n": 12,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -2996,7 +3007,7 @@
         "us": "",
         "uc": "",
         "s": "UC_LJ05D6",
-        "n": 4,
+        "n": 5,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -3159,24 +3170,24 @@
       "minRevenue12m": 1000000.0
     },
     "retention": {
-      "clientsInCohort": 599,
-      "returningClients": 53,
-      "repeatBuyers": 14,
+      "clientsInCohort": 603,
+      "returningClients": 54,
+      "repeatBuyers": 15,
       "noClientLinked": 5,
       "returning": {
-        "deals": 71,
+        "deals": 72,
         "won": 3,
         "wonSum": 5231.0,
         "winRate": 5.5
       },
       "new": {
-        "deals": 561,
+        "deals": 564,
         "won": 0,
         "wonSum": 0,
         "winRate": 0.0
       },
       "repeatPurchase": {
-        "deals": 17,
+        "deals": 18,
         "won": 3,
         "wonSum": 5231.0,
         "winRate": 75.0
@@ -3209,7 +3220,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 365,
+        "total": 368,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -3218,18 +3229,18 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 1,
+            "count": 2,
             "sum": 0.0,
-            "reached": 365,
+            "reached": 368,
             "lostHere": 324
           },
           {
             "id": "40",
             "name": "НЕ додзвонилися (потрібно перетелефонувати )",
             "sem": "P",
-            "count": 6,
+            "count": 8,
             "sum": 0.0,
-            "reached": 40,
+            "reached": 42,
             "lostHere": 5
           },
           {
@@ -3303,7 +3314,7 @@
       {
         "id": 24,
         "title": "ОТДЕЛ ПРОДАЖ ПРОИЗВОДСТВО (ОПТ)",
-        "total": 273,
+        "total": 274,
         "method": "history",
         "v": 2,
         "wonDirect": 2,
@@ -3314,7 +3325,7 @@
             "sem": "P",
             "count": 5,
             "sum": 2915489.21,
-            "reached": 273,
+            "reached": 274,
             "lostHere": 199
           },
           {
@@ -3323,7 +3334,7 @@
             "sem": "P",
             "count": 8,
             "sum": 0.0,
-            "reached": 69,
+            "reached": 70,
             "lostHere": 1
           },
           {
@@ -3332,7 +3343,7 @@
             "sem": "P",
             "count": 6,
             "sum": 0.01,
-            "reached": 60,
+            "reached": 61,
             "lostHere": 1
           },
           {
@@ -3341,7 +3352,7 @@
             "sem": "P",
             "count": 17,
             "sum": 0.0,
-            "reached": 53,
+            "reached": 54,
             "lostHere": 1
           },
           {
@@ -3350,7 +3361,7 @@
             "sem": "P",
             "count": 17,
             "sum": 422424.0,
-            "reached": 35,
+            "reached": 36,
             "lostHere": 0
           },
           {
@@ -3359,7 +3370,7 @@
             "sem": "P",
             "count": 8,
             "sum": 78804.0,
-            "reached": 18,
+            "reached": 19,
             "lostHere": 0
           },
           {
@@ -3368,7 +3379,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 10,
+            "reached": 11,
             "lostHere": 0
           },
           {
@@ -3377,7 +3388,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 10,
+            "reached": 11,
             "lostHere": 0
           },
           {
@@ -3386,7 +3397,7 @@
             "sem": "P",
             "count": 2,
             "sum": 2260135.0,
-            "reached": 10,
+            "reached": 11,
             "lostHere": 0
           },
           {
@@ -3395,7 +3406,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 8,
+            "reached": 9,
             "lostHere": 0
           },
           {
@@ -3404,7 +3415,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 8,
+            "reached": 9,
             "lostHere": 0
           },
           {
@@ -3413,7 +3424,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 8,
+            "reached": 9,
             "lostHere": 0
           },
           {
@@ -3422,7 +3433,7 @@
             "sem": "P",
             "count": 2,
             "sum": 2427.0,
-            "reached": 8,
+            "reached": 9,
             "lostHere": 0
           },
           {
@@ -3431,7 +3442,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 6,
+            "reached": 7,
             "lostHere": 0
           },
           {
@@ -3440,7 +3451,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 6,
+            "reached": 7,
             "lostHere": 0
           },
           {
@@ -3449,7 +3460,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 6,
+            "reached": 7,
             "lostHere": 0
           },
           {
@@ -3458,7 +3469,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 6,
+            "reached": 7,
             "lostHere": 0
           },
           {
@@ -3467,7 +3478,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 6,
+            "reached": 7,
             "lostHere": 0
           },
           {
@@ -3476,7 +3487,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 6,
+            "reached": 7,
             "lostHere": 0
           },
           {
@@ -3485,7 +3496,7 @@
             "sem": "P",
             "count": 1,
             "sum": 608000.0,
-            "reached": 6,
+            "reached": 7,
             "lostHere": 0
           },
           {
@@ -3494,7 +3505,7 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 5,
+            "reached": 6,
             "lostHere": 0
           },
           {
@@ -3503,16 +3514,16 @@
             "sem": "P",
             "count": 0,
             "sum": 0.0,
-            "reached": 5,
+            "reached": 6,
             "lostHere": 0
           },
           {
             "id": "C24:11",
             "name": "Клієнт ЗАБРАВ ПОСИЛКУ",
             "sem": "P",
-            "count": 3,
-            "sum": 4101.0,
-            "reached": 5,
+            "count": 4,
+            "sum": 5951.0,
+            "reached": 6,
             "lostHere": 0
           },
           {
@@ -4863,12 +4874,12 @@
     "all": 723
   },
   "pipeline": {
-    "asOf": "2026-11-11T16:50:17Z",
+    "asOf": "2026-11-11T23:16:22Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
-        "deals": 153,
-        "sum": 162731338.44,
+        "deals": 154,
+        "sum": 162733188.44,
         "stale": 30,
         "staleSum": 108671447.16,
         "stages": [
@@ -4929,8 +4940,8 @@
           },
           {
             "stage": "Клієнт ЗАБРАВ ПОСИЛКУ",
-            "deals": 4,
-            "sum": 5809.0
+            "deals": 5,
+            "sum": 7659.0
           }
         ]
       },
