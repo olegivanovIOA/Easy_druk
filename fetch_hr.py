@@ -10,7 +10,7 @@ v1.2 changes:
   через parse_employees_from_turnover() (fallback)
 """
 
-import json, os, time, base64
+import json, os, re, time, base64
 from datetime import datetime
 from pathlib import Path
 import requests
@@ -325,6 +325,107 @@ def update_vacancies_history(current):
     return history
 
 
+# ── v7.23: «Звіт HR» — зведення відділу по місяцях (штат, звільнення, плинність, рекрутинг, лікарняні) ─────
+# Таблицю парсимо універсально (рядки/місяці можуть додаватись): рядок з назвами місяців — заголовок,
+# рядок лише з назвою в колонці A — новий розділ, решта — показники. Ціль береться з підпису «таргет до X%».
+# Репозиторій публічний: ГРОШОВІ рядки (грн, зарплата, вартість, акції, бонуси) у файл НЕ потрапляють
+# абсолютними числами — лише зміна до попереднього місяця (%) і частка складової в загальній сумі (%).
+SHEET_REPORT_CANDIDATES = ["Звіт HR", "Звіт  HR", "Звіт HR "]
+_MONEY_RE = re.compile(r"грн|зп\b|зарплат|вартіст|акці|бонус|витрат|оплат|премі", re.I)
+
+
+def _num_cell(v):
+    t = str(v or "").replace(" ", "").replace(" ", "").strip()
+    if not t:
+        return None, ""
+    unit = "%" if t.endswith("%") else ""
+    t = t.rstrip("%").replace(",", ".")
+    try:
+        return float(t), unit
+    except ValueError:
+        return None, unit
+
+
+def parse_hr_report(rows):
+    if not rows:
+        return {}
+    hdr_i, months_idx = None, []
+    for i, r in enumerate(rows[:10]):
+        idx = [(j, str(c).strip()) for j, c in enumerate(r) if str(c).strip() in UA_MONTHS]
+        if len(idx) >= 2:
+            hdr_i, months_idx = i, idx
+            break
+    if hdr_i is None:
+        print("[HR] ⚠ Звіт HR: не знайдено рядок з назвами місяців")
+        return {}
+    year = None
+    for r in rows[:hdr_i + 1]:
+        for c in r:
+            m = re.search(r"\b(20\d\d)\b", str(c))
+            if m:
+                year = int(m.group(1))
+    months = [m for _, m in months_idx]
+    sections = [{"title": str(rows[hdr_i][0]).strip() if rows[hdr_i] and str(rows[hdr_i][0]).strip() else "Показники", "rows": []}]
+    for r in rows[hdr_i + 1:]:
+        label = str(r[0]).strip() if r else ""
+        vals = [_num_cell(r[j] if j < len(r) else "") for j, _ in months_idx]
+        if not label:
+            continue
+        if all(v is None for v, _ in vals) and not any(str(c).strip() for c in r[1:]):
+            # рядок тільки з підписом: або новий розділ, або показник без даних (eNPS щоквартально)
+            if re.search(r"\(|кільк|%|eNPS", label, re.I):
+                sections[-1]["rows"].append({"label": label, "values": [None] * len(months), "unit": ""})
+            else:
+                sections.append({"title": label, "rows": []})
+            continue
+        tgt = re.search(r"таргет\s*до\s*([\d.,]+)\s*%", label, re.I)
+        row = {"label": label, "values": [v for v, _ in vals], "unit": next((u for _, u in vals if u), "")}
+        if tgt:
+            row["target"] = {"max": float(tgt.group(1).replace(",", "."))}
+        sections[-1]["rows"].append(row)
+
+    # грошові рядки → лише відносні величини
+    for sec in sections:
+        rs = sec["rows"]
+        for i, row in enumerate(rs):
+            if not _MONEY_RE.search(row["label"]) or row.get("unit") == "%":
+                continue
+            row["money"] = True
+            # складові: наступні грошові рядки, сума яких = цьому рядку (Вартість найму = ЗП рекрутера + розміщення + акція)
+            comps, tot = [], [0.0] * len(months)
+            for nxt in rs[i + 1:]:
+                if not _MONEY_RE.search(nxt["label"]):
+                    break
+                comps.append(nxt)
+                tot = [a + (b or 0) for a, b in zip(tot, nxt["values"])]
+                if all(v is None or abs(v - t) < 1 for v, t in zip(row["values"], tot)) and any(v for v in row["values"]):
+                    break
+            ok = comps and all(v is None or abs(v - t) < 1 for v, t in zip(row["values"], tot))
+            if ok:
+                for c in comps:
+                    c["money"] = True
+                    c["parent"] = row["label"]
+                    c["share"] = [round(cv / pv * 100, 1) if (cv is not None and pv) else None for cv, pv in zip(c["values"], row["values"])]
+        # вартість одного найму = вартість найму ÷ закриті позиції — теж лише як зміна до попереднього місяця
+        closed = next((r for r in rs if re.search(r"закрит", r["label"], re.I) and not r.get("money")), None)
+        cost = next((r for r in rs if r.get("money") and not r.get("parent") and re.search(r"найм", r["label"], re.I)), None)
+        if closed and cost:
+            cph = [(c / n) if (c is not None and n) else None for c, n in zip(cost["values"], closed["values"])]
+            sec["costPerHireMom"] = [None] + [round((b - a) / a * 100, 1) if (a and b is not None) else None for a, b in zip(cph, cph[1:])]
+        for row in rs:
+            if row.get("money"):
+                v = row["values"]
+                row["mom"] = [None] + [round((b - a) / a * 100, 1) if (a and b is not None) else None for a, b in zip(v, v[1:])]
+                row["values"] = None          # абсолютні суми не публікуємо
+                row.pop("share", None)        # частки складових не публікуємо: з них і динаміки загальної суми вираховується зміна зарплати
+        # зарплатні рядки (персональні дані конкретної людини) — не публікуємо взагалі, навіть у відносних величинах
+        sec["rows"] = [r for r in rs if not (r.get("money") and re.search(r"зп\b|зарплат|оклад", r["label"], re.I))]
+    filled = [i for i in range(len(months)) if any((r.get("values") or [None] * len(months))[i] is not None for s in sections for r in s["rows"])]
+    print(f"[HR] ✓ Звіт HR: {year}, місяці {months}, заповнено {[months[i] for i in filled]}, "
+          f"розділів {len(sections)}, показників {sum(len(s['rows']) for s in sections)}")
+    return {"year": year, "months": months, "filled": filled, "sections": sections}
+
+
 def main():
     print(f"[HR] Старт {datetime.utcnow().isoformat()}")
 
@@ -394,6 +495,16 @@ def main():
     else:
         print(f"[HR] ⚠ Немає джерела для employees_count. Шукали серед листів: {SHEET_EMPLOYEES_CANDIDATES} "
               f"і '{SHEET_TURNOVER}'. Реальні листи в книзі: {sheet_names}")
+
+    # v7.23: «Звіт HR»
+    rep_sheet = next((n for n in sheet_names if n.strip().lower() == "звіт hr"), None)
+    if rep_sheet:
+        try:
+            result["report"] = parse_hr_report(sheets_get(token, f"{rep_sheet}!A1:Z60"))
+        except Exception as e:
+            print(f"[HR] ⚠ Звіт HR не розібрано: {e}")
+    else:
+        print("[HR] ⚠ лист 'Звіт HR' не знайдено")
 
     if result["vacancies_current"]:
         result["vacancies_history"] = update_vacancies_history(result["vacancies_current"])

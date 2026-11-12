@@ -440,7 +440,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.22</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.23</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -1578,6 +1578,11 @@ a{color:var(--gd);text-decoration:none}
 
 <!-- ═════════════ HR ═════════════ -->
 <div class="panel" id="panel-hr">
+  <!-- v7.23: Звіт HR відділу — зведення по місяцях (лист «Звіт HR»), js/hr_report.js -->
+  <div id="w-hr-report" style="margin-bottom:16px">
+    <div class="sec" style="margin-bottom:9px">📋 Звіт HR відділу — штат, найм, плинність</div>
+    <div id="hrr-root"><div class="card-flat" style="font-size:11px;color:var(--tl);padding:12px">Завантаження звіту…</div></div>
+  </div>
   <div id="w-hr-kpi">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
       <div class="sec" style="margin-bottom:9px">👥 HR та Персонал — реальні дані</div>
@@ -3305,6 +3310,7 @@ const WCAT=[
   {id:'sales-funnels',tab:'sales',label:'Воронки CRM по стадіях'},{id:'sales-b2b',tab:'sales',label:'Продажі ОПТ B2B'},{id:'sales-b2c',tab:'sales',label:'Продажі Роздріб B2C'},{id:'sales-trend',tab:'sales',label:'Динаміка продажів'},
   {id:'crm-funnel',tab:'crm',label:'Воронка та CAC/LTV'},{id:'crm-camp',tab:'crm',label:'Рекламні кампанії'},{id:'mkt-leadgen',tab:'crm',label:'Лідогенерація, ROI, retention'},{id:'mkt-channels',tab:'crm',label:'Канали залучення (Bitrix24)'},
   {id:'fin-pl',tab:'fin',label:'P&L'},{id:'fin-unit',tab:'fin',label:'Юніт-економіка'},
+  {id:'hr-report',tab:'hr',label:'Звіт HR відділу (по місяцях)'},
   {id:'hr-kpi',tab:'hr',label:'HR показники'},
   {id:'loc-tbl',tab:'loc',label:'Зведена таблиця локацій'},{id:'loc-cards',tab:'loc',label:'Картки локацій'},{id:'loc-trends',tab:'loc',label:'Динаміка по локаціях'},
   {id:'reg-ch',tab:'reg',label:'Графіки покриття'},{id:'reg-tbl',tab:'reg',label:'Таблиця реєстру'},
@@ -3348,6 +3354,7 @@ function go(id,btn){
     try{ buildSprintVelocity(); }catch(e){}
     try{ buildGoalsRadar(); }catch(e){}
   }
+  if(id==='hr'&&window.HRReport) window.HRReport.load();   // v7.23
   if(id==='hr'&&window.OrgLoader) window.OrgLoader.load();
   if(id==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
     window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
@@ -3396,6 +3403,7 @@ function restoreTab(){
       if(saved==='qual'&&!panel.dataset.loaded){
         loadQualityData();panel.dataset.loaded='1';
       }
+      if(saved==='hr'&&window.HRReport) window.HRReport.load();   // v7.23
       if(saved==='hr'&&window.OrgLoader) window.OrgLoader.load();
       if(saved==='hr'&&window.HRLoader&&!document.getElementById('hr-employees-count').dataset.loaded){
         window.HRLoader.load();document.getElementById('hr-employees-count').dataset.loaded='1';
@@ -4144,6 +4152,7 @@ window.LocLoader = (() => {
 
 </script>
 <script src="js/hr_loader.js?v=20260930"></script>
+<script src="js/hr_report.js?v=20261112"></script>
 <script src="js/org_loader.js?v=20261012b"></script>
 <script src="js/ads_loader.js?v=20261026b"></script>
 <script src="js/mql_loader.js?v=20260924"></script>
