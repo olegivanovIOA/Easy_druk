@@ -6,7 +6,9 @@
  */
 window.HRReport = (() => {
   const $ = id => document.getElementById(id);
-  const G = '#2A9D8F', GD = '#1e7a6e', A = '#457B9D', R = '#C0392B', Y = '#BA7517', GRID = '#f0f2ee';
+  // v7.24: пастельна жовто-блакитна палітра; статус «в межах / вище цілі» — м'які синій / теракотовий
+  const BL = '#8DB8DE', BL2 = '#BCD6EE', BLD = '#2F5D8A', YL = '#F2D27A', YL2 = '#F8E3A6', YLD = '#B8860B';
+  const G = BLD, GD = '#2F6F8F', A = BL, R = '#C46A5A', Y = YLD, GRID = '#f0f2ee';
   const SH = { 'Січень': 'січ', 'Лютий': 'лют', 'Березень': 'бер', 'Квітень': 'кві', 'Травень': 'тра', 'Червень': 'чер', 'Липень': 'лип', 'Серпень': 'сер', 'Вересень': 'вер', 'Жовтень': 'жов', 'Листопад': 'лис', 'Грудень': 'гру' };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const n0 = v => v == null || isNaN(v) ? '—' : (+v).toLocaleString('uk-UA', { maximumFractionDigits: 1 });
@@ -21,15 +23,15 @@ window.HRReport = (() => {
     if ($('hrr-css')) return;
     const s = document.createElement('style'); s.id = 'hrr-css';
     s.textContent = `
-#hrr-root .k{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
-@media(max-width:1000px){#hrr-root .k{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:460px){#hrr-root .k{grid-template-columns:1fr}}
-#hrr-root .t{background:#fff;border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);padding:9px 11px;position:relative;overflow:hidden}
+#hrr-root .k{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin-bottom:10px}
+@media(max-width:1250px){#hrr-root .k{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:560px){#hrr-root .k{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#hrr-root .t{background:#fff;border:1px solid var(--bd);border-radius:8px;box-shadow:var(--sh);padding:6px 8px 6px 10px;position:relative;overflow:hidden;min-width:0}
 #hrr-root .t:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c,#2A9D8F)}
-#hrr-root .t .l{font-size:10px;font-weight:600;color:var(--tm)}
-#hrr-root .t .v{font-size:20px;font-weight:800;margin-top:2px;white-space:nowrap}
-#hrr-root .t .v small{font-size:11px;font-weight:700;margin-left:4px}
-#hrr-root .t .s{font-size:10px;color:var(--tl);margin-top:2px;line-height:1.4}
+#hrr-root .t .l{font-size:9.5px;font-weight:600;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hrr-root .t .v{font-size:17px;font-weight:800;line-height:1.25;white-space:nowrap}
+#hrr-root .t .v small{font-size:10px;font-weight:700;margin-left:3px}
+#hrr-root .t .s{font-size:9.5px;color:var(--tl);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #hrr-root .c{background:#fff;border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);padding:10px 12px;min-width:0}
 #hrr-root .h{font-size:12px;font-weight:700;color:var(--td);margin-bottom:2px}
 #hrr-root .n{font-size:10px;color:var(--tl);margin-bottom:6px;line-height:1.45}
@@ -37,11 +39,11 @@ window.HRReport = (() => {
 #hrr-root th{font-size:10px;font-weight:600;color:var(--tl);text-align:center;padding:5px 6px;border-bottom:1px solid var(--bd);white-space:nowrap}
 #hrr-root th:first-child,#hrr-root td:first-child{text-align:left}
 #hrr-root td{padding:5px 6px;border-bottom:1px solid #f1f3ef;text-align:center;white-space:nowrap}
-#hrr-root tr.hs td{background:#f4f6f2;font-weight:700;color:var(--td);font-size:11px;border-bottom:1px solid var(--bd)}
+#hrr-root tr.hs td{background:#f3f7fb;font-weight:700;color:var(--td);font-size:11px;border-bottom:1px solid var(--bd)}
 #hrr-root tr.sub td:first-child{padding-left:18px;color:var(--tm)}
 #hrr-root tr.calc td{color:var(--tm);font-style:italic}
-#hrr-root td.ok{background:rgba(42,157,143,.16);font-weight:700}
-#hrr-root td.bad{background:rgba(192,57,43,.14);font-weight:700}
+#hrr-root td.ok{background:rgba(141,184,222,.28);font-weight:700}
+#hrr-root td.bad{background:rgba(242,210,122,.45);font-weight:700;color:#8a5a00}
 #hrr-root .tw{overflow-x:auto}`;
     document.head.appendChild(s);
   }
@@ -88,14 +90,14 @@ window.HRReport = (() => {
     const tile = (c, l, val, s, title) => `<div class="t" style="--c:${c}"${title ? ` title="${esc(title)}"` : ''}><div class="l">${l}</div><div class="v">${val}</div><div class="s">${s}</div></div>`;
 
     const tiles = `<div class="k">` +
-      tile(A, `Штат на кінець ${mName(i)}`, `${n0(head)}${dl(head, headP)}`, headP != null && head != null ? `${sgn(head - headP)}${n0(Math.abs((head - headP) / headP * 100))}% за місяць` : '', 'Кількість співробітників на кінець місяця') +
-      tile(net == null ? A : net >= 0 ? GD : R, 'Рух штату за місяць', `${net == null ? '—' : sgn(net) + n0(Math.abs(net))}`, `прийнято <b>${n0(hired)}</b> (ЛП ${n0(v(R_.hLP, i))} · адмінка ${n0(v(R_.hAdm, i))}) · звільнено <b>${n0(fired)}</b>`, 'Чистий приріст = прийнято (ЛП + адмінка) − звільнено') +
-      tile(tCol(R_.turn, turn), 'Плинність штату', `<span style="color:${tCol(R_.turn, turn)}">${n0(turn)}%</span>${dl(turn, turnP, ' п.п.')}`, R_.turn && R_.turn.target ? `ціль ≤ ${n0(R_.turn.target.max)}% · ${turn != null && turn <= R_.turn.target.max ? 'в межах' : 'вище цілі'}` : '', 'Звільнені за місяць ÷ штат') +
-      tile(tCol(R_.intern, intern), 'Плинність стажерів', `<span style="color:${tCol(R_.intern, intern)}">${n0(intern)}%</span>${dl(intern, internP, ' п.п.')}`, R_.intern && R_.intern.target ? `ціль ≤ ${n0(R_.intern.target.max)}% · ${intern != null && intern <= R_.intern.target.max ? 'в межах' : 'вище цілі'}` : '') +
-      tile(Y, 'Відкриті позиції', `${n0(open)}${dl(open, openP)}`, `ЛП ${n0(v(R_.oLP, i))} · адмінка ${n0(v(R_.oAdm, i))}${open != null && head ? ` · ${n0(open / head * 100)}% від штату` : ''}`, 'Відкриті позиції на кінець місяця; % від штату — скільки людей бракує відносно поточного штату') +
-      tile(G, 'Закрито позицій', `${n0(closed)}${dl(closed, closedP)}`, closed != null && open != null ? `закрито ${n0(closed / (closed + open) * 100)}% потреби місяця (закриті ÷ закриті + відкриті)` : '', 'Кількість закритих позицій (загальна)') +
-      tile(costMom == null ? A : costMom > 0 ? Y : GD, 'Вартість найму', costMom == null ? '—' : `${sgn(costMom)}${n0(Math.abs(costMom))}%`, `до попер. місяця${cphMom != null ? ` · <b>на 1 закриту позицію ${sgn(cphMom)}${n0(Math.abs(cphMom))}%</b>` : ''}`, 'Суми в гривнях не публікуються (публічний репозиторій) — лише зміна до попереднього місяця. На 1 позицію = вартість найму ÷ закриті позиції') +
-      tile(sick != null && sickP != null && sick > sickP * 1.5 ? R : A, 'Лікарняні', `${n0(sick)}${dl(sick, sickP)}`, `${sick != null && head ? n0(sick / head * 100) + ' на 100 співробітників' : ''}${R_.enps ? ` · eNPS ${R_.enps.values && R_.enps.values.some(x => x != null) ? n0(R_.enps.values.filter(x => x != null).slice(-1)[0]) : '— (щоквартально, ще не заповнено)'}` : ''}`) +
+      tile(BL, `Штат · ${mName(i)}`, `${n0(head)}${dl(head, headP)}`, headP != null && head != null ? `${sgn(head - headP)}${n0(Math.abs((head - headP) / headP * 100))}% за місяць` : '', 'Кількість співробітників на кінець місяця') +
+      tile(YL, 'Рух штату', `${net == null ? '—' : sgn(net) + n0(Math.abs(net))}`, `+${n0(hired)} (ЛП ${n0(v(R_.hLP, i))}, адм. ${n0(v(R_.hAdm, i))}) · −${n0(fired)}`, 'Чистий приріст = прийнято (ЛП + адмінка) − звільнено') +
+      tile(BL, 'Плинність штату', `<span style="color:${tCol(R_.turn, turn)}">${n0(turn)}%</span>${dl(turn, turnP, ' п.п.')}`, R_.turn && R_.turn.target ? `ціль ≤${n0(R_.turn.target.max)}% · ${turn != null && turn <= R_.turn.target.max ? 'в межах' : 'вище'}` : '', 'Звільнені за місяць ÷ штат') +
+      tile(YL, 'Плинність стажерів', `<span style="color:${tCol(R_.intern, intern)}">${n0(intern)}%</span>${dl(intern, internP, ' п.п.')}`, R_.intern && R_.intern.target ? `ціль ≤${n0(R_.intern.target.max)}% · ${intern != null && intern <= R_.intern.target.max ? 'в межах' : 'вище'}` : '') +
+      tile(YL, 'Відкриті позиції', `${n0(open)}${dl(open, openP)}`, `ЛП ${n0(v(R_.oLP, i))} · адм. ${n0(v(R_.oAdm, i))}${open != null && head ? ` · ${n0(open / head * 100)}% штату` : ''}`, 'Відкриті позиції на кінець місяця; % від штату — скільки людей бракує відносно поточного штату') +
+      tile(BL, 'Закрито позицій', `${n0(closed)}${dl(closed, closedP)}`, closed != null && open != null ? `${n0(closed / (closed + open) * 100)}% потреби місяця` : '', 'Кількість закритих позицій (загальна). % потреби = закриті ÷ (закриті + відкриті)') +
+      tile(YL, 'Вартість найму', costMom == null ? '—' : `${sgn(costMom)}${n0(Math.abs(costMom))}%`, `до попер. міс.${cphMom != null ? ` · на 1 позицію <b>${sgn(cphMom)}${n0(Math.abs(cphMom))}%</b>` : ''}`, 'Суми в гривнях не публікуються (публічний репозиторій) — лише зміна до попереднього місяця. На 1 позицію = вартість найму ÷ закриті позиції') +
+      tile(BL, 'Лікарняні', `${n0(sick)}${dl(sick, sickP)}`, `${sick != null && head ? n0(sick / head * 100) + ' на 100 осіб' : ''}${R_.enps ? ` · eNPS ${R_.enps.values && R_.enps.values.some(x => x != null) ? n0(R_.enps.values.filter(x => x != null).slice(-1)[0]) : '—'}` : ''}`) +
       `</div>`;
 
     // таблиця: усі місяці року з листа (порожні — «—»)
@@ -122,12 +124,12 @@ window.HRReport = (() => {
     body += `<tr class="hs"><td colspan="${M.length + 2}">Розрахункові</td></tr>` + calc.map(([l, f, u]) => `<tr class="calc"><td>${l}</td>${M.map((_, k) => { const x = f(k); return `<td>${x == null ? '—' : (x > 0 && /приріст/.test(l) ? '+' : '') + n0(x) + (u || '')}</td>`; }).join('')}<td></td></tr>`).join('');
 
     const table = `<div class="c" style="margin-top:10px"><div class="h">Звіт HR — ${rep.year || ''} по місяцях</div>
-      <div class="n">Дані — лист «Звіт HR» таблиці HR відділу, оновлення щогодини. Зелене / червоне — у межах / вище цілі. Суми в гривнях і зарплати не публікуються (репозиторій дашборда публічний): для витрат показано лише зміну до попереднього місяця.</div>
+      <div class="n">Дані — лист «Звіт HR» таблиці HR відділу, оновлення щогодини. Блакитне / жовте — у межах / вище цілі. Суми в гривнях і зарплати не публікуються (репозиторій дашборда публічний): для витрат показано лише зміну до попереднього місяця.</div>
       <div class="tw"><table><thead><tr><th>Показник</th>${M.map(m => `<th>${esc(m)}</th>`).join('')}<th>Ціль</th></tr></thead><tbody>${body}</tbody></table></div></div>`;
 
     const charts = `<div class="g2" style="margin-top:10px">
-      <div class="c"><div class="h">Рух штату</div><div class="n">прийнято (ЛП, адмінка) ↑ · звільнено ↓ · лінія — штат на кінець місяця</div><div style="height:200px"><canvas id="hrr-flow"></canvas></div></div>
-      <div class="c"><div class="h">Плинність проти цілей, %</div><div class="n">штат (ціль ≤ ${R_.turn && R_.turn.target ? n0(R_.turn.target.max) : '—'}%) і стажери (ціль ≤ ${R_.intern && R_.intern.target ? n0(R_.intern.target.max) : '—'}%) · пунктир — ціль</div><div style="height:200px"><canvas id="hrr-turn"></canvas></div></div></div>`;
+      <div class="c"><div class="h">Рух штату</div><div class="n">прийнято (ЛП, адмінка) ↑ · звільнено ↓ · лінія — штат на кінець місяця</div><div style="height:180px"><canvas id="hrr-flow"></canvas></div></div>
+      <div class="c"><div class="h">Плинність проти цілей, %</div><div class="n">штат (ціль ≤ ${R_.turn && R_.turn.target ? n0(R_.turn.target.max) : '—'}%) і стажери (ціль ≤ ${R_.intern && R_.intern.target ? n0(R_.intern.target.max) : '—'}%) · пунктир — ціль</div><div style="height:180px"><canvas id="hrr-turn"></canvas></div></div></div>`;
 
     root.innerHTML = tiles + charts + table;
     drawCharts(rep, R_, F);
@@ -147,16 +149,16 @@ window.HRReport = (() => {
     const lg = { position: 'top', labels: { usePointStyle: true, padding: 8, font: { size: 10 } } };
     const dv = c => c.dataset.data[c.dataIndex];   // у контексті datalabels немає c.raw
     const dlab = { display: c => dv(c) != null && dv(c) !== 0, anchor: 'end', align: c => dv(c) < 0 ? 'bottom' : 'top', offset: 1, font: { size: 9, weight: '700' }, color: '#3b4a44', formatter: x => x == null ? '' : Math.abs(x) };
-    const inBar = { display: c => dv(c) != null && dv(c) !== 0, anchor: 'center', align: 'center', font: { size: 10, weight: '700' }, color: '#fff', formatter: x => x == null ? '' : Math.abs(x) };
+    const inBar = { display: c => dv(c) != null && dv(c) !== 0, anchor: 'center', align: 'center', font: { size: 10, weight: '700' }, color: '#2b3a4a', formatter: x => x == null ? '' : Math.abs(x) };
     // шкали розводимо: стовпчики — у нижній частині, лінія штату — над ними (без накладання підписів)
     const pos = ks.map(k => (val(R_.hLP, k) || 0) + (val(R_.hAdm, k) || 0)), neg = ks.map(k => val(R_.fired, k) || 0);
     const hv = ks.map(k => val(R_.head, k)).filter(x => x != null), hMin = hv.length ? Math.min(...hv) : 0, hMax = hv.length ? Math.max(...hv) : 1, hR = Math.max(10, hMax - hMin);
     chart('hrr-flow', { type: 'bar', data: { labels, datasets: [
-      { label: 'Прийнято — ЛП', data: ks.map(k => val(R_.hLP, k)), backgroundColor: 'rgba(42,157,143,.75)', stack: 'h', borderRadius: 3, yAxisID: 'y', datalabels: inBar },
-      { label: 'Прийнято — адмінка', data: ks.map(k => val(R_.hAdm, k)), backgroundColor: 'rgba(69,123,157,.75)', stack: 'h', borderRadius: 3, yAxisID: 'y', datalabels: inBar },
-      { label: 'Звільнено', data: ks.map(k => { const x = val(R_.fired, k); return x == null ? null : -x; }), backgroundColor: 'rgba(192,57,43,.7)', stack: 'h', borderRadius: 3, yAxisID: 'y', datalabels: inBar },
-      { label: 'Штат', type: 'line', data: ks.map(k => val(R_.head, k)), borderColor: '#1A2B3C', backgroundColor: '#1A2B3C', borderWidth: 2, pointRadius: 3, tension: .25, yAxisID: 'y1', spanGaps: false,
-        datalabels: { display: c => dv(c) != null, align: 'top', offset: 3, font: { size: 9, weight: '700' }, color: '#1A2B3C', backgroundColor: 'rgba(255,255,255,.85)', borderRadius: 3, padding: { top: 1, bottom: 1, left: 3, right: 3 } } },
+      { label: 'Прийнято — ЛП', data: ks.map(k => val(R_.hLP, k)), backgroundColor: BL, stack: 'h', borderRadius: 3, yAxisID: 'y', datalabels: inBar },
+      { label: 'Прийнято — адмінка', data: ks.map(k => val(R_.hAdm, k)), backgroundColor: BL2, stack: 'h', borderRadius: 3, yAxisID: 'y', datalabels: inBar },
+      { label: 'Звільнено', data: ks.map(k => { const x = val(R_.fired, k); return x == null ? null : -x; }), backgroundColor: YL, stack: 'h', borderRadius: 3, yAxisID: 'y', datalabels: inBar },
+      { label: 'Штат', type: 'line', data: ks.map(k => val(R_.head, k)), borderColor: BLD, backgroundColor: BLD, borderWidth: 2, pointRadius: 3, tension: .25, yAxisID: 'y1', spanGaps: false,
+        datalabels: { display: c => dv(c) != null, align: 'top', offset: 3, font: { size: 9, weight: '700' }, color: BLD, backgroundColor: 'rgba(255,255,255,.85)', borderRadius: 3, padding: { top: 1, bottom: 1, left: 3, right: 3 } } },
     ] }, plugins: window.ChartDataLabels ? [ChartDataLabels] : [],
     options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 14 } }, interaction: { mode: 'index', intersect: false },
       plugins: { legend: lg, tooltip: { callbacks: { label: c => c.raw == null ? null : ` ${c.dataset.label}: ${Math.abs(c.raw)}` } } },
@@ -166,9 +168,9 @@ window.HRReport = (() => {
 
     const tline = (r, c) => r && r.target ? [{ label: `ціль ${r === R_.turn ? 'штат' : 'стажери'} ≤ ${r.target.max}%`, type: 'line', data: ks.map(() => r.target.max), borderColor: c, borderDash: [5, 4], borderWidth: 1.2, pointRadius: 0, fill: false, datalabels: { display: false } }] : [];
     chart('hrr-turn', { type: 'bar', data: { labels, datasets: [
-      { label: 'Плинність штату', data: ks.map(k => val(R_.turn, k)), backgroundColor: 'rgba(69,123,157,.75)', borderRadius: 3, datalabels: Object.assign({}, dlab, { formatter: x => x == null ? '' : n0(x) + '%' }) },
-      { label: 'Плинність стажерів', data: ks.map(k => val(R_.intern, k)), backgroundColor: 'rgba(186,117,23,.7)', borderRadius: 3, datalabels: Object.assign({}, dlab, { formatter: x => x == null ? '' : n0(x) + '%' }) },
-      ...tline(R_.turn, A), ...tline(R_.intern, Y),
+      { label: 'Плинність штату', data: ks.map(k => val(R_.turn, k)), backgroundColor: BL, borderRadius: 3, datalabels: Object.assign({}, dlab, { formatter: x => x == null ? '' : n0(x) + '%' }) },
+      { label: 'Плинність стажерів', data: ks.map(k => val(R_.intern, k)), backgroundColor: YL, borderRadius: 3, datalabels: Object.assign({}, dlab, { formatter: x => x == null ? '' : n0(x) + '%' }) },
+      ...tline(R_.turn, BLD), ...tline(R_.intern, YLD),
     ] }, plugins: window.ChartDataLabels ? [ChartDataLabels] : [],
     options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 14 } }, plugins: { legend: lg, tooltip: { callbacks: { label: c => c.raw == null ? null : ` ${c.dataset.label}: ${n0(c.raw)}%` } } },
       scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: GRID }, ticks: { callback: x => x + '%' } } } } });
