@@ -1125,6 +1125,7 @@ def process_month(month_start, month_end, month_key, complete):
     try:
         _t = time.time()
         cohort = process_created_cohort(month_start, month_end, source_names)
+        cohort["asOf"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         print(f"[CRM] ⏱ когорта {month_key}: {time.time() - _t:.0f} с")
     except Exception as e:
         print(f"[CRM] ⚠ Когорта не порахована: {e}")
@@ -1158,6 +1159,8 @@ def process_month(month_start, month_end, month_key, complete):
 
 
 HISTORY = Path(__file__).parent / "data" / "crm_monthly_history.json"
+MATURE_DAYS = int(os.environ.get("CRM_COHORT_MATURE_DAYS", "62"))        # скільки днів після кінця місяця «дозріває» когорта
+COHORT_REFRESH_HOURS = float(os.environ.get("CRM_COHORT_REFRESH_HOURS", "20"))  # як часто перераховувати (≈ раз на добу)
 
 
 def update_monthly_history(current, today):
@@ -1188,6 +1191,37 @@ def update_monthly_history(current, today):
             months[key] = process_month(start, end, key, True)
         except Exception as e:
             print(f"[CRM] ⚠ Не вдалось дофіналізувати {key}: {e}")
+
+    # v7.25 (13.11.2026): когорта «створені в місяці → їхня ПОТОЧНА стадія» для минулих місяців більше не
+    # заморожується на останньому запуску місяця. Угоди, створені наприкінці місяця, закриваються вже в
+    # наступному (жовтень: 60 WON на 31.10 проти 101 у вивантаженні CRM 11.11). Тому когорти MATURE_MONTHS
+    # останніх закритих місяців перераховуємо раз на добу; решта місяця (WON за датою закриття тощо) не змінюється.
+    now = datetime.utcnow()
+    try:
+        names = None
+        for key in sorted(months)[::-1]:
+            m = months[key]
+            y, mo = int(key[:4]), int(key[5:7])
+            start, end = month_bounds(y, mo)
+            if key == current["month"] or end >= today or (today - end).days > MATURE_DAYS or not m.get("cohort"):
+                continue
+            asof = (m["cohort"] or {}).get("asOf") or m.get("fetched_at") or ""
+            try:
+                age_h = (now - datetime.strptime(asof, "%Y-%m-%dT%H:%M:%SZ")).total_seconds() / 3600
+            except ValueError:
+                age_h = 1e9
+            if age_h < COHORT_REFRESH_HOURS:
+                continue
+            names = names if names is not None else fetch_source_names()
+            print(f"[CRM] Оновлюю когорту минулого місяця {key} (стадії на {asof or '—'})")
+            t0 = time.time()
+            c = process_created_cohort(start, end, names)
+            c["asOf"] = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+            old_f = (m["cohort"] or {}).get("funnel") or {}
+            m["cohort"] = c
+            print(f"[CRM] ✓ {key}: WON {old_f.get('won')} → {c['funnel']['won']}, усі {old_f.get('all')} → {c['funnel']['all']} ({time.time() - t0:.0f} с)")
+    except Exception as e:
+        print(f"[CRM] ⚠ Оновлення когорт минулих місяців: {e}")
 
     history["months"] = sorted(months.values(), key=lambda m: m["month"])
     history["updated_at"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")

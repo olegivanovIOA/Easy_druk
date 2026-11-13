@@ -104,6 +104,14 @@ window.LeadgenLoader = (() => {
   }
   const listSt = st => st && st.top && st.top.length ? st.top.map(([k, v]) => `${esc(shortSt(k))} <b>${v.toLocaleString('uk-UA')}</b>`).join(' · ') + (st.other ? ` · інші ${st.other}` : '') : '';
 
+  // v7.25: на який момент зняті стадії когорти (для минулих місяців — щоденний перерахунок, не заморожений кінець місяця)
+  function asOfTxt(c, m) {
+    const t = c.asOf || m.fetched_at; if (!t) return 'оновлення щогодини';
+    const d = new Date(t), s = d.toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const old = Date.now() - d > 36 * 3600e3 && m.complete !== false;
+    return `стадії станом на <b${old ? ` style="color:${R}" title="Когорта не оновлювалась понад добу — після оновлення v7.25 перераховується щодня"` : ''}>${s}</b>`;
+  }
+
   function renderFunnel(c, pc, m) {
     const el = $('mkt-leadgen-funnel'); if (!el) return;
     const f = c.funnel, pf = pc && pc.funnel, S = stepsOf(c);
@@ -120,7 +128,7 @@ window.LeadgenLoader = (() => {
       ['Успішні (WON)', 'won', c.definitions && c.definitions.won,
         `стадія «успішна» у воронках 24 / 18 / 32 (WON воронки 0 — лише скринінг). Ще <b>${inWork.toLocaleString('uk-UA')}</b> у роботі${S.inWork && S.inWork.top.length ? ': ' + listSt(S.inWork) : ''}${m.complete === false || inWork > f.won ? ' — WON цього місяця ще зростатиме' : ''}`],
     ];
-    el.innerHTML = `<div style="font-size:10.5px;color:var(--tl);margin:0 0 6px;line-height:1.5">ℹ️ <b>Як рахується:</b> угоди Bitrix, <b>створені в ${m.month}</b>, за їхньою <b>поточною стадією</b> (оновлення щогодини) — числа змінюються, коли менеджери переводять угоди. Кожен крок = попередній мінус угоди на стадіях, вказаних під плиткою. ▲▼ — до попереднього місяця${m.complete === false ? ` — <b style="color:${R}">місяць триває: неповний місяць порівнюється з повним, тож ▼ тут очікуване</b>` : ''}.</div>` +
+    el.innerHTML = `<div style="font-size:10.5px;color:var(--tl);margin:0 0 6px;line-height:1.5">ℹ️ <b>Як рахується:</b> угоди Bitrix, <b>створені в ${m.month}</b>, за їхньою <b>поточною стадією</b> — ${asOfTxt(c, m)}. Числа змінюються, коли менеджери переводять угоди: угоди кінця місяця часто закриваються вже в наступному, тому когорта минулого місяця ще ~2 місяці «дозріває» (перераховується щодня). Кожен крок = попередній мінус угоди на стадіях, вказаних під плиткою. ▲▼ — до попереднього місяця${m.complete === false ? ` — <b style="color:${R}">місяць триває: неповний місяць порівнюється з повним, тож ▼ тут очікуване</b>` : ''}.</div>` +
       `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">` + steps.map(([lbl, k, tip, expl], i) => {
       const v = f[k], prevStep = i ? f[steps[i - 1][1]] : null;
       const conv = i ? pct(v, prevStep) : null;
