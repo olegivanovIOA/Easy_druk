@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-fetch_ga4.py — Easy 3D Print Dashboard v5.1
+fetch_ga4.py — Easy 3D Print Dashboard v7.26 (інкрементальне оновлення, повтори, без падіння job)
 Google Analytics 4 (ресурс easy3dprint.com.ua, 378398411) → data/ga4.json
 
 Що забираємо (тільки агрегати, жодних даних про конкретних відвідувачів):
@@ -41,6 +41,15 @@ START = os.environ.get("GA4_START", "2026-01-01")
 API = "https://analyticsdata.googleapis.com/v1beta/properties/{pid}:runReport"
 SCOPE = "https://www.googleapis.com/auth/analytics.readonly"
 PAGE = 100000
+# v7.26: інкрементальне оновлення. Щогодини беремо лише останні INC_DAYS днів (GA4 і Ads допрацьовують
+# дані ~3 доби) і доклеюємо до збереженої історії; повний перезбір з START — раз на добу (перший запуск дня)
+# або якщо файлу ще немає. Раніше КОЖЕН запуск тягнув усе з 01.01 — 8+ хв і тайм-аути API.
+INC_DAYS = int(os.environ.get("GA4_INCREMENTAL_DAYS", "7"))
+FULL = os.environ.get("GA4_FULL", "").strip() in ("1", "true", "yes")
+TIMEOUT = int(os.environ.get("GA4_TIMEOUT", "90"))
+BUDGET = int(os.environ.get("GA4_BUDGET_SEC", "420"))   # бюджет часу на весь збір: решта звітів → попередні дані
+T0 = time.time()
+LAST_ERR = {"msg": ""}
 EXTRA = [x.split("=", 1) if "=" in x else [x, "site" + x] for x in
          (os.environ.get("GA4_EXTRA_PROPERTIES", "353447917=ukr3d") or "").replace(";", ",").split(",") if x.strip()]
 EXTRA = [(a.strip(), b.strip()) for a, b in EXTRA if a.strip().isdigit() and a.strip() != PROPERTY_ID]
@@ -112,7 +121,19 @@ def run_report(s, dims, metrics, start, end, limit=PAGE, order_metric=None, filt
             body["metricFilter"] = filter_expr
         if dim_filter:
             body["dimensionFilter"] = dim_filter
-        r = s.post(API.format(pid=pid or PROPERTY_ID), json=body, timeout=60)
+        if time.time() - T0 > BUDGET:
+            raise GA4Error(f"мережа: вичерпано бюджет часу {BUDGET} с — звіт пропущено")
+        r = None
+        for a in range(4):   # v7.26: повтори при тайм-ауті / 429 / 5xx замість падіння всієї job
+            try:
+                r = s.post(API.format(pid=pid or PROPERTY_ID), json=body, timeout=TIMEOUT)
+                if r.status_code in (429, 500, 502, 503, 504) and a < 3:
+                    print(f"[GA4]   ↻ HTTP {r.status_code}, повтор {a + 1}/3"); time.sleep(5 * 3 ** a); continue
+                break
+            except requests.RequestException as e:
+                if a == 3 or time.time() - T0 > BUDGET:
+                    raise GA4Error(f"мережа: {e.__class__.__name__} після {a + 1} спроб")
+                print(f"[GA4]   ↻ {e.__class__.__name__}, повтор {a + 1}/3"); time.sleep(5 * 3 ** a)
         if r.status_code != 200:
             try:
                 err = r.json().get("error", {})
@@ -154,8 +175,14 @@ def try_report(s, variants, metrics, start, end, label, **kw):
             if "PERMISSION_DENIED" in msg or msg.startswith("403"):
                 raise
             print(f"[GA4] ⚠ {label} з вимірами {dims}: {msg}")
+    LAST_ERR["msg"] = str(last)
     print(f"[GA4] ✗ {label}: не вдалося ({last})")
     return [], None
+
+
+def res_full_at(prev, full):
+    """Дата останнього повного перезбору (для «повний — раз на добу»)."""
+    return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ") if full else prev.get("fullAt")
 
 
 def d8(v):
@@ -181,8 +208,27 @@ def main():
     s = session()
     today = date.today().isoformat()
     d30 = (date.today() - timedelta(days=29)).isoformat()
+    prev = {}
+    if OUTPUT.exists():
+        try:
+            prev = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        except Exception:
+            prev = {}
+    full = FULL or not prev or prev.get("from") != START or (prev.get("fullAt") or "")[:10] != today
+    since = START if full else max(START, (date.today() - timedelta(days=INC_DAYS - 1)).isoformat())
+    print(f"[GA4] Режим: {'ПОВНИЙ з ' + START if full else f'інкрементальний з {since} ({INC_DAYS} дн)'}")
     res = {"fetched_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-           "property": PROPERTY_ID, "from": START, "to": today, "currency": "UAH"}
+           "property": PROPERTY_ID, "from": START, "to": today, "currency": "UAH",
+           "fullAt": res_full_at(prev, full), "failed": []}
+
+    def merge(key, new, ok):
+        """Звіт по днях: старі дні — зі збереженого файлу, вікно since..today — свіже.
+        Звіт не вдався → блок лишається попереднім цілком (дашборд не втрачає дані)."""
+        old = prev.get(key) or []
+        if not ok:
+            res["failed"].append(key)
+            return old
+        return [r for r in old if r.get("d", "") < since] + new if not full else new
 
     try:
         # ── 1. Вартість Google Ads по днях × кампаніях ──
@@ -191,15 +237,21 @@ def main():
             [["date", "sessionGoogleAdsCampaignName", "sessionGoogleAdsAccountName"],
              ["date", "sessionGoogleAdsCampaignName"],
              ["date", "sessionCampaignName"]],
-            ["advertiserAdCost", "advertiserAdClicks", "advertiserAdImpressions"], START, today, "Вартість Ads")
+            ["advertiserAdCost", "advertiserAdClicks", "advertiserAdImpressions"], since, today, "Вартість Ads")
         camp_dim = dims[1] if dims else None
         acc_dim = dims[2] if dims and len(dims) > 2 else None
-        res["adsCost"] = [
+        new_cost = [
             {"d": d8(r["date"]), "c": r.get(camp_dim, ""), "a": r.get(acc_dim, "") if acc_dim else "",
              "cost": r2(r["advertiserAdCost"]), "clk": int(r["advertiserAdClicks"]), "imp": int(r["advertiserAdImpressions"])}
             for r in rows
             if r.get(camp_dim) not in ("", "(not set)") and (r["advertiserAdCost"] or r["advertiserAdClicks"])]
-        res["adsCost"].sort(key=lambda x: (x["d"], x["c"]))
+        # рядки додаткових ресурсів (site=…) окремо: їх доклеїмо нижче з тим самим вікном
+        old_cost = [r for r in (prev.get("adsCost") or []) if not r.get("site")]
+        if not dims:
+            res["failed"].append("adsCost"); new_main = old_cost
+        else:
+            new_main = new_cost if full else [r for r in old_cost if r.get("d", "") < since] + new_cost
+        res["adsCost"] = sorted(new_main, key=lambda x: (x["d"], x["c"]))
     except GA4Error as e:
         if "PERMISSION_DENIED" in str(e) or str(e).startswith("403"):
             print(f"::error::GA4: немає доступу до ресурсу {PROPERTY_ID}. Додай service account у GA → "
@@ -211,82 +263,91 @@ def main():
     # ── 2. Трафік по днях × source × medium × campaign ──
     key_metric = "keyEvents"
     rows, dims = try_report(s, [["date", "sessionSource", "sessionMedium", "sessionCampaignName"]],
-                            ["sessions", "totalUsers", "engagedSessions", "keyEvents"], START, today, "Трафік")
-    if not dims:  # дуже старі ресурси без keyEvents у API
+                            ["sessions", "totalUsers", "engagedSessions", "keyEvents"], since, today, "Трафік")
+    if not dims and "мережа" not in LAST_ERR["msg"]:  # дуже старі ресурси без keyEvents у API (не при збої мережі)
         key_metric = "conversions"
         rows, dims = try_report(s, [["date", "sessionSource", "sessionMedium", "sessionCampaignName"]],
-                                ["sessions", "totalUsers", "engagedSessions", "conversions"], START, today, "Трафік (conversions)")
-    res["traffic"] = [
+                                ["sessions", "totalUsers", "engagedSessions", "conversions"], since, today, "Трафік (conversions)")
+    res["traffic"] = merge("traffic", [
         {"d": d8(r["date"]), "s": r["sessionSource"], "m": r["sessionMedium"], "c": r["sessionCampaignName"],
          "ses": int(r["sessions"]), "usr": int(r["totalUsers"]), "eng": int(r["engagedSessions"]), "ke": r2(r[key_metric])}
-        for r in rows if r.get("sessions")]
+        for r in rows if r.get("sessions")], bool(dims))
     res["traffic"].sort(key=lambda x: (x["d"], -x["ses"]))
 
     # ── 3. Групи каналів GA по днях ──
-    rows, _ = try_report(s, [["date", "sessionDefaultChannelGroup"]],
-                         ["sessions", "totalUsers", "newUsers", "engagedSessions", key_metric], START, today, "Канали GA")
-    res["channels"] = sorted(
+    rows, dd = try_report(s, [["date", "sessionDefaultChannelGroup"]],
+                          ["sessions", "totalUsers", "newUsers", "engagedSessions", key_metric], since, today, "Канали GA")
+    res["channels"] = sorted(merge("channels",
         [{"d": d8(r["date"]), "g": r["sessionDefaultChannelGroup"], "ses": int(r["sessions"]), "usr": int(r["totalUsers"]),
-          "new": int(r["newUsers"]), "eng": int(r["engagedSessions"]), "ke": r2(r[key_metric])} for r in rows],
+          "new": int(r["newUsers"]), "eng": int(r["engagedSessions"]), "ke": r2(r[key_metric])} for r in rows], bool(dd)),
         key=lambda x: (x["d"], -x["ses"]))
 
     # ── 4. Ключові події по днях × назва події ──
-    rows, _ = try_report(s, [["date", "eventName"]], [key_metric], START, today, "Ключові події")
-    res["events"] = sorted([{"d": d8(r["date"]), "e": r["eventName"], "n": r2(r[key_metric])} for r in rows if r[key_metric] > 0],
+    rows, dd = try_report(s, [["date", "eventName"]], [key_metric], since, today, "Ключові події")
+    res["events"] = sorted(merge("events", [{"d": d8(r["date"]), "e": r["eventName"], "n": r2(r[key_metric])} for r in rows if r[key_metric] > 0], bool(dd)),
                            key=lambda x: (x["d"], x["e"]))
 
     # ── 5. Зрізи за 30 днів (топ-N) ──
-    def top(dim, label, n):
-        rows, _ = try_report(s, [[dim]], ["sessions", "engagedSessions", key_metric], d30, today, label,
-                             limit=n, order_metric="sessions")
-        return [{"k": r[dim], "ses": int(r["sessions"]), "eng": int(r["engagedSessions"]), "ke": r2(r[key_metric])} for r in rows]
+    def keep(sec, k, rows, ok):     # зріз за 30 днів не вдався → лишаємо попередній
+        if ok:
+            return rows
+        res["failed"].append(f"{sec}.{k}")
+        return ((prev.get(sec) or {}).get(k)) or []
+
+    def top(dim, label, n, k):
+        rows, dd = try_report(s, [[dim]], ["sessions", "engagedSessions", key_metric], d30, today, label,
+                              limit=n, order_metric="sessions")
+        return keep("last30", k, [{"k": r[dim], "ses": int(r["sessions"]), "eng": int(r["engagedSessions"]), "ke": r2(r[key_metric])} for r in rows], bool(dd))
 
     res["last30"] = {"from": d30, "to": today,
-                     "landing": top("landingPage", "Посадкові сторінки", 30),
-                     "cities": top("city", "Міста", 25),
-                     "devices": top("deviceCategory", "Пристрої", 5)}
+                     "landing": top("landingPage", "Посадкові сторінки", 30, "landing"),
+                     "cities": top("city", "Міста", 25, "cities"),
+                     "devices": top("deviceCategory", "Пристрої", 5, "devices")}
 
     # ── 6. v5.3: SEO — посадкові сторінки з ОРГАНІЧНОГО пошуку, 30 днів + попередні 30 (для динаміки) ──
     organic = {"filter": {"fieldName": "sessionDefaultChannelGroup", "stringFilter": {"matchType": "EXACT", "value": "Organic Search"}}}
     p_to = (date.today() - timedelta(days=30)).isoformat()
     p_from = (date.today() - timedelta(days=59)).isoformat()
 
-    def org_landing(start, end, label):
-        rows, _ = try_report(s, [["landingPage"]], ["sessions", "engagedSessions", "totalUsers", key_metric], start, end, label,
-                             limit=100, order_metric="sessions", dim_filter=organic)
-        return [{"k": r["landingPage"], "ses": int(r["sessions"]), "eng": int(r["engagedSessions"]),
-                 "usr": int(r["totalUsers"]), "ke": r2(r[key_metric])} for r in rows]
+    def org_landing(start, end, label, k):
+        rows, dd = try_report(s, [["landingPage"]], ["sessions", "engagedSessions", "totalUsers", key_metric], start, end, label,
+                              limit=100, order_metric="sessions", dim_filter=organic)
+        return keep("seo", k, [{"k": r["landingPage"], "ses": int(r["sessions"]), "eng": int(r["engagedSessions"]),
+                 "usr": int(r["totalUsers"]), "ke": r2(r[key_metric])} for r in rows], bool(dd))
 
     res["seo"] = {"from": d30, "to": today, "prevFrom": p_from, "prevTo": p_to,
-                  "landingOrganic": org_landing(d30, today, "SEO: органічні посадкові (30 дн)"),
-                  "landingOrganicPrev": org_landing(p_from, p_to, "SEO: органічні посадкові (попер. 30 дн)")}
+                  "landingOrganic": org_landing(d30, today, "SEO: органічні посадкові (30 дн)", "landingOrganic"),
+                  "landingOrganicPrev": org_landing(p_from, p_to, "SEO: органічні посадкові (попер. 30 дн)", "landingOrganicPrev")}
 
     # ── 7. v6.3: ті самі зрізи, але з групою каналу — для фільтра «Весь / SEO / Реклама / Google / FB»
     #     на сторінці для SEO-підрядників (landing / міста / пристрої за 30 днів, події по днях) ──
-    def top_g(dim, label, n):
-        rows, _ = try_report(s, [[dim, "sessionDefaultChannelGroup"]], ["sessions", "engagedSessions", key_metric],
-                             d30, today, label, limit=n, order_metric="sessions")
-        return [{"k": r[dim], "g": r["sessionDefaultChannelGroup"], "ses": int(r["sessions"]),
-                 "eng": int(r["engagedSessions"]), "ke": r2(r[key_metric])} for r in rows]
+    def top_g(dim, label, n, k):
+        rows, dd = try_report(s, [[dim, "sessionDefaultChannelGroup"]], ["sessions", "engagedSessions", key_metric],
+                              d30, today, label, limit=n, order_metric="sessions")
+        return keep("byChannel", k, [{"k": r[dim], "g": r["sessionDefaultChannelGroup"], "ses": int(r["sessions"]),
+                 "eng": int(r["engagedSessions"]), "ke": r2(r[key_metric])} for r in rows], bool(dd))
 
     res["byChannel"] = {"from": d30, "to": today,
-                        "landing": top_g("landingPage", "Посадкові × канал (30 дн)", 800),
-                        "cities": top_g("city", "Міста × канал (30 дн)", 400),
-                        "devices": top_g("deviceCategory", "Пристрої × канал (30 дн)", 80)}
-    rows, _ = try_report(s, [["date", "sessionDefaultChannelGroup", "eventName"]], [key_metric], START, today,
-                         "Ключові події × канал")
-    res["eventsCh"] = sorted([{"d": d8(r["date"]), "g": r["sessionDefaultChannelGroup"], "e": r["eventName"],
-                               "n": r2(r[key_metric])} for r in rows if r[key_metric] > 0],
+                        "landing": top_g("landingPage", "Посадкові × канал (30 дн)", 800, "landing"),
+                        "cities": top_g("city", "Міста × канал (30 дн)", 400, "cities"),
+                        "devices": top_g("deviceCategory", "Пристрої × канал (30 дн)", 80, "devices")}
+    rows, dd = try_report(s, [["date", "sessionDefaultChannelGroup", "eventName"]], [key_metric], since, today,
+                          "Ключові події × канал")
+    res["eventsCh"] = sorted(merge("eventsCh", [{"d": d8(r["date"]), "g": r["sessionDefaultChannelGroup"], "e": r["eventName"],
+                               "n": r2(r[key_metric])} for r in rows if r[key_metric] > 0], bool(dd)),
                              key=lambda x: (x["d"], x["g"], x["e"]))
 
     # ── 7. v7.1: вартість Ads з додаткових ресурсів GA4 (Ukr3d) ──
     res["extraProperties"] = []
     for pid, tag in EXTRA:
         st = {"id": pid, "tag": tag, "ok": False, "rows": 0, "cost": 0}
+        old_x = [r for r in (prev.get("adsCost") or []) if r.get("site") == tag]
+        if not full:   # дні до вікна — зі збереженого файлу
+            res["adsCost"] += [r for r in old_x if r.get("d", "") < since]
         try:
             rows, dims = try_report(
                 s, [["date", "sessionGoogleAdsCampaignName", "sessionGoogleAdsAccountName"], ["date", "sessionGoogleAdsCampaignName"]],
-                ["advertiserAdCost", "advertiserAdClicks", "advertiserAdImpressions"], START, today, f"Вартість Ads [{tag} {pid}]", pid=pid)
+                ["advertiserAdCost", "advertiserAdClicks", "advertiserAdImpressions"], since, today, f"Вартість Ads [{tag} {pid}]", pid=pid)
             if dims:
                 have = {(r["d"], r["c"]) for r in res["adsCost"] if tag.lower() in (r.get("a") or "").lower()}
                 add = [{"d": d8(r["date"]), "c": r.get(dims[1], ""), "a": tag, "site": tag,
@@ -296,15 +357,22 @@ def main():
                 res["adsCost"] += add
                 accs = sorted({r.get(dims[2], "") for r in rows} - {""}) if len(dims) > 2 else []
                 st.update(ok=True, rows=len(add), cost=round(sum(r["cost"] for r in add)), accounts=accs)
-                if not add:
+                if not add and full:
                     st["note"] = "у ресурсі немає вартості Ads — перевір Product links → Google Ads links"
                     print(f"[GA4] ℹ {tag} ({pid}): вартості Ads немає — перевір прив'язку Ads-акаунта до цього ресурсу")
             else:
                 st["err"] = "звіт не вдався"
+                if not full:
+                    res["adsCost"] += [r for r in old_x if r.get("d", "") >= since]
+                else:
+                    res["adsCost"] += old_x
+                res["failed"].append(f"adsCost[{tag}]")
         except GA4Error as e:
             msg = str(e)
             st["err"] = "немає доступу (додай service account як Viewer)" if ("PERMISSION_DENIED" in msg or msg.startswith("403")) else msg[:200]
             print(f"::warning::GA4 {tag} ({pid}): {st['err']}")
+            res["adsCost"] += [r for r in old_x if full or r.get("d", "") >= since]   # залишаємо попередні дані
+            res["failed"].append(f"adsCost[{tag}]")
         res["extraProperties"].append(st)
     res["adsCost"].sort(key=lambda x: (x["d"], x["c"]))
 
@@ -315,6 +383,8 @@ def main():
     if not res["adsCost"]:
         print("[GA4] ℹ Вартості Ads немає: перевір, що акаунт Ads прив'язаний до GA (Admin → Product links → Google Ads links).")
 
+    if res["failed"]:
+        print(f"::warning::GA4: не оновились блоки {', '.join(res['failed'])} — залишено попередні дані, наступний запуск спробує знову")
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(res, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"[GA4] ✓ Записано {OUTPUT} ({OUTPUT.stat().st_size // 1024} КБ)")
