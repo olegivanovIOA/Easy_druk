@@ -120109,7 +120109,7 @@
       }
     },
     {
-      "fetched_at": "2026-11-15T04:17:08Z",
+      "fetched_at": "2026-11-15T12:26:43Z",
       "month": "2026-11",
       "bySource": [
         {
@@ -120211,7 +120211,7 @@
         {
           "source": "50",
           "name": "Задать вопрос онлайн",
-          "reviewed": 267,
+          "reviewed": 268,
           "won": 6,
           "lost": 243,
           "junk": 23,
@@ -120499,10 +120499,10 @@
       ],
       "cohort": {
         "funnel": {
-          "all": 815,
-          "clean": 754,
-          "qualified": 427,
-          "activeOrWon": 127,
+          "all": 822,
+          "clean": 761,
+          "qualified": 434,
+          "activeOrWon": 134,
           "won": 6,
           "wonSum": 618281.0,
           "expectedSumActiveWon": 6675467.14
@@ -120567,15 +120567,15 @@
             "other": 36
           },
           "inWork": {
-            "n": 121,
+            "n": 128,
             "top": [
+              [
+                "НОВИЙ лід ( не оброблений )",
+                25
+              ],
               [
                 "Потрібно більше часу для прийняття рішення",
                 22
-              ],
-              [
-                "НОВИЙ лід ( не оброблений )",
-                18
               ],
               [
                 "Згода підтверджена",
@@ -120649,6 +120649,11 @@
             "sum": 0.0
           },
           {
+            "stage": "НОВИЙ лід ( не оброблений )",
+            "deals": 25,
+            "sum": 0.0
+          },
+          {
             "stage": "НЕ отвечает (более 3-х попыток)",
             "deals": 22,
             "sum": 0.0
@@ -120661,11 +120666,6 @@
           {
             "stage": "Ищет в своем ГОРОДЕ",
             "deals": 22,
-            "sum": 0.0
-          },
-          {
-            "stage": "НОВИЙ лід ( не оброблений )",
-            "deals": 18,
             "sum": 0.0
           },
           {
@@ -120764,7 +120764,7 @@
           {
             "key": "CALL",
             "name": "Звонок",
-            "deals": 326,
+            "deals": 328,
             "expectedSum": 614216.52,
             "won": 1,
             "wonSum": 1550.0
@@ -120772,7 +120772,7 @@
           {
             "key": "50",
             "name": "Задать вопрос онлайн",
-            "deals": 245,
+            "deals": 248,
             "expectedSum": 4452.0,
             "won": 0,
             "wonSum": 0.0
@@ -120820,7 +120820,7 @@
           {
             "key": "UC_OZH5IE",
             "name": "Сайт ukr3dprint.com",
-            "deals": 13,
+            "deals": 14,
             "expectedSum": 0.0,
             "won": 0,
             "wonSum": 0.0
@@ -120828,7 +120828,7 @@
           {
             "key": "WEBFORM",
             "name": "CRM-форма",
-            "deals": 10,
+            "deals": 11,
             "expectedSum": 0.0,
             "won": 0,
             "wonSum": 0.0
@@ -120926,7 +120926,7 @@
           {
             "key": "— / —",
             "name": "— / —",
-            "deals": 541,
+            "deals": 545,
             "expectedSum": 5529095.74,
             "won": 3,
             "wonSum": 7731.0
@@ -120966,7 +120966,7 @@
           {
             "key": "google / search_3d_print_Main",
             "name": "google / search_3d_print_Main",
-            "deals": 36,
+            "deals": 37,
             "expectedSum": 24746.4,
             "won": 0,
             "wonSum": 0.0
@@ -120974,7 +120974,7 @@
           {
             "key": "google / search_miltech_Main",
             "name": "google / search_miltech_Main",
-            "deals": 32,
+            "deals": 34,
             "expectedSum": 403934.0,
             "won": 0,
             "wonSum": 0.0
@@ -124028,8 +124028,58 @@
             "d": "2026-11-15",
             "us": "",
             "uc": "",
+            "s": "50",
+            "n": 3,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
+          },
+          {
+            "d": "2026-11-15",
+            "us": "",
+            "uc": "",
+            "s": "CALL",
+            "n": 1,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
+          },
+          {
+            "d": "2026-11-15",
+            "us": "",
+            "uc": "",
             "s": "UC_LJ05D6",
             "n": 2,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
+          },
+          {
+            "d": "2026-11-15",
+            "us": "google",
+            "uc": "search_3d_print_Main",
+            "s": "WEBFORM",
+            "n": 1,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
+          },
+          {
+            "d": "2026-11-15",
+            "us": "google",
+            "uc": "search_miltech_Main",
+            "s": "CALL",
+            "n": 1,
+            "e": 0.0,
+            "w": 0,
+            "ws": 0.0
+          },
+          {
+            "d": "2026-11-15",
+            "us": "google",
+            "uc": "search_miltech_Main",
+            "s": "UC_OZH5IE",
+            "n": 1,
             "e": 0.0,
             "w": 0,
             "ws": 0.0
@@ -124041,7 +124091,7 @@
           "minRevenue12m": 1000000.0
         },
         "retention": {
-          "clientsInCohort": 768,
+          "clientsInCohort": 774,
           "returningClients": 65,
           "repeatBuyers": 19,
           "noClientLinked": 7,
@@ -124052,7 +124102,7 @@
             "winRate": 8.3
           },
           "new": {
-            "deals": 723,
+            "deals": 730,
             "won": 0,
             "wonSum": 0,
             "winRate": 0.0
@@ -124084,7 +124134,7 @@
           {
             "id": 0,
             "title": "ЛИДЫ (первинний скринінг)",
-            "total": 469,
+            "total": 476,
             "method": "history",
             "v": 2,
             "wonDirect": 0,
@@ -124093,9 +124143,9 @@
                 "id": "NEW",
                 "name": "НОВИЙ лід ( не оброблений )",
                 "sem": "P",
-                "count": 18,
+                "count": 25,
                 "sum": 0.0,
-                "reached": 469,
+                "reached": 476,
                 "lostHere": 413
               },
               {
@@ -124845,7 +124895,7 @@
           "returning": "у клієнта (компанія або контакт) є угоди, створені раніше",
           "repeatPurchase": "у клієнта раніше вже була УСПІШНА угода"
         },
-        "asOf": "2026-11-15T04:17:08Z"
+        "asOf": "2026-11-15T12:26:43Z"
       },
       "byUtm": [
         {
@@ -125733,7 +125783,7 @@
             }
           ],
           "totalLost": 322,
-          "totalReviewed": 449
+          "totalReviewed": 450
         },
         "18": {
           "label": "ОТДЕЛ ПРОДАЖ ТОВАРКА",
@@ -125787,12 +125837,12 @@
         }
       },
       "totalReviewed": {
-        "wholesale": 449,
+        "wholesale": 450,
         "retail": 1,
         "screening": 455,
-        "all": 905
+        "all": 906
       }
     }
   ],
-  "updated_at": "2026-11-15T04:21:59Z"
+  "updated_at": "2026-11-15T12:26:50Z"
 }
