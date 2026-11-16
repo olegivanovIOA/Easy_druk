@@ -420,6 +420,13 @@ window.LeadgenLoader = (() => {
     document.querySelectorAll('.roi-in').forEach(e => e.classList.toggle('on', e.dataset.for === _roi.mode));
   }
 
+  // v7.27: кампанія з витратами і ≥30 сеансами, але без угод у CRM. Якщо GA4 бачить ключові події (дзвінки/форми),
+  // а CRM — жодної угоди з цією utm_campaign → мітки губляться («UTM не доходить»). Якщо і GA4 — 0 подій,
+  // то з мітками все гаразд: кампанія просто не дала жодної заявки (ROAS 0% — справжній).
+  const noCrm = r => r.cost && !r.deals && (r.ses || 0) >= 30;
+  const noUtmRow = r => noCrm(r) && !(r.ke === 0);
+  const noConvRow = r => noCrm(r) && r.ke === 0;
+
   function renderRoi() {
     const el = $('mkt-leadgen-roi'); if (!el || !_roi) return;
     const [from, to] = roiRange();
@@ -467,10 +474,10 @@ window.LeadgenLoader = (() => {
       });
     }
     // v5.1: сеанси з GA4 (source → канал, utm_campaign) — для колонок «Сеанси» і «CR»
-    const sesMap = {}, sesB = {}, NOCAMP = new Set(['', '(not set)', '(organic)', '(direct)', '(referral)', '(none)']);
+    const sesMap = {}, keMap = {}, sesB = {}, NOCAMP = new Set(['', '(not set)', '(organic)', '(direct)', '(referral)', '(none)']);
     if (_ga && _ga.traffic) _ga.traffic.forEach(t => {
       if (t.d < from || t.d > to || NOCAMP.has(t.c)) return;
-      const k = channelOf(t.s, '', {}).ch + '|' + campOf(t.c); sesMap[k] = (sesMap[k] || 0) + t.ses;
+      const k = channelOf(t.s, '', {}).ch + '|' + campOf(t.c); sesMap[k] = (sesMap[k] || 0) + t.ses; keMap[k] = (keMap[k] || 0) + (t.ke || 0);
       (sesB[k] || (sesB[k] = {}))[bk(t.d)] = ((sesB[k] || {})[bk(t.d)] || 0) + t.ses;
     });
     const gaOk = !!(_ga && _ga.traffic);
@@ -478,6 +485,7 @@ window.LeadgenLoader = (() => {
     const easyNames = new Set(Object.values(rows).filter(r => r.ch === 'google' && !/ukr/i.test(r.acc)).map(r => r.name));
     Object.values(rows).forEach(r => {
       r.ses = gaOk && r.name && !NOCAMP.has(r.name) && !/«слон»/.test(r.acc) && !(r.ch === 'google' && /ukr/i.test(r.acc) && easyNames.has(r.name)) ? (sesMap[r.ch + '|' + r.name] || 0) : null; r.cr = r.ses ? r.deals / r.ses * 100 : null;
+      r.ke = r.ses != null ? (keMap[r.ch + '|' + r.name] || 0) : null;   // v7.27: ключові події GA4 (дзвінки, форми) цієї кампанії
       if (r.ses) Object.entries(sesB[r.ch + '|' + r.name] || {}).forEach(([b, v]) => { (r.b[b] || (r.b[b] = { n: 0, w: 0, ws: 0, cost: 0, ses: 0 })).ses += v; });
       // клас рядка — за більшістю угод; рядок лише з витратами = реклама → маркетинг
       const c = r.cl; r.cls = (c.mkt + c.non + c.unk) ? Object.keys(c).sort((a, b) => c[b] - c[a])[0] : 'mkt';
@@ -563,10 +571,10 @@ window.LeadgenLoader = (() => {
     };
     tb.innerHTML = arr.length ? arr.map(r => `<tr data-rk="${r.k.replace(/"/g, '&quot;')}" class="roi-row${_roiOpen.has(r.k) ? ' open' : ''}" title="Клік — деталізація ${byDay ? 'по днях' : 'по місяцях'}">
         <td><span class="roi-cls" style="background:${CLS_C[r.cls]}" title="${CLS_LBL[r.cls]} (правила data/marketing_rules.json)"></span><span class="roi-ch">${r.ch}</span>${r.acc ? `<span class="roi-acc"> / ${r.acc}</span>` : ''}</td>
-        <td style="font-weight:500">${r.name || '<span style="color:var(--tl)">без UTM</span>'}${r.cost && !r.deals && (r.ses || 0) >= 30 ? ` <span class="roi-nu" title="На рекламу витрачено ${fmt(r.cost)} грн і є ${fmt(r.ses)} сеансів, але жодна угода в Bitrix24 не має utm_campaign=${r.name}. Найімовірніше, кампанія не передає UTM-мітки (немає Final URL suffix) — ROAS тут занижений до 0%, реальні угоди потрапляють у «без UTM».">⚠ UTM не доходить у CRM</span>` : ''}</td>
+        <td style="font-weight:500">${r.name || '<span style="color:var(--tl)">без UTM</span>'}${noUtmRow(r) ? ` <span class="roi-nu" title="На рекламу витрачено ${fmt(r.cost)} грн, ${fmt(r.ses)} сеансів${r.ke ? ` і ${fmt(r.ke)} ключових подій у GA4 (дзвінки / форми)` : ''}, але жодна угода в Bitrix24 не має utm_campaign=${r.name}. Найімовірніше, мітки губляться дорогою (немає Final URL suffix / коллтрекінг не передає UTM) — ROAS тут занижений до 0%, реальні угоди потрапляють у «без UTM».">⚠ UTM не доходить у CRM</span>` : ''}${noConvRow(r) ? ` <span class="roi-nu" style="background:#eef1ec;color:#5f6b66" title="${fmt(r.ses)} сеансів за ${fmt(r.cost)} грн, але 0 ключових подій і в GA4 (жодного дзвінка чи форми), і 0 угод у CRM. З UTM усе гаразд — кампанія не дала заявок, ROAS 0% справжній. Варто переглянути оголошення / посадкову сторінку / ключові слова.">○ 0 заявок (і в GA4)</span>` : ''}</td>
         ${td(r.cost != null ? fmt(r.cost) : '—')}${td(r.ses != null ? fmt(r.ses) : '—')}${td(r.deals)}${td(r.cr != null ? r.cr.toFixed(1) + '%' : '—')}${td(r.cpl != null ? fmt(r.cpl) : '—')}${td(fmt(r.exp))}
         ${td(r.won)}${td(fmt(r.wonSum), true)}${td(r.cac != null ? fmt(r.cac) : '—')}
-        ${r.cost && !r.deals && (r.ses || 0) >= 30 ? '<td class="r" style="color:var(--tl)" title="Не рахується: угоди цієї кампанії не мають UTM у Bitrix24">н/д</td>'.repeat(3)
+        ${noUtmRow(r) ? '<td class="r" style="color:var(--tl)" title="Не рахується: угоди цієї кампанії не мають UTM у Bitrix24">н/д</td>'.repeat(3)
           : td(r.roas != null ? r.roas.toFixed(0) + '%' : '—', true, rc(r.roas)) + td(romiTxt(r.romiR), true, mc(r.romiR)) + td(romiTxt(r.romiM), true, mc(r.romiM))}</tr>${_roiOpen.has(r.k) ? drill(r) : ''}`).join('')
       : `<tr><td colspan="14" style="color:var(--tl);font-weight:400">${filtered ? 'Немає рядків за обраним фільтром' : 'Немає угод за ' + per}</td></tr>`;
 
@@ -588,7 +596,7 @@ window.LeadgenLoader = (() => {
         <td class="r" style="color:${mc(romiR)}" title="(WON сума − вартість) ÷ вартість, лише платні рядки">${romiTxt(romiR)}</td>
         <td class="r" style="color:${mc(romiM)}" title="(WON сума × маржа − вартість) ÷ вартість, лише платні рядки">${romiTxt(romiM)}</td></tr>` : '';
       // v6.3: що спотворює ROMI — витрати без угод з UTM і виручка кампаній без даних про витрати
-      const noUtm = paid.filter(r => !r.deals && (r.ses || 0) >= 30), noCost = arr.filter(r => !r.cost && r.ch === 'google' && r.name && r.wonSum && !/«слон»/.test(r.acc));
+      const noUtm = paid.filter(noUtmRow), noCost = arr.filter(r => !r.cost && r.ch === 'google' && r.name && r.wonSum && !/«слон»/.test(r.acc));
       renderRomiKpi({ cost, pws, roas, romiR, romiM, paidRows: paid.length, filtered, cmpOk,
         noUtmCost: S(noUtm, 'cost'), noUtmN: noUtm.length, noCostRev: S(noCost, 'wonSum'), noCostN: noCost.length });
     }
