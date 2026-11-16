@@ -1,7 +1,8 @@
 name: SEO Report (external)
 
-# Окремий зашифрований звіт GA4 + Google Ads для зовнішніх SEO-підрядників.
-# Збирається з data/ga4.json і викладається на Cloudflare Pages. У репозиторій НЕ комітиться.
+# Окремий зашифрований звіт для зовнішніх SEO-підрядників: вкладка «Маркетинг» один-в-один, без назв
+# (бренд, сайти, акаунти, імена). v7.28 — seo/build_mkt_report.py; попередній GA4-звіт — seo/build_seo_page.py.
+# Збирається з data/*.json і викладається на Cloudflare Pages. У репозиторій НЕ комітиться.
 # Секрети: SEO_REPORT_PASSWORD, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CF_PAGES_PROJECT
 
 on:
@@ -27,15 +28,16 @@ jobs:
 
       - run: pip install cryptography
 
-      - name: Build encrypted page
-        env:
-          SEO_REPORT_PASSWORD: ${{ secrets.SEO_REPORT_PASSWORD }}
-          SEO_OUT_DIR: ${{ runner.temp }}/seo_dist
-        run: python seo/build_seo_page.py
-
+      # v7.28: Node потрібен ще до збірки — terser прибирає коментарі з коду модулів «Маркетингу»
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Build encrypted page («Маркетинг» один-в-один, без назв)
+        env:
+          SEO_REPORT_PASSWORD: ${{ secrets.SEO_REPORT_PASSWORD }}
+          SEO_OUT_DIR: ${{ runner.temp }}/seo_dist
+        run: python seo/build_mkt_report.py
 
       - name: Deploy to Cloudflare Pages
         env:
