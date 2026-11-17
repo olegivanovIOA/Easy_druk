@@ -112,6 +112,26 @@ window.LeadgenLoader = (() => {
     return `стадії станом на <b${old ? ` style="color:${R}" title="Когорта не оновлювалась понад добу — після оновлення v7.25 перераховується щодня"` : ''}>${s}</b>`;
   }
 
+  // v7.29: візуальна воронка під 5 плитками — кожна ділянка під своєю плиткою, висота ∝ кількості угод
+  // (корінь, щоб WON не зникав на тлі всіх звернень), у ділянці — к-сть, % від усіх і % з попереднього кроку
+  const FUN_C = ['#3F74B8', '#5C8CC6', '#86AAD6', '#F2CB5C', '#E5A93A'];   // синій → золотий
+  function funnelSvg(st) {
+    const all = st[0][1] || 0; if (!all) return '';
+    const W = 1400, H = 112, n = st.length, sw = W / n, pad = 6;
+    const h = v => Math.max(10, Math.sqrt(v / all) * (H - 2 * pad));
+    const cols = FUN_C, dark = i => i >= 3;   // v7.29: тепла жовто-блакитна гама; на жовтому — темний текст
+    let g = '';
+    st.forEach(([lbl, v], i) => {
+      const h1 = h(v), h2 = i < n - 1 ? h(st[i + 1][1]) : h1, x1 = i * sw + 2, x2 = (i + 1) * sw - 2, cy = H / 2;
+      g += `<path d="M${x1},${cy - h1 / 2} L${x2},${cy - h2 / 2} L${x2},${cy + h2 / 2} L${x1},${cy + h1 / 2} Z" fill="${cols[i % cols.length]}" opacity=".9"><title>${lbl}: ${v.toLocaleString('uk-UA')}</title></path>`;
+      const pAll = v / all * 100, pPrev = i ? pct(v, st[i - 1][1]) : null, tx = i * sw + sw / 2, big = h1 > 40;
+      g += `<text x="${tx}" y="${big ? cy - 2 : cy - h1 / 2 - 19}" text-anchor="middle" font-size="15" font-weight="800" fill="${big && !dark(i) ? '#fff' : '#2b2a24'}">${v.toLocaleString('uk-UA')}</text>`
+        + `<text x="${tx}" y="${big ? cy + 14 : cy - h1 / 2 - 6}" text-anchor="middle" font-size="11" font-weight="600" fill="${big && !dark(i) ? 'rgba(255,255,255,.92)' : '#5c5240'}">${i ? `${p1(pAll)} від усіх · ${p1(pPrev)} з попер.` : '100%'}</text>`;
+    });
+    return `<div style="margin-top:8px;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:6px 6px 2px">
+      <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block" role="img" aria-label="Воронка кваліфікації лідів">${g}</svg></div>`;
+  }
+
   function renderFunnel(c, pc, m) {
     const el = $('mkt-leadgen-funnel'); if (!el) return;
     const f = c.funnel, pf = pc && pc.funnel, S = stepsOf(c);
@@ -132,15 +152,16 @@ window.LeadgenLoader = (() => {
       `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">` + steps.map(([lbl, k, tip, expl], i) => {
       const v = f[k], prevStep = i ? f[steps[i - 1][1]] : null;
       const conv = i ? pct(v, prevStep) : null;
-      const w = f.all ? Math.max(8, v / f.all * 100) : 0;
+      // v7.29: смуга = конверсія з ПОПЕРЕДНЬОГО кроку (перша — 100%)
+      const w = i ? Math.max(2, Math.min(100, conv || 0)) : (f.all ? 100 : 0);
       return `<div class="krow" style="flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:4px;padding:10px 12px" title="${tip || ''}">
         <div class="krow-lbl" style="white-space:normal;flex:0 0 auto">${lbl}</div>
         <div style="font-size:20px;font-weight:800;color:var(--tx)">${v.toLocaleString('uk-UA')}${delta(v, pf && pf[k])}</div>
-        <div style="height:5px;width:100%;background:var(--bd);border-radius:3px"><div style="height:5px;width:${w}%;background:${i === 4 ? G : WH};border-radius:3px"></div></div>
+        <div style="height:5px;width:100%;background:var(--bd);border-radius:3px"><div style="height:5px;width:${w}%;background:${FUN_C[i]};border-radius:3px"></div></div>
         <div style="font-size:10px;color:var(--tl)">${i ? 'з попер. кроку: <b>' + p1(conv) + '</b>' : m.month + (m.complete === false ? ' · триває' : '')}</div>
         <div style="font-size:9.5px;color:var(--tm);line-height:1.4;border-top:1px dashed var(--bd);padding-top:4px;width:100%">${expl}</div>
       </div>`;
-    }).join('') + `</div>
+    }).join('') + `</div>${funnelSvg(steps.map(x => [x[0], f[x[1]]]))}
       <div style="font-size:10px;color:var(--tl);margin-top:6px">Очікувана сума (в роботі + успішні): <b>${fmt(f.expectedSumActiveWon)} грн</b> · фактична (WON): <b>${fmt(f.wonSum)} грн</b> · наскрізна конверсія звернення→WON: <b>${p1(pct(f.won, f.all))}</b>${delta(pct(f.won, f.all), pf && pct(pf.won, pf.all))}</div>`;
   }
 
