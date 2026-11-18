@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-18T14:27:17Z",
+  "fetched_at": "2026-11-18T14:55:04Z",
   "date": "2026-11-17",
   "range": {
     "from": "17.11.2026",
@@ -12,29 +12,29 @@
     "lots": 57
   },
   "company": {
-    "materialKg": 747.22,
-    "materialDefectKg": 33.69,
+    "materialKg": 755.84,
+    "materialDefectKg": 33.88,
     "materialByType": {
-      "PETG": 727.78,
+      "PETG": 736.4,
       "TPU": 19.44
     },
     "batches": 112,
     "lots": 57,
-    "acceptedQty": 25569,
-    "defectQty": 1303,
-    "defectPercent": 5.1,
-    "defectWeightPercent": 5.02,
+    "acceptedQty": 25658,
+    "defectQty": 1305,
+    "defectPercent": 5.09,
+    "defectWeightPercent": 5.01,
     "totalPrintTimeMinutes": 2258796.2,
-    "materialCostUAH": 248371.47,
+    "materialCostUAH": 251152.52,
     "materialCostCoveragePercent": 100.0
   },
   "byPrinterModel": [
     {
       "printerModel": "P1S",
       "batches": 89,
-      "acceptedQty": 18498,
-      "defectQty": 935,
-      "defectPercent": 5.05
+      "acceptedQty": 18587,
+      "defectQty": 937,
+      "defectPercent": 5.04
     },
     {
       "printerModel": "A1 mini",
@@ -355,9 +355,9 @@
         {
           "printerModel": "P1S",
           "batches": 78,
-          "acceptedQty": 12444,
-          "defectQty": 511,
-          "defectPercent": 4.11
+          "acceptedQty": 12533,
+          "defectQty": 513,
+          "defectPercent": 4.09
         }
       ],
       "byProduct": [
@@ -679,9 +679,9 @@
     {
       "shift": "FIRST",
       "lots": 28,
-      "acceptedQty": 12336,
-      "defectQty": 647,
-      "defectPercent": 5.24
+      "acceptedQty": 12425,
+      "defectQty": 649,
+      "defectPercent": 5.22
     },
     {
       "shift": "SECOND",
@@ -878,18 +878,6 @@
       },
       {
         "location": "5",
-        "lotKey": "321-D-26-05-000724",
-        "baseProductCode": "000724",
-        "printerModels": [
-          "P1S"
-        ],
-        "shift": "FIRST",
-        "acceptedQty": 61,
-        "defectQty": 0,
-        "defectPercent": 0
-      },
-      {
-        "location": "5",
         "lotKey": "321-N-26-05-000722",
         "baseProductCode": "000722",
         "printerModels": [
@@ -935,6 +923,18 @@
         "acceptedQty": 172,
         "defectQty": 2,
         "defectPercent": 1.16
+      },
+      {
+        "location": "5",
+        "lotKey": "321-D-26-05-000724",
+        "baseProductCode": "000724",
+        "printerModels": [
+          "P1S"
+        ],
+        "shift": "FIRST",
+        "acceptedQty": 150,
+        "defectQty": 2,
+        "defectPercent": 1.33
       }
     ],
     "minQty": 50,
@@ -1024,16 +1024,16 @@
     "lots": []
   },
   "materials": {
-    "kg": 747.22,
-    "defectKg": 33.69,
-    "batchesWithWeight": 111,
+    "kg": 755.84,
+    "defectKg": 33.88,
+    "batchesWithWeight": 112,
     "coveragePercent": 100.0,
     "byType": [
       {
         "type": "PETG",
-        "kg": 727.78,
-        "defectKg": 33.04,
-        "batches": 108
+        "kg": 736.4,
+        "defectKg": 33.23,
+        "batches": 109
       },
       {
         "type": "TPU",
@@ -1046,8 +1046,8 @@
       {
         "type": "PETG",
         "color": "#808004",
-        "kg": 343.19,
-        "defectKg": 12.92
+        "kg": 351.81,
+        "defectKg": 13.11
       },
       {
         "type": "PETG",
@@ -1801,9 +1801,9 @@
             "P1S"
           ],
           "batchCount": 2,
-          "acceptedQty": 61,
-          "defectQty": 0,
-          "defectPercent": 0,
+          "acceptedQty": 150,
+          "defectQty": 2,
+          "defectPercent": 1.33,
           "totalPrintTimeMinutes": 46306,
           "printTimeCoverage": 1,
           "plannedMachines": {
@@ -1812,8 +1812,8 @@
           },
           "avgPartsPerMachine": 1.8,
           "avgPartsPerMachineEstimated": 1.5,
-          "qcDefectWeightPercent": 0,
-          "defectWeightCoverage": 0.5
+          "qcDefectWeightPercent": 1.39,
+          "defectWeightCoverage": 1
         },
         {
           "lotKey": "321-D-26-05-000725",
@@ -3275,11 +3275,11 @@
                 "color": "#808004",
                 "source": "gcode_files"
               },
-              "acceptedQty": 0,
-              "defectQty": 0,
-              "defectPercent": null,
-              "qcCompleted": false,
-              "unitWeightG": 90.962,
+              "acceptedQty": 89,
+              "defectQty": 2,
+              "defectPercent": 2.25,
+              "qcCompleted": true,
+              "unitWeightG": 94.69,
               "printTime": {
                 "perPartMinutes": 274,
                 "qty": 95,
@@ -3290,7 +3290,7 @@
                 "planned": 94,
                 "estimated": 112.8
               },
-              "qcDefectWeightPercent": null
+              "qcDefectWeightPercent": 2.34
             },
             {
               "batchNumber": "321-D-26-05-185-000725-001",
