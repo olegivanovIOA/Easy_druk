@@ -9,6 +9,17 @@
  *   - Графік плинності кадрів
  */
 
+// v7.30: відкриті позиції з «Звіту HR» (останній заповнений місяць: ЛП + адмінка) — для плиток HR і CEO
+window.hrOpenPositions = function (d) {
+  const rep = d && d.report; if (!rep || !rep.sections || !rep.filled || !rep.filled.length) return null;
+  const rows = rep.sections.flatMap(s => s.rows), i = rep.filled[rep.filled.length - 1];
+  const f = re => { const r = rows.find(x => re.test(x.label)); return r && r.values ? r.values[i] : null; };
+  const lp = f(/відкритих.*лп/i), adm = f(/відкритих.*адмін/i);
+  if (lp == null && adm == null) return null;
+  const month = rep.months[i] || '';
+  return { lp: lp || 0, adm: adm || 0, total: (lp || 0) + (adm || 0), month, monthShort: month.slice(0, 3).toLowerCase() + '.',
+    title: `Відкриті позиції на кінець місяця «${month}» — Звіт HR: ЛП ${lp || 0}, адмінка ${adm || 0}` };
+};
 window.HRLoader = (() => {
   const DATA_URL = 'data/hr.json';
 
@@ -53,13 +64,16 @@ window.HRLoader = (() => {
       if (_data.employees_as_of) el.title = 'HR-таблиця, «Плинність кадрів»: ' + _data.employees_as_of;
     }
 
-    const vacCount = (_data.vacancies_current?.vacancies || []).length;
     const vacEl = document.getElementById('hr-open-vacancies-count');
     if (vacEl) {
-      // v4.8: однаково з CEO — "вакансій · позицій" (раніше тут 16, а на CEO 24)
-      const vacQty = (_data.vacancies_current?.vacancies || []).reduce((a, v) => a + (parseInt(v.qty, 10) || 1), 0);
-      vacEl.textContent = vacCount ? vacCount + ' вак. · ' + vacQty + ' поз.' : '—';
-      vacEl.title = 'HR-таблиця, блок «' + (_data.vacancies_current?.month || '—') + '»';
+      // v7.30: відкриті позиції — зі «Звіту HR» (ведеться щомісяця); лист «Відкриті вакансії» — лише запасний варіант
+      const ro = window.hrOpenPositions ? hrOpenPositions(_data) : null;
+      if (ro) { vacEl.textContent = ro.total + ' поз. · ' + ro.monthShort; vacEl.title = ro.title; }
+      else {
+        const list = _data.vacancies_current?.vacancies || [], vacQty = list.reduce((a, v) => a + (parseInt(v.qty, 10) || 1), 0);
+        vacEl.textContent = list.length ? list.length + ' вак. · ' + vacQty + ' поз.' : '—';
+        vacEl.title = 'HR-таблиця, лист «Відкриті вакансії»';
+      }
     }
 
     const staff = _data.turnover?.staff || [];
@@ -138,9 +152,17 @@ window.HRLoader = (() => {
     const current = _data.vacancies_current || {};
     const list = current.vacancies || [];
     const month = current.month || '—';
+    // v7.30: якщо в листі «Відкриті вакансії» останній місячний блок відстає від поточного місяця — кажемо про це прямо
+    const MO = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const nowM = new Date().getMonth(), blkM = MO.indexOf(month);
+    const ro = window.hrOpenPositions ? hrOpenPositions(_data) : null;
+    const stale = blkM >= 0 && (nowM - blkM + 12) % 12 >= 2;
+    const asOf = current.asOf ? current.asOf.slice(8, 10) + '.' + current.asOf.slice(5, 7) : '';
+    const head = `<p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px">Відкриті зараз (лист «Відкриті вакансії», станом на <strong>${asOf || '—'}</strong>): <strong>${list.length}</strong>${current.closedTotal != null ? ` · закрито в листі: ${current.closedTotal}` : ''}${current.sheetOpenCount != null ? ` · «Кількість відкритих» у листі: ${current.sheetOpenCount}` : ''}</p>`
+      + (stale ? `<div style="font-size:12px;background:#fff3cd;color:#856404;border-radius:6px;padding:6px 10px;margin-bottom:8px">⚠ Лист «Відкриті вакансії» ведеться лише до блоку «${month}» — нові місяці туди не додаються. Актуальна кількість відкритих позицій — у «Звіті HR» вгорі${ro ? `: <b>${ro.total}</b> (${ro.month}: ЛП ${ro.lp}, адмінка ${ro.adm})` : ''}. Щоб тут був актуальний список, HR варто додавати місячний блок або оновлювати статуси в листі.</div>` : '');
 
     if (!list.length) {
-      container.innerHTML = `<p style="color:var(--color-text-secondary);font-size:13px">Вакансій немає</p>`;
+      container.innerHTML = head + `<p style="color:var(--color-text-secondary);font-size:13px">Відкритих вакансій у листі немає</p>`;
       return;
     }
 
@@ -164,12 +186,13 @@ window.HRLoader = (() => {
         <td style="text-align:center">${v.location || '—'}</td>
         <td style="text-align:center">${v.qty || '1'}</td>
         <td><span style="background:${rc.bg};color:${rc.color};padding:2px 8px;border-radius:4px;font-size:12px">${v.reason || '—'}</span></td>
+        <td style="text-align:center">${v.opened || '—'}</td>
         <td><span style="background:${sc.bg};color:${sc.color};padding:2px 10px;border-radius:4px;font-size:12px;font-weight:500">${v.status || '—'}</span></td>
       </tr>`;
     }).join('');
 
     container.innerHTML = `
-      <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px">Місяць: <strong>${month}</strong> · Вакансій: <strong>${list.length}</strong></p>
+      ${head}
       <div style="overflow-x:auto">
       <table style="width:100%;border-collapse:collapse;font-size:13px">
         <thead>
@@ -178,6 +201,7 @@ window.HRLoader = (() => {
             <th style="padding:8px 10px;font-weight:500">Локація</th>
             <th style="padding:8px 10px;font-weight:500">К-сть</th>
             <th style="padding:8px 10px;text-align:left;font-weight:500">Причина</th>
+            <th style="padding:8px 10px;font-weight:500">Відкрита з</th>
             <th style="padding:8px 10px;text-align:left;font-weight:500">Статус</th>
           </tr>
         </thead>

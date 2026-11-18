@@ -219,28 +219,48 @@ def parse_interns(rows):
 
 
 def parse_vacancies(rows):
-    vacancies, current_month = [], None
+    """v7.30: лист «Відкриті вакансії» — блоки по місяцях (рядок з назвою місяця), далі рядки вакансій.
+    Колонки беремо з рядка-заголовка (Локація / Кількість / Причина / Дата відкриття / Дата закриття / Статус),
+    бо їх порядок змінювався; сам заголовок вакансією не вважаємо. Одна й та сама вакансія (назва + локація)
+    може повторюватись у кількох місячних блоках — береться ОСТАННІЙ запис. Відкриті = статус не «Закрита»
+    і немає дати закриття. Раніше бралися всі рядки всіх блоків (включно із закритими й заголовком)."""
+    col = {"location": 1, "qty": 2, "reason": 3, "opened": 4, "closed": 5, "status": None}
+    blocks, last_month, sheet_open = [], None, None
     for row in rows:
         val = cell(row, 0).strip()
-        if not val:
+        low = [str(c).strip().lower() for c in row]
+        if len(low) > 1 and low[1] == "локація":                      # рядок-заголовок
+            for j, h in enumerate(low):
+                if h.startswith("кільк"): col["qty"] = j
+                elif h.startswith("причин"): col["reason"] = j
+                elif "відкрит" in h and "дата" in h: col["opened"] = j
+                elif "закрит" in h and "дата" in h: col["closed"] = j
+                elif h.startswith("статус"): col["status"] = j
             continue
-        if val.lower() in ("вакансія",):
+        if not val or val.lower() in ("вакансія",):
             continue
         matched = next((m for m in UA_MONTHS if val == m), None)
         if matched:
-            current_month = matched
+            last_month = matched
             continue
         if "кількість відкритих" in val.lower():
-            break
-        vacancies.append({
-            "vacancy":  val,
-            "location": cell(row, 1),
-            "qty":      cell(row, 2),
-            "reason":   cell(row, 3),
-            "urgency":  cell(row, 4),
-            "status":   cell(row, 5),
-        })
-    return {"month": current_month, "vacancies": vacancies}
+            try:
+                sheet_open = int(float(cell(row, 1).replace(",", ".")))
+            except ValueError:
+                pass
+            continue
+        g = lambda k: cell(row, col[k]).strip() if col[k] is not None else ""
+        status = g("status") or ("" if col["status"] is not None else cell(row, 5).strip())
+        blocks.append({"vacancy": val, "location": g("location"), "qty": g("qty"), "reason": g("reason"),
+                       "opened": g("opened"), "closed": g("closed"), "status": status, "month": last_month})
+    latest = {}
+    for v in blocks:
+        latest[(v["vacancy"].lower(), v["location"].lower())] = v
+    is_closed = lambda v: v["status"].lower().startswith("закрит") or bool(v["closed"])
+    open_ = [dict(v, status=v["status"] or "Відкрита") for v in latest.values() if not is_closed(v)]
+    return {"month": last_month, "asOf": datetime.utcnow().strftime("%Y-%m-%d"),
+            "vacancies": open_, "closedTotal": sum(1 for v in latest.values() if is_closed(v)),
+            "sheetOpenCount": sheet_open}
 
 
 def parse_closing_norms(rows):
