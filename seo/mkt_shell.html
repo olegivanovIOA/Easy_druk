@@ -59,8 +59,8 @@ async function decrypt(pw) {
   return JSON.parse(await new Response(ds).text());
 }
 
-// Підписи, що можуть з'явитися в тексті сторінки з даних (назви акаунтів) — замінюються на нейтральні
-const RENAME = [[/\bukr3d\b/gi, 'Сайт B']];
+// v7.31: назви сайтів показуються як є; тут лишаються лише заміни, якщо колись знадобляться
+const RENAME = [];
 function scrub(root) {
   const fix = s => RENAME.reduce((t, [rx, to]) => t.replace(rx, to), s);
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);

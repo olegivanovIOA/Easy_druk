@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
-build_mkt_report.py — зовнішній звіт «Маркетинг» для SEO-підрядників (v7.28).
+build_mkt_report.py — зовнішній звіт «Маркетинг» для SEO-підрядників (v7.31).
 
 Звіт = вкладка «Маркетинг» дашборда ОДИН-В-ОДИН: та сама розмітка, стилі й ті самі JS-модулі
 (ROI кампаній, воронка, retention, канали, GA4, Google Ads, MQL→SQL, ТОП клієнтів), з тими самими даними
-й сумами — але БЕЗ НАЗВ: бренд / сайти / пошта компанії, акаунти (EASY → «Сайт A», Ukr3d → «Сайт B»),
-ID рекламних акаунтів і ресурсів GA, імена співробітників. Клієнти в даних і так лише псевдоніми (#hex).
+й сумами. v7.31: наші сайти (EASY / easy3dprint.com.ua, Ukr3d / ukr3dprint.com) і URL сторінок показуються
+як є, так само ID акаунтів Google Ads і ресурсів GA4 — звіт закритий паролем, SEO-підрядникам потрібні реальні дані.
+Як і раніше приховано: пошта, імена співробітників, назва DRUKAR, згадки про репозиторій/дашборд/CRM-вендора.
+Клієнти в даних і так лише псевдоніми (#hex).
 
 Безпека:
   • усе (розмітка, код, дані) — в одному зашифрованому пакеті: gzip → AES-256-GCM, ключ = PBKDF2-SHA256(пароль, 250 000);
@@ -40,12 +42,9 @@ REPL = [
     (re.compile(r"[\w.-]*bitrix[\w.-]*\.(?:com|ua|eu)[\w./-]*", re.I), "crm (реферал)"),
     (re.compile(r"[\w.-]*phonet[\w.-]*\.(?:com|ua)[\w./-]*", re.I), "телефонія (реферал)"),
     (re.compile(r"[\w.+-]+@(?:gmail\.com|[\w-]*(?:easy|ukr3d|druk)[\w.-]*)", re.I), "пошта компанії"),
-    (re.compile(r"easy\s*3\s*d\s*print[\w.]*|easy3d[\w.]*|easy_3d\w*|ізі\s*3д|ukr3dprint[\w.]*", re.I), "brand"),
-    (re.compile(r"\bdruk\w*|\bдрукар\w*|drukar\w*", re.I), "brand"),
-    (re.compile(r"\bEASY\b"), "Сайт A"),
-    (re.compile(r"\bUkr3d\b"), "Сайт B"),
-    (re.compile(r"\b\d{3}-\d{3}-\d{4}\b"), "•••"),                 # ID акаунтів Google Ads
-    (re.compile(r"\b(?:378398411|353447917)\b"), "•••"),           # ID ресурсів GA4
+    # v7.31: назви й домени сайтів (EASY / Ukr3d, easy3dprint…, ukr3dprint…) і слаги «3d-druk-…» НЕ маскуються
+    (re.compile(r"drukar\w*|\bдрукар\w*", re.I), "brand"),
+    # v7.31: ID акаунтів Google Ads і ресурсів GA4 показуються як є (звіт під паролем)
     (re.compile(r"Bitrix\s*24|Bitrix", re.I), "CRM"),
     (re.compile(r"репозиторі\w*\s+дашборд\w*\s+публічн\w*", re.I), "звіт без назв"),
     (re.compile(r"дашборд\w*", re.I), "звіт"),
@@ -55,8 +54,8 @@ REPL = [
     (re.compile(r"\b(?:Олег|Влад|Вадим)\w*"), "команда"),
 ]
 # після анонімізації цих слів у пакеті бути не може (інакше збірка зупиняється)
-FORBIDDEN = ("github", "easy_druk", "olegivanov", "dashboard", "дашборд", "bitrix", "easy3d", "easy 3d",
-             "ukr3dprint", "drukar", "друкар", "репозитор", "856-547", "265-403", "378398411", "353447917")
+FORBIDDEN = ("github", "easy_druk", "olegivanov", "dashboard", "дашборд", "bitrix",
+             "drukar", "друкар", "репозитор")
 
 
 def anon(s):
