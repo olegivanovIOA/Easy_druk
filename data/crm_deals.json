@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-22T13:33:10Z",
+  "fetched_at": "2026-11-22T17:34:30Z",
   "month": "2026-11",
   "bySource": [
     {
@@ -421,10 +421,10 @@
   ],
   "cohort": {
     "funnel": {
-      "all": 1203,
-      "clean": 1117,
-      "qualified": 631,
-      "activeOrWon": 198,
+      "all": 1209,
+      "clean": 1123,
+      "qualified": 637,
+      "activeOrWon": 204,
       "won": 20,
       "wonSum": 879251.0,
       "expectedSumActiveWon": 13274389.72
@@ -489,7 +489,7 @@
         "other": 51
       },
       "inWork": {
-        "n": 178,
+        "n": 184,
         "top": [
           [
             "НЕ завершили первинний контакт",
@@ -505,7 +505,7 @@
           ],
           [
             "НОВИЙ лід ( не оброблений )",
-            14
+            20
           ],
           [
             "УМОВИ озвучені",
@@ -606,14 +606,14 @@
         "sum": 0.0
       },
       {
+        "stage": "НОВИЙ лід ( не оброблений )",
+        "deals": 20,
+        "sum": 0.0
+      },
+      {
         "stage": "Сделка УСПЕШНА",
         "deals": 18,
         "sum": 875369.0
-      },
-      {
-        "stage": "НОВИЙ лід ( не оброблений )",
-        "deals": 14,
-        "sum": 0.0
       },
       {
         "stage": "УМОВИ озвучені",
@@ -704,7 +704,7 @@
       {
         "key": "UC_LJ05D6",
         "name": "Электронная почта sales@easy3dprint.com.ua",
-        "deals": 76,
+        "deals": 77,
         "expectedSum": 79737.01,
         "won": 1,
         "wonSum": 14360.0
@@ -712,7 +712,7 @@
       {
         "key": "24",
         "name": "Сайт easy3dprint.com.ua",
-        "deals": 86,
+        "deals": 87,
         "expectedSum": 30817.68,
         "won": 4,
         "wonSum": 7050.0
@@ -728,7 +728,7 @@
       {
         "key": "50",
         "name": "Задать вопрос онлайн",
-        "deals": 355,
+        "deals": 358,
         "expectedSum": 95081.0,
         "won": 1,
         "wonSum": 1000.0
@@ -776,7 +776,7 @@
       {
         "key": "EMAIL",
         "name": "Электронная почта",
-        "deals": 12,
+        "deals": 13,
         "expectedSum": 0.0,
         "won": 0,
         "wonSum": 0.0
@@ -882,7 +882,7 @@
       {
         "key": "— / —",
         "name": "— / —",
-        "deals": 785,
+        "deals": 790,
         "expectedSum": 8819122.44,
         "won": 11,
         "wonSum": 236151.0
@@ -938,7 +938,7 @@
       {
         "key": "google / search_3d_print_Main",
         "name": "google / search_3d_print_Main",
-        "deals": 56,
+        "deals": 57,
         "expectedSum": 21767.68,
         "won": 0,
         "wonSum": 0.0
@@ -5463,7 +5463,7 @@
         "us": "",
         "uc": "",
         "s": "50",
-        "n": 6,
+        "n": 9,
         "e": 0.0,
         "w": 0,
         "ws": 0.0
@@ -5473,6 +5473,36 @@
         "us": "",
         "uc": "",
         "s": "CALL",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-11-22",
+        "us": "",
+        "uc": "",
+        "s": "EMAIL",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-11-22",
+        "us": "",
+        "uc": "",
+        "s": "UC_LJ05D6",
+        "n": 1,
+        "e": 0.0,
+        "w": 0,
+        "ws": 0.0
+      },
+      {
+        "d": "2026-11-22",
+        "us": "google",
+        "uc": "search_3d_print_Main",
+        "s": "24",
         "n": 1,
         "e": 0.0,
         "w": 0,
@@ -5495,7 +5525,7 @@
       "minRevenue12m": 1000000.0
     },
     "retention": {
-      "clientsInCohort": 1122,
+      "clientsInCohort": 1128,
       "returningClients": 92,
       "repeatBuyers": 31,
       "noClientLinked": 7,
@@ -5506,7 +5536,7 @@
         "winRate": 9.7
       },
       "new": {
-        "deals": 1059,
+        "deals": 1065,
         "won": 9,
         "wonSum": 133874.0,
         "winRate": 1.0
@@ -5538,7 +5568,7 @@
       {
         "id": 0,
         "title": "ЛИДЫ (первинний скринінг)",
-        "total": 700,
+        "total": 706,
         "method": "history",
         "v": 2,
         "wonDirect": 0,
@@ -5547,9 +5577,9 @@
             "id": "NEW",
             "name": "НОВИЙ лід ( не оброблений )",
             "sem": "P",
-            "count": 14,
+            "count": 20,
             "sum": 0.0,
-            "reached": 700,
+            "reached": 706,
             "lostHere": 612
           },
           {
@@ -6299,7 +6329,7 @@
       "returning": "у клієнта (компанія або контакт) є угоди, створені раніше",
       "repeatPurchase": "у клієнта раніше вже була УСПІШНА угода"
     },
-    "asOf": "2026-11-22T13:33:10Z"
+    "asOf": "2026-11-22T17:34:30Z"
   },
   "byUtm": [
     {
@@ -7468,7 +7498,7 @@
     "all": 1283
   },
   "pipeline": {
-    "asOf": "2026-11-22T13:33:15Z",
+    "asOf": "2026-11-22T17:34:36Z",
     "staleDays": 90,
     "groups": {
       "wholesale": {
