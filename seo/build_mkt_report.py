@@ -34,7 +34,8 @@ ITER = 250_000
 
 # модулі вкладки «Маркетинг» — у тому ж порядку, що й в index.html
 JS_FILES = ["js/freshness.js", "js/table_sort.js", "js/ads_loader.js", "js/mql_loader.js", "js/channels_loader.js",
-            "js/ga4_loader.js", "js/mkt_split.js", "js/leadgen_loader.js"]
+            "js/ga4_loader.js", "js/mkt_split.js", "js/leadgen_loader.js",
+            "js/global_period.js"]   # v7.37: один фільтр періоду (Рік / Місяць у шапці звіту), як на дашборді
 DATA_FILES = ["ga4", "crm_deals", "crm_monthly_history", "clients", "marketing_rules", "meta_ads", "pnl", "ads", "mql_sql"]
 
 # ── анонімізація: однаково для розмітки, коду й даних (щоб зіставлення назв у коді не зламались) ──

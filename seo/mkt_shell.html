@@ -23,6 +23,9 @@
 .rpt-top h1{font-size:15px;margin:0;font-weight:800}
 .rpt-top .s{font-size:10.5px;color:#7b857f}
 .rpt-top a{font-size:11px;color:#7b857f}
+.rpt-f{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;color:#7b857f;text-transform:uppercase;letter-spacing:.04em}
+.rpt-f select{font:inherit;font-size:12px;font-weight:700;text-transform:none;letter-spacing:0;color:#1d2a22;padding:5px 8px;border:1px solid #e3e7e2;border-radius:8px;background:#fff}
+.rpt-r{display:flex;align-items:center;gap:16px}
 </style>
 </head>
 <body>
@@ -37,7 +40,12 @@
   </form>
 </div>
 <div id="app">
-  <div class="rpt-top"><div><h1>Маркетинг</h1><div class="s" id="rpt-gen"></div></div><a href="#" id="lo">вийти</a></div>
+  <div class="rpt-top"><div><h1>Маркетинг</h1><div class="s" id="rpt-gen"></div></div>
+    <div class="rpt-r">
+      <!-- v7.37: один фільтр періоду на весь звіт (локальні перемикачі в блоках сховані й слухаються його) -->
+      <div class="rpt-f">Рік: <select id="ysel" onchange="setY(this.value)"></select> Місяць: <select id="msel" onchange="setM(this.value)"></select></div>
+      <a href="#" id="lo">вийти</a>
+    </div></div>
   <div id="rpt-root"></div>
 </div>
 
@@ -68,7 +76,17 @@ function scrub(root) {
   if (root.querySelectorAll) root.querySelectorAll('[title]').forEach(e => { const v = fix(e.title); if (v !== e.title) e.title = v; });
 }
 
+// v7.37: фільтр періоду в шапці (значення читає global_period.js; ці функції він обгортає)
+window.setY = function () {}; window.setM = function () {};
+function initPeriod() {
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  const ML = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+  $('ysel').innerHTML = [y, y - 1].map(v => `<option value="${v}">${v}</option>`).join('');
+  $('msel').innerHTML = '<option value="all">Усі місяці</option>' + ML.map((t, i) => `<option value="${i}">${t}</option>`).join('');
+  $('ysel').value = String(y); $('msel').value = String(m);
+}
 function start(P) {
+  initPeriod();
   document.head.insertAdjacentHTML('beforeend', '<style>' + P.css + '</style>');
   $('rpt-gen').textContent = 'Дані станом на ' + new Date(P.generated).toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   // дані віддаються з розшифрованого пакета замість мережі
