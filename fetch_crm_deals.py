@@ -470,7 +470,9 @@ def fetch_created_deals(category_id, date_from, date_to):
 # префікса = компанія). Контакти, що фігурують в угодах компанії-«слона», теж вважаються «слоном»
 # (одна компанія — багато контактних осіб). Лише в пам'яті: ID клієнтів у JSON не потрапляють.
 KEY_ACCOUNT_MIN = float(os.environ.get("KEY_ACCOUNT_MIN", "1000000"))
-CAMPAIGN_DAILY_V = 2   # v7.7: рядки byCampaignDaily мають поле t ('' перша угода / 'r' повторна / 'k' «слон»)
+CAMPAIGN_DAILY_V = 4   # v7.7: рядки byCampaignDaily мають поле t ('' перша угода / 'r' повторна / 'k' «слон»)
+                       # v7.33: + q (кваліфіковані) і a (в роботі + успішні) — як кроки воронки когорти
+                       # v7.34: + campaignDeals — ID угод «в роботі + успішні» для провалу з таблиці ROI
 _KEYS = None
 
 
@@ -577,7 +579,15 @@ def deal_type(d, keys):
 #   d — дата, us/uc — UTM source/campaign, s — SOURCE_ID (для угод без UTM),
 #   n — нових угод, e — очікувана сума (не відмовлені), w — WON, ws — WON сума.
 # Тільки агрегати, без ID угод і клієнтів.
-def rollup_campaign_daily(deals, sem, is_won, keys=None):
+def _is_qualified(d, sem, sname):
+    """Той самий критерій, що й крок «Кваліфіковані» у воронці когорти: без дублів/тестів і без відмов «не лід»."""
+    nm = (sname(d) or "").lower()
+    if any(m in nm for m in DUP_TEST_MARKERS):
+        return False
+    return not (sem(d) == "F" and any(m in nm for m in NOT_QUALIFIED_MARKERS))
+
+
+def rollup_campaign_daily(deals, sem, is_won, keys=None, sname=None):
     keys = key_accounts() if keys is None else keys
     m = {}
     for d in deals:
@@ -590,6 +600,10 @@ def rollup_campaign_daily(deals, sem, is_won, keys=None):
         if t:
             a["t"] = t
         a["n"] += 1
+        if sname is not None:   # v7.33
+            q = _is_qualified(d, sem, sname)
+            a["q"] = a.get("q", 0) + (1 if q else 0)
+            a["a"] = a.get("a", 0) + (1 if q and sem(d) != "F" else 0)
         amt = _num(d.get("OPPORTUNITY"))
         if sem(d) != "F":
             a["e"] += amt
@@ -603,13 +617,34 @@ def rollup_campaign_daily(deals, sem, is_won, keys=None):
     return sorted(out, key=lambda x: (x["d"], x["us"], x["uc"], x["s"], x.get("t", "")))
 
 
-def compute_campaign_daily(month_start, month_end):
+def campaign_deal_list(deals, sem, is_won, sname, keys=None):
+    """v7.34: угоди «в роботі + успішні» з UTM/джерелом — для провалу з таблиці ROI до ID угоди.
+    Лише ID угоди, дата, стадія, сума (як у staleBigDeals) — без назв, клієнтів і контактів."""
+    keys = key_accounts() if keys is None else keys
+    out = []
+    for d in deals:
+        if sem(d) == "F" or not _is_qualified(d, sem, sname):
+            continue
+        r = {"id": str(d.get("ID") or ""), "d": (d.get("DATE_CREATE") or "")[:10],
+             "us": (d.get("UTM_SOURCE") or "").strip(), "uc": (d.get("UTM_CAMPAIGN") or "").strip(),
+             "s": d.get("SOURCE_ID") or "", "st": sname(d) or "", "sum": round(_num(d.get("OPPORTUNITY")))}
+        t = deal_type(d, keys)
+        if t:
+            r["t"] = t
+        if is_won(d):
+            r["w"] = 1
+        out.append(r)
+    return sorted(out, key=lambda x: (x["d"], x["id"]))
+
+
+def compute_campaign_daily(month_start, month_end, with_deals=False):
     """Дешевий доповнювальний прохід для бекфілу: тільки створені угоди 4 воронок
     і їх стадії — без retention/воронок/завислих (≈ 10–30 с на місяць)."""
-    deals, stage_sem = [], {}
+    deals, stage_sem, stage_nm = [], {}, {}
     for cat in COHORT_CATEGORIES:
         for s in fetch_stage_list(cat):
             stage_sem[s["STATUS_ID"]] = s.get("SEMANTICS")
+            stage_nm[s["STATUS_ID"]] = s.get("NAME") or ""
         time.sleep(0.3)
         ds = fetch_created_deals(cat, month_start, month_end)
         for d in ds:
@@ -618,7 +653,9 @@ def compute_campaign_daily(month_start, month_end):
         time.sleep(0.3)
     sem = lambda d: d.get("STAGE_SEMANTIC_ID") or stage_sem.get(d.get("STAGE_ID")) or "P"
     is_won = lambda d: sem(d) == "S" and d["_cat"] != 0
-    return rollup_campaign_daily(deals, sem, is_won)
+    sname = lambda d: stage_nm.get(d.get("STAGE_ID"), "")
+    daily = rollup_campaign_daily(deals, sem, is_won, sname=sname)
+    return (daily, campaign_deal_list(deals, sem, is_won, sname)) if with_deals else daily
 
 
 def _client_key(d):
@@ -889,7 +926,8 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
                     lambda k: "Не вказано" if k == "—" else source_names.get(k, k))
     by_campaign = agg(lambda d: ((d.get("UTM_SOURCE") or "").strip() or "—") + " / " + ((d.get("UTM_CAMPAIGN") or "").strip() or "—"),
                       lambda k: k)
-    by_campaign_daily = rollup_campaign_daily(deals, sem, is_won)
+    by_campaign_daily = rollup_campaign_daily(deals, sem, is_won, sname=sname)
+    campaign_deals = campaign_deal_list(deals, sem, is_won, sname)
 
     # ── 4. Retention: клієнти, у яких були угоди до цього місяця ──
     first_dt = {}
@@ -939,7 +977,7 @@ def process_created_cohort(month_start, month_end, source_names=None, stale_days
 
     print(f"[CRM] ✓ Когорта: {funnel} | retention: {retention['returningClients']}/{retention['clientsInCohort']} клієнтів повернулись")
     return {"funnel": funnel, "funnelSteps": funnel_steps, "byStage": by_stage, "bySource": by_source, "byCampaign": by_campaign,
-            "byCampaignDaily": by_campaign_daily, "campaignDailyV": CAMPAIGN_DAILY_V,
+            "byCampaignDaily": by_campaign_daily, "campaignDailyV": CAMPAIGN_DAILY_V, "campaignDeals": campaign_deals,
             "keyAccounts": {"companies": sum(1 for k in key_accounts() if k.startswith("c")), "minRevenue12m": KEY_ACCOUNT_MIN},
             "retention": retention, "staleBigDeals": stale[:10],
             "pipelines": build_pipelines(deals, stage_lists, fetch_histories(month_start)),

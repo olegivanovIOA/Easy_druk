@@ -189,6 +189,9 @@ window.LeadgenLoader = (() => {
   let _roiF = { ch: [], paid: false, q: '', acc: 'all', cls: 'all' };
   let _roi = null, _roiSort = { k: 'wonSum', dir: -1 }, _adsDaily = null, _ga = null, _cl = null, _pnl = null, _mgn = null, _meta = null;
   const _roiOpen = new Set();   // v7.0: розгорнуті рядки (деталізація)
+  const _roiDl = new Set();     // v7.34: рядки з розгорнутим списком угод (клік по назві кампанії)
+  // v7.34: посилання на угоду в CRM (у зовнішньому звіті домен прибирається — тоді лише ID)
+  const BX_DEAL = 'https://easy3dprint.bitrix24.eu/crm/deal/details/';
   // v6.3: маржа для ROMI — за замовчуванням валова маржа з P&L (з початку року), можна змінити в полі над таблицею
   const MGN_LS = 'e3d_roi_margin_v1';
   // v6.4: старі назви utm_campaign / кампаній → поточна назва кампанії в Google Ads (від маркетолога, 17.10.2026).
@@ -287,14 +290,15 @@ window.LeadgenLoader = (() => {
   // Bitrix-частина за період: щоденні рядки (byCampaignDaily), або місячна
   // розбивка, якщо місяць повністю в періоді і щоденної ще немає (до бекфілу).
   function bitrixRows(from, to) {
-    const months = monthsWithCohort(), srcNames = {}, out = [], gaps = [];
+    const months = monthsWithCohort(), srcNames = {}, out = [], gaps = [], deals = [];
     months.forEach(m => (m.cohort.bySource || []).forEach(s => { if (s.key && s.key !== '—') srcNames[s.key] = s.name; }));
     months.forEach(m => {
       const mFrom = m.month + '-01', mTo = lastDay(m.month);
       if (mTo < from || mFrom > to) return;
       const daily = m.cohort.byCampaignDaily;
       if (daily) {
-        daily.forEach(r => { if (r.d >= from && r.d <= to) out.push({ d: r.d, us: r.us, uc: r.uc, s: r.s, t: r.t || '', n: r.n, e: r.e, w: r.w, ws: r.ws }); });
+        daily.forEach(r => { if (r.d >= from && r.d <= to) out.push({ d: r.d, us: r.us, uc: r.uc, s: r.s, t: r.t || '', n: r.n, e: r.e, w: r.w, ws: r.ws, q: r.q, a: r.a }); });
+        (m.cohort.campaignDeals || []).forEach(r => { if (r.d >= from && r.d <= to) deals.push(r); });
       } else if (mFrom >= from && mTo <= to) {
         (m.cohort.byCampaign || []).forEach(c => {
           const [us, uc] = c.key.split(' / ');
@@ -302,7 +306,7 @@ window.LeadgenLoader = (() => {
         });
       } else gaps.push(m.month);
     });
-    return { rows: out, srcNames, gaps };
+    return { rows: out, srcNames, gaps, deals, dealsOk: months.filter(m => { const a = m.month + '-01', b = lastDay(m.month); return !(b < from || a > to); }).every(m => m.cohort.campaignDeals) };
   }
 
   // Вартість Google Ads за період → {campaign: {cost, clicks}}, + прапорці точності.
@@ -421,7 +425,9 @@ window.LeadgenLoader = (() => {
     const tbd = $('mkt-leadgen-roi-table');
     if (tbd) tbd.onclick = ev => {
       const tr = ev.target.closest('tr[data-rk]'); if (!tr || ev.target.closest('a')) return;
-      const k = tr.dataset.rk; _roiOpen.has(k) ? _roiOpen.delete(k) : _roiOpen.add(k); renderRoi();
+      const k = tr.dataset.rk;
+      if (ev.target.closest('.roi-nm')) { _roiDl.has(k) ? _roiDl.delete(k) : _roiDl.add(k); renderRoi(); return; }   // v7.34
+      _roiOpen.has(k) ? _roiOpen.delete(k) : _roiOpen.add(k); renderRoi();
     };
     const pc = $('roi-paid'); if (pc) { pc.checked = _roiF.paid; pc.onchange = () => { _roiF.paid = pc.checked; fUpd(); }; }
     const q = $('roi-q');
@@ -461,7 +467,7 @@ window.LeadgenLoader = (() => {
     const rows = {};
     const row = (ch, acc, name) => {
       const k = ch + '|' + acc + '|' + name;
-      return rows[k] || (rows[k] = { k, ch, acc, name, deals: 0, exp: 0, won: 0, wonSum: 0, cost: null, clicks: null, cd: 0, cw: 0, cws: 0,
+      return rows[k] || (rows[k] = { k, ch, acc, name, deals: 0, q: 0, a: 0, qMiss: 0, exp: 0, won: 0, wonSum: 0, cost: null, clicks: null, cd: 0, cw: 0, cws: 0,
         cl: { mkt: 0, non: 0, unk: 0 }, b: {} });
     };
     // v7.0: деталізація — по днях для періоду до 45 днів, інакше по місяцях
@@ -473,9 +479,13 @@ window.LeadgenLoader = (() => {
     const keyOf = r => { const c = channelOf(r.us, r.s, bx.srcNames); const n = bxKey(c, r.uc, ads); const x = row(c.ch, slonAcc(c.acc, r.t === 'k'), n); x._c = c; return x; };
     bx.rows.forEach(r => {
       const x = keyOf(r); x.deals += r.n; x.exp += r.e; x.won += r.w; x.wonSum += r.ws;
+      // v7.33: кваліфіковані / в роботі + успішні (рядки старих місяців без цих полів — після «Backfill CRM Monthly History»)
+      if (r.q == null) x.qMiss += r.n; else { x.q += r.q; x.a += r.a || 0; }
       x.cl[cls(r.us, r.uc, bx.srcNames[r.s] || r.s, x.ch, r.t)] += r.n;
       if (r.d) { const b = B(x, r.d); b.n += r.n; b.w += r.w; b.ws += r.ws; }
     });
+    // v7.34: ID угод «в роботі + успішні» — до того ж рядка, що й агрегати
+    bx.deals.forEach(r => { const x = keyOf({ us: r.us, uc: r.uc, s: r.s, t: r.t || '' }); (x.dl || (x.dl = [])).push(r); });
     // CPL/CAC/ROAS рахуємо лише за дні, де є вартість Ads — інакше річні угоди
     // ділились би на 30-денну вартість і ROAS виходив би завищеним.
     const partial = ads.partial && ads.cFrom && ads.cFrom <= ads.cTo;
@@ -587,10 +597,28 @@ window.LeadgenLoader = (() => {
     const romiTxt = v => v == null ? '—' : (v > 0 ? '+' : '') + v.toFixed(0) + '%';
     const td = (v, bold, color) => `<td class="r"${bold || color ? ` style="${bold ? 'font-weight:700;' : ''}${color ? 'color:' + color : ''}"` : ''}>${v}</td>`;
     const CLS_C = { mkt: G, non: RT, unk: '#9aa3ad' };
+    // v7.33: «Кваліфіковані» і «В роботі + успішні» + частка від нових угод
+    const qaTd = (r, f) => {
+      if (r.qMiss >= r.deals) return `<td class="r" style="color:var(--tl)" title="Для цього періоду ще немає розбивки — запусти «Backfill CRM Monthly History»">—</td>`;
+      const v = r[f], base = f === 'q' ? r.deals : r.q, p = base ? Math.round(v / base * 100) : null;
+      const t = (f === 'q' ? 'Кваліфіковані: нові угоди без дублів/тестів і відмов «не лід» (спам, помилкові, недодзвон)' : 'В роботі + успішні: кваліфіковані, що не закриті як провал') +
+        (p != null ? ` — ${p}% від ${f === 'q' ? 'нових угод' : 'кваліфікованих'}` : '') + (r.qMiss ? ` · ⚠ без розбивки ще ${r.qMiss} угод (старі місяці)` : '');
+      return `<td class="r" title="${t}">${v}${p != null ? `<span style="color:var(--tl);font-size:9px;margin-left:3px">${p}%</span>` : ''}${r.qMiss ? '*' : ''}</td>`;
+    };
+    // v7.34: провал до ID угод (в роботі + успішні / WON)
+    const dealList = r => {
+      const L = (r.dl || []).slice().sort((a, b) => (b.w || 0) - (a.w || 0) || b.sum - a.sum || b.d.localeCompare(a.d));
+      if (!L.length) return `<tr class="roi-dd"><td colspan="16" style="color:var(--tl)">${bx.dealsOk ? 'Угод «в роботі + успішні» за період немає' : 'Для цього періоду ще немає списку угод — запусти «Backfill CRM Monthly History»'}</td></tr>`;
+      const wN = L.filter(d => d.w).length, link = /^https?:\/\/\S+$/.test(BX_DEAL);
+      return `<tr class="roi-dd"><td colspan="16"><div style="font-size:10px;color:var(--tl);margin:2px 0 4px">Угоди «в роботі + успішні»: <b>${L.length}</b>, з них WON <b>${wN}</b>${bx.dealsOk ? '' : ' · ⚠ за частину періоду списку ще немає (Backfill)'}</div>
+        <table class="roi-ddt"><thead><tr><th>ID угоди</th><th>Створена</th><th>Стадія</th><th class="r">Сума</th><th>Статус</th></tr></thead><tbody>` +
+        L.map(d => `<tr><td>${link ? `<a href="${BX_DEAL}${d.id}/" target="_blank" rel="noopener">${d.id}</a>` : d.id}</td><td>${d.d.slice(8) + '.' + d.d.slice(5, 7)}</td><td>${d.st || '—'}</td><td class="r">${fmt(d.sum)}</td>
+          <td>${d.w ? `<span style="color:${GD};font-weight:700">WON</span>` : 'в роботі'}${d.t === 'r' ? ' <span style="color:var(--tl)">· повторна</span>' : ''}</td></tr>`).join('') + `</tbody></table></td></tr>`;
+    };
     const drill = r => {
       const ks = Object.keys(r.b).sort(); if (!ks.length) return '';
       const mx = Math.max(...ks.map(b => r.b[b].n), 1);
-      return `<tr class="roi-dd"><td colspan="14"><table class="roi-ddt"><thead><tr><th>${byDay ? 'День' : 'Місяць'}</th><th class="r">Вартість</th><th class="r">Сеанси</th><th class="r">Нових угод</th><th></th><th class="r">CPL</th><th class="r">WON</th><th class="r">WON сума</th><th class="r">ROAS</th></tr></thead><tbody>` +
+      return `<tr class="roi-dd"><td colspan="16"><table class="roi-ddt"><thead><tr><th>${byDay ? 'День' : 'Місяць'}</th><th class="r">Вартість</th><th class="r">Сеанси</th><th class="r">Нових угод</th><th></th><th class="r">CPL</th><th class="r">WON</th><th class="r">WON сума</th><th class="r">ROAS</th></tr></thead><tbody>` +
         ks.map(b => { const v = r.b[b]; return `<tr><td>${byDay ? b.slice(8) + '.' + b.slice(5, 7) : b}</td><td class="r">${v.cost ? fmt(v.cost) : '—'}</td><td class="r">${v.ses ? fmt(v.ses) : '—'}</td><td class="r">${v.n}</td>
           <td style="width:90px"><div style="height:6px;border-radius:3px;background:${WH};width:${Math.max(2, v.n / mx * 100)}%"></div></td>
           <td class="r">${v.cost && v.n ? fmt(v.cost / v.n) : '—'}</td><td class="r">${v.w}</td><td class="r">${fmt(v.ws)}</td><td class="r">${v.cost ? (v.ws / v.cost * 100).toFixed(0) + '%' : '—'}</td></tr>`; }).join('') +
@@ -598,12 +626,12 @@ window.LeadgenLoader = (() => {
     };
     tb.innerHTML = arr.length ? arr.map(r => `<tr data-rk="${r.k.replace(/"/g, '&quot;')}" class="roi-row${_roiOpen.has(r.k) ? ' open' : ''}" title="Клік — деталізація ${byDay ? 'по днях' : 'по місяцях'}">
         <td><span class="roi-cls" style="background:${CLS_C[r.cls]}" title="${CLS_LBL[r.cls]} (правила data/marketing_rules.json)"></span><span class="roi-ch">${r.ch}</span>${r.acc ? `<span class="roi-acc"> / ${r.acc}</span>` : ''}</td>
-        <td style="font-weight:500">${r.name || '<span style="color:var(--tl)">без UTM</span>'}${noUtmRow(r) ? ` <span class="roi-nu" title="На рекламу витрачено ${fmt(r.cost)} грн, ${fmt(r.ses)} сеансів${r.ke ? ` і ${fmt(r.ke)} ключових подій у GA4 (дзвінки / форми)` : ''}, але жодна угода в Bitrix24 не має utm_campaign=${r.name}. Найімовірніше, мітки губляться дорогою (немає Final URL suffix / коллтрекінг не передає UTM) — ROAS тут занижений до 0%, реальні угоди потрапляють у «без UTM».">⚠ UTM не доходить у CRM</span>` : ''}${noConvRow(r) ? ` <span class="roi-nu" style="background:#eef1ec;color:#5f6b66" title="${fmt(r.ses)} сеансів за ${fmt(r.cost)} грн, але 0 ключових подій і в GA4 (жодного дзвінка чи форми), і 0 угод у CRM. З UTM усе гаразд — кампанія не дала заявок, ROAS 0% справжній. Варто переглянути оголошення / посадкову сторінку / ключові слова.">○ 0 заявок (і в GA4)</span>` : ''}</td>
-        ${td(r.cost != null ? fmt(r.cost) : '—')}${td(r.ses != null ? fmt(r.ses) : '—')}${td(r.deals)}${td(r.cr != null ? r.cr.toFixed(1) + '%' : '—')}${td(r.cpl != null ? fmt(r.cpl) : '—')}${td(fmt(r.exp))}
+        <td style="font-weight:500"><span class="roi-nm${_roiDl.has(r.k) ? ' on' : ''}" title="Клік — угоди «в роботі + успішні» / WON цієї кампанії (ID у CRM)">${r.name || '<span style="color:var(--tl)">без UTM</span>'}${r.dl ? `<span class="roi-dln">${r.dl.length}</span>` : ''}</span>${noUtmRow(r) ? ` <span class="roi-nu" title="На рекламу витрачено ${fmt(r.cost)} грн, ${fmt(r.ses)} сеансів${r.ke ? ` і ${fmt(r.ke)} ключових подій у GA4 (дзвінки / форми)` : ''}, але жодна угода в Bitrix24 не має utm_campaign=${r.name}. Найімовірніше, мітки губляться дорогою (немає Final URL suffix / коллтрекінг не передає UTM) — ROAS тут занижений до 0%, реальні угоди потрапляють у «без UTM».">⚠ UTM не доходить у CRM</span>` : ''}${noConvRow(r) ? ` <span class="roi-nu" style="background:#eef1ec;color:#5f6b66" title="${fmt(r.ses)} сеансів за ${fmt(r.cost)} грн, але 0 ключових подій і в GA4 (жодного дзвінка чи форми), і 0 угод у CRM. З UTM усе гаразд — кампанія не дала заявок, ROAS 0% справжній. Варто переглянути оголошення / посадкову сторінку / ключові слова.">○ 0 заявок (і в GA4)</span>` : ''}</td>
+        ${td(r.cost != null ? fmt(r.cost) : '—')}${td(r.ses != null ? fmt(r.ses) : '—')}${td(r.deals)}${qaTd(r, 'q')}${qaTd(r, 'a')}${td(r.cr != null ? r.cr.toFixed(1) + '%' : '—')}${td(r.cpl != null ? fmt(r.cpl) : '—')}${td(fmt(r.exp))}
         ${td(r.won)}${td(fmt(r.wonSum), true)}${td(r.cac != null ? fmt(r.cac) : '—')}
         ${noUtmRow(r) ? '<td class="r" style="color:var(--tl)" title="Не рахується: угоди цієї кампанії не мають UTM у Bitrix24">н/д</td>'.repeat(3)
-          : td(r.roas != null ? r.roas.toFixed(0) + '%' : '—', true, rc(r.roas)) + td(romiTxt(r.romiR), true, mc(r.romiR)) + td(romiTxt(r.romiM), true, mc(r.romiM))}</tr>${_roiOpen.has(r.k) ? drill(r) : ''}`).join('')
-      : `<tr><td colspan="14" style="color:var(--tl);font-weight:400">${filtered ? 'Немає рядків за обраним фільтром' : 'Немає угод за ' + per}</td></tr>`;
+          : td(r.roas != null ? r.roas.toFixed(0) + '%' : '—', true, rc(r.roas)) + td(romiTxt(r.romiR), true, mc(r.romiR)) + td(romiTxt(r.romiM), true, mc(r.romiM))}</tr>${_roiDl.has(r.k) ? dealList(r) : ''}${_roiOpen.has(r.k) ? drill(r) : ''}`).join('')
+      : `<tr><td colspan="16" style="color:var(--tl);font-weight:400">${filtered ? 'Немає рядків за обраним фільтром' : 'Немає угод за ' + per}</td></tr>`;
 
     // Разом: угоди/суми — усі рядки; CPL/CAC/ROAS — лише рядки з вартістю (платний трафік)
     const tf = $('mkt-leadgen-roi-total');
@@ -615,7 +643,7 @@ window.LeadgenLoader = (() => {
       const romiR = cmpOk && cost ? (pws - cost) / cost * 100 : null;
       const romiM = cmpOk && cost ? (pws * marginPct() / 100 - cost) / cost * 100 : null;
       tf.innerHTML = arr.length ? `<tr><td>${filtered ? 'Разом (фільтр)' : 'Разом'}</td><td style="font-weight:500;color:var(--tl)">${filtered ? arr.length + ' з ' + allRows : arr.length} рядків</td>
-        ${td(cost ? fmt(cost) : '—')}${td(gaOk ? fmt(S(arr.filter(r => r.ses), 'ses')) : '—')}${td(S(arr, 'deals'))}<td class="r" title="Лише рядки з сеансами GA">${(() => { const w = arr.filter(r => r.ses); const sS = S(w, 'ses'); return sS ? (S(w, 'deals') / sS * 100).toFixed(1) + '%' : '—'; })()}</td>
+        ${td(cost ? fmt(cost) : '—')}${td(gaOk ? fmt(S(arr.filter(r => r.ses), 'ses')) : '—')}${td(S(arr, 'deals'))}${qaTd({ deals: S(arr, 'deals'), q: S(arr, 'q'), a: S(arr, 'a'), qMiss: S(arr, 'qMiss') }, 'q')}${qaTd({ deals: S(arr, 'deals'), q: S(arr, 'q'), a: S(arr, 'a'), qMiss: S(arr, 'qMiss') }, 'a')}<td class="r" title="Лише рядки з сеансами GA">${(() => { const w = arr.filter(r => r.ses); const sS = S(w, 'ses'); return sS ? (S(w, 'deals') / sS * 100).toFixed(1) + '%' : '—'; })()}</td>
         <td class="r" title="Лише платні рядки (з вартістю)">${cost && pd ? fmt(cost / pd) : '—'}</td>${td(fmt(S(arr, 'exp')))}
         ${td(S(arr, 'won'))}${td(fmt(S(arr, 'wonSum')))}
         <td class="r" title="Лише платні рядки (з вартістю)">${cost && pw ? fmt(cost / pw) : '—'}</td>
