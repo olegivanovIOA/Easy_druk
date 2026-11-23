@@ -470,7 +470,7 @@ def fetch_created_deals(category_id, date_from, date_to):
 # префікса = компанія). Контакти, що фігурують в угодах компанії-«слона», теж вважаються «слоном»
 # (одна компанія — багато контактних осіб). Лише в пам'яті: ID клієнтів у JSON не потрапляють.
 KEY_ACCOUNT_MIN = float(os.environ.get("KEY_ACCOUNT_MIN", "1000000"))
-CAMPAIGN_DAILY_V = 4   # v7.7: рядки byCampaignDaily мають поле t ('' перша угода / 'r' повторна / 'k' «слон»)
+CAMPAIGN_DAILY_V = 5   # v7.7: рядки byCampaignDaily мають поле t ('' перша угода / 'r' повторна / 'k' «слон»)
                        # v7.33: + q (кваліфіковані) і a (в роботі + успішні) — як кроки воронки когорти
                        # v7.34: + campaignDeals — ID угод «в роботі + успішні» для провалу з таблиці ROI
 _KEYS = None
@@ -619,11 +619,12 @@ def rollup_campaign_daily(deals, sem, is_won, keys=None, sname=None):
 
 def campaign_deal_list(deals, sem, is_won, sname, keys=None):
     """v7.34: угоди «в роботі + успішні» з UTM/джерелом — для провалу з таблиці ROI до ID угоди.
+    v7.35: усі незакриті провалом (як колонка «Очік. сума»); дублі/тести без провалу позначені nq=1.
     Лише ID угоди, дата, стадія, сума (як у staleBigDeals) — без назв, клієнтів і контактів."""
     keys = key_accounts() if keys is None else keys
     out = []
     for d in deals:
-        if sem(d) == "F" or not _is_qualified(d, sem, sname):
+        if sem(d) == "F":
             continue
         r = {"id": str(d.get("ID") or ""), "d": (d.get("DATE_CREATE") or "")[:10],
              "us": (d.get("UTM_SOURCE") or "").strip(), "uc": (d.get("UTM_CAMPAIGN") or "").strip(),
@@ -633,6 +634,8 @@ def campaign_deal_list(deals, sem, is_won, sname, keys=None):
             r["t"] = t
         if is_won(d):
             r["w"] = 1
+        if not _is_qualified(d, sem, sname):
+            r["nq"] = 1
         out.append(r)
     return sorted(out, key=lambda x: (x["d"], x["id"]))
 
