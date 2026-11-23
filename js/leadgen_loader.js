@@ -202,7 +202,8 @@ window.LeadgenLoader = (() => {
     'DSA_UA_UA_NEW': ['search_dynamic_Main', null],
     'Remarketing_b2b': ['remarketing_b2b', null],
     'Brand_UA_new': ['search_brand_Main', null],
-    'Search_new_ukr': ['search_3d_print_Main', 'ukr3d'],
+    // v7.32: у Google Ads кампанію Ukr3d перейменовано на search_3d_print_Main_ukr (GA4 віддає нову назву за всю історію)
+    'Search_new_ukr': ['search_3d_print_Main_ukr', 'ukr3d'],
     'Brand_ukr': ['search_brand_Main', 'ukr3d'],
     'Search_miltech': ['search_miltech_Main', 'ukr3d'],
   };
@@ -215,6 +216,11 @@ window.LeadgenLoader = (() => {
   // канал/акаунт/назва для рядка Bitrix (UTM): google-кампанії — з урахуванням аліасів і акаунта з GA4
   const bxKey = (c, uc, ads) => {
     const al = aliasOf(uc); let name = al ? al[0] : (uc || '');
+    if (c.ch === 'google' && name && al && al[1] === 'ukr3d' && !ads.known.has(name)) {
+      // v7.32: кампанію Ukr3d перейменували з/на «…_ukr» — шукаємо вартість під обома назвами, щоб ROMI не обнулявся після перейменування
+      const alt = /_ukr$/i.test(name) ? name.replace(/_ukr$/i, '') : name + '_ukr';
+      if (ads.known.has(alt)) name = alt;
+    }
     if (c.ch === 'google' && name) {
       if (!al && !ads.known.has(name)) {   // та сама кампанія в Ads, але інший регістр / пробіли — беремо назву з Ads
         if (!ads._lc) { ads._lc = {}; ads.known.forEach(k => { if (k) ads._lc[String(k).toLowerCase().trim()] = k; }); }
