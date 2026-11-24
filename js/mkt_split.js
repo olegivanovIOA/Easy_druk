@@ -152,10 +152,13 @@ window.MktSplit = (() => {
       const costNames = new Set(g.filter(r => r.d >= from && r.d <= to).map(r => r.camp)), everNames = new Set(g.map(r => r.camp)), sn = all.srcNames, miss = {};
       all.rows.forEach(r => {
         if (!r.d || r.d < from || r.d > to || api.channelOf(r.us, r.s, sn).ch !== 'google') return;
-        const nm = api.campOf((r.uc || '').trim()); if (nm && costNames.has(nm)) return;
+        const nm = api.campOf((r.uc || '').trim());
+        // v7.38: кампанію Ukr3d перейменовують туди-назад («…_ukr») — шукаємо вартість під обома назвами (як у таблиці ROI)
+        if (nm && (costNames.has(nm) || costNames.has(nm.replace(/_ukr$/i, '')) || costNames.has(nm + '_ukr'))) return;
         const x = miss[nm] || (miss[nm] = { nm, n: 0, ws: 0 }); x.n += r.n; x.ws += r.ws;
       });
-      const why = nm => !nm || nm === '(not set)' ? 'кампанія не передала utm_campaign (часто Performance Max / автотеги) — вартість не прив\'язати'
+      const why = nm => api.isStopped && api.isStopped(nm) ? 'кампанія зупинена (підтверджено 24.11) — лід прийшов пізніше за кліком; витрати є в місяцях, коли вона працювала. Нічого виправляти не треба'
+        : !nm || nm === '(not set)' ? 'назва кампанії не дійшла: переважно угоди з дзвінків (колтрекінг) і джерела PARTNER — клік з автотегом gclid без utm_campaign. Шаблони UTM в Ads тут ні до чого; щоб бачити кампанію, треба інтеграцію колтрекінгу з Google Ads (gclid → кампанія) — вартість поки не прив\'язати'
         : /^\d+$/.test(nm) ? 'в utm_campaign записано ID кампанії, а не назву — потрібна заміна шаблону UTM'
         : /^gmb/i.test(nm) ? 'Google Business Profile (карти) — безкоштовний канал, вартості немає'
         : everNames.has(nm) ? 'у цьому періоді кампанія не мала витрат (зупинена; лід прийшов пізніше за кліком) — вартість є в інших місяцях'

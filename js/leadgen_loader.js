@@ -255,9 +255,16 @@ window.LeadgenLoader = (() => {
   }
 
   // Канал: utm_source → google / facebook / instagram / meta…; без UTM — поле «Джерело».
+  // v7.38: зупинені рекламні кампанії (підтверджено маркетологом 24.11.2026) — угоди по них приходять пізніше за кліком,
+  // тому в місяці угоди витрат немає; це не помилка зіставлення і не спотворення ROMI
+  const STOPPED = new Set(['pmax_old', 'b2b_lityo', '3d_print_kyiv_ua']);
+  const isStopped = nm => STOPPED.has(String(nm || '').trim().toLowerCase());
   function channelOf(us, sid, srcNames) {
     const u = (us || '').trim(), l = u.toLowerCase();
     if (u) {
+      // v7.38: перехід з пошуковика (домен-реферер: www.google.com, google.com.ua, www.bing.com, search.ukr.net…, utm_campaign=(organic))
+      // — це органіка (SEO), а не Google Ads. Так пише колтрекінг/скрипт сайту, коли реклами не було.
+      if (/^(www\.)?(google|bing|yahoo|duckduckgo|yandex|ecosia)\.[a-z.]+$|^search\.|^tagassistant\.google\./.test(l)) return { ch: 'органіка (SEO)', acc: u.replace(/^www\./, '') };
       if (/google|adwords|gads|youtube/.test(l)) return { ch: l.includes('youtube') ? 'youtube' : 'google', acc: '' };
       if (/^(fb|facebook)$|facebook\.com|^meta$/.test(l)) return { ch: 'facebook', acc: '' };
       if (/^(ig|insta|instagram)$|instagram\.com/.test(l)) return { ch: 'instagram', acc: '' };
@@ -628,7 +635,7 @@ window.LeadgenLoader = (() => {
     };
     tb.innerHTML = arr.length ? arr.map(r => `<tr data-rk="${r.k.replace(/"/g, '&quot;')}" class="roi-row${_roiOpen.has(r.k) ? ' open' : ''}" title="Клік — деталізація ${byDay ? 'по днях' : 'по місяцях'}">
         <td><span class="roi-cls" style="background:${CLS_C[r.cls]}" title="${CLS_LBL[r.cls]} (правила data/marketing_rules.json)"></span><span class="roi-ch">${r.ch}</span>${r.acc ? `<span class="roi-acc"> / ${r.acc}</span>` : ''}</td>
-        <td style="font-weight:500"><span class="roi-nm${_roiDl.has(r.k) ? ' on' : ''}" title="Клік — угоди колонки «Очік. сума»: в роботі + WON (ID у CRM)">${r.name || '<span style="color:var(--tl)">без UTM</span>'}${r.dl ? `<span class="roi-dln">${r.dl.length}</span>` : ''}</span>${noUtmRow(r) ? ` <span class="roi-nu" title="На рекламу витрачено ${fmt(r.cost)} грн, ${fmt(r.ses)} сеансів${r.ke ? ` і ${fmt(r.ke)} ключових подій у GA4 (дзвінки / форми)` : ''}, але жодна угода в Bitrix24 не має utm_campaign=${r.name}. Найімовірніше, мітки губляться дорогою (немає Final URL suffix / коллтрекінг не передає UTM) — ROAS тут занижений до 0%, реальні угоди потрапляють у «без UTM».">⚠ UTM не доходить у CRM</span>` : ''}${noConvRow(r) ? ` <span class="roi-nu" style="background:#eef1ec;color:#5f6b66" title="${fmt(r.ses)} сеансів за ${fmt(r.cost)} грн, але 0 ключових подій і в GA4 (жодного дзвінка чи форми), і 0 угод у CRM. З UTM усе гаразд — кампанія не дала заявок, ROAS 0% справжній. Варто переглянути оголошення / посадкову сторінку / ключові слова.">○ 0 заявок (і в GA4)</span>` : ''}</td>
+        <td style="font-weight:500"><span class="roi-nm${_roiDl.has(r.k) ? ' on' : ''}" title="Клік — угоди колонки «Очік. сума»: в роботі + WON (ID у CRM)">${r.name || '<span style="color:var(--tl)">без UTM</span>'}${r.dl ? `<span class="roi-dln">${r.dl.length}</span>` : ''}</span>${r.ch === 'google' && isStopped(r.name) ? '<span style="margin-left:5px;font-size:9px;font-weight:600;color:#7b857f;background:#eef1ec;border-radius:6px;padding:0 5px" title="Кампанія зупинена (підтверджено маркетологом 24.11) — угоди приходять пізніше за кліком">зупинена</span>' : ''}${noUtmRow(r) ? ` <span class="roi-nu" title="На рекламу витрачено ${fmt(r.cost)} грн, ${fmt(r.ses)} сеансів${r.ke ? ` і ${fmt(r.ke)} ключових подій у GA4 (дзвінки / форми)` : ''}, але жодна угода в Bitrix24 не має utm_campaign=${r.name}. Найімовірніше, мітки губляться дорогою (немає Final URL suffix / коллтрекінг не передає UTM) — ROAS тут занижений до 0%, реальні угоди потрапляють у «без UTM».">⚠ UTM не доходить у CRM</span>` : ''}${noConvRow(r) ? ` <span class="roi-nu" style="background:#eef1ec;color:#5f6b66" title="${fmt(r.ses)} сеансів за ${fmt(r.cost)} грн, але 0 ключових подій і в GA4 (жодного дзвінка чи форми), і 0 угод у CRM. З UTM усе гаразд — кампанія не дала заявок, ROAS 0% справжній. Варто переглянути оголошення / посадкову сторінку / ключові слова.">○ 0 заявок (і в GA4)</span>` : ''}</td>
         ${td(r.cost != null ? fmt(r.cost) : '—')}${td(r.ses != null ? fmt(r.ses) : '—')}${td(r.deals)}${qaTd(r, 'q')}${qaTd(r, 'a')}${td(r.cr != null ? r.cr.toFixed(1) + '%' : '—')}${td(r.cpl != null ? fmt(r.cpl) : '—')}${td(fmt(r.exp))}
         ${td(r.won)}${td(fmt(r.wonSum), true)}${td(r.cac != null ? fmt(r.cac) : '—')}
         ${noUtmRow(r) ? '<td class="r" style="color:var(--tl)" title="Не рахується: угоди цієї кампанії не мають UTM у Bitrix24">н/д</td>'.repeat(3)
@@ -653,7 +660,7 @@ window.LeadgenLoader = (() => {
         <td class="r" style="color:${mc(romiR)}" title="(WON сума − вартість) ÷ вартість, лише платні рядки">${romiTxt(romiR)}</td>
         <td class="r" style="color:${mc(romiM)}" title="(WON сума × маржа − вартість) ÷ вартість, лише платні рядки">${romiTxt(romiM)}</td></tr>` : '';
       // v6.3: що спотворює ROMI — витрати без угод з UTM і виручка кампаній без даних про витрати
-      const noUtm = paid.filter(noUtmRow), noCost = arr.filter(r => !r.cost && r.ch === 'google' && r.name && r.wonSum && !/«слон»/.test(r.acc));
+      const noUtm = paid.filter(noUtmRow), noCost = arr.filter(r => !r.cost && r.ch === 'google' && r.name && r.wonSum && !/«слон»/.test(r.acc) && !isStopped(r.name) && !/^gmb/i.test(r.name));
       renderRomiKpi({ cost, pws, roas, romiR, romiM, paidRows: paid.length, filtered, cmpOk,
         noUtmCost: S(noUtm, 'cost'), noUtmN: noUtm.length, noCostRev: S(noCost, 'wonSum'), noCostN: noCost.length });
     }
@@ -823,7 +830,7 @@ window.LeadgenLoader = (() => {
 
   // v7.0: спільні функції для js/mkt_split.js (витрати по акаунтах, маркетинг / не маркетинг, Meta, повернення клієнтів)
   const api = {
-    channelOf, bitrixRows, monthsWithCohort, googleDaily, metaDaily, accGroup, campOf, lastDay, today, fmt, chart,
+    channelOf, isStopped, bitrixRows, monthsWithCohort, googleDaily, metaDaily, accGroup, campOf, lastDay, today, fmt, chart,
     get ga() { return _ga; }, get meta() { return _meta; }, get clients() { return _cl; }, get adsAccOf() { return adsCost('1900-01-01', '1900-01-01').accOf || {}; },
     rerender: () => { try { renderRoi(); } catch (e) { console.warn(e); } },
     utmHealth, utmHealthHtml,
