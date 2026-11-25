@@ -502,6 +502,7 @@ window.LeadgenLoader = (() => {
       </div>
       <div class="roi-hit-g">
         <span>Створена</span><b>${d.d.split('-').reverse().join('.')}</b>
+        ${d.cl ? `<span>Закрита</span><b>${d.cl.split('-').reverse().join('.')} · ${Math.max(0, Math.round((new Date(d.cl) - new Date(d.d)) / 864e5))} дн. від створення</b>` : ''}
         <span>Стадія</span><b>${esc(d.st || '—')} · ${d.w ? `<span style="color:${GD}">WON</span>` : 'в роботі'}</b>
         <span>Сума</span><b>${fmt(d.sum)} ₴</b>
         <span>Тип</span><b>${d.t === 'k' ? '«слон» (ключовий клієнт)' : d.t === 'r' ? 'повторна (клієнт вже купував)' : 'перша угода клієнта'}${d.nq ? ' · дубль/тест' : ''}</b>
@@ -676,8 +677,8 @@ window.LeadgenLoader = (() => {
       // v7.35: список = угоди колонки «Очік. сума» (усі, крім закритих провалом); сума списку = «Очік. сума»
       const sumAll = L.reduce((t, d) => t + (d.sum || 0), 0), sumW = L.filter(d => d.w).reduce((t, d) => t + (d.sum || 0), 0), nqN = L.filter(d => d.nq).length;
       return `<tr class="roi-dd"><td colspan="16"><div style="font-size:10px;color:var(--tl);margin:2px 0 4px">Угоди колонки «Очік. сума» (в роботі + успішні): <b>${L.length}</b> на <b>${fmt(sumAll)} ₴</b> · з них WON <b>${wN}</b> на <b>${fmt(sumW)} ₴</b>, в роботі <b>${L.length - wN}</b> на <b>${fmt(sumAll - sumW)} ₴</b>${nqN ? ` · ${nqN} — дубль/тест без провалу (не в «Кваліфіковані»)` : ''}${bx.dealsOk ? '' : ' · ⚠ за частину періоду списку ще немає (Backfill)'}</div>
-        <table class="roi-ddt"><thead><tr><th>ID угоди</th><th>Створена</th><th>Стадія</th><th class="r">Сума</th><th>Статус</th></tr></thead><tbody>` +
-        L.map(d => `<tr${d.id === _hlDeal ? ' class="hl"' : ''}${d.nq ? ' style="opacity:.6"' : ''}><td>${link ? `<a href="${BX_DEAL}${d.id}/" target="_blank" rel="noopener">${d.id}</a>` : d.id}</td><td>${d.d.slice(8) + '.' + d.d.slice(5, 7)}</td><td>${d.st || '—'}</td><td class="r">${fmt(d.sum)}</td>
+        <table class="roi-ddt"><thead><tr><th>ID угоди</th><th>Створена</th><th>Закрита</th><th class="r" title="Від створення до закриття (WON)">Днів</th><th>Стадія</th><th class="r">Сума</th><th>Статус</th></tr></thead><tbody>` +
+        L.map(d => `<tr${d.id === _hlDeal ? ' class="hl"' : ''}${d.nq ? ' style="opacity:.6"' : ''}><td>${link ? `<a href="${BX_DEAL}${d.id}/" target="_blank" rel="noopener">${d.id}</a>` : d.id}</td><td>${d.d.slice(8) + '.' + d.d.slice(5, 7)}</td><td>${d.cl ? d.cl.slice(8) + '.' + d.cl.slice(5, 7) + (d.cl.slice(0, 4) !== d.d.slice(0, 4) ? '.' + d.cl.slice(2, 4) : '') : (d.w ? '<span style="color:var(--tl)" title="Дата закриття з\'явиться після оновлення даних">—</span>' : '')}</td><td class="r">${d.cl ? Math.max(0, Math.round((new Date(d.cl) - new Date(d.d)) / 864e5)) : ''}</td><td>${d.st || '—'}</td><td class="r">${fmt(d.sum)}</td>
           <td>${d.w ? `<span style="color:${GD};font-weight:700">WON</span>` : 'в роботі'}${d.t === 'r' ? ' <span style="color:var(--tl)">· повторна</span>' : ''}${d.nq ? ' <span style="color:var(--tl)">· дубль/тест</span>' : ''}</td></tr>`).join('') + `</tbody></table></td></tr>`;
     };
     const drill = r => {

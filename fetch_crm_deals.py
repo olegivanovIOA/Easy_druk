@@ -460,7 +460,8 @@ def fetch_created_deals(category_id, date_from, date_to):
         "filter[<DATE_CREATE]": (date_to + timedelta(days=1)).isoformat(),
         "select[]": ["ID", "STAGE_ID", "STAGE_SEMANTIC_ID", "OPPORTUNITY", "CURRENCY_ID", "DATE_CREATE",
                      "SOURCE_ID", "UTM_SOURCE", "UTM_CAMPAIGN", "COMPANY_ID", "CONTACT_ID",
-                     "IS_RETURN_CUSTOMER"],   # v7.7: прапорець Bitrix «Повторна угода» (Y/N)
+                     "IS_RETURN_CUSTOMER",    # v7.7: прапорець Bitrix «Повторна угода» (Y/N)
+                     "CLOSEDATE"],            # v7.40: дата закриття WON-угоди (для списків угод у ROI)
     })
 
 
@@ -470,7 +471,7 @@ def fetch_created_deals(category_id, date_from, date_to):
 # префікса = компанія). Контакти, що фігурують в угодах компанії-«слона», теж вважаються «слоном»
 # (одна компанія — багато контактних осіб). Лише в пам'яті: ID клієнтів у JSON не потрапляють.
 KEY_ACCOUNT_MIN = float(os.environ.get("KEY_ACCOUNT_MIN", "1000000"))
-CAMPAIGN_DAILY_V = 5   # v7.7: рядки byCampaignDaily мають поле t ('' перша угода / 'r' повторна / 'k' «слон»)
+CAMPAIGN_DAILY_V = 6   # v7.7: рядки byCampaignDaily мають поле t ('' перша угода / 'r' повторна / 'k' «слон»)
                        # v7.33: + q (кваліфіковані) і a (в роботі + успішні) — як кроки воронки когорти
                        # v7.34: + campaignDeals — ID угод «в роботі + успішні» для провалу з таблиці ROI
 _KEYS = None
@@ -634,6 +635,9 @@ def campaign_deal_list(deals, sem, is_won, sname, keys=None):
             r["t"] = t
         if is_won(d):
             r["w"] = 1
+            cl = (d.get("CLOSEDATE") or "")[:10]   # v7.40: для WON CLOSEDATE = фактична дата закриття (див. шапку файлу)
+            if cl:
+                r["cl"] = cl
         if not _is_qualified(d, sem, sname):
             r["nq"] = 1
         out.append(r)
@@ -997,7 +1001,7 @@ PORTAL_DEAL_URL = "https://easy3dprint.bitrix24.eu/crm/deal/details/{id}/"
 
 
 def build_deal_lists(by_category):
-    """WON-угоди місяця по групах (ОПТ/Роздріб) і тірах. Лише ID, дата закриття,
+    """WON-угоди місяця по групах (ОПТ/Роздріб) і тірах. Лише ID, дата створення (v7.40) і закриття,
     воронка і бакет суми (напр. '10К–25К') — БЕЗ точних сум і назв/клієнтів."""
     out = {"wholesale": {k[0]: [] for k in TIERS}, "retail": {k[0]: [] for k in TIERS}}
     for cat_key, c in by_category.items():
@@ -1011,6 +1015,7 @@ def build_deal_lists(by_category):
             tier, _ = classify_tier(amt)
             bucket = next((lbl for _, lbl, lo, hi in HISTOGRAM_BUCKETS if lo <= amt < hi), HISTOGRAM_BUCKETS[-1][1])
             out[group][tier].append({"id": str(d.get("ID")), "closed": (d.get("CLOSEDATE") or "")[:10],
+                                     "created": (d.get("DATE_CREATE") or "")[:10],   # v7.40: дата початку угоди
                                      "category": int(cat_key), "bucket": bucket})
     for g in out.values():
         for lst in g.values():
