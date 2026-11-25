@@ -33,11 +33,23 @@ jobs:
       - name: Commit CRM monthly history
         if: always()   # v7.8: комітимо пораховані місяці навіть якщо крок обірвано тайм-аутом
         run: |
+          # v7.41: поки backfill рахує (30–60 хв), «Update Dashboard Data» встигає закомітити той самий файл —
+          # git rebase на JSON давав конфлікт і результат губився. Тепер: беремо свіжу версію з репозиторію
+          # і зливаємо в неї пораховане (merge_crm_history.py), повторюючи, поки push не пройде.
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/crm_monthly_history.json
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: backfill CRM monthly history 2026"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main_root && git push && break || sleep $((i*3))
+          git diff --quiet -- data/crm_monthly_history.json && echo "No changes" && exit 0
+          cp data/crm_monthly_history.json "$RUNNER_TEMP/backfill.json"
+          cp merge_crm_history.py "$RUNNER_TEMP/merge_crm_history.py"
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main_root
+            git reset -q --hard origin/main_root
+            python "$RUNNER_TEMP/merge_crm_history.py" "$RUNNER_TEMP/backfill.json" data/crm_monthly_history.json
+            git add data/crm_monthly_history.json
+            git diff --cached --quiet && echo "Після злиття змін немає" && exit 0
+            git commit -q -m "chore: backfill CRM monthly history 2026"
+            git push origin HEAD:main_root && echo "✓ Backfill закомічено" && exit 0
+            sleep $((i*5))
           done
+          echo "::error::Не вдалося закомітити результат backfill після 6 спроб"
+          exit 1
