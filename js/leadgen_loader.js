@@ -467,6 +467,60 @@ window.LeadgenLoader = (() => {
   const noUtmRow = r => noCrm(r) && !(r.ke === 0);
   const noConvRow = r => noCrm(r) && r.ke === 0;
 
+  // v7.39: пошук угоди за ID (поле «Пошук» у ROI): картка угоди — звідки прийшла, куди віднесена на дашборді, чи в ROMI
+  let _hlDeal = null;
+  function findDeal(id) {
+    for (const m of monthsWithCohort()) {
+      const d = (m.cohort.campaignDeals || []).find(x => x.id === id);
+      if (d) { const sn = {}; (m.cohort.bySource || []).forEach(s => { if (s.key && s.key !== '—') sn[s.key] = s.name; }); return { d, month: m.month, srcNames: sn }; }
+    }
+    return null;
+  }
+  function renderDealHit(id) {
+    let box = $('roi-deal-hit');
+    if (!box) { const n = $('mkt-leadgen-roi-note'); if (!n) return; n.insertAdjacentHTML('afterend', '<div id="roi-deal-hit"></div>'); box = $('roi-deal-hit'); }
+    if (!id) { box.innerHTML = ''; _hlDeal = null; return; }
+    const hit = findDeal(id), avail = monthsWithCohort().filter(m => m.cohort.campaignDeals).map(m => m.month);
+    if (!hit) {
+      box.innerHTML = `<div class="roi-hit"><b>Угоду #${esc(id)} не знайдено.</b> У дашборді є лише угоди «в роботі + успішні» (без закритих провалом), створені в ${avail.length ? avail[0] + ' … ' + avail[avail.length - 1] : '—'}. Закриті провалом угоди й старші місяці (до «Backfill CRM Monthly History») у списках відсутні.</div>`;
+      return;
+    }
+    const { d, month, srcNames } = hit, c = channelOf(d.us, d.s, srcNames);
+    const ads = adsCost(month + '-01', lastDay(month)), nm = bxKey(c, d.uc, ads);
+    const klass = cls(d.us, d.uc, srcNames[d.s] || d.s, c.ch, d.t || '');
+    const cost = c.ch === 'google' && nm ? ((ads.map || {})[c.acc + '|' + nm] || {}).cost : null;
+    const romi = d.t === 'k' ? `<span style="color:${R}">ні</span> — клієнт-«слон» (WON ≥ 1 млн ₴ за 12 міс.): такі угоди виключені з таблиці ROI й ROMI, навіть з рекламною UTM`
+      : !d.w ? 'ще ні — угода в роботі (у ROMI потрапляє лише WON)'
+      : c.ch === 'google' ? (cost ? `<span style="color:${GD}">так</span> — кампанія мала ${fmt(cost)} ₴ витрат у ${month}` : `<span style="color:${R}">ні</span> — у ${month} для кампанії немає витрат в Ads${isStopped(nm) ? ' (кампанія зупинена)' : ''}`)
+      : META_CH.has(c.ch) ? 'так, якщо кампанія є в Meta Ads API за цей місяць' : 'ні — не рекламний канал (немає вартості)';
+    const link = /^https?:\/\/\S+$/.test(BX_DEAL), CL = { mkt: 'від маркетингу', non: 'не від маркетингу', unk: 'не визначено' };
+    _hlDeal = d.id;
+    box.innerHTML = `<div class="roi-hit">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline">
+        <b style="font-size:12px">Угода ${link ? `<a href="${BX_DEAL}${d.id}/" target="_blank" rel="noopener">#${d.id}</a>` : '#' + d.id}</b>
+        ${d.t === 'k' ? '' : `<a href="#" id="roi-hit-go">показати в таблиці ROI за ${month} →</a>`}
+      </div>
+      <div class="roi-hit-g">
+        <span>Створена</span><b>${d.d.split('-').reverse().join('.')}</b>
+        <span>Стадія</span><b>${esc(d.st || '—')} · ${d.w ? `<span style="color:${GD}">WON</span>` : 'в роботі'}</b>
+        <span>Сума</span><b>${fmt(d.sum)} ₴</b>
+        <span>Тип</span><b>${d.t === 'k' ? '«слон» (ключовий клієнт)' : d.t === 'r' ? 'повторна (клієнт вже купував)' : 'перша угода клієнта'}${d.nq ? ' · дубль/тест' : ''}</b>
+        <span>UTM</span><b>${d.us || d.uc ? `source=${esc(d.us || '—')} · campaign=${esc(d.uc || '—')}` : 'немає'}</b>
+        <span>Джерело в CRM</span><b>${esc(srcNames[d.s] || d.s || '—')}</b>
+        <span>На дашборді</span><b>канал «${esc(c.ch)}»${c.acc ? ' / ' + esc(c.acc) : ''}${nm ? ' · кампанія ' + esc(nm) : ''} · ${CL[klass] || klass}</b>
+        <span>У ROAS / ROMI</span><b style="font-weight:500">${romi}</b>
+      </div></div>`;
+    const go = $('roi-hit-go');
+    if (go) go.onclick = ev => {
+      ev.preventDefault();
+      const [y, m] = month.split('-'), ys = $('ysel'), ms = $('msel');
+      _roiDl.add(c.ch + '|' + c.acc + '|' + nm);
+      if (ys && ms && window.GlobalPeriod) { ys.value = y; ms.value = String(+m - 1); if (window.setY) setY(y); if (window.setM) setM(String(+m - 1)); }
+      else { const i = $('roi-month'), b = document.querySelector('#roi-mode button[data-m="month"]'); if (i) { i.value = month; i.dispatchEvent(new Event('change')); } if (b) b.click(); }
+      setTimeout(() => { const el = document.querySelector('.roi-ddt tr.hl'); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 400);
+    };
+  }
+
   function renderRoi() {
     const el = $('mkt-leadgen-roi'); if (!el || !_roi) return;
     const [from, to] = roiRange();
@@ -553,7 +607,8 @@ window.LeadgenLoader = (() => {
     const chStat = {};
     arr.forEach(r => { const c = chStat[r.ch] || (chStat[r.ch] = { ch: r.ch, rows: 0, deals: 0, cost: 0 }); c.rows++; c.deals += r.deals; c.cost += r.cost || 0; });
     _roiF.ch.forEach(c => { if (!chStat[c]) chStat[c] = { ch: c, rows: 0, deals: 0, cost: 0 }; });
-    const sel = new Set(_roiF.ch), ql = (_roiF.q || '').toLowerCase();
+    const dealQ = /^\d{5,7}$/.test((_roiF.q || '').trim());   // v7.39: ID угоди — шукаємо угоду, таблицю не фільтруємо
+    const sel = new Set(_roiF.ch), ql = dealQ ? '' : (_roiF.q || '').toLowerCase();
     const aF = _roiF.acc || 'all', cF = _roiF.cls || 'all';
     const fArr = arr.filter(r => (!sel.size || sel.has(r.ch)) && (!_roiF.paid || r.cost) && (aF === 'all' || r.ag === aF) && (cF === 'all' || r.cls === cF)
       && (!ql || (r.ch + ' ' + r.acc + ' ' + r.name).toLowerCase().includes(ql)));
@@ -581,6 +636,7 @@ window.LeadgenLoader = (() => {
       if (th.dataset.k === k) th.insertAdjacentHTML('beforeend', `<span class="arr">${dir > 0 ? '▲' : '▼'}</span>`);
     });
 
+    renderDealHit(dealQ ? _roiF.q.trim() : null);   // v7.39
     // Примітка: період + звідки вартість і наскільки точна
     const note = $('mkt-leadgen-roi-note');
     const fmtD = d => d.split('-').reverse().join('.');
@@ -621,7 +677,7 @@ window.LeadgenLoader = (() => {
       const sumAll = L.reduce((t, d) => t + (d.sum || 0), 0), sumW = L.filter(d => d.w).reduce((t, d) => t + (d.sum || 0), 0), nqN = L.filter(d => d.nq).length;
       return `<tr class="roi-dd"><td colspan="16"><div style="font-size:10px;color:var(--tl);margin:2px 0 4px">Угоди колонки «Очік. сума» (в роботі + успішні): <b>${L.length}</b> на <b>${fmt(sumAll)} ₴</b> · з них WON <b>${wN}</b> на <b>${fmt(sumW)} ₴</b>, в роботі <b>${L.length - wN}</b> на <b>${fmt(sumAll - sumW)} ₴</b>${nqN ? ` · ${nqN} — дубль/тест без провалу (не в «Кваліфіковані»)` : ''}${bx.dealsOk ? '' : ' · ⚠ за частину періоду списку ще немає (Backfill)'}</div>
         <table class="roi-ddt"><thead><tr><th>ID угоди</th><th>Створена</th><th>Стадія</th><th class="r">Сума</th><th>Статус</th></tr></thead><tbody>` +
-        L.map(d => `<tr${d.nq ? ' style="opacity:.6"' : ''}><td>${link ? `<a href="${BX_DEAL}${d.id}/" target="_blank" rel="noopener">${d.id}</a>` : d.id}</td><td>${d.d.slice(8) + '.' + d.d.slice(5, 7)}</td><td>${d.st || '—'}</td><td class="r">${fmt(d.sum)}</td>
+        L.map(d => `<tr${d.id === _hlDeal ? ' class="hl"' : ''}${d.nq ? ' style="opacity:.6"' : ''}><td>${link ? `<a href="${BX_DEAL}${d.id}/" target="_blank" rel="noopener">${d.id}</a>` : d.id}</td><td>${d.d.slice(8) + '.' + d.d.slice(5, 7)}</td><td>${d.st || '—'}</td><td class="r">${fmt(d.sum)}</td>
           <td>${d.w ? `<span style="color:${GD};font-weight:700">WON</span>` : 'в роботі'}${d.t === 'r' ? ' <span style="color:var(--tl)">· повторна</span>' : ''}${d.nq ? ' <span style="color:var(--tl)">· дубль/тест</span>' : ''}</td></tr>`).join('') + `</tbody></table></td></tr>`;
     };
     const drill = r => {

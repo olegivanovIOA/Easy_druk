@@ -305,6 +305,9 @@ a{color:var(--gd);text-decoration:none}
 .roi-flt-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .roi-paid{display:inline-flex;align-items:center;gap:4px;color:var(--td);cursor:pointer;white-space:nowrap}
 #roi-q{font-size:11px;padding:3px 8px;border:1px solid var(--bd);border-radius:6px;background:transparent;color:var(--tx);width:190px}
+.roi-hit{font-size:11px;background:#f3f7fc;border:1px solid #cfe0f3;border-radius:8px;padding:8px 12px;margin:0 0 8px}.roi-hit a{color:#2A6FB0}
+.roi-hit-g{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;margin-top:6px}.roi-hit-g span{color:var(--tl)}.roi-hit-g b{font-weight:600}
+.roi-ddt tr.hl td{background:#fff3c4}
 #roi-reset{font-size:10px;color:#C0392B;text-decoration:none;white-space:nowrap}
 /* v7.4: сортування таблиць «Маркетинг» кліком по заголовку; кольорові кнопки фільтрів = кольори графіків */
 #panel-crm table:not(.roi-ddt) thead th{cursor:pointer;user-select:none}
@@ -443,7 +446,7 @@ a{color:var(--gd);text-decoration:none}
   <div class="nav-top">
     <div class="logo">
       <div class="lcube"><svg viewBox="0 0 16 16"><path d="M8 1.5L2.5 4.8v6.4L8 14.5l5.5-3.3V4.8L8 1.5zm0 1.8l3.8 2.3v4.8L8 12.7l-3.8-2.3V5.6L8 3.3z"/></svg></div>
-      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.38</div></div>
+      <div><div class="lname">EASY<span>3D</span>PRINT</div><div class="ltag">Dashboard v7.39</div></div>
     </div>
     <div class="tabs-s">
       <button class="tb active" data-tab="ceo" onclick="go('ceo',this)"><span class="ti">🏢</span>CEO<span class="e3d-dot" style="background:#16A34A;animation:pulse 2.5s infinite"></span></button>
@@ -1258,7 +1261,7 @@ a{color:var(--gd);text-decoration:none}
           <span class="roi-flt-l">Канал:</span><span id="roi-chips" class="roi-chips"></span>
           <span class="roi-flt-r">
             <label class="roi-paid" title="Показати тільки рядки, де є витрати на рекламу"><input type="checkbox" id="roi-paid"> лише з витратами</label>
-            <input type="search" id="roi-q" placeholder="Пошук: кампанія, акаунт, email…" autocomplete="off">
+            <input type="search" id="roi-q" placeholder="Пошук: кампанія, акаунт, email або ID угоди…" autocomplete="off">
             <a href="#" id="roi-reset" style="display:none">✕ скинути</a>
           </span>
         </div>
@@ -4169,7 +4172,7 @@ window.LocLoader = (() => {
 <script src="js/ga4_loader.js?v=20261014"></script>
 <script src="js/table_sort.js?v=20261020"></script>
 <script src="js/mkt_split.js?v=20261124"></script>
-<script src="js/leadgen_loader.js?v=20261124"></script>
+<script src="js/leadgen_loader.js?v=20261125"></script>
 <script src="js/shopfloor_loader.js?v=20261029"></script>
 <script src="js/ops_metrics.js?v=20261029"></script>
 <script src="js/clients_loader.js?v=20261022"></script>
