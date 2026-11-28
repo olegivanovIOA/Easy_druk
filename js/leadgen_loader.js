@@ -178,51 +178,60 @@ window.LeadgenLoader = (() => {
     return { avg: d.reduce((a, b) => a + b, 0) / d.length, med: d[Math.floor(d.length / 2)], n: d.length, fast: d.filter(v => v <= 7).length };
   }
 
-  // ── 2. Retention ──
+  // ── 2. Retention + швидкість угод — v7.45: ОДИН компактний ряд з 8 плиток ──
+  // крупно — число з одиницями, під ним — дельта до попереднього місяця; деталі — у спливаючій підказці
+  const fmtDays = v => v == null ? '—' : (v < 10 ? v.toFixed(1) : String(Math.round(v)));
+  function kTile(lbl, val, unit, dl, tip, color) {
+    return `<div class="kt" title="${String(tip || '').replace(/"/g, '&quot;')}">
+      <div class="kt-l">${lbl}</div>
+      <div class="kt-v" style="color:${color || 'var(--tx)'}">${val}<span class="kt-u">${unit || ''}</span></div>
+      <div class="kt-d">${dl || '&nbsp;'}</div></div>`;
+  }
+  // дельта: kind 'pct' — відносна зміна в %, 'pp' — різниця в п.п.; good: +1 = більше краще, −1 = менше краще
+  function kDelta(cur, prev, kind, good, pm) {
+    if (cur == null || prev == null || (kind === 'pct' && !prev)) return '';
+    const d = kind === 'pp' ? cur - prev : (cur - prev) / prev * 100;
+    if (Math.abs(d) < 0.05) return `<span style="color:var(--tl)">= ${pm}</span>`;
+    const ok = good > 0 ? d > 0 : d < 0;
+    return `<b style="color:${ok ? GD : R}">${d > 0 ? '▲' : '▼'}${Math.abs(d).toFixed(kind === 'pp' ? 1 : 0)}${kind === 'pp' ? ' п.п.' : '%'}</b> <span style="color:var(--tl)">до ${pm}</span>`;
+  }
+  const MSH = ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру'];
+  const mShort = k => k ? MSH[+k.slice(5, 7) - 1] : '';
+
   function renderRetention(c, pc, mo, pmo) {
     const el = $('mkt-leadgen-retention'); if (!el) return;
-    const r = c.retention, pr = pc && pc.retention;
-    const retShareDeals = pct(r.returning.deals, r.returning.deals + r.new.deals);
-    const repeatShareRev = pct(r.repeatPurchase.wonSum, c.funnel.wonSum);
-    const tile = (lbl, val, sub, tip, color) => `<div class="krow" style="flex-direction:column;align-items:flex-start;gap:3px;padding:10px 12px" title="${tip}">
-      <div class="krow-lbl" style="white-space:normal">${lbl}</div><div style="font-size:18px;font-weight:800;color:${color || 'var(--tx)'}">${val}</div><div style="font-size:10px;color:var(--tl)">${sub}</div></div>`;
-    el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">` +
-      tile('Звернення від клієнтів, що повернулись', p1(retShareDeals), `${r.returning.deals} з ${r.returning.deals + r.new.deals} угод`, c.definitions.returning) +
-      tile('Частка WON-виручки від повторних покупців', p1(repeatShareRev), `${fmt(r.repeatPurchase.wonSum)} з ${fmt(c.funnel.wonSum)} грн`, c.definitions.repeatPurchase, GD) +
-      tile('Win-rate: повернулись vs нові', `${p1(r.returning.winRate)} / ${p1(r.new.winRate)}`, 'WON / (WON + відмови)', 'Серед закритих угод місяця') +
-      tile('Угоди без прив\'язки до клієнта', String(r.noClientLinked), 'без компанії/контакту в Bitrix — не рахуються в retention', 'Такі угоди не можна віднести ні до нових, ні до тих, що повернулись', r.noClientLinked > 50 ? RT : null) +
-      `</div>`;
-    renderSpeed(mo, pmo, tile);
-  }
-
-  // ── 2b. v7.44: Швидкість угод (дні) — 4 метрики за вибраний місяць, з динамікою до попереднього ──
-  function renderSpeed(mo, pmo, tile) {
-    const el = $('mkt-leadgen-speed'); if (!el || !mo) return;
-    const A = (_cur && _cur.dealAge && _cur.dealAge.months) || {}, a = A[mo.month] || {}, pa = (pmo && A[pmo.month]) || {};
-    const live = _cur && mo.month === _cur.month;
-    const dyn = (cur, prev) => {
-      if (!cur || !prev || !prev.avg) return '';
-      const d = (cur.avg - prev.avg) / prev.avg * 100;
-      return `<span style="font-size:10px;font-weight:700;color:${d <= 0 ? GD : R}">${d <= 0 ? '▼' : '▲'}${Math.abs(d).toFixed(0)}%</span> <span style="font-size:10px;color:var(--tl)">до ${pmo.month} (${prev.avg.toFixed(1)} дн.)</span><br>`;
-    };
-    const card = (lbl, cur, prev, sub, tip) => tile(lbl, cur ? cur.avg.toFixed(1) : '—',
-      cur ? `${dyn(cur, prev)}медіана ${cur.med} дн. · ${sub(cur)}` : (_cur && _cur.dealAge ? 'немає угод' : 'з’явиться після наступного Update data'),
-      tip + ' Динаміка — % зміни до попереднього місяця: ▼ зелений = менше днів (швидше). Медіана менш чутлива до кількох дуже довгих угод.');
+    const sp = $('mkt-leadgen-speed'); if (sp) sp.style.display = 'none';
+    const hdr = $('mkt-leadgen-speed-h'); if (hdr) hdr.style.display = 'none';
+    const r = c.retention, pr = pc && pc.retention, pm = mShort(pmo && pmo.month), live = _cur && mo && mo.month === _cur.month;
+    const retSh = pct(r.returning.deals, r.returning.deals + r.new.deals), pRetSh = pr ? pct(pr.returning.deals, pr.returning.deals + pr.new.deals) : null;
+    const repSh = pct(r.repeatPurchase.wonSum, c.funnel.wonSum), pRepSh = pr ? pct(pr.repeatPurchase.wonSum, pc.funnel.wonSum) : null;
+    const pv = v => v == null ? '—' : v.toFixed(1);
+    // швидкість угод
+    const A = (_cur && _cur.dealAge && _cur.dealAge.months) || {}, a = (mo && A[mo.month]) || {}, pa = (pmo && A[pmo.month]) || {};
     const cd = closeDays(mo), pcd = closeDays(pmo);
-    const tail = live ? ' (місяць триває)' : '';
-    el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">` +
-      card('Ср. термін закриття WON-угоди', cd, pcd, x => `${x.n} WON, закритих у ${mo.month}${tail}`,
-        'Дні від створення до закриття — по всіх WON-угодах, ЗАКРИТИХ у місяці (ОПТ + Роздріб), незалежно від дати створення.') +
-      card('Усі закриті угоди (WON + провал)', a.closed, pa.closed,
-        x => `${x.n} угод: WON ${a.closedWon ? a.closedWon.avg.toFixed(1) + ' дн.' : '—'} · провал ${a.closedLost ? a.closedLost.avg.toFixed(1) + ' дн.' : '—'}${tail}`,
-        'Дні від створення до закриття — по всіх угодах воронок продажу, закритих у місяці і успішно, і провалом (без дублів/тестів): як швидко угоди вирішуються в будь-який бік.') +
-      card('Угоди в роботі на кінець місяця', a.openEnd, pa.openEnd,
-        x => `${x.n} відкритих ${live ? 'зараз' : 'на кінець ' + mo.month}`,
-        `Середній «вік» угод, що були відкриті ${live ? 'на сьогодні' : 'в останній день місяця'}: скільки днів минуло від створення. Росте — пайплайн «застоюється».`) +
-      card('Угоди, створені в місяці', a.cohort, pa.cohort,
-        x => `${x.n} угод: закриті — до закриття, відкриті — до сьогодні${live ? ' (місяць триває — угоди ще «молоді», порівнюй з обережністю)' : ''}`,
-        'Скільки днів у середньому «прожили» угоди, створені в місяці: закриті (WON / провал) — від створення до закриття, ще відкриті — від створення до сьогодні.') +
-      `</div><div style="font-size:9.5px;color:var(--tl);margin-top:4px">Воронки продажу ОПТ + Роздріб, без дублів і тестів. Дата закриття: WON — дата успішного закриття, провал — дата переходу у стадію відмови.${_cur && _cur.dealAge ? ' Оновлено ' + String(_cur.dealAge.asOf).slice(0, 10) + ' (раз на добу).' : ''}</div>`;
+    const st = (x, extra) => x ? `сер. ${x.avg.toFixed(1)} дн. · медіана ${x.med} дн. · ${x.n} угод${extra || ''}` : '';
+    const wait = _cur && _cur.dealAge ? 'немає угод' : 'з’явиться після наступного Update data';
+    const day = (x, k) => x ? fmtDays(x[k]) : '—';
+    const note = live ? ' Місяць триває.' : '';
+    el.innerHTML = `<div class="kt-row">` +
+      kTile('Повторні звернення', pv(retSh), '%', kDelta(retSh, pRetSh, 'pp', 1, pm),
+        `${r.returning.deals} з ${r.returning.deals + r.new.deals} угод — від клієнтів, що вже купували. ${c.definitions.returning || ''}`) +
+      kTile('WON-виручка повторних', pv(repSh), '%', kDelta(repSh, pRepSh, 'pp', 1, pm),
+        `${fmt(r.repeatPurchase.wonSum)} з ${fmt(c.funnel.wonSum)} грн. ${c.definitions.repeatPurchase || ''}`, GD) +
+      kTile('Win-rate повт. / нові', `${pv(r.returning.winRate)}<span class="kt-u">%</span> / ${pv(r.new.winRate)}`, '%',
+        kDelta(r.returning.winRate, pr && pr.returning.winRate, 'pp', 1, pm),
+        `WON / (WON + відмови) серед закритих угод місяця: повторні клієнти ${pv(r.returning.winRate)}%, нові ${pv(r.new.winRate)}%. Дельта — для повторних.`) +
+      kTile('Угоди без клієнта', String(r.noClientLinked), 'шт', kDelta(r.noClientLinked, pr && pr.noClientLinked, 'pct', -1, pm),
+        'Угоди без компанії/контакту в CRM — не рахуються в retention (не віднести ні до нових, ні до повторних).', r.noClientLinked > 50 ? RT : null) +
+      kTile('Закриття WON', day(cd, 'avg'), 'дн.', kDelta(cd && cd.avg, pcd && pcd.avg, 'pct', -1, pm),
+        cd ? `Сер. днів від створення до закриття — WON-угоди, закриті в місяці (ОПТ + Роздріб): ${st(cd)}.${note}` : wait) +
+      kTile('Усі закриті угоди', day(a.closed, 'avg'), 'дн.', kDelta(a.closed && a.closed.avg, pa.closed && pa.closed.avg, 'pct', -1, pm),
+        a.closed ? `Угоди, закриті в місяці і WON, і провалом: ${st(a.closed)}. WON ${a.closedWon ? a.closedWon.avg.toFixed(1) : '—'} дн., провал ${a.closedLost ? a.closedLost.avg.toFixed(1) : '—'} дн.${note}` : wait) +
+      kTile('В роботі (медіана)', day(a.openEnd, 'med'), 'дн.', kDelta(a.openEnd && a.openEnd.med, pa.openEnd && pa.openEnd.med, 'pct', -1, pm),
+        a.openEnd ? `«Вік» угод, відкритих ${live ? 'зараз' : 'в останній день місяця'}: ${st(a.openEnd)}. Показано медіану — середнє роздувають кілька дуже старих угод. Росте — пайплайн застоюється.` : wait) +
+      kTile('Вік угод місяця', day(a.cohort, 'avg'), 'дн.', kDelta(a.cohort && a.cohort.avg, pa.cohort && pa.cohort.avg, 'pct', -1, pm),
+        a.cohort ? `Угоди, СТВОРЕНІ в місяці: закриті — дні до закриття, відкриті — до сьогодні. ${st(a.cohort)}.${live ? ' Місяць триває — угоди ще «молоді», порівнюй з обережністю.' : ''}` : wait) +
+      `</div>`;
   }
 
   // ── 3. ROI кампаній: Google Ads (вартість) × Bitrix (угоди/виручка за UTM) ──
