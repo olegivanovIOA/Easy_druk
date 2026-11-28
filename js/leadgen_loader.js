@@ -77,7 +77,7 @@ window.LeadgenLoader = (() => {
     const idx = months.findIndex(m => m.month === key);
     const m = months[idx], prev = idx > 0 ? months[idx - 1] : null;
     renderFunnel(m.cohort, prev && prev.cohort, m);
-    renderRetention(m.cohort, prev && prev.cohort);
+    renderRetention(m.cohort, prev && prev.cohort, m, prev);
     renderStale(m.cohort);
     renderTrend(months);
   }
@@ -165,8 +165,21 @@ window.LeadgenLoader = (() => {
       <div style="font-size:10px;color:var(--tl);margin-top:6px">Очікувана сума (в роботі + успішні): <b>${fmt(f.expectedSumActiveWon)} грн</b> · фактична (WON): <b>${fmt(f.wonSum)} грн</b> · наскрізна конверсія звернення→WON: <b>${p1(pct(f.won, f.all))}</b>${delta(pct(f.won, f.all), pf && pct(pf.won, pf.all))}</div>`;
   }
 
+  // v7.42: середній термін закриття WON-угод, ЗАКРИТИХ у місяці (за датою закриття, не за когортою створення):
+  // дні від створення до закриття по списках WON-угод місяця (dealLists: ОПТ + Роздріб, усі тіри)
+  function closeDays(mo) {
+    const seen = new Set(), d = [];
+    Object.values((mo && mo.dealLists) || {}).forEach(g => Object.values(g || {}).forEach(l => (l || []).forEach(x => {
+      if (!x.created || !x.closed || seen.has(x.id)) return;
+      seen.add(x.id); d.push(Math.max(0, Math.round((new Date(x.closed) - new Date(x.created)) / 864e5)));
+    })));
+    if (!d.length) return null;
+    d.sort((a, b) => a - b);
+    return { avg: d.reduce((a, b) => a + b, 0) / d.length, med: d[Math.floor(d.length / 2)], n: d.length, fast: d.filter(v => v <= 7).length };
+  }
+
   // ── 2. Retention ──
-  function renderRetention(c, pc) {
+  function renderRetention(c, pc, mo, pmo) {
     const el = $('mkt-leadgen-retention'); if (!el) return;
     const r = c.retention, pr = pc && pc.retention;
     const retShareDeals = pct(r.returning.deals, r.returning.deals + r.new.deals);
@@ -179,6 +192,37 @@ window.LeadgenLoader = (() => {
       tile('Win-rate: повернулись vs нові', `${p1(r.returning.winRate)} / ${p1(r.new.winRate)}`, 'WON / (WON + відмови)', 'Серед закритих угод місяця') +
       tile('Угоди без прив\'язки до клієнта', String(r.noClientLinked), 'без компанії/контакту в Bitrix — не рахуються в retention', 'Такі угоди не можна віднести ні до нових, ні до тих, що повернулись', r.noClientLinked > 50 ? RT : null) +
       `</div>`;
+    renderSpeed(mo, pmo, tile);
+  }
+
+  // ── 2b. v7.44: Швидкість угод (дні) — 4 метрики за вибраний місяць, з динамікою до попереднього ──
+  function renderSpeed(mo, pmo, tile) {
+    const el = $('mkt-leadgen-speed'); if (!el || !mo) return;
+    const A = (_cur && _cur.dealAge && _cur.dealAge.months) || {}, a = A[mo.month] || {}, pa = (pmo && A[pmo.month]) || {};
+    const live = _cur && mo.month === _cur.month;
+    const dyn = (cur, prev) => {
+      if (!cur || !prev || !prev.avg) return '';
+      const d = (cur.avg - prev.avg) / prev.avg * 100;
+      return `<span style="font-size:10px;font-weight:700;color:${d <= 0 ? GD : R}">${d <= 0 ? '▼' : '▲'}${Math.abs(d).toFixed(0)}%</span> <span style="font-size:10px;color:var(--tl)">до ${pmo.month} (${prev.avg.toFixed(1)} дн.)</span><br>`;
+    };
+    const card = (lbl, cur, prev, sub, tip) => tile(lbl, cur ? cur.avg.toFixed(1) : '—',
+      cur ? `${dyn(cur, prev)}медіана ${cur.med} дн. · ${sub(cur)}` : (_cur && _cur.dealAge ? 'немає угод' : 'з’явиться після наступного Update data'),
+      tip + ' Динаміка — % зміни до попереднього місяця: ▼ зелений = менше днів (швидше). Медіана менш чутлива до кількох дуже довгих угод.');
+    const cd = closeDays(mo), pcd = closeDays(pmo);
+    const tail = live ? ' (місяць триває)' : '';
+    el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">` +
+      card('Ср. термін закриття WON-угоди', cd, pcd, x => `${x.n} WON, закритих у ${mo.month}${tail}`,
+        'Дні від створення до закриття — по всіх WON-угодах, ЗАКРИТИХ у місяці (ОПТ + Роздріб), незалежно від дати створення.') +
+      card('Усі закриті угоди (WON + провал)', a.closed, pa.closed,
+        x => `${x.n} угод: WON ${a.closedWon ? a.closedWon.avg.toFixed(1) + ' дн.' : '—'} · провал ${a.closedLost ? a.closedLost.avg.toFixed(1) + ' дн.' : '—'}${tail}`,
+        'Дні від створення до закриття — по всіх угодах воронок продажу, закритих у місяці і успішно, і провалом (без дублів/тестів): як швидко угоди вирішуються в будь-який бік.') +
+      card('Угоди в роботі на кінець місяця', a.openEnd, pa.openEnd,
+        x => `${x.n} відкритих ${live ? 'зараз' : 'на кінець ' + mo.month}`,
+        `Середній «вік» угод, що були відкриті ${live ? 'на сьогодні' : 'в останній день місяця'}: скільки днів минуло від створення. Росте — пайплайн «застоюється».`) +
+      card('Угоди, створені в місяці', a.cohort, pa.cohort,
+        x => `${x.n} угод: закриті — до закриття, відкриті — до сьогодні${live ? ' (місяць триває — угоди ще «молоді», порівнюй з обережністю)' : ''}`,
+        'Скільки днів у середньому «прожили» угоди, створені в місяці: закриті (WON / провал) — від створення до закриття, ще відкриті — від створення до сьогодні.') +
+      `</div><div style="font-size:9.5px;color:var(--tl);margin-top:4px">Воронки продажу ОПТ + Роздріб, без дублів і тестів. Дата закриття: WON — дата успішного закриття, провал — дата переходу у стадію відмови.${_cur && _cur.dealAge ? ' Оновлено ' + String(_cur.dealAge.asOf).slice(0, 10) + ' (раз на добу).' : ''}</div>`;
   }
 
   // ── 3. ROI кампаній: Google Ads (вартість) × Bitrix (угоди/виручка за UTM) ──

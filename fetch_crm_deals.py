@@ -1029,7 +1029,7 @@ def fetch_open_pipeline(stale_days=90):
     по стадіях + скільки з них "висять" довше stale_days."""
     from datetime import date as _d
     cutoff = (_d.today() - timedelta(days=stale_days)).isoformat()
-    groups = {}
+    groups, ages_all = {}, []   # v7.43: вік відкритих угод (днів від створення до сьогодні)
     for cat_id, (label, group) in CATEGORIES.items():
         stages = {s["STATUS_ID"]: s.get("NAME") or s["STATUS_ID"] for s in fetch_stage_list(cat_id)}
         order = {sid: i for i, sid in enumerate(stages)}
@@ -1054,12 +1054,107 @@ def fetch_open_pipeline(stale_days=90):
             g["deals"] += 1; g["sum"] += amt
             if (d.get("DATE_CREATE") or "")[:10] < cutoff:
                 g["stale"] += 1; g["staleSum"] += amt
+            try:
+                age = (_d.today() - _d.fromisoformat((d.get("DATE_CREATE") or "")[:10])).days
+                g.setdefault("_ages", []).append(age); ages_all.append(age)
+            except ValueError:
+                pass
         time.sleep(0.3)
+    def _age(a):
+        if not a:
+            return None
+        a = sorted(a)
+        return {"avg": round(sum(a) / len(a), 1), "med": a[len(a) // 2], "n": len(a)}
     for g in groups.values():
+        g["age"] = _age(g.pop("_ages", []))
         g["stages"] = [{k: (round(v, 2) if isinstance(v, float) else v) for k, v in a.items() if k != "_o"}
                        for a in sorted(g["stages"].values(), key=lambda x: x["_o"])]
         g["sum"] = round(g["sum"], 2); g["staleSum"] = round(g["staleSum"], 2)
-    return {"asOf": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "staleDays": stale_days, "groups": groups}
+    return {"asOf": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "staleDays": stale_days, "groups": groups,
+            "age": _age(ages_all)}   # v7.43: сер./медіана днів «життя» відкритих угод зараз
+
+
+# ══ v7.44: «Швидкість угод» — дні угод помісячно (3 метрики), лише агрегати ═══
+DEAL_AGE_FROM = "2025-01-01"          # з якої дати створення беремо угоди (+ усі відкриті, будь-якої дати)
+DEAL_AGE_SERIES_FROM = "2026-01"      # з якого місяця рахуємо ряд
+DEAL_AGE_REFRESH_HOURS = float(os.environ.get("CRM_DEAL_AGE_REFRESH_HOURS", "20"))
+
+
+def _list_deals(params):
+    start, rows = 0, []
+    while True:
+        r = requests.get(WEBHOOK_URL + "crm.deal.list", params={**params, "start": start}, timeout=60)
+        r.raise_for_status()
+        p = r.json()
+        rows += p.get("result", [])
+        if p.get("next") is None or not p.get("result"):
+            return rows
+        start = p["next"]
+        time.sleep(0.4)
+
+
+def _age_stats(vals):
+    if not vals:
+        return None
+    v = sorted(vals)
+    return {"avg": round(sum(v) / len(v), 1), "med": v[len(v) // 2], "n": len(v)}
+
+
+def compute_deal_age_series(today):
+    """Угоди воронок продажу (24/18/32), без дублів/тестів. Дата закриття: WON — CLOSEDATE (перевірено),
+    провал — MOVED_TIME (час переходу в фінальну стадію; CLOSEDATE у провалених не завжди оновлюється).
+    Для кожного місяця M (кінець E = останній день або сьогодні):
+      openEnd  — угоди, відкриті на кінець M: вік E − створення;
+      cohort   — угоди, СТВОРЕНІ в M: скільки днів «прожили» (закриті — до закриття, відкриті — до сьогодні);
+      closed   — угоди, ЗАКРИТІ в M (WON + провал): дні від створення до закриття (+ окремо WON / провал).
+    Повертає лише агрегати (сер./медіана/к-сть), без ID."""
+    sel = ["ID", "DATE_CREATE", "STAGE_ID", "STAGE_SEMANTIC_ID", "CLOSEDATE", "MOVED_TIME"]
+    deals = {}
+    for cat in CATEGORIES:
+        names = {s["STATUS_ID"]: (s.get("NAME") or "").lower() for s in fetch_stage_list(cat)}
+        batches = [
+            {"filter[CATEGORY_ID]": cat, "filter[>=DATE_CREATE]": DEAL_AGE_FROM},
+            {"filter[CATEGORY_ID]": cat, "filter[STAGE_SEMANTIC_ID]": "P"},
+            {"filter[CATEGORY_ID]": cat, "filter[<DATE_CREATE]": DEAL_AGE_FROM, "filter[>=MOVED_TIME]": DEAL_AGE_SERIES_FROM + "-01"},
+        ]
+        for b in batches:
+            for d in _list_deals({**b, "select[]": sel}):
+                nm = names.get(d.get("STAGE_ID"), "")
+                if any(m in nm for m in DUP_TEST_MARKERS):
+                    continue
+                try:
+                    cr = date.fromisoformat((d.get("DATE_CREATE") or "")[:10])
+                except ValueError:
+                    continue
+                sem, cl = d.get("STAGE_SEMANTIC_ID") or "P", None
+                if sem in ("S", "F"):
+                    raw = (d.get("CLOSEDATE") if sem == "S" else (d.get("MOVED_TIME") or d.get("CLOSEDATE"))) or ""
+                    try:
+                        cl = date.fromisoformat(raw[:10])
+                    except ValueError:
+                        cl = None
+                    if cl is None or cl < cr:
+                        cl = max(cr, cl or cr)
+                deals[str(d.get("ID"))] = (cr, cl, sem)
+        time.sleep(0.3)
+    out, y, m = {}, int(DEAL_AGE_SERIES_FROM[:4]), int(DEAL_AGE_SERIES_FROM[5:])
+    while (y, m) <= (today.year, today.month):
+        ms = date(y, m, 1)
+        me = min(date(y, m, monthrange(y, m)[1]), today)
+        open_end, coh, closed, cw, cf = [], [], [], [], []
+        for cr, cl, sem in deals.values():
+            if cr <= me and (cl is None or cl > me):
+                open_end.append((me - cr).days)
+            if ms <= cr <= me:
+                coh.append(((cl if cl else today) - cr).days)
+            if cl and ms <= cl <= me:
+                closed.append((cl - cr).days)
+                (cw if sem == "S" else cf).append((cl - cr).days)
+        out[f"{y:04d}-{m:02d}"] = {"openEnd": _age_stats(open_end), "cohort": _age_stats(coh),
+                                   "closed": _age_stats(closed), "closedWon": _age_stats(cw), "closedLost": _age_stats(cf)}
+        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+    print(f"[CRM] ✓ Швидкість угод: {len(deals)} угод, місяців {len(out)}")
+    return {"asOf": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "from": DEAL_AGE_FROM, "months": out}
 
 
 def process_month(month_start, month_end, month_key, complete):
@@ -1291,6 +1386,21 @@ def main():
         print(f"[CRM] ✓ Відкритий пайплайн: { {k: v['deals'] for k, v in result['pipeline']['groups'].items()} }")
     except Exception as e:
         print(f"[CRM] ⚠ Пайплайн не отримано: {e}")
+
+    # v7.44: «Швидкість угод» — важкий запит (усі угоди з 2025), тому раз на ~добу; між оновленнями беремо з попереднього файлу
+    prev_age = None
+    try:
+        if OUTPUT.exists():
+            prev_age = json.loads(OUTPUT.read_text(encoding="utf-8")).get("dealAge")
+        fresh = False
+        if prev_age and prev_age.get("asOf"):
+            age_h = (datetime.utcnow() - datetime.strptime(prev_age["asOf"], "%Y-%m-%dT%H:%M:%SZ")).total_seconds() / 3600
+            fresh = age_h < DEAL_AGE_REFRESH_HOURS and month_key in (prev_age.get("months") or {})
+        result["dealAge"] = prev_age if fresh else compute_deal_age_series(today)
+    except Exception as e:
+        print(f"[CRM] ⚠ Швидкість угод не пораховано: {e}")
+        if prev_age:
+            result["dealAge"] = prev_age
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
