@@ -223,10 +223,10 @@ window.LeadgenLoader = (() => {
         `WON / (WON + відмови) серед закритих угод місяця: повторні клієнти ${pv(r.returning.winRate)}%, нові ${pv(r.new.winRate)}%. Дельта — для повторних.`) +
       kTile('Угоди без клієнта', String(r.noClientLinked), 'шт', kDelta(r.noClientLinked, pr && pr.noClientLinked, 'pct', -1, pm),
         'Угоди без компанії/контакту в CRM — не рахуються в retention (не віднести ні до нових, ні до повторних).', r.noClientLinked > 50 ? RT : null) +
-      kTile('Закриття WON', day(cd, 'avg'), 'дн.', kDelta(cd && cd.avg, pcd && pcd.avg, 'pct', -1, pm),
+      kTile('Закриття WON (успіх)', day(cd, 'avg'), 'дн.', kDelta(cd && cd.avg, pcd && pcd.avg, 'pct', -1, pm),
         cd ? `Сер. днів від створення до закриття — WON-угоди, закриті в місяці (ОПТ + Роздріб): ${st(cd)}.${note}` : wait) +
-      kTile('Усі закриті угоди', day(a.closed, 'avg'), 'дн.', kDelta(a.closed && a.closed.avg, pa.closed && pa.closed.avg, 'pct', -1, pm),
-        a.closed ? `Угоди, закриті в місяці і WON, і провалом: ${st(a.closed)}. WON ${a.closedWon ? a.closedWon.avg.toFixed(1) : '—'} дн., провал ${a.closedLost ? a.closedLost.avg.toFixed(1) : '—'} дн.${note}` : wait) +
+      kTile('Закриття провал', day(a.closedLost, 'avg'), 'дн.', kDelta(a.closedLost && a.closedLost.avg, pa.closedLost && pa.closedLost.avg, 'pct', -1, pm),
+        a.closedLost ? `Сер. днів від створення до відмови — угоди, закриті провалом у місяці (без дублів/тестів): ${st(a.closedLost)}. Для порівняння, всі закриті разом (WON + провал): ${a.closed ? a.closed.avg.toFixed(1) + ' дн., ' + a.closed.n + ' угод' : '—'}.${note}` : wait) +
       kTile('В роботі (медіана)', day(a.openEnd, 'med'), 'дн.', kDelta(a.openEnd && a.openEnd.med, pa.openEnd && pa.openEnd.med, 'pct', -1, pm),
         a.openEnd ? `«Вік» угод, відкритих ${live ? 'зараз' : 'в останній день місяця'}: ${st(a.openEnd)}. Показано медіану — середнє роздувають кілька дуже старих угод. Росте — пайплайн застоюється.` : wait) +
       kTile('Вік угод місяця', day(a.cohort, 'avg'), 'дн.', kDelta(a.cohort && a.cohort.avg, pa.cohort && pa.cohort.avg, 'pct', -1, pm),
