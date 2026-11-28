@@ -239,7 +239,7 @@ window.LeadgenLoader = (() => {
   // (google / facebook / instagram / …, після «/» — акаунт), сортування колонок,
   // підсумковий рядок і розгорнуте пояснення формул (CPL/CAC/ROAS).
   const ROI_LS = 'e3d_roi_period_v1', ROI_SORT_LS = 'e3d_roi_sort_v1', ROI_F_LS = 'e3d_roi_filter_v1';
-  let _roiF = { ch: [], paid: false, q: '', acc: 'all', cls: 'all' };
+  let _roiF = { ch: [], paid: false, q: '', acc: 'all', cls: 'all', utm: 'all' };   // v7.48: utm — усі / з UTM / без UTM
   let _roi = null, _roiSort = { k: 'wonSum', dir: -1 }, _adsDaily = null, _ga = null, _cl = null, _pnl = null, _mgn = null, _meta = null;
   const _roiOpen = new Set();   // v7.0: розгорнуті рядки (деталізація)
   const _roiDl = new Set();     // v7.34: рядки з розгорнутим списком угод (клік по назві кампанії)
@@ -471,15 +471,17 @@ window.LeadgenLoader = (() => {
     // v5.2: фільтр — канали (мультивибір), «лише з витратами», пошук
     const fl = lsGet(ROI_F_LS, null);
     if (fl && typeof fl === 'object') _roiF = { ch: Array.isArray(fl.ch) ? fl.ch : [], paid: !!fl.paid, q: fl.q || '',
-      acc: ACC_LBL[fl.acc] ? fl.acc : 'all', cls: CLS_LBL[fl.cls] ? fl.cls : 'all' };
+      acc: ACC_LBL[fl.acc] ? fl.acc : 'all', cls: CLS_LBL[fl.cls] ? fl.cls : 'all', utm: ['yes', 'no'].includes(fl.utm) ? fl.utm : 'all' };
     const fUpd = () => { lsSet(ROI_F_LS, _roiF); syncSeg(); renderRoi(); };
     // v7.0: акаунт (EASY / Ukr3d / Meta) і клас ліда (маркетинг / ні)
     const syncSeg = () => {
       document.querySelectorAll('#roi-acc button').forEach(b => b.classList.toggle('on', b.dataset.v === _roiF.acc));
       document.querySelectorAll('#roi-cls button').forEach(b => b.classList.toggle('on', b.dataset.v === _roiF.cls));
+      document.querySelectorAll('#roi-utm button').forEach(b => b.classList.toggle('on', b.dataset.v === (_roiF.utm || 'all')));
     };
     document.querySelectorAll('#roi-acc button').forEach(b => b.onclick = () => { _roiF.acc = b.dataset.v; fUpd(); });
     document.querySelectorAll('#roi-cls button').forEach(b => b.onclick = () => { _roiF.cls = b.dataset.v; fUpd(); });
+    document.querySelectorAll('#roi-utm button').forEach(b => b.onclick = () => { _roiF.utm = b.dataset.v; fUpd(); });   // v7.48
     syncSeg();
     // v7.0: клік по рядку — деталізація по днях / місяцях
     const tbd = $('mkt-leadgen-roi-table');
@@ -493,7 +495,7 @@ window.LeadgenLoader = (() => {
     const q = $('roi-q');
     if (q) { q.value = _roiF.q; let t; q.oninput = () => { clearTimeout(t); t = setTimeout(() => { _roiF.q = q.value.trim(); fUpd(); }, 200); }; }
     const rs = $('roi-reset');
-    if (rs) rs.onclick = ev => { ev.preventDefault(); _roiF = { ch: [], paid: false, q: '', acc: 'all', cls: 'all' }; if (pc) pc.checked = false; if (q) q.value = ''; fUpd(); };
+    if (rs) rs.onclick = ev => { ev.preventDefault(); _roiF = { ch: [], paid: false, q: '', acc: 'all', cls: 'all', utm: 'all' }; if (pc) pc.checked = false; if (q) q.value = ''; fUpd(); };
     const chips = $('roi-chips');
     if (chips) chips.onclick = ev => {
       const b = ev.target.closest('.roi-chip'); if (!b) return;
@@ -663,8 +665,9 @@ window.LeadgenLoader = (() => {
     _roiF.ch.forEach(c => { if (!chStat[c]) chStat[c] = { ch: c, rows: 0, deals: 0, cost: 0 }; });
     const dealQ = /^\d{5,7}$/.test((_roiF.q || '').trim());   // v7.39: ID угоди — шукаємо угоду, таблицю не фільтруємо
     const sel = new Set(_roiF.ch), ql = dealQ ? '' : (_roiF.q || '').toLowerCase();
-    const aF = _roiF.acc || 'all', cF = _roiF.cls || 'all';
+    const aF = _roiF.acc || 'all', cF = _roiF.cls || 'all', uF = _roiF.utm || 'all';
     const fArr = arr.filter(r => (!sel.size || sel.has(r.ch)) && (!_roiF.paid || r.cost) && (aF === 'all' || r.ag === aF) && (cF === 'all' || r.cls === cF)
+      && (uF === 'all' || (uF === 'no' ? !r.name : !!r.name))   // v7.48: «без UTM» = угоди без utm_campaign/utm_source (рядки «без UTM»)
       && (!ql || (r.ch + ' ' + r.acc + ' ' + r.name).toLowerCase().includes(ql)));
     arr.length = 0; fArr.forEach(r => arr.push(r));
     const chipsEl = $('roi-chips');
@@ -673,7 +676,7 @@ window.LeadgenLoader = (() => {
       chipsEl.innerHTML = `<button type="button" class="roi-chip all${sel.size ? '' : ' on'}" data-ch="*">Усі<span class="n">${allRows}</span></button>` +
         list.map(c => `<button type="button" class="roi-chip${sel.has(c.ch) ? ' on' : ''}" data-ch="${c.ch.replace(/"/g, '&quot;')}" title="${c.rows} рядків · ${c.deals} нових угод${c.cost ? ' · витрати ' + fmt(c.cost) + ' грн' : ''}. Клік — додати/прибрати; Alt/Cmd+клік — тільки цей канал">${c.ch}<span class="n">${c.deals}</span></button>`).join('');
     }
-    const filtered = sel.size || _roiF.paid || ql || aF !== 'all' || cF !== 'all';
+    const filtered = sel.size || _roiF.paid || ql || aF !== 'all' || cF !== 'all' || uF !== 'all';
     const rsEl = $('roi-reset'); if (rsEl) rsEl.style.display = filtered ? '' : 'none';
 
     const { k, dir } = _roiSort;
