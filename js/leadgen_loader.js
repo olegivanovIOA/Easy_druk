@@ -650,6 +650,7 @@ window.LeadgenLoader = (() => {
     // ставити їм рекламні UTM / джерела; у таблиці лишається тільки підсумок у примітці
     const slon = Object.values(rows).filter(r => /«слон»/.test(r.acc));
     const slonN = slon.reduce((s, r) => s + r.deals, 0), slonWs = slon.reduce((s, r) => s + r.wonSum, 0);
+    const slonA = slon.reduce((s, r) => s + (r.a || 0), 0), slonW = slon.reduce((s, r) => s + r.won, 0);   // v7.49: для звірки з воронкою
     slon.forEach(r => delete rows[r.k]);
     const arr = Object.values(rows).filter(r => r.deals || r.cost).map(r => Object.assign(r, {
       cpl: cmpOk && r.cost && r.cd ? r.cost / r.cd : null,
@@ -707,7 +708,7 @@ window.LeadgenLoader = (() => {
     if (partial) costNote += cmpOk ? ` <b>CPL / CAC / ROAS — лише за ${fmtD(ads.cFrom)} – ${fmtD(ads.cTo)}</b> (дні з вартістю), щоб угоди й витрати були за той самий період.`
       : ` CPL / CAC / ROAS не показані: за дні з вартістю ще немає розбивки угод по днях.`;
     if (note) note.innerHTML = `<b>${per}</b> · Угоди/виручка — Bitrix24, створені в періоді. ${costNote} ${metaOk ? `Витрати Facebook/Instagram — Meta Ads API${md.length ? '' : ' (за період витрат немає)'}.` : 'Витрат Facebook/Instagram поки немає (Meta API не підключено).'} Клік по рядку — деталізація ${byDay ? 'по днях' : 'по місяцях'}.` +
-      (slonN ? ` <span title="Клієнти з WON ≥ 1 млн ₴ за 12 міс (у т.ч. клієнт №1) + ручний список KEY_ACCOUNT_IDS — завжди «не маркетинг», хоч би яке джерело чи UTM стояли в угоді">🐘 Угоди ключових клієнтів («слонів», у т.ч. клієнт №1) виключено з таблиці: <b>${slonN}</b> угод, WON <b>${fmt(slonWs)} ₴</b>.</span>` : '') +
+      (slonN ? ` <span title="Клієнти з WON ≥ 1 млн ₴ за 12 міс (у т.ч. клієнт №1) + ручний список KEY_ACCOUNT_IDS — завжди «не маркетинг», хоч би яке джерело чи UTM стояли в угоді">🐘 Угоди ключових клієнтів («слонів», у т.ч. клієнт №1) виключено з таблиці: <b>${slonN}</b> угод (з них в роботі + успішні <b>${slonA}</b>, WON <b>${slonW}</b> на <b>${fmt(slonWs)} ₴</b>) — тому підсумки таблиці менші за воронку вгорі на ці числа.</span>` : '') +
       (bx.gaps.length ? ` <span style="color:${R}">⚠ Для ${bx.gaps.join(', ')} ще немає розбивки по днях — запусти один раз «Backfill CRM Monthly History».</span>` : '');
     if (note) { let h = null; try { h = utmHealth(); } catch (e) { console.warn(e); } if (h && h.drop) note.insertAdjacentHTML('afterbegin', utmHealthHtml(h)); }
 
