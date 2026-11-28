@@ -22632,30 +22632,33 @@
           "materialKg": 0,
           "materialDefectKg": 0,
           "materialByType": {},
-          "batches": 18,
-          "lots": 3,
+          "batches": 28,
+          "lots": 6,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
           "defectWeightPercent": null,
-          "totalPrintTimeMinutes": 225878.5,
+          "totalPrintTimeMinutes": 412849.0,
           "materialCostUAH": null,
           "materialCostCoveragePercent": null
         },
         "5": {
           "name": "Локація 5",
-          "materialKg": 0,
-          "materialDefectKg": 0,
-          "materialByType": {},
-          "batches": 35,
-          "lots": 9,
-          "acceptedQty": 0,
-          "defectQty": 0,
-          "defectPercent": null,
-          "defectWeightPercent": null,
-          "totalPrintTimeMinutes": 797516.7,
-          "materialCostUAH": null,
-          "materialCostCoveragePercent": null
+          "materialKg": 168.48,
+          "materialDefectKg": 14.47,
+          "materialByType": {
+            "PETG": 154.01,
+            "TPU": 14.47
+          },
+          "batches": 49,
+          "lots": 10,
+          "acceptedQty": 5328,
+          "defectQty": 572,
+          "defectPercent": 10.74,
+          "defectWeightPercent": 10.74,
+          "totalPrintTimeMinutes": 1180151.7,
+          "materialCostUAH": 60761.12,
+          "materialCostCoveragePercent": 100.0
         },
         "6": {
           "name": "Локація 6",
@@ -22664,13 +22667,13 @@
           "materialByType": {
             "PETG": 20.62
           },
-          "batches": 2,
-          "lots": 1,
+          "batches": 5,
+          "lots": 2,
           "acceptedQty": 586,
           "defectQty": 0,
           "defectPercent": 0.0,
           "defectWeightPercent": 0.0,
-          "totalPrintTimeMinutes": 140670,
+          "totalPrintTimeMinutes": 345195,
           "materialCostUAH": 6803.11,
           "materialCostCoveragePercent": 100.0
         },
@@ -22679,34 +22682,62 @@
           "materialKg": 0,
           "materialDefectKg": 0,
           "materialByType": {},
-          "batches": 9,
+          "batches": 18,
           "lots": 2,
           "acceptedQty": 0,
           "defectQty": 0,
           "defectPercent": null,
           "defectWeightPercent": null,
-          "totalPrintTimeMinutes": 236310,
+          "totalPrintTimeMinutes": 488195,
           "materialCostUAH": null,
           "materialCostCoveragePercent": null
         }
       },
       "company": {
-        "materialKg": 20.62,
-        "materialDefectKg": 0.0,
+        "materialKg": 189.1,
+        "materialDefectKg": 14.47,
         "materialByType": {
-          "PETG": 20.62
+          "PETG": 174.63,
+          "TPU": 14.47
         },
-        "batches": 64,
-        "lots": 15,
-        "acceptedQty": 586,
-        "defectQty": 0,
-        "defectPercent": 0.0,
-        "defectWeightPercent": 0.0,
-        "totalPrintTimeMinutes": 1400375.2,
-        "materialCostUAH": 6803.11,
+        "batches": 100,
+        "lots": 20,
+        "acceptedQty": 5914,
+        "defectQty": 572,
+        "defectPercent": 9.67,
+        "defectWeightPercent": 9.67,
+        "totalPrintTimeMinutes": 2426390.7,
+        "materialCostUAH": 67564.23,
         "materialCostCoveragePercent": 100.0
       },
       "lots": [
+        {
+          "location": "5",
+          "acceptedQty": 201,
+          "batchCount": 1,
+          "defectPercent": 0,
+          "printerModels": [
+            "P1S"
+          ]
+        },
+        {
+          "location": "5",
+          "acceptedQty": 3270,
+          "batchCount": 6,
+          "defectPercent": 15.63,
+          "printerModels": [
+            "P1S"
+          ]
+        },
+        {
+          "location": "5",
+          "acceptedQty": 1857,
+          "batchCount": 6,
+          "defectPercent": 3.28,
+          "printerModels": [
+            "P1S"
+          ]
+        },
         {
           "location": "6",
           "acceptedQty": 586,
@@ -22719,5 +22750,5 @@
       ]
     }
   ],
-  "updated_at": "2026-11-28T03:01:05Z"
+  "updated_at": "2026-11-28T11:20:34Z"
 }
